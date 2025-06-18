@@ -6,6 +6,7 @@ using CleanArchitectureBase.Infrastructure.Data.Interceptors;
 using CleanArchitectureBase.Infrastructure.Identity;
 using CleanArchitectureBase.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using CleanArchitectureBase.Infrastructure.Redis;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -23,7 +24,7 @@ public static class DependencyInjection
         var connectionString = configuration.GetConnectionString("DefaultConnection");
 
         Guard.Against.Null(connectionString, message: "Connection string 'DefaultConnection' not found.");
-
+        
         //Cấu hình Interceptor cho Database
         services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
         //Cấu hình Interceptor cho xử lý Event
@@ -38,6 +39,7 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
+
         services.AddScoped<ApplicationDbContextInitialiser>();
 
         // Bind JwtSettings từ appsettings.json
@@ -105,12 +107,11 @@ public static class DependencyInjection
 
         services.AddSingleton(TimeProvider.System);
         services.AddTransient<IIdentityService, IdentityService>();
+        services.AddSingleton<IRedisService, RedisService>();
 
         services.AddAuthorization(options =>
             options.AddPolicy(Policies.CanPurge, policy => policy.RequireRole(Roles.Administrator)));
 
         return services;
     }
-
-
 }
