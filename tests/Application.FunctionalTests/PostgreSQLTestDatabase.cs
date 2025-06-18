@@ -1,19 +1,20 @@
 ﻿using System.Data.Common;
 using CleanArchitectureBase.Infrastructure.Data;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
+using Npgsql;
 using Respawn;
 
 namespace CleanArchitectureBase.Application.FunctionalTests;
 
-public class SqlServerTestDatabase : ITestDatabase
+public class PostgreSQLTestDatabase : ITestDatabase
 {
     private readonly string _connectionString = null!;
-    private SqlConnection _connection = null!;
+    private NpgsqlConnection _connection = null!;
     private Respawner _respawner = null!;
 
-    public SqlServerTestDatabase()
+    public PostgreSQLTestDatabase()
     {
         var configuration = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json")
@@ -29,20 +30,25 @@ public class SqlServerTestDatabase : ITestDatabase
 
     public async Task InitialiseAsync()
     {
-        _connection = new SqlConnection(_connectionString);
+        _connection = new NpgsqlConnection(_connectionString);
 
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseSqlServer(_connectionString)
+            .UseNpgsql(_connectionString)
+            .ConfigureWarnings(warnings => warnings.Log(RelationalEventId.MigrationsNotApplied)) //JasonTaylordev: PendingModelChangesWarning, tuy nhiên mã sự kiện này chỉ có ở EF của .NET 9
             .Options;
 
         var context = new ApplicationDbContext(options);
 
+        context.Database.EnsureDeleted();
         context.Database.Migrate();
 
-        _respawner = await Respawner.CreateAsync(_connectionString, new RespawnerOptions
+        await _connection.OpenAsync();
+        _respawner = await Respawner.CreateAsync(_connection, new RespawnerOptions
         {
-            TablesToIgnore = new Respawn.Graph.Table[] { "__EFMigrationsHistory" }
+            DbAdapter = DbAdapter.Postgres,
+            TablesToIgnore = ["__EFMigrationsHistory"]
         });
+        await _connection.CloseAsync();
     }
 
     public DbConnection GetConnection()
@@ -50,9 +56,16 @@ public class SqlServerTestDatabase : ITestDatabase
         return _connection;
     }
 
+    public string GetConnectionString()
+    {
+        return _connectionString;
+    }
+
     public async Task ResetAsync()
     {
-        await _respawner.ResetAsync(_connectionString);
+        await _connection.OpenAsync();
+        await _respawner.ResetAsync(_connection);
+        await _connection.CloseAsync();
     }
 
     public async Task DisposeAsync()

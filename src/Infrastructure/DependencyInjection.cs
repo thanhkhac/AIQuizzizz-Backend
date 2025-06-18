@@ -33,7 +33,8 @@ public static class DependencyInjection
         {
             options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
 
-            options.UseSqlServer(connectionString);
+            // options.UseSqlServer(connectionString);
+            options.UseNpgsql(connectionString);
         });
 
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());

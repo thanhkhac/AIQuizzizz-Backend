@@ -104,6 +104,8 @@
     "notificationHubsNamespacesNotificationHubs": "ntf-",
     "operationalInsightsWorkspaces": "log-",
     "portalDashboards": "dash-",
+    "postgreSQLServers": "psql-",
+    "postgreSQLServersDatabases": "psqldb-",
     "powerBIDedicatedCapacities": "pbi-",
     "purviewAccounts": "pview-",
     "recoveryServicesVaults": "rsv-",
