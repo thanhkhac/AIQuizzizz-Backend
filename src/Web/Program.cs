@@ -1,5 +1,8 @@
 using CleanArchitectureBase.Application;
+using CleanArchitectureBase.Infrastructure;
 using CleanArchitectureBase.Infrastructure.Data;
+using CleanArchitectureBase.Infrastructure.Settings;
+using CleanArchitectureBase.Web;
 using NSwag.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +30,7 @@ else
 app.UseHealthChecks("/health");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseAuthentication(); 
 
 app.UseSwaggerUi(settings =>
 {
@@ -34,6 +38,8 @@ app.UseSwaggerUi(settings =>
     settings.DocumentPath = "/api/specification.json";
     settings.DocExpansion = "list"; //none/list/full
 });
+
+
 
 app.MapControllerRoute(
     name: "default",
@@ -43,8 +49,12 @@ app.UseExceptionHandler(options => { });
 
 app.Map("/", () => Results.Redirect("/api"));
 
-app.MapEndpoints();
+
+
+
+app.MapEndpoints();    
 
 app.Run();
+
 
 public partial class Program { }

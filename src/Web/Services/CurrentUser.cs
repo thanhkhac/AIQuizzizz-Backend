@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Web.Services;
 
@@ -14,6 +15,5 @@ public class CurrentUser : IUser
     {
         _httpContextAccessor = httpContextAccessor;
     }
-
-    public string? Id => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+    public string? UserId => _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
 }

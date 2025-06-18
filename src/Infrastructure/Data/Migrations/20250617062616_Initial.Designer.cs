@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250605172806_IsBannedField")]
-    partial class IsBannedField
+    [Migration("20250617062616_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -97,12 +97,63 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("TodoLists");
                 });
 
-            modelBuilder.Entity("CleanArchitectureBase.Infrastructure.Identity.ApplicationUser", b =>
+            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.User", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FullName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsBanned")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DomainUsers");
+                });
+
+            modelBuilder.Entity("CleanArchitectureBase.Infrastructure.Identity.RefreshToken", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("ExpireAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserAccountId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserAccountId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("CleanArchitectureBase.Infrastructure.Identity.UserAccount", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -321,6 +372,10 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.TodoList", b =>
                 {
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
                     b.OwnsOne("CleanArchitectureBase.Domain.ValueObjects.Colour", "Colour", b1 =>
                         {
                             b1.Property<int>("TodoListId")
@@ -340,6 +395,28 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.Navigation("Colour")
                         .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.User", b =>
+                {
+                    b.HasOne("CleanArchitectureBase.Infrastructure.Identity.UserAccount", null)
+                        .WithOne("User")
+                        .HasForeignKey("CleanArchitectureBase.Domain.Entities.User", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CleanArchitectureBase.Infrastructure.Identity.RefreshToken", b =>
+                {
+                    b.HasOne("CleanArchitectureBase.Infrastructure.Identity.UserAccount", "Account")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("UserAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -353,7 +430,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("CleanArchitectureBase.Infrastructure.Identity.ApplicationUser", null)
+                    b.HasOne("CleanArchitectureBase.Infrastructure.Identity.UserAccount", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -362,7 +439,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("CleanArchitectureBase.Infrastructure.Identity.ApplicationUser", null)
+                    b.HasOne("CleanArchitectureBase.Infrastructure.Identity.UserAccount", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -377,7 +454,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CleanArchitectureBase.Infrastructure.Identity.ApplicationUser", null)
+                    b.HasOne("CleanArchitectureBase.Infrastructure.Identity.UserAccount", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -386,7 +463,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("CleanArchitectureBase.Infrastructure.Identity.ApplicationUser", null)
+                    b.HasOne("CleanArchitectureBase.Infrastructure.Identity.UserAccount", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -396,6 +473,14 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.TodoList", b =>
                 {
                     b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("CleanArchitectureBase.Infrastructure.Identity.UserAccount", b =>
+                {
+                    b.Navigation("RefreshTokens");
+
+                    b.Navigation("User")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

@@ -21,4 +21,14 @@ public class Result
     {
         return new Result(false, errors);
     }
+
+    public static Result Failure(string errorCode, string message)
+    {
+        return new Result(false, new Dictionary<string, string[]> { { errorCode, new[] { message } } });
+    }
+
+    public static Result Failure(string errorCode)
+    {
+        return new Result(false, new Dictionary<string, string[]> ());
+    }
 }

@@ -3,11 +3,10 @@ using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Infrastructure.Data;
 using CleanArchitectureBase.Web.Services;
 using Microsoft.AspNetCore.Mvc;
-
 using NSwag;
 using NSwag.Generation.Processors.Security;
 
-namespace Microsoft.Extensions.DependencyInjection;
+namespace CleanArchitectureBase.Web;
 
 public static class DependencyInjection
 {
@@ -39,10 +38,11 @@ public static class DependencyInjection
             // Add JWT
             configure.AddSecurity("JWT", Enumerable.Empty<string>(), new OpenApiSecurityScheme
             {
-                Type = OpenApiSecuritySchemeType.ApiKey,
+                Type = OpenApiSecuritySchemeType.Http,
                 Name = "Authorization",
                 In = OpenApiSecurityApiKeyLocation.Header,
-                Description = "Type into the textbox: Bearer {your JWT token}."
+                Description = "Type into the textbox: Bearer {your JWT token}.",
+                Scheme = "Bearer"
             });
 
             configure.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("JWT"));

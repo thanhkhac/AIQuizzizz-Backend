@@ -4,8 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace CleanArchitectureBase.Infrastructure.Data.Interceptors;
+//TODO: 
 
-public class DispatchDomainEventsInterceptor : SaveChangesInterceptor
+//Đây là một interceptor của Entity Framework Core
+//
+public class DispatchDomainEventsInterceptor : SaveChangesInterceptor //SaveChangesInterceptor: Abstract class cho phép xử lý các logic khi savechange (saving/saved/canceled)
 {
     private readonly IMediator _mediator;
 

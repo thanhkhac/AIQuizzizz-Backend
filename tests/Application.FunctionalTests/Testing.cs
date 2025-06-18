@@ -1,4 +1,5 @@
 ﻿using CleanArchitectureBase.Domain.Constants;
+using CleanArchitectureBase.Domain.Entities;
 using CleanArchitectureBase.Infrastructure.Data;
 using CleanArchitectureBase.Infrastructure.Identity;
 using MediatR;
@@ -59,15 +60,16 @@ public partial class Testing
         return await RunAsUserAsync("administrator@local", "Administrator1234!", new[] { Roles.Administrator });
     }
 
-    public static async Task<string> RunAsUserAsync(string userName, string password, string[] roles)
+    public static async Task<string> RunAsUserAsync(string email, string password, string[] roles)
     {
         using var scope = _scopeFactory.CreateScope();
 
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserAccount>>();
 
-        var user = new ApplicationUser { UserName = userName, Email = userName };
+        var user = new User { FullName = "Ramdom", Email = email, Id = Guid.NewGuid().ToString() };
+        var userAccount = new UserAccount { Id = user.Id, UserName = email, Email = email, User = user };
 
-        var result = await userManager.CreateAsync(user, password);
+        var result = await userManager.CreateAsync(userAccount, password);
 
         if (roles.Any())
         {
@@ -78,19 +80,19 @@ public partial class Testing
                 await roleManager.CreateAsync(new IdentityRole(role));
             }
 
-            await userManager.AddToRolesAsync(user, roles);
+            await userManager.AddToRolesAsync(userAccount, roles);
         }
 
         if (result.Succeeded)
         {
-            _userId = user.Id;
+            _userId = userAccount.Id;
 
             return _userId;
         }
 
         var errors = string.Join(Environment.NewLine, result.ToApplicationResult().Errors);
 
-        throw new Exception($"Unable to create {userName}.{Environment.NewLine}{errors}");
+        throw new Exception($"Unable to create {email}.{Environment.NewLine}{errors}");
     }
 
     public static async Task ResetState()
@@ -99,7 +101,7 @@ public partial class Testing
         {
             await _database.ResetAsync();
         }
-        catch (Exception) 
+        catch (Exception)
         {
         }
 

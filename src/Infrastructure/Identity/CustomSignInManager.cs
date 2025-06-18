@@ -19,13 +19,13 @@ namespace CleanArchitectureBase.Infrastructure.Identity;
 //     {
 //     }
 //
-//     // public override async Task<SignInResult> CheckPasswordSignInAsync(ApplicationUser user, string password, bool lockoutOnFailure)
-//     // {
-//     //     if (user.IsBanned)
-//     //     {
-//     //         return SignInResult.NotAllowed; 
-//     //     }
-//     //
-//     //     return await base.CheckPasswordSignInAsync(user, password, lockoutOnFailure);
-//     // }
+     // public override async Task<SignInResult> CheckPasswordSignInAsync(ApplicationUser user, string password, bool lockoutOnFailure)
+     // {
+     //     if (user.IsBanned)
+     //     {
+     //         return SignInResult.NotAllowed; 
+     //     }
+     //
+     //     return await base.CheckPasswordSignInAsync(user, password, lockoutOnFailure);
+     // }
 // }
