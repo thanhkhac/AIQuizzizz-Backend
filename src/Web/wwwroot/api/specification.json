@@ -790,6 +790,7 @@
           },
           "id": {
             "type": "string",
+            "format": "guid",
             "nullable": true
           }
         }

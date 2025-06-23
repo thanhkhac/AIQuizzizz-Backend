@@ -15,7 +15,7 @@ public partial class Testing
     private static ITestDatabase _database = null!;
     private static CustomWebApplicationFactory _factory = null!;
     private static IServiceScopeFactory _scopeFactory = null!;
-    private static string? _userId;
+    private static Guid? _userId;
 
     [OneTimeSetUp]
     public async Task RunBeforeAnyTests()
@@ -45,39 +45,40 @@ public partial class Testing
         await mediator.Send(request);
     }
 
-    public static string? GetUserId()
+    public static Guid? GetUserId()
     {
         return _userId;
     }
 
-    public static async Task<string> RunAsDefaultUserAsync()
+    public static async Task<Guid> RunAsDefaultUserAsync()
     {
         return await RunAsUserAsync("test@local", "Testing1234!", Array.Empty<string>());
     }
 
-    public static async Task<string> RunAsAdministratorAsync()
+    public static async Task<Guid> RunAsAdministratorAsync()
     {
         return await RunAsUserAsync("administrator@local", "Administrator1234!", new[] { Roles.Administrator });
     }
 
-    public static async Task<string> RunAsUserAsync(string email, string password, string[] roles)
+    public static async Task<Guid> RunAsUserAsync(string email, string password, string[] roles)
     {
         using var scope = _scopeFactory.CreateScope();
 
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserAccount>>();
 
-        var user = new User { FullName = "Ramdom", Email = email, Id = Guid.NewGuid().ToString() };
+        var user = new User { FullName = "Ramdom", Email = email, Id = Guid.NewGuid()};
         var userAccount = new UserAccount { Id = user.Id, UserName = email, Email = email, User = user };
 
         var result = await userManager.CreateAsync(userAccount, password);
 
         if (roles.Any())
         {
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<
+            ApplicationRole>>();
 
             foreach (var role in roles)
             {
-                await roleManager.CreateAsync(new IdentityRole(role));
+                await roleManager.CreateAsync(new ApplicationRole(role));
             }
 
             await userManager.AddToRolesAsync(userAccount, roles);
@@ -87,7 +88,7 @@ public partial class Testing
         {
             _userId = userAccount.Id;
 
-            return _userId;
+            return (Guid)_userId;
         }
 
         var errors = string.Join(Environment.NewLine, result.ToApplicationResult().Errors);
