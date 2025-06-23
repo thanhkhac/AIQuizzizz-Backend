@@ -52,7 +52,7 @@ public static class DependencyInjection
         //Nếu dùng thì phải ghi đè AddAuthentication và đặt hàm AddAuthentication ở sau AddIdentity, tránh bị Identity ghi đè
         #endregion
         services
-            .AddIdentity<UserAccount, IdentityRole>()
+            .AddIdentity<UserAccount, ApplicationRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddErrorDescriber<CustomIdentityErrorDescriber>()
             .AddDefaultTokenProviders();

@@ -1,0 +1,287 @@
+﻿namespace CleanArchitectureBase.Domain.Entities;
+
+public enum QuestionType
+{
+    MultipleChoice,
+    Matching,
+    FillInTheBlank,
+    Ordering,
+    ShortText
+}
+
+public enum TextFormat
+{
+    MarkDown,
+    PlainText
+}
+
+public enum QuestionSetVisibilityMode
+{
+    Public = 0, //Các số có thể dùng để đẩy vào priority nếu cần
+    Private = 1,
+    OnlyClass =2
+}
+
+//====Bắt đầu JSON
+public class QTypeMultipleChoice
+{
+    public required Guid Id { get; set; }
+    // public required string QuestionId { get; set; }
+    public required string Text { get; set; }
+    public bool IsAnswer { get; set; }
+}
+
+public class QTypeMatching
+{
+    public required Guid Id { get; set; }
+    // public required string QuestionId { get; set; }
+    public required string Text { get; set; }
+    public required string AnswerId { get; set; }
+}
+
+public class QTypeOrderingItem
+{
+    public required Guid Id { get; set; }
+    // public required string QuestionId { get; set; }
+    public required string Text { get; set; }
+    public required int CorrectOrder { get; set; }
+}
+//====Kết thúc JSON
+
+public class Question : BaseAuditableEntity
+{
+    public required Guid Id { get; set; }
+    public Guid? QuestionSetId { get; set; }
+    public required QuestionType Type { get; set; }
+    public string? QuestionText { get; set; }
+    public required TextFormat TextFormat { get; set; }
+    public float Score { get; set; }
+    public required string DataJson { get; set; } //Lưu JSON List<QTypeOrderingItem>/List<QTypeMatching>/List<QTypeMultipleChoice>
+
+    public object? Data { get; set; } //Không Map
+    public QuestionSet? QuestionSet { get; set; }
+}
+
+
+public class Tag : BaseEntity
+{
+    public required Guid Id { get; set; }
+    public required string Name { get; set; }
+}
+
+public class QuestionSetTag
+{
+    public required Guid TagId { get; set; }
+    public required Guid QuestionSetId { get; set; }
+    
+    public Tag? Tag { get; set; }
+    public QuestionSet? QuestionSet { get; set; }
+}
+
+public class QuestionSet : BaseAuditableEntity
+{
+    public required Guid Id { get; set; }
+    public required string Name { get; set; }
+    public required string Description { get; set; }
+    public QuestionSetVisibilityMode VisibilityMode { get; set; }
+    public int QuestionCount { get; set; }
+    public List<Question> Questions { get; set; } = new();
+}
+
+public enum QuestionSetUserShareMode
+{
+    CanView,
+    CanEdit
+}
+
+public class QuestionSetUser : BaseAuditableEntity
+{
+    // public required Guid Id { get; set; }
+    public required Guid UserId { get; set; }
+    public required Guid QuestionSetId { get; set; }
+    public QuestionSetUserShareMode ShareMode { get; set; }
+    
+    public User? User { get; set; }
+    public QuestionSet? QuestionSet { get; set; }
+    
+}
+
+public class Comment : BaseAuditableEntity
+{
+    public required Guid Id { get; set; }
+    public required Guid ParentId { get; set; }
+    public required Guid UserId { get; set; }
+    public required Guid QuestionId { get; set; }
+    public required string Content { get; set; }
+    public required bool IsDeleted { get; set; }
+
+    public User? User { get; set; }
+    public Question? Question { get; set; }
+    // Nếu ParentId là Comment cha (recursive relationship)
+    public Comment? ParentComment { get; set; }
+    public List<Comment> ChildComments { get; set; } = new();
+}
+
+public class UserQuestionSetHistory : BaseAuditableEntity
+{
+    public required Guid Id { get; set; }
+    public required Guid UserId { get; set; }
+    public required Guid QuestionId { get; set; }
+    public required bool IsCorrect { get; set; }
+
+    public User? User { get; set; }
+    public Question? Question { get; set; }
+}
+
+public class TestTemplate : BaseAuditableEntity
+{
+    public required Guid Id { get; set; }
+    public required string Name { get; set; }
+
+}
+
+public class TestTemplateQuestion : BaseAuditableEntity
+{
+    public required Guid Id { get; set; }
+    public required Guid TestTemplateId { get; set; }
+    public required Guid QuestionId { get; set; }
+
+    public TestTemplate? TestTemplate { get; set; }
+    public Question? Question { get; set; }
+}
+
+public class Folder : BaseAuditableEntity
+{
+    public required Guid Id { get; set; }
+    public required string Name { get; set; }
+}
+
+public class FolderTestTemplate : BaseAuditableEntity
+{
+    public required Guid FolderId { get; set; }
+    public required Guid TestTemplateId { get; set; }
+
+    public Folder? Folder { get; set; }
+    public TestTemplate? TestTemplate { get; set; }
+}
+
+public enum FolderShareMode
+{
+    Owner,
+    Editable,
+    ViewOnly
+}
+
+public class FolderUser : BaseAuditableEntity
+{
+    public required Guid UserId { get; set; }
+    public required Guid FolderId { get; set; }
+    public FolderShareMode ShareMode { get; set; }
+
+    public User? User { get; set; }
+    public Folder? Folder { get; set; } // Giả định FolderId tồn tại
+}
+
+public enum GradeAttemptMethod
+{
+    LastAttempt,
+    HighestScore,
+}
+
+public enum GradeQuestionMethod
+{
+    Partial,
+    AllOrNothing
+}
+
+public class Test : BaseAuditableEntity
+{
+    public required Guid Id { get; set; }
+    public required string Name { get; set; }
+    public required DateTime TimeStart { get; set; }
+    public required DateTime TimeFinish { get; set; }
+    public required DateTime TimeLimit { get; set; }
+    public required GradeAttemptMethod GradeAttemptMethod { get; set; }
+    public required GradeQuestionMethod GradeQuestionMethod { get; set; }
+    public bool IsShowCorrectAnswerInReview { get; set; }
+
+    public List<TestGrade> TestGrades { get; set; } = new();
+}
+
+public class TestVersion : BaseEntity
+{
+    public required Guid Id { get; set; }
+    public required Guid TestId { get; set; }
+    public required int No { get; set; }
+
+    public Test? Test { get; set; }
+}
+
+public class TestVersionQuestion : BaseEntity
+{
+    public required Guid Id { get; set; }
+    public required Guid TestVersionId { get; set; }
+    public required Guid QuestionId { get; set; }
+    public required int Order { get; set; }
+
+    public TestVersion? TestVersion { get; set; }
+    public Question? Question { get; set; }
+}
+
+public class TestGrade
+{
+    public required Guid Id { get; set; }
+    public required Guid TestId { get; set; }
+    public required Guid UserId { get; set; }
+    public required float Score { get; set; }
+
+    public Test? Test { get; set; }
+    public User? User { get; set; }
+}
+
+public class Attempt
+{
+    public required Guid Id { get; set; }
+    public required Guid TestId { get; set; }
+    public required Guid TestVersionId { get; set; }
+    public required Guid UserId { get; set; }
+    public required DateTime TimeStart { get; set; }
+    public required DateTime TimeFinish { get; set; }
+    public required float Score { get; set; }
+
+    public Test? Test { get; set; }
+    public User? User { get; set; }
+}
+
+public class AttemptQuestion
+{
+    public required Guid Id { get; set; }
+    public required Guid AttemptId { get; set; }
+    public required Guid QuestionId { get; set; }
+    public int Order { get; set; }
+    public float Score { get; set; }
+    public required string DataJson { get; set; } //Lưu JSON List<QTypeOrderingItemAnswer>/List<QTypeMatchingAnswer>/List<QTypeMultipleChoiceAnswer>
+    public object? Data { get; set; } //Không Map
+
+    public Attempt? Attempt { get; set; }
+    public Question? Question { get; set; }
+}
+
+//====Bắt đầu JSON
+public class QTypeMultipleChoiceAnswer
+{
+    public required Guid ChoiceId { get; set; }
+}
+
+public class QTypeOrderingAnswer
+{
+    public required Guid ItemId { get; set; }
+    public required int OrderIndex { get; set; }
+}
+
+public class QTypeMatchingAnswer
+{
+    public required Guid RightItemId { get; set; }
+    public required Guid LeftItemId { get; set; }
+}
+//====Kết thúc JSON

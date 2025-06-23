@@ -18,9 +18,9 @@ public static class InitialiserExtensions
 
         var initialiser = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitialiser>();
 
-        await initialiser.InitialiseAsync();
+        // await initialiser.InitialiseAsync();
         
-        await initialiser.SeedAsync();
+        // await initialiser.SeedAsync();
         await Task.CompletedTask;
     }
 }
@@ -31,10 +31,10 @@ public class ApplicationDbContextInitialiser
     private readonly ILogger<ApplicationDbContextInitialiser> _logger;
     private readonly ApplicationDbContext _context;
     private readonly UserManager<UserAccount> _userManager;
-    private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly RoleManager<ApplicationRole> _roleManager;
 
     public ApplicationDbContextInitialiser(ILogger<ApplicationDbContextInitialiser> logger, ApplicationDbContext context,
-        UserManager<UserAccount> userManager, RoleManager<IdentityRole> roleManager)
+        UserManager<UserAccount> userManager, RoleManager<ApplicationRole> roleManager)
     {
         _logger = logger;
         _context = context;
@@ -47,7 +47,7 @@ public class ApplicationDbContextInitialiser
         try
         {
             //OPTION: Xóa database hiện tại
-            await _context.Database.EnsureDeletedAsync();
+            // await _context.Database.EnsureDeletedAsync();
             //Thực hiện các migrations chưa được áp dụng
             await _context.Database.MigrateAsync();
         }
@@ -74,7 +74,7 @@ public class ApplicationDbContextInitialiser
     public async Task TrySeedAsync()
     {
         // Default roles
-        var administratorRole = new IdentityRole(Roles.Administrator);
+        var administratorRole = new ApplicationRole(Roles.Administrator);
 
         if (_roleManager.Roles.All(r => r.Name != administratorRole.Name))
         {
@@ -82,7 +82,7 @@ public class ApplicationDbContextInitialiser
         }
 
         // Default users
-        var user = new User { Id = Guid.NewGuid().ToString(), FullName = "Admin", Email = "sa@gmail.com", IsBanned = false };
+        var user = new User { Id = Guid.NewGuid(), FullName = "Admin", Email = "sa@gmail.com", IsBanned = false };
         var administrator = new UserAccount
         {
             Id = user.Id,
