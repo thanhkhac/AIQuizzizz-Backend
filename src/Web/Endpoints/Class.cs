@@ -11,7 +11,8 @@ public class Class : EndpointGroupBase
     {
         app.MapGroup(this)
             .MapPost(CreateClass, "")
-            .MapPost(JoinClassByCode, "join");
+            .MapPost(JoinClassByCode, "join")
+            .MapPost(InviteStudent, "invite");
     }
 
     public async Task<Ok<ApiResponse<Guid>>> CreateClass([FromBody] CreateClassCommand rq, ISender sender)
@@ -25,4 +26,11 @@ public class Class : EndpointGroupBase
         var result = await sender.Send(rq);
         return result.ToOk();
     }
+    
+    public async Task<Ok<ApiResponse<ClassCodeDto>>> InviteStudent([FromBody] InviteStudentCommand rq, ISender sender)
+    {
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+
 }
