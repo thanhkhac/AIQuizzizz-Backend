@@ -20,7 +20,7 @@ public class InviteStudentValidator : AbstractValidator<InviteStudentCommand>
     public InviteStudentValidator()
     {
         RuleFor(x => x.ClassId)
-            .NotEmpty().WithMessage("ClassId không được để trống hoặc là Guid rỗng");
+            .NotEmpty().WithMessage("ClassId không được để trống");
         RuleFor(x => x.ExpiredTime)
             .NotEmpty().WithMessage("Thời gian hết hạn không được trống")
             .GreaterThan(0).WithMessage("Thời gian hết hạn > 0");
