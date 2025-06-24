@@ -1,4 +1,5 @@
 ﻿// File: Data/Configurations/PlanConfiguration.cs
+
 using CleanArchitectureBase.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -65,7 +66,7 @@ public class UserTokenPurchaseConfiguration : IEntityTypeConfiguration<UserToken
             .WithMany()
             .HasForeignKey(utp => utp.TokenPackageId)
             .OnDelete(DeleteBehavior.Restrict);
-        
+
         builder.HasOne(utp => utp.User)
             .WithMany()
             .HasForeignKey(utp => utp.UserId)
@@ -99,7 +100,6 @@ public class UserSubscriptionConfiguration : IEntityTypeConfiguration<UserSubscr
     }
 }
 
-
 public class QuestionConfiguration : IEntityTypeConfiguration<Question>
 {
     public void Configure(EntityTypeBuilder<Question> builder)
@@ -127,7 +127,7 @@ public class QuestionConfiguration : IEntityTypeConfiguration<Question>
             .HasColumnType("jsonb");
 
         builder.Ignore(q => q.Data);
-        
+
         //Một question thuộc về một QuestionSet
         builder.HasOne(q => q.QuestionSet)
             .WithMany(qs => qs.Questions)
@@ -143,7 +143,7 @@ public class QuestionSetConfiguration : IEntityTypeConfiguration<QuestionSet>
         builder.Property(qs => qs.Name)
             .IsRequired()
             .HasMaxLength(100);
-            
+
         builder.Property(qs => qs.Description)
             .IsRequired()
             .HasMaxLength(500);
@@ -183,7 +183,6 @@ public class QuestionSetTagConfiguration : IEntityTypeConfiguration<QuestionSetT
     }
 }
 
-
 public class TagConfiguration : IEntityTypeConfiguration<Tag>
 {
     public void Configure(EntityTypeBuilder<Tag> builder)
@@ -195,8 +194,6 @@ public class TagConfiguration : IEntityTypeConfiguration<Tag>
     }
 }
 
-
-
 //Bảng trung gian giữa người dùng và bộ câu hỏi
 public class QuestionSetUserConfiguration : IEntityTypeConfiguration<QuestionSetUser>
 {
@@ -204,25 +201,24 @@ public class QuestionSetUserConfiguration : IEntityTypeConfiguration<QuestionSet
     public void Configure(EntityTypeBuilder<QuestionSetUser> builder)
     {
         builder.HasKey(qsu => new { qsu.UserId, qsu.QuestionSetId });
-        
+
         builder.Property(qsu => qsu.ShareMode)
             .IsRequired()
             .HasConversion(
                 v => v.ToString(),
                 v => (QuestionSetUserShareMode)Enum.Parse(typeof(QuestionSetUserShareMode), v));
-                
+
         builder.HasOne(qsu => qsu.User)
             .WithMany()
             .HasForeignKey(qsu => qsu.UserId)
             .OnDelete(DeleteBehavior.Restrict);
-            
+
         builder.HasOne(qsu => qsu.QuestionSet)
             .WithMany()
             .HasForeignKey(qsu => qsu.QuestionSetId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
- 
 
 public class CommentConfiguration : IEntityTypeConfiguration<Comment>
 {
@@ -234,7 +230,7 @@ public class CommentConfiguration : IEntityTypeConfiguration<Comment>
 
         builder.Property(c => c.IsDeleted)
             .IsRequired()
-            .HasDefaultValue(false); 
+            .HasDefaultValue(false);
 
         builder.HasOne(c => c.User)
             .WithMany()
@@ -245,7 +241,7 @@ public class CommentConfiguration : IEntityTypeConfiguration<Comment>
             .WithMany()
             .HasForeignKey(c => c.QuestionId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
         builder.HasOne(c => c.ParentComment)
             .WithMany(c => c.ChildComments)
             .HasForeignKey(c => c.ParentId)
@@ -330,7 +326,7 @@ public class FolderUserConfiguration : IEntityTypeConfiguration<FolderUser>
 {
     public void Configure(EntityTypeBuilder<FolderUser> builder)
     {
-        builder.HasKey(fu => new { fu.UserId, fu.FolderId }); 
+        builder.HasKey(fu => new { fu.UserId, fu.FolderId });
 
         builder.Property(fu => fu.ShareMode)
             .IsRequired()
@@ -378,6 +374,14 @@ public class TestConfiguration : IEntityTypeConfiguration<Test>
             .HasConversion(
                 v => v.ToString(),
                 v => (GradeQuestionMethod)Enum.Parse(typeof(GradeQuestionMethod), v));
+
+        builder.Property(t => t.ClassId)
+            .IsRequired();
+
+        builder.HasOne(t => t.Class)
+            .WithMany()
+            .HasForeignKey(t => t.ClassId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.Property(t => t.IsShowCorrectAnswerInReview)
             .HasDefaultValue(false);
@@ -571,44 +575,27 @@ public class ClassInvitationUserConfiguration : IEntityTypeConfiguration<ClassIn
     }
 }
 
-
 public class TestGradeConfiguration : IEntityTypeConfiguration<TestGrade>
 {
 
     public void Configure(EntityTypeBuilder<TestGrade> builder)
     {
         builder.HasKey(tg => tg.Id);
-        
+
         builder.Property(tg => tg.TestId).IsRequired();
         builder.Property(tg => tg.UserId).IsRequired();
         builder.Property(tg => tg.Score).HasColumnType("numeric(5,2)").IsRequired();
-        
+
         //Nối với bảng Test
         builder.HasOne(tg => tg.Test)
             .WithMany(t => t.TestGrades) //Navigation nối ngược từ Test về TestGrade
             .HasForeignKey(tg => tg.TestId)
-            .OnDelete(DeleteBehavior.Cascade); 
-            
+            .OnDelete(DeleteBehavior.Cascade);
+
         //Nối với bảng User
         builder.HasOne(tg => tg.User)
             .WithMany() // nếu User không có navigation property ngược
             .HasForeignKey(tg => tg.UserId)
             .OnDelete(DeleteBehavior.Cascade);
-            
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
