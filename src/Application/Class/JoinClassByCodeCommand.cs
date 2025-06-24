@@ -57,8 +57,19 @@ public class JoinClassByCodeCommandHandler : IRequestHandler<JoinClassByCodeComm
             ShareMode = ClassShareMode.Student,
             Class = classByCode
         };
+
+        var classInvitationUser = new ClassInvitationUser
+        {
+            Id = Guid.NewGuid(),
+            UserId = user.Id,
+            ClassInvitationId = classInvitation.Id,
+            TimeJoin = DateTime.UtcNow,
+            User = user,
+            ClassInvitation = classInvitation
+        };
         
         _context.ClassUsers.Add(classUser);
+        _context.ClassInvitationUsers.Add(classInvitationUser);
         await _context.SaveChangesAsync(CancellationToken.None);
         
         return Unit.Value;
