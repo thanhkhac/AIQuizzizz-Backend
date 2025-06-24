@@ -46,5 +46,9 @@ public static class ErrorCodes
     public const string IDENTITY_PASSWORD_REQUIRES_DIGIT = nameof(IDENTITY_PASSWORD_REQUIRES_DIGIT);
     public const string IDENTITY_PASSWORD_REQUIRES_LOWER = nameof(IDENTITY_PASSWORD_REQUIRES_LOWER);
     public const string IDENTITY_PASSWORD_REQUIRES_UPPER = nameof(IDENTITY_PASSWORD_REQUIRES_UPPER);
+    
+    //Class
+    public const string CLASS_NOTFOUND = nameof(CLASS_NOTFOUND);
+    public const string CLASS_ALREADY_EXISTS = nameof(CLASS_ALREADY_EXISTS);
 
 }

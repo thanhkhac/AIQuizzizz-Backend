@@ -28,7 +28,7 @@ public interface IApplicationDbContext
     public DbSet<TestVersionQuestion> TestVersionQuestions { get; }
     public DbSet<Attempt> Attempts { get; }
     public DbSet<AttemptQuestion> AttemptQuestions { get; }
-    public DbSet<Class> Classes { get; }
+    public DbSet<Domain.Entities.Class> Classes { get; }
     public DbSet<ClassUser> ClassUsers { get; }
     public DbSet<ClassQuestionSet> ClassQuestionSets { get; }
     public DbSet<ClassInvitation> ClassInvitations { get; }
