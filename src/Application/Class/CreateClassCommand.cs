@@ -36,20 +36,8 @@ public class CreateClassCommandHandler : IRequestHandler<CreateClassCommand, Gui
         }
 
         var newClass = new Domain.Entities.Class { Id = Guid.NewGuid(), Name = rq.Name };
-
-        var classInvitation = new ClassInvitation
-        {
-            Id = Guid.NewGuid(),
-            ClassId = newClass.Id,
-            Code = Convert.ToBase64String(Guid.NewGuid().ToByteArray())[..12],
-            TimeStart = DateTime.UtcNow,
-            TimeEnd = DateTime.UtcNow.AddDays(1),
-            IsDeleted = false,
-            Class = newClass
-        };
         
         _context.Classes.Add(newClass);
-        _context.ClassInvitations.Add(classInvitation);
         await _context.SaveChangesAsync(CancellationToken.None);
         
         return newClass.Id;
