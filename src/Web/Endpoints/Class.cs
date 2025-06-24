@@ -1,4 +1,4 @@
-﻿using CleanArchitectureBase.Application.Class;
+﻿using CleanArchitectureBase.Application.Classes;
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Domain.Entities;
 using Microsoft.AspNetCore.Http.HttpResults;

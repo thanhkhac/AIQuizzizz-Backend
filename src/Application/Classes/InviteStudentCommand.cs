@@ -3,7 +3,7 @@ using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Class;
+namespace CleanArchitectureBase.Application.Classes;
 
 public class ClassCodeDto
 {
