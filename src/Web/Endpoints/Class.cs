@@ -10,10 +10,17 @@ public class Class : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
-            .MapPost(CreateClass, "");
+            .MapPost(CreateClass, "")
+            .MapPost(JoinClassByCode, "join");
     }
 
     public async Task<Ok<ApiResponse<Guid>>> CreateClass([FromBody] CreateClassCommand rq, ISender sender)
+    {
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<Unit>>> JoinClassByCode([FromBody] JoinClassByCodeCommand rq, ISender sender)
     {
         var result = await sender.Send(rq);
         return result.ToOk();

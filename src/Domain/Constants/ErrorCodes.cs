@@ -50,5 +50,7 @@ public static class ErrorCodes
     //Class
     public const string CLASS_NOTFOUND = nameof(CLASS_NOTFOUND);
     public const string CLASS_ALREADY_EXISTS = nameof(CLASS_ALREADY_EXISTS);
+    public const string CLASS_NOT_FOUND = nameof(CLASS_NOT_FOUND);
+    public const string CLASS_CODE_NOT_FOUND = nameof(CLASS_NOT_FOUND);
 
 }
