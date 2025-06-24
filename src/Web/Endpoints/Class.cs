@@ -1,5 +1,6 @@
 ﻿using CleanArchitectureBase.Application.Class;
 using CleanArchitectureBase.Application.Common.Models;
+using CleanArchitectureBase.Domain.Entities;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +14,8 @@ public class Class : EndpointGroupBase
             .MapPost(CreateClass, "")
             .MapPost(JoinClassByCode, "join")
             .MapPost(InviteStudent, "invite")
-            .MapGet(SearchStudent, "/{ClassId}/search-student");
+            .MapGet(SearchStudent, "/{ClassId}/search-student")
+            .MapGet(SearchClass, "search-class");
     }
 
     public async Task<Ok<ApiResponse<Guid>>> CreateClass([FromBody] CreateClassCommand rq, ISender sender)
@@ -34,7 +36,7 @@ public class Class : EndpointGroupBase
         return result.ToOk();
     }
     
-    public async Task<Ok<ApiResponse<List<StudentDetailDto>>>> SearchStudent(
+    public async Task<Ok<ApiResponse<List<StudentSearchResultDto>>>> SearchStudent(
         [FromQuery] string keyword,
         [FromQuery] string fieldName,
         [FromRoute] Guid ClassId,
@@ -49,5 +51,19 @@ public class Class : EndpointGroupBase
         var result = await sender.Send(rq);
         return result.ToOk();
     }
+    
+    public async Task<Ok<ApiResponse<List<ClassSearchResultDto>>>> SearchClass(
+        [FromQuery] ClassShareMode? shareMode,
+        [FromQuery] string? Name,
+        ISender sender)
+    {
+        var rq = new SearchClass()
+        {
+           ShareMode = shareMode,
+           Name = Name
+        };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    } 
 
 }

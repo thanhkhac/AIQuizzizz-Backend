@@ -5,13 +5,13 @@ using System.Linq.Dynamic.Core;
 
 namespace CleanArchitectureBase.Application.Class;
 
-public class StudentDetailDto
+public class StudentSearchResultDto
 {
     public string? FullName { get; set; }
     public required string Email { get; set; }
     public ClassShareMode Position { get; set; }
 }
-public class SearchStudent : IRequest<List<StudentDetailDto>>
+public class SearchStudent : IRequest<List<StudentSearchResultDto>>
 {
     public required Guid ClassId { get; set; }
     public string? Keyword { get; set; }
@@ -27,7 +27,7 @@ public class SearchStudentValidator : AbstractValidator<SearchStudent>
     }
 }
 
-public class SearchStudentCommandHandler : IRequestHandler<SearchStudent, List<StudentDetailDto>>
+public class SearchStudentCommandHandler : IRequestHandler<SearchStudent, List<StudentSearchResultDto>>
 {
     private readonly IApplicationDbContext _context;
 
@@ -36,7 +36,7 @@ public class SearchStudentCommandHandler : IRequestHandler<SearchStudent, List<S
         _context = context;
     }
     
-    public async Task<List<StudentDetailDto>> Handle(SearchStudent rq, CancellationToken cancellationToken)
+    public async Task<List<StudentSearchResultDto>> Handle(SearchStudent rq, CancellationToken cancellationToken)
     {
         var listStudent = _context.ClassUsers
             .Include(x => x.User)
@@ -52,7 +52,7 @@ public class SearchStudentCommandHandler : IRequestHandler<SearchStudent, List<S
             listStudent = listStudent.Where(query, rq.Keyword.ToLower()); 
         }
         
-        return await listStudent.Select(st => new StudentDetailDto
+        return await listStudent.Select(st => new StudentSearchResultDto
         {
             Email = st.User.Email,
             FullName = st.User.FullName,

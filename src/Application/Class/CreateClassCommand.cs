@@ -22,14 +22,20 @@ public class CreateClassCommandValidator : AbstractValidator<CreateClassCommand>
 public class CreateClassCommandHandler : IRequestHandler<CreateClassCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
+    private readonly IUser _user;
     
-    public CreateClassCommandHandler(IApplicationDbContext context)
+    public CreateClassCommandHandler(IApplicationDbContext context, IUser user)
     {
         _context = context;
+        _user = user;
     }
     
     public async Task<Guid> Handle(CreateClassCommand rq, CancellationToken cancellationToken)
     {
+        var user = await _context.DomainUsers.Where(x => x.Id == _user.UserId).FirstOrDefaultAsync();
+        if (user == null)
+            throw new ErrorCodeException(ErrorCodes.COMMON_NOT_FOUND, $"User with id {_user.UserId} not found");
+        
         if (await _context.Classes.AnyAsync(x => x.Name == rq.Name))
         {
             throw new ErrorCodeException(ErrorCodes.CLASS_ALREADY_EXISTS, "Tên lớp học đã tồn tại");
@@ -37,7 +43,16 @@ public class CreateClassCommandHandler : IRequestHandler<CreateClassCommand, Gui
 
         var newClass = new Domain.Entities.Class { Id = Guid.NewGuid(), Name = rq.Name };
         
+        var classUser = new ClassUser
+        {
+            UserId = user.Id,
+            ClassId = newClass.Id,
+            ShareMode = ClassShareMode.Owner,
+            Class = newClass
+        };
+        
         _context.Classes.Add(newClass);
+        _context.ClassUsers.Add(classUser);
         await _context.SaveChangesAsync(CancellationToken.None);
         
         return newClass.Id;
