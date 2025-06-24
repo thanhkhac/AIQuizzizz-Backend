@@ -2,6 +2,8 @@
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Domain.Entities;
 using System.Linq.Dynamic.Core;
+using CleanArchitectureBase.Application.Common.Exceptions;
+using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.Class;
 
@@ -38,6 +40,10 @@ public class SearchStudentCommandHandler : IRequestHandler<SearchStudent, List<S
     
     public async Task<List<StudentSearchResultDto>> Handle(SearchStudent rq, CancellationToken cancellationToken)
     {
+        var classById = await _context.Classes.FindAsync(rq.ClassId);
+        if (classById == null)  
+            throw new ErrorCodeException(ErrorCodes.CLASS_NOT_FOUND, "Lớp học không tồn tại");
+        
         var listStudent = _context.ClassUsers
             .Include(x => x.User)
             .Where(s => s.ClassId.Equals(rq.ClassId));
