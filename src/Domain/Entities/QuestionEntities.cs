@@ -137,6 +137,7 @@ public class TestTemplate : BaseAuditableEntity
 {
     public required Guid Id { get; set; }
     public required string Name { get; set; }
+    public bool IsDeleted { get; set; }
 
 }
 
@@ -154,6 +155,7 @@ public class Folder : BaseAuditableEntity
 {
     public required Guid Id { get; set; }
     public required string Name { get; set; }
+    public bool IsDeleted { get; set; }
 }
 
 public class FolderTestTemplate : BaseAuditableEntity
