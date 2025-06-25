@@ -13,9 +13,9 @@ public class Class : EndpointGroupBase
         app.MapGroup(this)
             .MapPost(CreateClass, "")
             .MapPost(JoinClassByCode, "join")
-            .MapPost(InviteStudent, "invite")
+            .MapPost(InviteStudent, "/{ClassId}/invite")
             .MapGet(SearchStudent, "/{ClassId}/search-student")
-            .MapGet(SearchClass, "search-class");
+            .MapGet(SearchClass, "/search-class");
     }
 
     public async Task<Ok<ApiResponse<Guid>>> CreateClass([FromBody] CreateClassCommand rq, ISender sender)
@@ -30,37 +30,53 @@ public class Class : EndpointGroupBase
         return result.ToOk();
     }
     
-    public async Task<Ok<ApiResponse<ClassCodeDto>>> InviteStudent([FromBody] InviteStudentCommand rq, ISender sender)
-    {
-        var result = await sender.Send(rq);
-        return result.ToOk();
-    }
-    
-    public async Task<Ok<ApiResponse<List<StudentSearchResultDto>>>> SearchStudent(
-        [FromQuery] string keyword,
-        [FromQuery] string fieldName,
+    public async Task<Ok<ApiResponse<ClassCodeDto>>> InviteStudent(
         [FromRoute] Guid ClassId,
+        [FromQuery] double ExpiredTime,
         ISender sender)
     {
-        var rq = new SearchStudent
+        var rq = new InviteStudentCommand
         {
             ClassId = ClassId,
-            Keyword = keyword,
-            FieldName = fieldName
+            ExpiredTime = ExpiredTime,
         };
         var result = await sender.Send(rq);
         return result.ToOk();
     }
     
-    public async Task<Ok<ApiResponse<List<ClassSearchResultDto>>>> SearchClass(
+    public async Task<Ok<ApiResponse<PaginatedList<StudentSearchResultDto>>>> SearchStudent(
+        [FromRoute] Guid ClassId,
+        [FromQuery] string? Keyword,
+        [FromQuery] string? FieldName,
+        ISender sender,
+        [FromQuery] int PageNumber = 1,
+        [FromQuery] int PageSize = 5)
+    {
+        var rq = new SearchStudent
+        {
+            ClassId = ClassId,
+            Keyword = Keyword,
+            FieldName = FieldName,
+            PageNumber = PageNumber,
+            PageSize = PageSize,
+        };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<PaginatedList<ClassSearchResultDto>>>> SearchClass(
         [FromQuery] ClassShareMode? shareMode,
         [FromQuery] string? Name,
-        ISender sender)
+        ISender sender,
+        [FromQuery] int PageNumber = 1,
+        [FromQuery] int PageSize = 5)
     {
         var rq = new SearchClass()
         {
            ShareMode = shareMode,
-           Name = Name
+           Name = Name,
+           PageNumber = PageNumber,
+           PageSize = PageSize,
         };
         var result = await sender.Send(rq);
         return result.ToOk();

@@ -1,5 +1,6 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
@@ -10,13 +11,27 @@ public class ClassSearchResultDto
     public required string Name { get; set; }
     public string? Owner { get; set; }
 }
-public class SearchClass : IRequest<List<ClassSearchResultDto>>
+public class SearchClass : IRequest<PaginatedList<ClassSearchResultDto>>
 {
     public ClassShareMode? ShareMode { get; set; }
     public string? Name { get; set; }
+    public int PageNumber { get; set; } = 1;
+    public int PageSize { get; set; } = 15;
 }
 
-public class SearchClassHandler : IRequestHandler<SearchClass, List<ClassSearchResultDto>>
+public class SearchClassValidator : AbstractValidator<SearchClass>
+{
+        public SearchClassValidator()
+        {
+            RuleFor(x => x.PageNumber)
+                .GreaterThanOrEqualTo(1).WithMessage("Số trang phải lớn hơn hoặc bằng 1");
+
+            RuleFor(x => x.PageSize)
+                .InclusiveBetween(1, 100).WithMessage("Kích thước trang phải từ 1 đến 100");
+        }
+}
+
+public class SearchClassHandler : IRequestHandler<SearchClass, PaginatedList<ClassSearchResultDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
@@ -27,7 +42,7 @@ public class SearchClassHandler : IRequestHandler<SearchClass, List<ClassSearchR
         _user = user;
     }
 
-    public async Task<List<ClassSearchResultDto>> Handle(SearchClass rq, CancellationToken cancellationToken)
+    public async Task<PaginatedList<ClassSearchResultDto>> Handle(SearchClass rq, CancellationToken cancellationToken)
     {
         var user = await _context.DomainUsers.Where(x => x.Id == _user.UserId).FirstOrDefaultAsync();
         if (user == null)
@@ -66,15 +81,18 @@ public class SearchClassHandler : IRequestHandler<SearchClass, List<ClassSearchR
             classes = classes
                 .Where(x => x.Class.Name.Contains(rq.Name));
         }
-        
-        return await classes
-            .Where(c => c.ClassUser.UserId == user.Id)
-            .GroupBy(x => new { x.Class.Id, x.Class.Name })
-            .Select(cl => new ClassSearchResultDto
-            {
-                Name = cl.Key.Name,
-                Owner = classOwnerMap.ContainsKey(cl.Key.Name) ? classOwnerMap[cl.Key.Name] : null
-            })
-            .ToListAsync(cancellationToken);
+
+        return await PaginatedList<ClassSearchResultDto>.CreateAsync(
+            classes
+                .Where(c => c.ClassUser.UserId == user.Id)
+                .GroupBy(x => new { x.Class.Id, x.Class.Name })
+                .Select(cl => new ClassSearchResultDto
+                {
+                    Name = cl.Key.Name,
+                    Owner = classOwnerMap.ContainsKey(cl.Key.Name) ? classOwnerMap[cl.Key.Name] : null
+                }).AsQueryable(),
+            rq.PageNumber,
+            rq.PageSize
+        );
     }
 }

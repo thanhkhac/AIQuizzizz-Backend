@@ -41,7 +41,7 @@ public class CreateClassCommandHandler : IRequestHandler<CreateClassCommand, Gui
             throw new ErrorCodeException(ErrorCodes.CLASS_ALREADY_EXISTS, "Tên lớp học đã tồn tại");
         }
 
-        var newClass = new Domain.Entities.Class { Id = Guid.NewGuid(), Name = rq.Name };
+        var newClass = new Class { Id = Guid.NewGuid(), Name = rq.Name };
         
         var classUser = new ClassUser
         {

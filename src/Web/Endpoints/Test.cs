@@ -14,17 +14,21 @@ public class Test : EndpointGroupBase
             .MapGet(SearchTest, "/{ClassId}/search-test");
     }
 
-    public async Task<Ok<ApiResponse<List<TestSearchResultDto>>>> SearchTest(
-        [FromQuery] TestStatus? status,
+    public async Task<Ok<ApiResponse<PaginatedList<TestSearchResultDto>>>> SearchTest(
+        [FromQuery] TestStatus? Status,
         [FromQuery] string? TestName,
         [FromRoute] Guid ClassId,
-        ISender sender)
+        ISender sender,
+        [FromQuery] int PageNumber = 1,
+        [FromQuery] int PageSize = 5)
     {
         var rq = new SearchTest()
         {
             ClassId = ClassId,
             TestName = TestName,
-            Status = status
+            Status = Status,
+            PageNumber = PageNumber,
+            PageSize = PageSize,
         };
         var result = await sender.Send(rq);
         return result.ToOk();

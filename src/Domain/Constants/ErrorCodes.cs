@@ -11,6 +11,7 @@ public static class ErrorCodes
     public const string COMMON_BAD_REQUEST = nameof(COMMON_BAD_REQUEST);
     public const string COMMON_CONFLICT = nameof(COMMON_CONFLICT);
     public const string COMMON_TIMEOUT_ERROR = nameof(COMMON_TIMEOUT_ERROR);
+    public const string FIELD_NAME_NOT_FOUND = nameof(FIELD_NAME_NOT_FOUND);
 
     //ACCOUNT
     public const string ACCOUNT_NOTFOUND = nameof(ACCOUNT_NOTFOUND);

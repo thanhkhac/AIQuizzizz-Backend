@@ -1,5 +1,6 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
@@ -9,17 +10,19 @@ public class TestSearchResultDto
 {
     public required string Name { get; set; }
     public int? NumberOfQuestions { get; set; }
-    public required DateTime TimeLimit { get; set; }
+    public required int TimeLimit { get; set; }
     public double RelativeTime { get; set; }
     public int? NumberOfCompletion { get; set; }
     public string? Status { get; set; }
 }   
 
-public class SearchTest : IRequest<List<TestSearchResultDto>>
+public class SearchTest : IRequest<PaginatedList<TestSearchResultDto>>
 {
     public required Guid ClassId { get; set; }
     public string? TestName { get; set; }
     public TestStatus? Status { get; set; }
+    public int PageNumber { get; set; } = 1;
+    public int PageSize { get; set; } = 5;
 }
 
 public class SearchTestValidator : AbstractValidator<SearchTest>
@@ -28,10 +31,15 @@ public class SearchTestValidator : AbstractValidator<SearchTest>
     {
         RuleFor(v => v.ClassId)
             .NotEmpty().WithMessage("ClassId không được để trống");
+        RuleFor(x => x.PageNumber)
+            .GreaterThanOrEqualTo(1).WithMessage("Số trang phải lớn hơn hoặc bằng 1");
+
+        RuleFor(x => x.PageSize)
+            .InclusiveBetween(1, 100).WithMessage("Kích thước trang phải từ 1 đến 100");
     }
 }
 
-public class SearchTestHandler : IRequestHandler<SearchTest, List<TestSearchResultDto>>
+public class SearchTestHandler : IRequestHandler<SearchTest, PaginatedList<TestSearchResultDto>>
 {
     private readonly IApplicationDbContext _context;
     
@@ -40,7 +48,7 @@ public class SearchTestHandler : IRequestHandler<SearchTest, List<TestSearchResu
         _context = context;
     }
     
-    public async Task<List<TestSearchResultDto>> Handle(SearchTest rq, CancellationToken cancellationToken)
+    public async Task<PaginatedList<TestSearchResultDto>> Handle(SearchTest rq, CancellationToken cancellationToken)
     {
         var classById = await _context.Classes.FindAsync(rq.ClassId);
         if (classById == null)
@@ -89,12 +97,15 @@ public class SearchTestHandler : IRequestHandler<SearchTest, List<TestSearchResu
                     : test.TimeFinish < DateTime.UtcNow ? TestStatus.Completed.ToString()
                     : TestStatus.Active.ToString(),
                 TimeLimit = test.TimeLimit,
-                RelativeTime = Math.Floor((test.TimeStart - DateTime.UtcNow).TotalHours),
+                RelativeTime = Math.Floor((DateTime.UtcNow - test.TimeStart).TotalHours),
             };
         });
-        
-        return results.ToList();
 
+        return PaginatedList<TestSearchResultDto>.Create(
+            results.ToList(),
+            rq.PageNumber,
+            rq.PageSize
+        );
     }
 
     
