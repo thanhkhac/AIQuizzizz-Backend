@@ -4,6 +4,7 @@ public class Class : BaseAuditableEntity
 {
     public required Guid Id { get; set; }
     public required string Name { get; set; }
+    public bool IsDeleted { get; set; }
     public List<ClassQuestionSet> ClassQuestionSets { get; set; } = new();
 }
 
