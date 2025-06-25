@@ -1,5 +1,5 @@
 ﻿using CleanArchitectureBase.Application.Common.Models;
-using CleanArchitectureBase.Application.Tests;
+using CleanArchitectureBase.Application.Tests.LecturerTests;
 using CleanArchitectureBase.Domain.Entities;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +15,7 @@ public class Test : EndpointGroupBase
     }
 
     public async Task<Ok<ApiResponse<List<TestSearchResultDto>>>> SearchTest(
-        [FromQuery] TestStatus? keyword,
+        [FromQuery] TestStatus? status,
         [FromQuery] string? TestName,
         [FromRoute] Guid ClassId,
         ISender sender)
@@ -24,7 +24,7 @@ public class Test : EndpointGroupBase
         {
             ClassId = ClassId,
             TestName = TestName,
-            Status = keyword
+            Status = status
         };
         var result = await sender.Send(rq);
         return result.ToOk();

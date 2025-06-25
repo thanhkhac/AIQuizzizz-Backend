@@ -3,7 +3,7 @@ using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Classes;
+namespace CleanArchitectureBase.Application.Classes.LecturerClasses;
 
 public class CreateClassCommand : IRequest<Guid>
 {

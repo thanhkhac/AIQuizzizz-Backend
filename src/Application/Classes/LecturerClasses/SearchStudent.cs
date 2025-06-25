@@ -5,7 +5,7 @@ using System.Linq.Dynamic.Core;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Domain.Constants;
 
-namespace CleanArchitectureBase.Application.Classes;
+namespace CleanArchitectureBase.Application.Classes.LecturerClasses;
 
 public class StudentSearchResultDto
 {

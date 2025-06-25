@@ -194,6 +194,14 @@ public enum GradeQuestionMethod
     AllOrNothing
 }
 
+public enum TestStatus
+{
+    Active,
+    Completed,
+    Upcoming,
+    Overdue
+}
+
 public class Test : BaseAuditableEntity
 {
     public required Guid Id { get; set; }
