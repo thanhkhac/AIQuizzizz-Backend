@@ -3,6 +3,7 @@ using System;
 using CleanArchitectureBase.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250625101622_Add QuestionCount")]
+    partial class AddQuestionCount
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,7 +55,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Attempts", (string)null);
+                    b.ToTable("Attempts");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.AttemptQuestion", b =>
@@ -85,7 +88,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("QuestionId");
 
-                    b.ToTable("AttemptQuestions", (string)null);
+                    b.ToTable("AttemptQuestions");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Class", b =>
@@ -113,7 +116,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Classes", (string)null);
+                    b.ToTable("Classes");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.ClassInvitation", b =>
@@ -157,7 +160,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("ClassId");
 
-                    b.ToTable("ClassInvitations", (string)null);
+                    b.ToTable("ClassInvitations");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.ClassInvitationUser", b =>
@@ -181,7 +184,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ClassInvitationUsers", (string)null);
+                    b.ToTable("ClassInvitationUsers");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.ClassQuestionSet", b =>
@@ -208,7 +211,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("QuestionSetId");
 
-                    b.ToTable("ClassQuestionSets", (string)null);
+                    b.ToTable("ClassQuestionSets");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.ClassUser", b =>
@@ -239,7 +242,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ClassUsers", (string)null);
+                    b.ToTable("ClassUsers");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Comment", b =>
@@ -287,7 +290,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Comments", (string)null);
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Folder", b =>
@@ -315,7 +318,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Folders", (string)null);
+                    b.ToTable("Folders");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.FolderTestTemplate", b =>
@@ -342,7 +345,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("TestTemplateId");
 
-                    b.ToTable("FolderTestTemplates", (string)null);
+                    b.ToTable("FolderTestTemplates");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.FolderUser", b =>
@@ -373,7 +376,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("FolderId");
 
-                    b.ToTable("FolderUsers", (string)null);
+                    b.ToTable("FolderUsers");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Plan", b =>
@@ -421,7 +424,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Plans", (string)null);
+                    b.ToTable("Plans");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Question", b =>
@@ -468,7 +471,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("QuestionSetId");
 
-                    b.ToTable("Questions", (string)null);
+                    b.ToTable("Questions");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.QuestionSet", b =>
@@ -510,7 +513,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("QuestionSets", (string)null);
+                    b.ToTable("QuestionSets");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.QuestionSetTag", b =>
@@ -525,7 +528,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("QuestionSetId");
 
-                    b.ToTable("QuestionSetTags", (string)null);
+                    b.ToTable("QuestionSetTags");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.QuestionSetUser", b =>
@@ -556,7 +559,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("QuestionSetId");
 
-                    b.ToTable("QuestionSetUsers", (string)null);
+                    b.ToTable("QuestionSetUsers");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Tag", b =>
@@ -572,7 +575,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tags", (string)null);
+                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Test", b =>
@@ -630,7 +633,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("ClassId");
 
-                    b.ToTable("Tests", (string)null);
+                    b.ToTable("Tests");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.TestGrade", b =>
@@ -654,7 +657,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("TestGrades", (string)null);
+                    b.ToTable("TestGrades");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.TestTemplate", b =>
@@ -682,7 +685,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TestTemplates", (string)null);
+                    b.ToTable("TestTemplates");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.TestTemplateQuestion", b =>
@@ -715,7 +718,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("TestTemplateId");
 
-                    b.ToTable("TestTemplateQuestions", (string)null);
+                    b.ToTable("TestTemplateQuestions");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.TestVersion", b =>
@@ -734,7 +737,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("TestId");
 
-                    b.ToTable("TestVersions", (string)null);
+                    b.ToTable("TestVersions");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.TestVersionQuestion", b =>
@@ -758,7 +761,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("TestVersionId");
 
-                    b.ToTable("TestVersionQuestions", (string)null);
+                    b.ToTable("TestVersionQuestions");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.TodoItem", b =>
@@ -805,7 +808,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("ListId");
 
-                    b.ToTable("TodoItems", (string)null);
+                    b.ToTable("TodoItems");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.TodoList", b =>
@@ -840,7 +843,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("TodoLists", (string)null);
+                    b.ToTable("TodoLists");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.TokenPackage", b =>
@@ -879,7 +882,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TokenPackages", (string)null);
+                    b.ToTable("TokenPackages");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.User", b =>
@@ -908,7 +911,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DomainUsers", (string)null);
+                    b.ToTable("DomainUsers");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.UserQuestionSetHistory", b =>
@@ -944,7 +947,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserQuestionSetHistories", (string)null);
+                    b.ToTable("UserQuestionSetHistories");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.UserSubscription", b =>
@@ -978,7 +981,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserSubscriptions", (string)null);
+                    b.ToTable("UserSubscriptions");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.UserTokenPurchase", b =>
@@ -1011,7 +1014,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserTokenPurchases", (string)null);
+                    b.ToTable("UserTokenPurchases");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Infrastructure.Identity.ApplicationRole", b =>
@@ -1166,7 +1169,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("UserAccountId");
 
-                    b.ToTable("RefreshTokens", (string)null);
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Infrastructure.Identity.UserAccount", b =>
@@ -1557,7 +1560,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .WithMany()
                         .HasForeignKey("UserId");
 
-                    b.OwnsOne("CleanArchitectureBase.Domain.Entities.TodoList.Colour#CleanArchitectureBase.Domain.ValueObjects.Colour", "Colour", b1 =>
+                    b.OwnsOne("CleanArchitectureBase.Domain.ValueObjects.Colour", "Colour", b1 =>
                         {
                             b1.Property<int>("TodoListId")
                                 .HasColumnType("integer");
@@ -1568,7 +1571,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                             b1.HasKey("TodoListId");
 
-                            b1.ToTable("TodoLists", (string)null);
+                            b1.ToTable("TodoLists");
 
                             b1.WithOwner()
                                 .HasForeignKey("TodoListId");

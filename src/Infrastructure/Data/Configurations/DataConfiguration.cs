@@ -362,6 +362,8 @@ public class TestConfiguration : IEntityTypeConfiguration<Test>
 
         builder.Property(t => t.TimeLimit)
             .IsRequired();
+        builder.Property(t => t.QuestionCount)
+            .IsRequired();
 
         builder.Property(t => t.GradeAttemptMethod)
             .IsRequired()
