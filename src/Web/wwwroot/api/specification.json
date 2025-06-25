@@ -6,6 +6,38 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/api/QuestionSets/create": {
+      "post": {
+        "tags": [
+          "QuestionSets"
+        ],
+        "operationId": "CreateQuestionSet",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateQuestionSetCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/TodoItems": {
       "get": {
         "tags": [
@@ -297,10 +329,10 @@
         }
       }
     },
-    "/api/Account/Register": {
+    "/api/Users/register": {
       "post": {
         "tags": [
-          "Account"
+          "Users"
         ],
         "operationId": "RegisterUser",
         "requestBody": {
@@ -329,10 +361,10 @@
         }
       }
     },
-    "/api/Account/Login": {
+    "/api/Users/login": {
       "post": {
         "tags": [
-          "Account"
+          "Users"
         ],
         "operationId": "Login",
         "requestBody": {
@@ -361,10 +393,10 @@
         }
       }
     },
-    "/api/Account/Profile": {
+    "/api/Users/profile": {
       "get": {
         "tags": [
-          "Account"
+          "Users"
         ],
         "operationId": "GetProfile",
         "responses": {
@@ -374,6 +406,70 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfUserProfileDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Users/refresh-token": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "RefreshToken",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfTokenDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Users/revoke-token": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "RevokeToken",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeTokenCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
                 }
               }
             }
@@ -407,6 +503,145 @@
   },
   "components": {
     "schemas": {
+      "ApiResponseOfGuid": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "type": "string",
+            "format": "guid"
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CreateQuestionSetCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateQuestionDto"
+            }
+          }
+        }
+      },
+      "CreateQuestionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "questionText": {
+            "type": "string",
+            "nullable": true
+          },
+          "explainText": {
+            "type": "string",
+            "nullable": true
+          },
+          "score": {
+            "type": "number",
+            "format": "float"
+          },
+          "multipleChoices": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CreateMultipleChoiceDto"
+            }
+          },
+          "matchingPairs": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CreateMatchingPairDto"
+            }
+          },
+          "orderingItems": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CreateOrderingItemDto"
+            }
+          },
+          "shortAnswer": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreateMultipleChoiceDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "text": {
+            "type": "string",
+            "nullable": true
+          },
+          "isAnswer": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CreateMatchingPairDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "leftItem": {
+            "type": "string",
+            "nullable": true
+          },
+          "rightItem": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreateOrderingItemDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "text": {
+            "type": "string",
+            "nullable": true
+          },
+          "correctOrder": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "PaginatedListOfTodoItemBriefDto": {
         "type": "object",
         "additionalProperties": false,
@@ -780,6 +1015,11 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
           "email": {
             "type": "string",
             "nullable": true
@@ -788,9 +1028,77 @@
             "type": "string",
             "nullable": true
           },
-          "id": {
+          "tokenCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "balance": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "RefreshTokenCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "accessToken": {
             "type": "string",
-            "format": "guid",
+            "nullable": true
+          },
+          "refreshToken": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ApiResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ApiResponseOfObject"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ApiResponseOfObject": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RevokeTokenCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "refreshToken": {
+            "type": "string",
             "nullable": true
           }
         }

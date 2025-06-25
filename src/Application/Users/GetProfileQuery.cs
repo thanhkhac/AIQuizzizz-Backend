@@ -7,9 +7,11 @@ namespace CleanArchitectureBase.Application.Users;
 
 public class UserProfileDto
 {
+    public Guid? Id { get; set; }
     public string? Email { get; set; }
     public string? FullName { get; set; }
-    public Guid? Id { get; set; }
+    public long TokenCount { get; set; }
+    public long Balance { get; set; }
 }
 
 [Authorize]
@@ -34,7 +36,14 @@ public class GetProfileQueryHandler : IRequestHandler<GetProfileQuery, UserProfi
         var user = await _context.DomainUsers.Where(x => x.Id == _user.UserId).FirstOrDefaultAsync();
         if (user == null)
             throw new ErrorCodeException(ErrorCodes.COMMON_NOT_FOUND, $"User with id {_user.UserId} not found");
-        var result = new UserProfileDto { Email = user.Email, FullName = user.FullName, Id = user.Id };
+        var result = new UserProfileDto
+        {
+            Email = user.Email,
+            FullName = user.FullName,
+            Id = user.Id,
+            TokenCount = user.TokenCount,
+            Balance = user.Balance
+        };
         return result;
     }
 }

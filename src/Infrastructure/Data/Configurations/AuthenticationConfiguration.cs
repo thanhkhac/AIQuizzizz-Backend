@@ -39,7 +39,7 @@ public class RefreshTokenConfig : IEntityTypeConfiguration<RefreshToken>
     {
         builder.Property(x => x.UserAccountId).HasMaxLength(36);
         builder.Property(x => x.Id).HasMaxLength(36);
-        builder.Property(x => x.Token).HasMaxLength(36);
+        builder.Property(x => x.Token).HasMaxLength(500);
         
         builder.HasQueryFilter(rt => rt.UserAccount != null && !rt.UserAccount.IsDeleted);
         

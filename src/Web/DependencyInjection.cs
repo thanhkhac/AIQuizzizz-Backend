@@ -35,7 +35,7 @@ public static class DependencyInjection
         {
             configure.Title = "CleanArchitectureBase API";
 
-            // Add JWT
+            // Add JWT    
             configure.AddSecurity("JWT", Enumerable.Empty<string>(), new OpenApiSecurityScheme
             {
                 Type = OpenApiSecuritySchemeType.Http,
