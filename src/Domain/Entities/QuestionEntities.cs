@@ -198,6 +198,7 @@ public class Test : BaseAuditableEntity
 {
     public required Guid Id { get; set; }
     public required string Name { get; set; }
+    public required Guid ClassId { get; set; }
     public required DateTime TimeStart { get; set; }
     public required DateTime TimeFinish { get; set; }
     public required DateTime TimeLimit { get; set; }
@@ -206,6 +207,7 @@ public class Test : BaseAuditableEntity
     public bool IsShowCorrectAnswerInReview { get; set; }
 
     public List<TestGrade> TestGrades { get; set; } = new();
+    public Class? Class { get; set; }
 }
 
 public class TestVersion : BaseEntity
