@@ -11,7 +11,7 @@ public class Test : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
-            .MapGet(SearchTest, "/{ClassId}/search-test");
+            .MapGet(SearchTest, "/{ClassId}/tests");
     }
 
     public async Task<Ok<ApiResponse<PaginatedList<TestSearchResultDto>>>> SearchTest(

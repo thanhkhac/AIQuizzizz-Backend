@@ -12,10 +12,10 @@ public class Class : EndpointGroupBase
     {
         app.MapGroup(this)
             .MapPost(CreateClass, "")
-            .MapPost(JoinClassByCode, "join")
-            .MapPost(InviteStudent, "/{ClassId}/invite")
-            .MapGet(SearchStudent, "/{ClassId}/search-student")
-            .MapGet(SearchClass, "/search-class");
+            .MapPost(JoinClassByCode, "students")
+            .MapPost(InviteStudent, "/{ClassId}/invitations")
+            .MapGet(SearchStudent, "/{ClassId}/students")
+            .MapGet(SearchClass, "/classes");
     }
 
     public async Task<Ok<ApiResponse<Guid>>> CreateClass([FromBody] CreateClassCommand rq, ISender sender)
