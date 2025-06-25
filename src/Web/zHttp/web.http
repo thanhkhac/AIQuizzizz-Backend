@@ -1,0 +1,299 @@
+﻿# POST Users Register
+POST {{Web_HostAddress}}/api/Users/register
+Content-Type: application/json
+
+{
+  "email": "Sa@1234",
+  "password": "Sa@1234"
+}
+
+###
+
+# POST Users Login
+POST {{Web_HostAddress}}/api/Users/login
+Content-Type: application/json
+
+{
+  "email": "{{Email}}",
+  "password": "{{Password}}"
+}
+
+###
+
+# POST Users Refresh
+POST {{Web_HostAddress}}/api/Users/refresh-token
+Authorization: Bearer {{BearerToken}}
+Content-Type: application/json
+
+{
+  "refreshToken": "68df8c13-ddcb-4c9c-a0e8-b8d3e28017d5",
+  "accessToken": "{{BearerToken}}"
+}
+###
+
+POST {{Web_HostAddress}}/api/QuestionSets/create
+Authorization: Bearer {{BearerToken}}
+Content-Type: application/json
+
+{
+  "name": "Kiểm tra kiến thức tổng quát",
+  "description": "Bài kiểm tra ngắn về các chủ đề cơ bản",
+  "questions": [
+    {
+      "type": "MultipleChoice",
+      "questionText": "2 + 3 bằng bao nhiêu?",
+      "explainText": "Cộng hai số 2 và 3 sẽ cho kết quả là 5.",
+      "score": 10,
+      "multipleChoices": [
+        { "text": "5", "isAnswer": true },
+        { "text": "6", "isAnswer": false },
+        { "text": "7", "isAnswer": false }
+      ],
+      "matchingPairs": [],
+      "orderingItems": [],
+      "shortAnswer": ""
+    },
+    {
+      "type": "MultipleChoice",
+      "questionText": "Hành tinh nào gần Mặt Trời nhất?",
+      "explainText": "Sao Thủy là hành tinh gần Mặt Trời nhất trong hệ Mặt Trời.",
+      "score": 10,
+      "multipleChoices": [
+        { "text": "Sao Thủy", "isAnswer": true },
+        { "text": "Sao Kim", "isAnswer": false },
+        { "text": "Trái Đất", "isAnswer": false }
+      ],
+      "matchingPairs": [],
+      "orderingItems": [],
+      "shortAnswer": ""
+    },
+    {
+      "type": "Matching",
+      "questionText": "Nối các thành phố với quốc gia của chúng",
+      "explainText": "Mỗi thành phố thuộc một quốc gia duy nhất.",
+      "score": 15,
+      "multipleChoices": [],
+      "matchingPairs": [
+        { "leftItem": "Hà Nội", "rightItem": "Việt Nam" },
+        { "leftItem": "Paris", "rightItem": "Pháp" }
+      ],
+      "orderingItems": [],
+      "shortAnswer": ""
+    },
+    {
+      "type": "Matching",
+      "questionText": "Nối các tác giả với tác phẩm nổi tiếng",
+      "explainText": "Mỗi tác giả có một tác phẩm nổi bật.",
+      "score": 15,
+      "multipleChoices": [],
+      "matchingPairs": [
+        { "leftItem": "Ngô Tất Tố", "rightItem": "Tắt Đèn" },
+        { "leftItem": "Nam Cao", "rightItem": "Chí Phèo" }
+      ],
+      "orderingItems": [],
+      "shortAnswer": ""
+    },
+    {
+      "type": "Ordering",
+      "questionText": "Sắp xếp các mùa trong năm theo thứ tự bắt đầu từ đầu năm",
+      "explainText": "Thứ tự dựa trên chu kỳ tự nhiên của các mùa.",
+      "score": 20,
+      "multipleChoices": [],
+      "matchingPairs": [],
+      "orderingItems": [
+        { "text": "Mùa xuân", "correctOrder": 0 },
+        { "text": "Mùa hè", "correctOrder": 1 },
+        { "text": "Mùa thu", "correctOrder": 2 },
+        { "text": "Mùa đông", "correctOrder": 3 }
+      ],
+      "shortAnswer": ""
+    },
+    {
+      "type": "Ordering",
+      "questionText": "Sắp xếp các số theo thứ tự tăng dần",
+      "explainText": "Sắp xếp từ nhỏ nhất đến lớn nhất.",
+      "score": 20,
+      "multipleChoices": [],
+      "matchingPairs": [],
+      "orderingItems": [
+        { "text": "3", "correctOrder": 0 },
+        { "text": "5", "correctOrder": 1 },
+        { "text": "7", "correctOrder": 2 }
+      ],
+      "shortAnswer": ""
+    },
+    {
+      "type": "ShortText",
+      "questionText": "Thủ đô của Việt Nam là gì?",
+      "explainText": "Thủ đô là trung tâm hành chính của một quốc gia.",
+      "score": 10,
+      "multipleChoices": [],
+      "matchingPairs": [],
+      "orderingItems": [],
+      "shortAnswer": "Hà Nội"
+    },
+    {
+      "type": "ShortText",
+      "questionText": "Tên của đại dương lớn nhất thế giới là gì?",
+      "explainText": "Đại dương lớn nhất chiếm phần lớn diện tích bề mặt Trái Đất.",
+      "score": 10,
+      "multipleChoices": [],
+      "matchingPairs": [],
+      "orderingItems": [],
+      "shortAnswer": "Thái Bình Dương"
+    },
+    {
+      "type": "MultipleChoice",
+      "questionText": "Màu của bầu trời thường là gì?",
+      "explainText": "Bầu trời có màu xanh do tán xạ ánh sáng.",
+      "score": 10,
+      "multipleChoices": [
+        { "text": "Xanh dương", "isAnswer": true },
+        { "text": "Đỏ", "isAnswer": false },
+        { "text": "Vàng", "isAnswer": false }
+      ],
+      "matchingPairs": [],
+      "orderingItems": [],
+      "shortAnswer": ""
+    },
+    {
+      "type": "MultipleChoice",
+      "questionText": "1 năm có bao nhiêu ngày?",
+      "explainText": "Một năm thường có 365 ngày, trừ năm nhuận.",
+      "score": 10,
+      "multipleChoices": [
+        { "text": "365", "isAnswer": true },
+        { "text": "360", "isAnswer": false },
+        { "text": "370", "isAnswer": false }
+      ],
+      "matchingPairs": [],
+      "orderingItems": [],
+      "shortAnswer": ""
+    },
+    {
+      "type": "Matching",
+      "questionText": "Nối các con vật với môi trường sống",
+      "explainText": "Mỗi con vật sống ở một môi trường đặc trưng.",
+      "score": 15,
+      "multipleChoices": [],
+      "matchingPairs": [
+        { "leftItem": "Cá voi", "rightItem": "Đại dương" },
+        { "leftItem": "Sư tử", "rightItem": "Savanna" }
+      ],
+      "orderingItems": [],
+      "shortAnswer": ""
+    },
+    {
+      "type": "Matching",
+      "questionText": "Nối các loại trái cây với màu sắc",
+      "explainText": "Mỗi loại trái cây có màu sắc đặc trưng.",
+      "score": 15,
+      "multipleChoices": [],
+      "matchingPairs": [
+        { "leftItem": "Táo", "rightItem": "Đỏ" },
+        { "leftItem": "Chuối", "rightItem": "Vàng" }
+      ],
+      "orderingItems": [],
+      "shortAnswer": ""
+    },
+    {
+      "type": "Ordering",
+      "questionText": "Sắp xếp các hành tinh theo thứ tự gần Mặt Trời",
+      "explainText": "Thứ tự dựa trên khoảng cách trung bình từ Mặt Trời.",
+      "score": 20,
+      "multipleChoices": [],
+      "matchingPairs": [],
+      "orderingItems": [
+        { "text": "Sao Thủy", "correctOrder": 0 },
+        { "text": "Sao Kim", "correctOrder": 1 },
+        { "text": "Trái Đất", "correctOrder": 2 }
+      ],
+      "shortAnswer": ""
+    },
+    {
+      "type": "Ordering",
+      "questionText": "Sắp xếp các chữ cái theo thứ tự bảng chữ cái",
+      "explainText": "Sắp xếp từ A đến Z.",
+      "score": 20,
+      "multipleChoices": [],
+      "matchingPairs": [],
+      "orderingItems": [
+        { "text": "A", "correctOrder": 0 },
+        { "text": "B", "correctOrder": 1 },
+        { "text": "C", "correctOrder": 2 }
+      ],
+      "shortAnswer": ""
+    },
+    {
+      "type": "ShortText",
+      "questionText": "Tên của nhà bác học phát minh ra bóng đèn là gì?",
+      "explainText": "Người này nổi tiếng với nhiều phát minh, bao gồm bóng đèn sợi đốt.",
+      "score": 10,
+      "multipleChoices": [],
+      "matchingPairs": [],
+      "orderingItems": [],
+      "shortAnswer": "Thomas Edison"
+    },
+    {
+      "type": "ShortText",
+      "questionText": "Sông dài nhất thế giới là gì?",
+      "explainText": "Sông này chảy qua nhiều quốc gia ở châu Phi.",
+      "score": 10,
+      "multipleChoices": [],
+      "matchingPairs": [],
+      "orderingItems": [],
+      "shortAnswer": "Sông Nile"
+    },
+    {
+      "type": "MultipleChoice",
+      "questionText": "1 km bằng bao nhiêu mét?",
+      "explainText": "1 km tương đương với 1000 mét.",
+      "score": 10,
+      "multipleChoices": [
+        { "text": "1000", "isAnswer": true },
+        { "text": "100", "isAnswer": false },
+        { "text": "10", "isAnswer": false }
+      ],
+      "matchingPairs": [],
+      "orderingItems": [],
+      "shortAnswer": ""
+    },
+    {
+      "type": "MultipleChoice",
+      "questionText": "Loài động vật nào lớn nhất trên Trái Đất?",
+      "explainText": "Đây là loài cá voi lớn nhất sống ở đại dương.",
+      "score": 10,
+      "multipleChoices": [
+        { "text": "Cá voi xanh", "isAnswer": true },
+        { "text": "Voi", "isAnswer": false },
+        { "text": "Hươu cao cổ", "isAnswer": false }
+      ],
+      "matchingPairs": [],
+      "orderingItems": [],
+      "shortAnswer": ""
+    },
+    {
+      "type": "ShortText",
+      "questionText": "Tên của ngọn núi cao nhất thế giới là gì?",
+      "explainText": "Ngọn núi này nằm ở dãy Himalaya.",
+      "score": 10,
+      "multipleChoices": [],
+      "matchingPairs": [],
+      "orderingItems": [],
+      "shortAnswer": "Everest"
+    },
+    {
+      "type": "ShortText",
+      "questionText": "Quốc gia nào có hình dạng giống một chiếc giày ống?",
+      "explainText": "Quốc gia này nằm ở Nam Âu.",
+      "score": 10,
+      "multipleChoices": [],
+      "matchingPairs": [],
+      "orderingItems": [],
+      "shortAnswer": "Ý"
+    }
+  ]
+}
+###
+
+

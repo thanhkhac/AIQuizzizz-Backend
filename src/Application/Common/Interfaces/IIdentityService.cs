@@ -1,5 +1,6 @@
 ﻿using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Users;
+using CleanArchitectureBase.Application.Users.Common;
 
 namespace CleanArchitectureBase.Application.Common.Interfaces;
 
@@ -17,4 +18,6 @@ public interface IIdentityService
     
     Task<TokenDto> TryLoginAsync(string email, string password);
     
+    Task<TokenDto> RefreshTokenAsync(string accessToken, string refreshToken);
+    Task RevokeRefreshTokenAsync(string refreshToken, Guid userId);
 }

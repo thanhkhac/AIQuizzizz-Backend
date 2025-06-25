@@ -1,5 +1,6 @@
 ﻿namespace CleanArchitectureBase.Domain.Entities;
 
+//TODO: đổi tiền về kiểu dữ liệu khác nếu muốn sử dụng quốc tế
 public class User 
 {
     public required Guid Id { get; set; } = Guid.NewGuid();

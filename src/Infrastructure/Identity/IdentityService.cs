@@ -1,12 +1,15 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Users;
+using CleanArchitectureBase.Application.Users.Common;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
+using CleanArchitectureBase.Infrastructure.Data;
 using CleanArchitectureBase.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -24,6 +27,7 @@ public class IdentityService : IIdentityService
     private readonly IAuthorizationService _authorizationService;
     private readonly SignInManager<UserAccount> _signInManager;
     private readonly JwtSettings _jwtSettings;
+    private readonly ApplicationDbContext _dbContext;
 
 
     public IdentityService(
@@ -32,12 +36,14 @@ public class IdentityService : IIdentityService
         IAuthorizationService authorizationService,
         SignInManager<UserAccount> signInManager,
         IConfiguration configuration,
-        IOptions<JwtSettings> jwtSettings)
+        IOptions<JwtSettings> jwtSettings,
+        ApplicationDbContext dbContext)
     {
         _userManager = userManager;
         _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
         _authorizationService = authorizationService;
         _signInManager = signInManager;
+        _dbContext = dbContext;
         _jwtSettings = jwtSettings.Value;
     }
 
@@ -114,10 +120,10 @@ public class IdentityService : IIdentityService
         if (!result.Succeeded)
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, "Incorrect password");
 
-        return GenerateJwtToken(user);
+        return await GenerateJwtTokenAsync(user);
     }
 
-    private TokenDto GenerateJwtToken(UserAccount userAccount)
+    private async Task<TokenDto> GenerateJwtTokenAsync(UserAccount userAccount)
     {
         var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, userAccount.Id.ToString()), };
 
@@ -135,8 +141,105 @@ public class IdentityService : IIdentityService
             claims: claims,
             expires: expires,
             signingCredentials: creds);
+        var refreshToken = await GenerateRefreshTokenAsync(userAccount);
+        return new TokenDto
+        {
+            AccessToken = new JwtSecurityTokenHandler().WriteToken(token), RefreshToken = refreshToken.Token, ExpireMin = _jwtSettings.ExpiryMinutes
+        };
+    }
 
-        return new TokenDto { AccessToken = new JwtSecurityTokenHandler().WriteToken(token), RefreshToken = "", ExpireMin = _jwtSettings.ExpiryMinutes };
+    public async Task RevokeRefreshTokenAsync(string refreshToken, Guid userId)
+    {
+        var storedRefreshToken = await _dbContext.Set<RefreshToken>()
+            .FirstOrDefaultAsync(rt => rt.Token == refreshToken && rt.UserAccountId == userId);
+
+        if (storedRefreshToken != null)
+        {
+            _dbContext.Set<RefreshToken>().Remove(storedRefreshToken);
+            await _dbContext.SaveChangesAsync();
+        }else
+        {
+            throw new ErrorCodeException(ErrorCodes.COMMON_NOT_FOUND, "Refresh token not found");
+        }
+    }
+
+    public async Task<TokenDto> RefreshTokenAsync(string accessToken, string refreshToken)
+    {
+        var storedRefreshToken = await _dbContext.Set<RefreshToken>()
+            .FirstOrDefaultAsync(rt => rt.Token == refreshToken);
+
+        if (storedRefreshToken == null || storedRefreshToken.ExpireAt < DateTime.UtcNow)
+        {
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, "Invalid or expired refresh token");
+        }
+
+        var principal = GetPrincipalFromToken(accessToken, validateLifetime: false);
+        var userIdClaim = principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId) || userId != storedRefreshToken.UserAccountId)
+        {
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, "Invalid access token for refresh");
+        }
+
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null || user.IsDeleted || user.IsBanned || await _userManager.IsLockedOutAsync(user))
+        {
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, "User account is invalid or locked out or banned");
+        }
+
+        _dbContext.Set<RefreshToken>().Remove(storedRefreshToken);
+        await _dbContext.SaveChangesAsync();
+
+        return await GenerateJwtTokenAsync(user);
+    }
+
+    private async Task<RefreshToken> GenerateRefreshTokenAsync(UserAccount userAccount)
+    {
+        var refreshToken = new RefreshToken
+        {
+            Id = Guid.NewGuid().ToString(),
+            UserAccountId = userAccount.Id,
+            Token = GenerateSecureToken(),
+            ExpireAt = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiryDays)
+        };
+
+        _dbContext.Set<RefreshToken>().Add(refreshToken);
+        await _dbContext.SaveChangesAsync();
+
+        return refreshToken;
+    }
+
+
+    private string GenerateSecureToken()
+    {
+        return Guid.NewGuid().ToString();
+    }
+
+    private ClaimsPrincipal? GetPrincipalFromToken(string token, bool validateLifetime = true)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        Guard.Against.NullOrEmpty(_jwtSettings.SecretKey, "Secret key is null or empty");
+        var key = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
+
+        try
+        {
+            var principal = tokenHandler.ValidateToken(token,
+                new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = validateLifetime,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = _jwtSettings.Issuer,
+                    ValidAudience = _jwtSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(key)
+                }, out var validatedToken);
+
+            return principal;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
 

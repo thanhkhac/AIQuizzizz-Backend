@@ -9,7 +9,6 @@ public interface IApplicationDbContext
     DbSet<TodoItem> TodoItems { get; }
 
     DbSet<User> DomainUsers { get; }
-
     public DbSet<Plan> Plans { get; }
     public DbSet<TokenPackage> TokenPackages { get; }
     public DbSet<UserTokenPurchase> UserTokenPurchases { get; }

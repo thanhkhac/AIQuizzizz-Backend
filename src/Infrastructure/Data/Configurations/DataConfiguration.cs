@@ -124,7 +124,7 @@ public class QuestionConfiguration : IEntityTypeConfiguration<Question>
 
         builder.Property(q => q.DataJson)
             .IsRequired()
-            .HasColumnType("jsonb");
+            .HasColumnType("json");
 
         builder.Ignore(q => q.Data);
 
@@ -461,7 +461,7 @@ public class AttemptQuestionConfiguration : IEntityTypeConfiguration<AttemptQues
 
         builder.Property(aq => aq.DataJson)
             .IsRequired()
-            .HasColumnType("jsonb");
+            .HasColumnType("json");
 
         builder.Ignore(aq => aq.Data);
 

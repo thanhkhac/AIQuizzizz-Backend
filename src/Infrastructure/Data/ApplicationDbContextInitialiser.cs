@@ -20,7 +20,7 @@ public static class InitialiserExtensions
 
         // await initialiser.InitialiseAsync();
         
-        // await initialiser.SeedAsync();
+        await initialiser.SeedAsync();
         await Task.CompletedTask;
     }
 }
@@ -82,14 +82,13 @@ public class ApplicationDbContextInitialiser
         }
 
         // Default users
-        var user = new User { Id = Guid.NewGuid(), FullName = "Admin", Email = "sa@gmail.com", IsBanned = false };
+        var user = new User { Id = Guid.Parse("77777777-7777-7777-7777-777777777777"), FullName = "Admin", Email = "sa@gmail.com", IsBanned = false };
         var administrator = new UserAccount
         {
             Id = user.Id,
-            UserName = Guid.NewGuid()
-                .ToString(),
+            UserName = "77777777-7777-7777-7777-777777777777",
             Email = "sa@gmail.com",
-            IsDeleted = true,
+            IsDeleted = false,
             User = user
         };
 

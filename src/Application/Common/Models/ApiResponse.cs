@@ -16,5 +16,16 @@ public class ApiResponse<T>
             Data = data
         };
     }
-    
+}
+
+
+public class ApiResponse : ApiResponse<object>
+{
+    public static ApiResponse SuccessResult()
+    {
+        return new ApiResponse
+        {
+            Success = true
+        };
+    }
 }

@@ -3,10 +3,12 @@ using CleanArchitectureBase.Infrastructure;
 using CleanArchitectureBase.Infrastructure.Data;
 using CleanArchitectureBase.Infrastructure.Settings;
 using CleanArchitectureBase.Web;
+using DotNetEnv;
 using NSwag.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
+Env.Load();
+builder.Configuration.AddEnvironmentVariables();
 // Add services to the container.
 builder.Services.AddKeyVaultIfConfigured(builder.Configuration);
 

@@ -9,4 +9,9 @@ public static class ResultExtensions
     {
         return TypedResults.Ok(ApiResponse<T>.SuccessResult(data));
     }
+    public static Ok<ApiResponse> ToOk(this ApiResponse response)
+    {
+        return TypedResults.Ok(response);
+    }
+    
 }
