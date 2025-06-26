@@ -1,10 +1,11 @@
-﻿using CleanArchitectureBase.Application.Common.Exceptions;
+﻿using CleanArchitectureBase.Application.Classes.Common;
+using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Tests.LecturerTests;
+namespace CleanArchitectureBase.Application.Tests.Lecturer;
 
 public class TestSearchResultDto
 {
@@ -42,35 +43,38 @@ public class SearchTestValidator : AbstractValidator<SearchTest>
 public class SearchTestHandler : IRequestHandler<SearchTest, PaginatedList<TestSearchResultDto>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ClassValidationService _classValidationService;
     
-    public SearchTestHandler(IApplicationDbContext context)
+    public SearchTestHandler(IApplicationDbContext context, ClassValidationService classValidationService)
     {
         _context = context;
+        _classValidationService = classValidationService;
     }
     
     public async Task<PaginatedList<TestSearchResultDto>> Handle(SearchTest rq, CancellationToken cancellationToken)
     {
-        var classById = await _context.Classes.FindAsync(rq.ClassId);
-        if (classById == null)
-            throw new ErrorCodeException(ErrorCodes.CLASS_NOT_FOUND, "Lớp học không tồn tại");
+        var (isOwner, classExists) = await _classValidationService.ValidateClassAccessAsync(rq.ClassId, cancellationToken);
         
         var tests = await _context.Tests.Where(x => x.ClassId.Equals(rq.ClassId))
             .ToListAsync(cancellationToken);
         
         var testIds = tests.Select(t => t.Id).ToList();
         
-        var testVersions = await _context.TestVersions
-            .Where(x => testIds.Contains(x.TestId) && x.No == 0 )
-            .Select(tv => new { tv.TestId, tv.Id })
-            .ToDictionaryAsync(tv => tv.TestId, tv => tv.Id, cancellationToken);
-        
-        var testVersionIds = testVersions.Values.ToList();
-        
-        var questionCounts = await _context.TestVersionQuestions
-            .Where(q => testVersionIds.Contains(q.TestVersionId))
-            .GroupBy(q => q.TestVersionId)
-            .Select(q => new { TestVersionId = q.Key, Count = q.Count() })
-            .ToDictionaryAsync(x => x.TestVersionId, x => x.Count, cancellationToken);
+        var versionQuestionCounts = await _context.TestVersions
+            .Where(x => testIds.Contains(x.TestId) && x.No == 0)
+            .GroupJoin(_context.TestVersionQuestions,
+                tv => tv.Id,
+                q => q.TestVersionId,
+                (tv, qs) => new
+                {
+                    TestId = tv.TestId,
+                    TestVersionId = tv.Id,
+                    QuestionCount = qs.Count()
+                })
+            .ToDictionaryAsync(
+                x => x.TestId,
+                x => new { x.TestVersionId, x.QuestionCount },
+                cancellationToken);
         
         var attemptCounts = await _context.Attempts
             .Where(a => testIds.Contains(a.TestId))
@@ -80,18 +84,16 @@ public class SearchTestHandler : IRequestHandler<SearchTest, PaginatedList<TestS
 
         var results = tests.Select(test =>
         {
-            var testVersion = testVersions.ContainsKey(test.Id) ? testVersions[test.Id] : Guid.Empty;
-
-            var questionCount = (testVersion != Guid.Empty && questionCounts.ContainsKey(testVersion))
-                ? questionCounts[testVersion]
-                : 0;
+            var questionCount = versionQuestionCounts.ContainsKey(test.Id)
+                ? versionQuestionCounts[test.Id]
+                : new { TestVersionId = Guid.Empty, QuestionCount = 0 };
 
             var completionCount = attemptCounts.ContainsKey(test.Id) ? attemptCounts[test.Id] : 0;
 
             return new TestSearchResultDto
             {
                 Name = test.Name,
-                NumberOfQuestions = questionCount,
+                NumberOfQuestions = questionCount.QuestionCount,
                 NumberOfCompletion = completionCount,
                 Status = test.TimeStart > DateTime.UtcNow ? TestStatus.Upcoming.ToString()
                     : test.TimeFinish < DateTime.UtcNow ? TestStatus.Completed.ToString()

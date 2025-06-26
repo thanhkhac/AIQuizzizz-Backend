@@ -1,4 +1,5 @@
-﻿using CleanArchitectureBase.Application.Classes.LecturerClasses;
+﻿using CleanArchitectureBase.Application.Classes.Lecturer;
+using CleanArchitectureBase.Application.Classes.Student;
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Domain.Entities;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -15,7 +16,8 @@ public class Class : EndpointGroupBase
             .MapPost(JoinClassByCode, "students")
             .MapPost(InviteStudent, "/{ClassId}/invitations")
             .MapGet(SearchStudent, "/{ClassId}/students")
-            .MapGet(SearchClass, "/classes");
+            .MapGet(SearchClass, "/classes")
+            .MapPatch("/{ClassId}/members/{UserId}", UpdatePosition);
     }
 
     public async Task<Ok<ApiResponse<Guid>>> CreateClass([FromBody] CreateClassCommand rq, ISender sender)
@@ -80,6 +82,22 @@ public class Class : EndpointGroupBase
         };
         var result = await sender.Send(rq);
         return result.ToOk();
-    } 
+    }
+
+    public async Task<Ok<ApiResponse<UpdatePositionDto>>> UpdatePosition(
+        [FromRoute] Guid ClassId,
+        [FromRoute] Guid userId,
+        [FromQuery] ClassShareMode Position,
+        ISender sender)
+    {
+        var rq = new UpdatePositionCommand()
+        {
+            ClassId = ClassId,
+            Position = Position,
+            UserId = userId
+        };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
 
 }

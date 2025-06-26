@@ -54,5 +54,7 @@ public static class ErrorCodes
     public const string CLASS_NOT_FOUND = nameof(CLASS_NOT_FOUND);
     public const string CLASS_CODE_NOT_FOUND = nameof(CLASS_NOT_FOUND);
     public const string STUDENT_ALREADY_EXISTS = nameof(STUDENT_ALREADY_EXISTS);
+    public const string ONLY_OWNERS_CAN_UPDATE = nameof(ONLY_OWNERS_CAN_UPDATE);
+    public const string NOT_FOUND_STUDENT = nameof(NOT_FOUND_STUDENT);
 
 }

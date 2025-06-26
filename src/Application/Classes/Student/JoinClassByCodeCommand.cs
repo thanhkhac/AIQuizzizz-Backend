@@ -3,7 +3,7 @@ using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Classes.LecturerClasses;
+namespace CleanArchitectureBase.Application.Classes.Student;
 
 public class JoinClassByCodeCommand : IRequest<Unit>
 {
@@ -42,7 +42,7 @@ public class JoinClassByCodeCommandHandler : IRequestHandler<JoinClassByCodeComm
         if (classInvitation == null)
             throw new ErrorCodeException(ErrorCodes.CLASS_CODE_NOT_FOUND, "Mã code không tồn tại hoặc đã hết hạn");
         
-        var classByCode = await _context.Classes.Where(x => x.Id == classInvitation.ClassId).FirstOrDefaultAsync();
+        var classByCode = await _context.Classes.Where(x => x.Id == classInvitation.ClassId && x.IsDeleted == false).FirstOrDefaultAsync();
         if (classByCode == null)
             throw new ErrorCodeException(ErrorCodes.CLASS_NOT_FOUND, "Lớp học không tồn tại");
 

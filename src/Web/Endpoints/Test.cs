@@ -1,5 +1,5 @@
 ﻿using CleanArchitectureBase.Application.Common.Models;
-using CleanArchitectureBase.Application.Tests.LecturerTests;
+using CleanArchitectureBase.Application.Tests.Lecturer;
 using CleanArchitectureBase.Domain.Entities;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;

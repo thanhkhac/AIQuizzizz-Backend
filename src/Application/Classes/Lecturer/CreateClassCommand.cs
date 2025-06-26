@@ -3,7 +3,7 @@ using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Classes.LecturerClasses;
+namespace CleanArchitectureBase.Application.Classes.Lecturer;
 
 public class CreateClassCommand : IRequest<Guid>
 {
@@ -36,7 +36,7 @@ public class CreateClassCommandHandler : IRequestHandler<CreateClassCommand, Gui
         if (user == null)
             throw new ErrorCodeException(ErrorCodes.COMMON_NOT_FOUND, $"User with id {_user.UserId} not found");
         
-        if (await _context.Classes.AnyAsync(x => x.Name == rq.Name))
+        if (await _context.Classes.AnyAsync(x => x.Name == rq.Name && x.IsDeleted == false))
         {
             throw new ErrorCodeException(ErrorCodes.CLASS_ALREADY_EXISTS, "Tên lớp học đã tồn tại");
         }
