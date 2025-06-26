@@ -17,6 +17,8 @@ public class Class : EndpointGroupBase
             .MapPost(InviteStudent, "/{ClassId}/invitations")
             .MapGet(SearchStudent, "/{ClassId}/students")
             .MapGet(SearchClass, "/classes")
+            .MapDelete(DeleteClass, "/{ClassId}")
+            .MapDelete(RemoveStudent, "/{ClassId}/members/{UserId}")
             .MapPatch("/{ClassId}/members/{UserId}", UpdatePosition);
     }
 
@@ -99,5 +101,30 @@ public class Class : EndpointGroupBase
         var result = await sender.Send(rq);
         return result.ToOk();
     }
+    
+    public async Task<Ok<ApiResponse<Guid>>> DeleteClass(
+        [FromRoute] Guid ClassId,
+        ISender sender)
+    {
+        var rq = new DeleteClassCommand()
+        {
+            ClassId = ClassId
+        };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
 
+    public async Task<Ok<ApiResponse<Guid>>> RemoveStudent(
+        [FromRoute] Guid ClassId,
+        [FromRoute] Guid UserId,
+        ISender sender)
+    {
+        var rq = new RemoveStudentCommand()
+        {
+            ClassId = ClassId,
+            UserId = UserId
+        };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
 }
