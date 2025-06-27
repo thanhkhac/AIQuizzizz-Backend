@@ -22,7 +22,7 @@ public class Test : EndpointGroupBase
         [FromQuery] int PageNumber = 1,
         [FromQuery] int PageSize = 5)
     {
-        var rq = new SearchTest()
+        var rq = new SearchTestInClass()
         {
             ClassId = ClassId,
             TestName = TestName,

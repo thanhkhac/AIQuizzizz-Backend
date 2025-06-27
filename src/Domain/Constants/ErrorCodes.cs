@@ -56,5 +56,10 @@ public static class ErrorCodes
     public const string STUDENT_ALREADY_EXISTS = nameof(STUDENT_ALREADY_EXISTS);
     public const string ONLY_OWNERS_CAN_UPDATE = nameof(ONLY_OWNERS_CAN_UPDATE);
     public const string NOT_FOUND_STUDENT = nameof(NOT_FOUND_STUDENT);
+    public const string QUESTION_SET_ALREADY_IN_CLASS = nameof(QUESTION_SET_ALREADY_IN_CLASS);
+    
+    //Question set
+    public const string QUESTION_SET_NOT_FOUND = nameof(QUESTION_SET_NOT_FOUND);
+    public const string QUESTION_SET_NOT_FOUND_IN_CLASS = nameof(QUESTION_SET_NOT_FOUND_IN_CLASS);
 
 }

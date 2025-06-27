@@ -17,7 +17,7 @@ public class TestSearchResultDto
     public string? Status { get; set; }
 }   
 
-public class SearchTest : IRequest<PaginatedList<TestSearchResultDto>>
+public class SearchTestInClass : IRequest<PaginatedList<TestSearchResultDto>>
 {
     public required Guid ClassId { get; set; }
     public string? TestName { get; set; }
@@ -26,7 +26,7 @@ public class SearchTest : IRequest<PaginatedList<TestSearchResultDto>>
     public int PageSize { get; set; } = 5;
 }
 
-public class SearchTestValidator : AbstractValidator<SearchTest>
+public class SearchTestValidator : AbstractValidator<SearchTestInClass>
 {
     public SearchTestValidator()
     {
@@ -40,7 +40,7 @@ public class SearchTestValidator : AbstractValidator<SearchTest>
     }
 }
 
-public class SearchTestHandler : IRequestHandler<SearchTest, PaginatedList<TestSearchResultDto>>
+public class SearchTestHandler : IRequestHandler<SearchTestInClass, PaginatedList<TestSearchResultDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly ClassValidationService _classValidationService;
@@ -51,7 +51,7 @@ public class SearchTestHandler : IRequestHandler<SearchTest, PaginatedList<TestS
         _classValidationService = classValidationService;
     }
     
-    public async Task<PaginatedList<TestSearchResultDto>> Handle(SearchTest rq, CancellationToken cancellationToken)
+    public async Task<PaginatedList<TestSearchResultDto>> Handle(SearchTestInClass rq, CancellationToken cancellationToken)
     {
         var (isOwner, classExists) = await _classValidationService.ValidateClassAccessAsync(rq.ClassId, cancellationToken);
         

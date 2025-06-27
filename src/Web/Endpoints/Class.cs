@@ -15,10 +15,12 @@ public class Class : EndpointGroupBase
             .MapPost(CreateClass, "")
             .MapPost(JoinClassByCode, "students")
             .MapPost(InviteStudent, "/{ClassId}/invitations")
+            .MapPost(AddQuestionSet, "/{ClassId}/questionsets/{QuestionSetId}")
             .MapGet(SearchStudent, "/{ClassId}/students")
             .MapGet(SearchClass, "/classes")
             .MapDelete(DeleteClass, "/{ClassId}")
             .MapDelete(RemoveStudent, "/{ClassId}/members/{UserId}")
+            .MapDelete(RemoveQuestionSet, "/{ClassId}/questionsets/{QuestionSetId}")
             .MapPatch("/{ClassId}/members/{UserId}", UpdatePosition);
     }
 
@@ -56,7 +58,7 @@ public class Class : EndpointGroupBase
         [FromQuery] int PageNumber = 1,
         [FromQuery] int PageSize = 5)
     {
-        var rq = new SearchStudent
+        var rq = new SearchStudentInClass
         {
             ClassId = ClassId,
             Keyword = Keyword,
@@ -123,6 +125,34 @@ public class Class : EndpointGroupBase
         {
             ClassId = ClassId,
             UserId = UserId
+        };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+
+    public async Task<Ok<ApiResponse<Guid>>> AddQuestionSet(
+        [FromRoute] Guid ClassId,
+        [FromRoute] Guid QuestionSetId,
+        ISender sender)
+    {
+        var rq = new AddQuestionSetCommand()
+        {
+            ClassId = ClassId,
+            QuestionSetId = QuestionSetId
+        };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<Guid>>> RemoveQuestionSet(
+        [FromRoute] Guid ClassId,
+        [FromRoute] Guid QuestionSetId,
+        ISender sender)
+    {
+        var rq = new RemoveQuestionSetCommand()
+        {
+            ClassId = ClassId,
+            QuestionSetId = QuestionSetId
         };
         var result = await sender.Send(rq);
         return result.ToOk();
