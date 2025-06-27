@@ -40,18 +40,17 @@ jobs:
             sudo ufw allow 5000 || true
             sudo ufw reload || true
 
-            #Tạo thư mục
-            echo "==> Chuẩn bị thư mục dự án"
-            mkdir -p /home/user/aiquizziz
-            cd /home/user/aiquizziz
 
             # Pull mã nguồn mới từ GitHub bằng token
-            if [ ! -d "/home/user/aiquizziz/.git" ]; then
-              echo "==> Repo chưa tồn tại. Cloning..."
-              git clone https://x-access-token:${GIT_AUTH_TOKEN}@github.com/thanhkhac/AIQuizzizz-Backend.git /home/user/aiquizziz
+            PROJECT_DIR="/home/user/aiquizziz"
+
+            if [ ! -d "$PROJECT_DIR/.git" ]; then
+              echo "==> Repo chưa tồn tại hoặc bị lỗi. Xóa và clone lại"
+              rm -rf $PROJECT_DIR
+              git clone https://x-access-token:${GIT_AUTH_TOKEN}@github.com/thanhkhac/AIQuizzizz-Backend.git $PROJECT_DIR
             else
               echo "==> Repo đã tồn tại. Pulling..."
-              cd /home/user/aiquizziz
+              cd $PROJECT_DIR
               git pull
             fi
             
