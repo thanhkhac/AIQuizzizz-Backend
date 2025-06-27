@@ -1,0 +1,63 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          TAG: ${{ github.sha }}
+          ASPNETCORE_ENVIRONMENT: ${{ secrets.ASPNETCORE_ENVIRONMENT }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          envs: DOCKER_USERNAME,TAG,ASPNETCORE_ENVIRONMENT
+          script: |
+            # Cài git nếu chưa có
+            if ! command -v git &> /dev/null; then
+              sudo apt update
+              sudo apt install git -y
+            fi
+
+            # Mở port 5000 
+            sudo ufw allow 5000 || true
+            sudo ufw reload || true
+
+            mkdir -p /home/user/aiquizziz
+            cd /home/user/aiquizziz
+            
+            # Pull mã nguồn mới từ GitHub bằng token
+            if [ ! -d "/home/user/aiquizziz/.git" ]; then
+              echo "Repo chưa tồn tại. Cloning..."
+              git clone https://x-access-token:${GIT_AUTH_TOKEN}@github.com/your-username/your-repo.git /home/user/aiquizziz
+            else
+              echo "Repo đã tồn tại. Pull latest code..."
+              cd /home/user/aiquizziz
+              git pull
+            fi
+
+            # Ghi environment file
+            echo "DOCKER_USERNAME=$DOCKER_USERNAME" > .env
+            echo "TAG=$TAG" >> .env
+            echo "ASPNETCORE_ENVIRONMENT=$ASPNETCORE_ENVIRONMENT" >> .env
+            echo "DB_USERNAME=$DB_USERNAME" >> .env
+            echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+            echo "DB_NAME=$DB_NAME" >> .env
+
+            # Restart ứng dụng với build mới
+            docker-compose -f docker-compose.yml -f docker-compose.db.yml down || true
+            docker-compose -f docker-compose.yml -f docker-compose.db.yml up --build -d

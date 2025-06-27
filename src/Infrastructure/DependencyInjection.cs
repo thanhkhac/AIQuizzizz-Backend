@@ -73,7 +73,7 @@ public static class DependencyInjection
             {
                 var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>();
                 Guard.Against.Null(jwtSettings, message: "JwtSetting not found.");
-                Guard.Against.Null(jwtSettings.SecretKey, message: "Secret key not found.");
+                Guard.Against.NullOrEmpty(jwtSettings.SecretKey, message: "Secret key not found.");
 
                 var keyBytes = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
 
