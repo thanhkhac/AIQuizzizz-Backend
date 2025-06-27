@@ -28,29 +28,34 @@ jobs:
           envs: DOCKER_USERNAME,TAG,ASPNETCORE_ENVIRONMENT
           script: |
             # Cài git nếu chưa có
+            echo "==> Cài đặt git nếu chưa có"
             if ! command -v git &> /dev/null; then
               sudo apt update
               sudo apt install git -y
             fi
 
             # Mở port 5000 
+            echo "==> Mở port 5000"
             sudo ufw allow 5000 || true
             sudo ufw reload || true
 
+            #Tạo thư mục
+            echo "==> Chuẩn bị thư mục dự án"
             mkdir -p /home/user/aiquizziz
             cd /home/user/aiquizziz
-            
+
             # Pull mã nguồn mới từ GitHub bằng token
             if [ ! -d "/home/user/aiquizziz/.git" ]; then
-              echo "Repo chưa tồn tại. Cloning..."
+              echo "==> Repo chưa tồn tại. Cloning..."
               git clone https://x-access-token:${GIT_AUTH_TOKEN}@github.com/your-username/your-repo.git /home/user/aiquizziz
             else
-              echo "Repo đã tồn tại. Pull latest code..."
+              echo "==> Repo đã tồn tại. Pulling..."
               cd /home/user/aiquizziz
               git pull
             fi
-
+            
             # Ghi environment file
+            echo "==> Ghi file .env"
             echo "DOCKER_USERNAME=$DOCKER_USERNAME" > .env
             echo "TAG=$TAG" >> .env
             echo "ASPNETCORE_ENVIRONMENT=$ASPNETCORE_ENVIRONMENT" >> .env
@@ -59,5 +64,7 @@ jobs:
             echo "DB_NAME=$DB_NAME" >> .env
 
             # Restart ứng dụng với build mới
+            echo "==> Triển khai ứng dụng"
             docker-compose -f docker-compose.yml -f docker-compose.db.yml down || true
             docker-compose -f docker-compose.yml -f docker-compose.db.yml up --build -d
+            echo "CD hoàn tất"
