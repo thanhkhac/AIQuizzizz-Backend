@@ -49,12 +49,12 @@ public class ApplicationDbContextInitialiser
             //OPTION: Xóa database hiện tại
             // await _context.Database.EnsureDeletedAsync();
             //Thực hiện các migrations chưa được áp dụng
-            var databaseExists = await _context.Database.CanConnectAsync();
+            var databaseExists = await _context.Database.EnsureCreatedAsync();
 
-            if (!databaseExists)
-            {
-                await _context.Database.MigrateAsync();
-            }
+            // if (!databaseExists)
+            // {
+            //     await _context.Database.MigrateAsync();
+            // }
         }
         catch (Exception ex)
         {
