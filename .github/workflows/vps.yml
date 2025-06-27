@@ -27,7 +27,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 104
+          port: 1204
           envs: DOCKER_USERNAME,TAG,ASPNETCORE_ENVIRONMENT,DB_USERNAME,DB_PASSWORD,DB_NAME,GIT_AUTH_TOKEN,JWTSETTINGS__SECRETKEY
           script: |
             # Cài git nếu chưa có
