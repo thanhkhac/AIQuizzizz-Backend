@@ -14,10 +14,6 @@ jobs:
 
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           TAG: ${{ github.sha }}
@@ -25,7 +21,12 @@ jobs:
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_NAME: ${{ secrets.DB_NAME }}
-          envs: DOCKER_USERNAME,TAG,ASPNETCORE_ENVIRONMENT
+          GIT_AUTH_TOKEN: ${{ secrets.GIT_AUTH_TOKEN }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: DOCKER_USERNAME,TAG,ASPNETCORE_ENVIRONMENT,DB_USERNAME,DB_PASSWORD,DB_NAME,GIT_AUTH_TOKEN
           script: |
             # Cài git nếu chưa có
             echo "==> Cài đặt git nếu chưa có"
