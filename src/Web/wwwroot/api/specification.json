@@ -6,6 +6,246 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/api/Class": {
+      "post": {
+        "tags": [
+          "Class"
+        ],
+        "operationId": "CreateClass",
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClassCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Class/students": {
+      "post": {
+        "tags": [
+          "Class"
+        ],
+        "operationId": "JoinClassByCode",
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinClassByCodeCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfUnit"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Class/{ClassId}/invitations": {
+      "post": {
+        "tags": [
+          "Class"
+        ],
+        "operationId": "InviteStudent",
+        "parameters": [
+          {
+            "name": "ClassId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "ExpiredTime",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfClassCodeDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Class/{ClassId}/students": {
+      "get": {
+        "tags": [
+          "Class"
+        ],
+        "operationId": "SearchStudent",
+        "parameters": [
+          {
+            "name": "ClassId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "Keyword",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "FieldName",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "PageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "x-position": 4
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 5
+            },
+            "x-position": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfStudentSearchResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Class/classes": {
+      "get": {
+        "tags": [
+          "Class"
+        ],
+        "operationId": "SearchClass",
+        "parameters": [
+          {
+            "name": "shareMode",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/ClassShareMode"
+                }
+              ]
+            },
+            "x-position": 1
+          },
+          {
+            "name": "Name",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "PageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "x-position": 3
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 5
+            },
+            "x-position": 4
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfClassSearchResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/QuestionSets/create": {
       "post": {
         "tags": [
@@ -31,6 +271,80 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Test/{ClassId}/tests": {
+      "get": {
+        "tags": [
+          "Test"
+        ],
+        "operationId": "SearchTest",
+        "parameters": [
+          {
+            "name": "Status",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TestStatus"
+                }
+              ]
+            },
+            "x-position": 1
+          },
+          {
+            "name": "TestName",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "ClassId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 3
+          },
+          {
+            "name": "PageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "x-position": 4
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 5
+            },
+            "x-position": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfTestSearchResultDto"
                 }
               }
             }
@@ -534,6 +848,276 @@
           }
         }
       },
+      "CreateClassCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseOfUnit": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "$ref": "#/components/schemas/Unit"
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Unit": {
+        "type": "object",
+        "description": "Represents a void type, since Void is not a valid return type in C#.",
+        "additionalProperties": false
+      },
+      "JoinClassByCodeCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseOfClassCodeDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ClassCodeDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ClassCodeDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseOfPaginatedListOfStudentSearchResultDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedListOfStudentSearchResultDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PaginatedListOfStudentSearchResultDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentSearchResultDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "StudentSearchResultDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string"
+          },
+          "position": {
+            "$ref": "#/components/schemas/ClassShareMode"
+          }
+        }
+      },
+      "ClassShareMode": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Student",
+          "Teacher",
+          "Owner"
+        ],
+        "enum": [
+          0,
+          1,
+          2
+        ]
+      },
+      "ApiResponseOfPaginatedListOfClassSearchResultDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedListOfClassSearchResultDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PaginatedListOfClassSearchResultDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClassSearchResultDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ClassSearchResultDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "CreateQuestionSetCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -641,6 +1225,118 @@
             "format": "int32"
           }
         }
+      },
+      "ApiResponseOfPaginatedListOfTestSearchResultDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedListOfTestSearchResultDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PaginatedListOfTestSearchResultDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TestSearchResultDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TestSearchResultDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "numberOfQuestions": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "timeLimit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "relativeTime": {
+            "type": "number",
+            "format": "double"
+          },
+          "numberOfCompletion": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "TestStatus": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Active",
+          "Completed",
+          "Upcoming",
+          "Overdue"
+        ],
+        "enum": [
+          0,
+          1,
+          2,
+          3
+        ]
       },
       "PaginatedListOfTodoItemBriefDto": {
         "type": "object",

@@ -3,11 +3,10 @@ using CleanArchitectureBase.Infrastructure;
 using CleanArchitectureBase.Infrastructure.Data;
 using CleanArchitectureBase.Infrastructure.Settings;
 using CleanArchitectureBase.Web;
-using DotNetEnv;
-using NSwag.AspNetCore;
+
 
 var builder = WebApplication.CreateBuilder(args);
-Env.Load();
+DotNetEnv.Env.Load("../../.env");
 builder.Configuration.AddEnvironmentVariables();
 // Add services to the container.
 builder.Services.AddKeyVaultIfConfigured(builder.Configuration);
@@ -26,11 +25,11 @@ if (app.Environment.IsDevelopment())
 else
 {
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    // app.UseHsts();
 }
 
 app.UseHealthChecks("/health");
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAuthentication(); 
 

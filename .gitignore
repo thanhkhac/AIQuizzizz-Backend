@@ -481,3 +481,4 @@ $RECYCLE.BIN/
 .azure
 /.idea
 /src/Web/.env
+.env
