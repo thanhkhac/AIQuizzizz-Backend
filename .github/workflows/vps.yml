@@ -27,7 +27,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          envs: DOCKER_USERNAME,TAG,ASPNETCORE_ENVIRONMENT,DB_USERNAME,DB_PASSWORD,DB_NAME,GIT_AUTH_TOKEN
+          envs: DOCKER_USERNAME,TAG,ASPNETCORE_ENVIRONMENT,DB_USERNAME,DB_PASSWORD,DB_NAME,GIT_AUTH_TOKEN,JWTSETTINGS__SECRETKEY
           script: |
             # Cài git nếu chưa có
             echo "==> Cài đặt git nếu chưa có"
@@ -64,6 +64,7 @@ jobs:
             echo "ASPNETCORE_ENVIRONMENT=$ASPNETCORE_ENVIRONMENT" >> .env
             echo "DB_USERNAME=$DB_USERNAME" >> .env
             echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+            echo "JWTSETTINGS__SECRETKEY=$JWTSETTINGS__SECRETKEY" >> .env
             echo "DB_NAME=$DB_NAME" >> .env
 
             echo "==> Thư mục hiện tại là: $(pwd)"
