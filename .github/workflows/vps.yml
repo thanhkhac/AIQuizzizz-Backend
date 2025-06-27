@@ -22,6 +22,7 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_NAME: ${{ secrets.DB_NAME }}
           GIT_AUTH_TOKEN: ${{ secrets.GIT_AUTH_TOKEN }}
+          JWTSETTINGS__SECRETKEY: ${{ secrets.JWTSETTINGS__SECRETKEY }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
