@@ -117,6 +117,12 @@ public class IdentityService : IIdentityService
         return GenerateJwtToken(user);
     }
 
+    public async Task<List<Guid>> GetUsersInRoleAsync()
+    {
+        var admin = await _userManager.GetUsersInRoleAsync(Roles.Administrator);
+        return admin.Select(u => u.Id).ToList();
+    }
+
     private TokenDto GenerateJwtToken(UserAccount userAccount)
     {
         var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, userAccount.Id.ToString()), };

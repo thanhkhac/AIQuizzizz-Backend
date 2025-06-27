@@ -1,4 +1,5 @@
-﻿using CleanArchitectureBase.Application.Common.Models;
+﻿using CleanArchitectureBase.Application.Accounts;
+using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Users;
 using CleanArchitectureBase.Infrastructure.Identity;
 using Microsoft.AspNetCore.Authorization;
@@ -15,6 +16,7 @@ public class Account : EndpointGroupBase
             .MapPost(RegisterUser, "Register")
             .MapPost(Login, "Login")
             .MapGet(GetProfile, "Profile")
+            .MapGet(GetAllAccount, "")
             ;
     }
     
@@ -51,6 +53,25 @@ public class Account : EndpointGroupBase
         }
         
         var result = await sender.Send(new GetProfileQuery());
+        return result.ToOk();
+    }
+
+    public async Task<Ok<ApiResponse<PaginatedList<AccountDto>>>> GetAllAccount(
+        ISender sender,
+        [FromQuery] string? Keyword,
+        [FromQuery] string? FieldName,
+        [FromQuery] int PageNumber = 1,
+        [FromQuery] int PageSize = 5)
+    {
+        var rq = new GetAllAccountCommand
+        {
+            Keyword = Keyword,
+            FieldName = FieldName,
+            PageNumber = PageNumber,
+            PageSize = PageSize,
+        };
+        
+        var result = await sender.Send(rq);
         return result.ToOk();
     }
 
