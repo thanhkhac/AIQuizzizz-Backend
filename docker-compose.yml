@@ -12,4 +12,4 @@ services:
       - ASPNETCORE_HTTP_PORTS=5000
       - JWTSETTINGS__SECRETKEY=${JWTSETTINGS__SECRETKEY}
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${DB_NAME};Username=${DB_USERNAME};Password=${DB_PASSWORD}
-    restart: always
+    # restart: always
