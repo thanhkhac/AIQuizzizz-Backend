@@ -17,6 +17,8 @@
   <ItemGroup>
     <Content Include=".env" />
     <Content Include="docker-compose.db.yml" />
+    <Content Include="docker-compose.nginx.yml" />
     <Content Include="docker-compose.window.yml" />
+    <Content Include="nginx\nginx.conf" />
   </ItemGroup>
 </Project>
