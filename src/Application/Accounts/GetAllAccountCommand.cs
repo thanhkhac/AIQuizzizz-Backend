@@ -52,7 +52,9 @@ public class GetAllAccountCommandHandler : IRequestHandler<GetAllAccountCommand,
     {
         var admins = await _identityService.GetUsersInRoleAsync();
         
-        var user = await _context.DomainUsers.Where(x => x.Id == _user.UserId).FirstOrDefaultAsync(cancellationToken);
+        var user = await _context.DomainUsers
+            .Where(x => x.Id == _user.UserId && x.IsDeleted == false && x.IsBanned == false)
+            .FirstOrDefaultAsync(cancellationToken);
         if (user == null)
             throw new ErrorCodeException(ErrorCodes.COMMON_NOT_FOUND, $"User with id {_user.UserId} not found");
 

@@ -13,15 +13,15 @@ public class Class : EndpointGroupBase
     {
         app.MapGroup(this)
             .MapPost(CreateClass, "")
-            .MapPost(JoinClassByCode, "students")
-            .MapPost(InviteStudent, "/{ClassId}/invitations")
-            .MapPost(AddQuestionSet, "/{ClassId}/questionsets/{QuestionSetId}")
-            .MapGet(SearchStudent, "/{ClassId}/students")
-            .MapGet(SearchClass, "/classes")
+            .MapPost(JoinClassByCode, "Students")
+            .MapPost(InviteStudent, "/{ClassId}/Invitations")
+            .MapPost(AddQuestionSet, "/{ClassId}/Questionsets/{QuestionSetId}")
+            .MapGet(SearchStudent, "/{ClassId}/Students")
+            .MapGet(SearchClass, "/Classes")
             .MapDelete(DeleteClass, "/{ClassId}")
-            .MapDelete(RemoveStudent, "/{ClassId}/members/{UserId}")
-            .MapDelete(RemoveQuestionSet, "/{ClassId}/questionsets/{QuestionSetId}")
-            .MapPatch("/{ClassId}/members/{UserId}", UpdatePosition);
+            .MapDelete(RemoveStudent, "/{ClassId}/Members/{UserId}")
+            .MapDelete(RemoveQuestionSet, "/{ClassId}/Questionsets/{QuestionSetId}")
+            .MapPatch("/{ClassId}/Members/{UserId}", UpdatePosition);
     }
 
     public async Task<Ok<ApiResponse<Guid>>> CreateClass([FromBody] CreateClassCommand rq, ISender sender)
@@ -37,34 +37,34 @@ public class Class : EndpointGroupBase
     }
     
     public async Task<Ok<ApiResponse<ClassCodeDto>>> InviteStudent(
-        [FromRoute] Guid ClassId,
-        [FromQuery] double ExpiredTime,
+        [FromRoute] Guid classId,
+        [FromQuery] double expiredTime,
         ISender sender)
     {
         var rq = new InviteStudentCommand
         {
-            ClassId = ClassId,
-            ExpiredTime = ExpiredTime,
+            ClassId = classId,
+            ExpiredTime = expiredTime,
         };
         var result = await sender.Send(rq);
         return result.ToOk();
     }
     
     public async Task<Ok<ApiResponse<PaginatedList<StudentSearchResultDto>>>> SearchStudent(
-        [FromRoute] Guid ClassId,
-        [FromQuery] string? Keyword,
-        [FromQuery] string? FieldName,
+        [FromRoute] Guid classId,
+        [FromQuery] string? keyword,
+        [FromQuery] string? fieldName,
         ISender sender,
-        [FromQuery] int PageNumber = 1,
-        [FromQuery] int PageSize = 5)
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 5)
     {
         var rq = new SearchStudentInClass
         {
-            ClassId = ClassId,
-            Keyword = Keyword,
-            FieldName = FieldName,
-            PageNumber = PageNumber,
-            PageSize = PageSize,
+            ClassId = classId,
+            Keyword = keyword,
+            FieldName = fieldName,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
         };
         var result = await sender.Send(rq);
         return result.ToOk();
@@ -72,32 +72,32 @@ public class Class : EndpointGroupBase
     
     public async Task<Ok<ApiResponse<PaginatedList<ClassSearchResultDto>>>> SearchClass(
         [FromQuery] ClassShareMode? shareMode,
-        [FromQuery] string? Name,
+        [FromQuery] string? name,
         ISender sender,
-        [FromQuery] int PageNumber = 1,
-        [FromQuery] int PageSize = 5)
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 5)
     {
         var rq = new SearchClass()
         {
            ShareMode = shareMode,
-           Name = Name,
-           PageNumber = PageNumber,
-           PageSize = PageSize,
+           Name = name,
+           PageNumber = pageNumber,
+           PageSize = pageSize,
         };
         var result = await sender.Send(rq);
         return result.ToOk();
     }
 
     public async Task<Ok<ApiResponse<UpdatePositionDto>>> UpdatePosition(
-        [FromRoute] Guid ClassId,
+        [FromRoute] Guid classId,
         [FromRoute] Guid userId,
-        [FromQuery] ClassShareMode Position,
+        [FromQuery] ClassShareMode position,
         ISender sender)
     {
         var rq = new UpdatePositionCommand()
         {
-            ClassId = ClassId,
-            Position = Position,
+            ClassId = classId,
+            Position = position,
             UserId = userId
         };
         var result = await sender.Send(rq);
@@ -105,54 +105,54 @@ public class Class : EndpointGroupBase
     }
     
     public async Task<Ok<ApiResponse<Guid>>> DeleteClass(
-        [FromRoute] Guid ClassId,
+        [FromRoute] Guid classId,
         ISender sender)
     {
         var rq = new DeleteClassCommand()
         {
-            ClassId = ClassId
+            ClassId = classId
         };
         var result = await sender.Send(rq);
         return result.ToOk();
     }
 
     public async Task<Ok<ApiResponse<Guid>>> RemoveStudent(
-        [FromRoute] Guid ClassId,
-        [FromRoute] Guid UserId,
+        [FromRoute] Guid classId,
+        [FromRoute] Guid userId,
         ISender sender)
     {
         var rq = new RemoveStudentCommand()
         {
-            ClassId = ClassId,
-            UserId = UserId
+            ClassId = classId,
+            UserId = userId
         };
         var result = await sender.Send(rq);
         return result.ToOk();
     }
 
     public async Task<Ok<ApiResponse<Guid>>> AddQuestionSet(
-        [FromRoute] Guid ClassId,
-        [FromRoute] Guid QuestionSetId,
+        [FromRoute] Guid classId,
+        [FromRoute] Guid questionSetId,
         ISender sender)
     {
         var rq = new AddQuestionSetCommand()
         {
-            ClassId = ClassId,
-            QuestionSetId = QuestionSetId
+            ClassId = classId,
+            QuestionSetId = questionSetId
         };
         var result = await sender.Send(rq);
         return result.ToOk();
     }
     
     public async Task<Ok<ApiResponse<Guid>>> RemoveQuestionSet(
-        [FromRoute] Guid ClassId,
-        [FromRoute] Guid QuestionSetId,
+        [FromRoute] Guid classId,
+        [FromRoute] Guid questionSetId,
         ISender sender)
     {
         var rq = new RemoveQuestionSetCommand()
         {
-            ClassId = ClassId,
-            QuestionSetId = QuestionSetId
+            ClassId = classId,
+            QuestionSetId = questionSetId
         };
         var result = await sender.Send(rq);
         return result.ToOk();

@@ -38,7 +38,8 @@ public class AddQuestionSetCommandHandler : IRequestHandler<AddQuestionSetComman
     {
         var (isOwner, classExists) = await _classValidationService.ValidateClassAccessAsync(rq.ClassId, cancellationToken);
 
-        var questionSet = await _context.QuestionSets.Where(x => x.Id == rq.QuestionSetId).FirstOrDefaultAsync(cancellationToken);
+        var questionSet = await _context.QuestionSets.Where(x => x.Id == rq.QuestionSetId)
+            .FirstOrDefaultAsync(cancellationToken);
         if (questionSet == null)
             throw new ErrorCodeException(ErrorCodes.QUESTION_SET_NOT_FOUND_IN_CLASS, "Bộ câu hỏi không tồn tại hoặc không thuộc lớp học này.");
 

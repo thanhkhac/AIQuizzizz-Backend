@@ -21,7 +21,10 @@ public class ClassValidationService
         var result = await _context.Classes
             .Where(c => c.Id == classId && c.IsDeleted == false)
             .GroupJoin(
-                _context.ClassUsers.Where(cu => cu.UserId == _user.UserId && cu.ClassId == classId),
+                _context.ClassUsers.Where(cu => cu.UserId == _user.UserId &&
+                                                cu.ClassId == classId &&
+                                                cu.User.IsBanned == false &&
+                                                cu.User.IsDeleted == false),
                 c => c.Id,
                 cu => cu.ClassId,
                 (c, cu) => new

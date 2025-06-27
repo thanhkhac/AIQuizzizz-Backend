@@ -37,7 +37,7 @@ public class RemoveStudentHandler : IRequestHandler<RemoveStudentCommand, Guid>
     public async Task<Guid> Handle(RemoveStudentCommand rq, CancellationToken cancellationToken)
     {
         var user = await _context.DomainUsers
-            .Where(x => x.Id == rq.UserId)
+            .Where(x => x.Id == rq.UserId && x.IsDeleted == false && x.IsBanned == false)
             .Join(
                 _context.ClassUsers.Where(c => c.ClassId == rq.ClassId && c.ShareMode != ClassShareMode.Owner && c.Class.IsDeleted == false),
                 u => u.Id,

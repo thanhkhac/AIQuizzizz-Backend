@@ -17,7 +17,8 @@ public class Account : EndpointGroupBase
             .MapPost(Login, "Login")
             .MapGet(GetProfile, "Profile")
             .MapGet(GetAllAccount, "")
-            ;
+            .MapPost( BanUser,"/{UserId}/Ban")
+            .MapPatch( "/{UserId}/Active", ActiveUser);
     }
     
    
@@ -58,17 +59,39 @@ public class Account : EndpointGroupBase
 
     public async Task<Ok<ApiResponse<PaginatedList<AccountDto>>>> GetAllAccount(
         ISender sender,
-        [FromQuery] string? Keyword,
-        [FromQuery] string? FieldName,
-        [FromQuery] int PageNumber = 1,
-        [FromQuery] int PageSize = 5)
+        [FromQuery] string? keyword,
+        [FromQuery] string? fieldName,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 5)
     {
         var rq = new GetAllAccountCommand
         {
-            Keyword = Keyword,
-            FieldName = FieldName,
-            PageNumber = PageNumber,
-            PageSize = PageSize,
+            Keyword = keyword,
+            FieldName = fieldName,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+        };
+        
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+
+    public async Task<Ok<ApiResponse<Guid>>> BanUser([FromRoute] Guid userId, ISender sender)
+    {
+        var rq = new BanAccountCommand()
+        {
+            UserId = userId,
+        };
+        
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<Guid>>> ActiveUser([FromRoute] Guid userId, ISender sender)
+    {
+        var rq = new ActiveAccountCommand()
+        {
+            UserId = userId,
         };
         
         var result = await sender.Send(rq);
