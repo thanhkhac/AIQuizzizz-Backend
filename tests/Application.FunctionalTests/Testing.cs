@@ -1,4 +1,5 @@
 ﻿using CleanArchitectureBase.Domain.Constants;
+using CleanArchitectureBase.Domain.Entities;
 using CleanArchitectureBase.Infrastructure.Data;
 using CleanArchitectureBase.Infrastructure.Identity;
 using MediatR;
@@ -14,15 +15,15 @@ public partial class Testing
     private static ITestDatabase _database = null!;
     private static CustomWebApplicationFactory _factory = null!;
     private static IServiceScopeFactory _scopeFactory = null!;
-    private static string? _userId;
+    private static Guid? _userId;
 
     [OneTimeSetUp]
     public async Task RunBeforeAnyTests()
     {
         _database = await TestDatabaseFactory.CreateAsync();
 
-        _factory = new CustomWebApplicationFactory(_database.GetConnection());
-
+        _factory = new CustomWebApplicationFactory(_database.GetConnection(), _database.GetConnectionString());
+        
         _scopeFactory = _factory.Services.GetRequiredService<IServiceScopeFactory>();
     }
 
@@ -44,53 +45,55 @@ public partial class Testing
         await mediator.Send(request);
     }
 
-    public static string? GetUserId()
+    public static Guid? GetUserId()
     {
         return _userId;
     }
 
-    public static async Task<string> RunAsDefaultUserAsync()
+    public static async Task<Guid> RunAsDefaultUserAsync()
     {
         return await RunAsUserAsync("test@local", "Testing1234!", Array.Empty<string>());
     }
 
-    public static async Task<string> RunAsAdministratorAsync()
+    public static async Task<Guid> RunAsAdministratorAsync()
     {
         return await RunAsUserAsync("administrator@local", "Administrator1234!", new[] { Roles.Administrator });
     }
 
-    public static async Task<string> RunAsUserAsync(string userName, string password, string[] roles)
+    public static async Task<Guid> RunAsUserAsync(string email, string password, string[] roles)
     {
         using var scope = _scopeFactory.CreateScope();
 
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserAccount>>();
 
-        var user = new ApplicationUser { UserName = userName, Email = userName };
+        var user = new User { FullName = "Ramdom", Email = email, Id = Guid.NewGuid()};
+        var userAccount = new UserAccount { Id = user.Id, UserName = email, Email = email, User = user };
 
-        var result = await userManager.CreateAsync(user, password);
+        var result = await userManager.CreateAsync(userAccount, password);
 
         if (roles.Any())
         {
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<
+            ApplicationRole>>();
 
             foreach (var role in roles)
             {
-                await roleManager.CreateAsync(new IdentityRole(role));
+                await roleManager.CreateAsync(new ApplicationRole(role));
             }
 
-            await userManager.AddToRolesAsync(user, roles);
+            await userManager.AddToRolesAsync(userAccount, roles);
         }
 
         if (result.Succeeded)
         {
-            _userId = user.Id;
+            _userId = userAccount.Id;
 
-            return _userId;
+            return (Guid)_userId;
         }
 
         var errors = string.Join(Environment.NewLine, result.ToApplicationResult().Errors);
 
-        throw new Exception($"Unable to create {userName}.{Environment.NewLine}{errors}");
+        throw new Exception($"Unable to create {email}.{Environment.NewLine}{errors}");
     }
 
     public static async Task ResetState()
@@ -99,7 +102,7 @@ public partial class Testing
         {
             await _database.ResetAsync();
         }
-        catch (Exception) 
+        catch (Exception)
         {
         }
 

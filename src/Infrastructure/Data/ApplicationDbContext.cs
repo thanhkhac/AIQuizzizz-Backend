@@ -2,18 +2,58 @@
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Domain.Entities;
 using CleanArchitectureBase.Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace CleanArchitectureBase.Infrastructure.Data;
 
-public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplicationDbContext
+public class ApplicationDbContext : IdentityDbContext<UserAccount,
+    ApplicationRole,
+    Guid,
+    ApplicationUserClaim,
+    ApplicationUserRole,
+    ApplicationUserLogin,
+    ApplicationRoleClaim,
+    ApplicationUserToken
+>, IApplicationDbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
     public DbSet<TodoList> TodoLists => Set<TodoList>();
 
     public DbSet<TodoItem> TodoItems => Set<TodoItem>();
+
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
+
+    public DbSet<User> DomainUsers => Set<User>();
+    public DbSet<Plan> Plans => Set<Plan>();
+    public DbSet<TokenPackage> TokenPackages => Set<TokenPackage>();
+    public DbSet<UserTokenPurchase> UserTokenPurchases => Set<UserTokenPurchase>();
+    public DbSet<UserSubscription> UserSubscriptions => Set<UserSubscription>();
+    public DbSet<Question> Questions => Set<Question>();
+    public DbSet<QuestionSet> QuestionSets => Set<QuestionSet>();
+    public DbSet<Comment> Comments => Set<Comment>();
+    public DbSet<UserQuestionSetHistory> UserQuestionSetHistories => Set<UserQuestionSetHistory>();
+    public DbSet<TestTemplate> TestTemplates => Set<TestTemplate>();
+    public DbSet<TestTemplateQuestion> TestTemplateQuestions => Set<TestTemplateQuestion>();
+    public DbSet<Folder> Folders => Set<Folder>();
+    public DbSet<FolderTestTemplate> FolderTestTemplates => Set<FolderTestTemplate>();
+    public DbSet<FolderUser> FolderUsers => Set<FolderUser>();
+    public DbSet<Test> Tests => Set<Test>();
+    public DbSet<TestVersion> TestVersions => Set<TestVersion>();
+    public DbSet<TestVersionQuestion> TestVersionQuestions => Set<TestVersionQuestion>();
+    public DbSet<Attempt> Attempts => Set<Attempt>();
+    public DbSet<AttemptQuestion> AttemptQuestions => Set<AttemptQuestion>();
+    public DbSet<Class> Classes => Set<Class>();
+    public DbSet<ClassUser> ClassUsers => Set<ClassUser>();
+    public DbSet<ClassQuestionSet> ClassQuestionSets => Set<ClassQuestionSet>();
+    public DbSet<ClassInvitation> ClassInvitations => Set<ClassInvitation>();
+    public DbSet<ClassInvitationUser> ClassInvitationUsers => Set<ClassInvitationUser>();
+    public DbSet<TestGrade> TestGrades => Set<TestGrade>();
+    public DbSet<QuestionSetUser> QuestionSetUsers => Set<QuestionSetUser>();
+    public DbSet<Tag> Tags => Set<Tag>();
+    public DbSet<QuestionSetTag> QuestionSetTags => Set<QuestionSetTag>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

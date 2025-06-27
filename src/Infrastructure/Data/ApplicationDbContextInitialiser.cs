@@ -21,18 +21,20 @@ public static class InitialiserExtensions
         await initialiser.InitialiseAsync();
         
         await initialiser.SeedAsync();
-        // await Task.CompletedTask;
+        await Task.CompletedTask;
     }
 }
+
 //Vai trò: Khởi tạo và nạp dữ liệu cho cơ sở dữ liệu
 public class ApplicationDbContextInitialiser
 {
     private readonly ILogger<ApplicationDbContextInitialiser> _logger;
     private readonly ApplicationDbContext _context;
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly UserManager<UserAccount> _userManager;
+    private readonly RoleManager<ApplicationRole> _roleManager;
 
-    public ApplicationDbContextInitialiser(ILogger<ApplicationDbContextInitialiser> logger, ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+    public ApplicationDbContextInitialiser(ILogger<ApplicationDbContextInitialiser> logger, ApplicationDbContext context,
+        UserManager<UserAccount> userManager, RoleManager<ApplicationRole> roleManager)
     {
         _logger = logger;
         _context = context;
@@ -44,7 +46,15 @@ public class ApplicationDbContextInitialiser
     {
         try
         {
-            await _context.Database.MigrateAsync();
+            //OPTION: Xóa database hiện tại
+            // await _context.Database.EnsureDeletedAsync();
+            //Thực hiện các migrations chưa được áp dụng
+            var databaseExists = await _context.Database.CanConnectAsync();
+
+            if (!databaseExists)
+            {
+                await _context.Database.MigrateAsync();
+            }
         }
         catch (Exception ex)
         {
@@ -69,7 +79,7 @@ public class ApplicationDbContextInitialiser
     public async Task TrySeedAsync()
     {
         // Default roles
-        var administratorRole = new IdentityRole(Roles.Administrator);
+        var administratorRole = new ApplicationRole(Roles.Administrator);
 
         if (_roleManager.Roles.All(r => r.Name != administratorRole.Name))
         {
@@ -77,14 +87,22 @@ public class ApplicationDbContextInitialiser
         }
 
         // Default users
-        var administrator = new ApplicationUser { UserName = "administrator@localhost", Email = "administrator@localhost" };
+        var user = new User { Id = Guid.Parse("77777777-7777-7777-7777-777777777777"), FullName = "Admin", Email = "sa@gmail.com", IsBanned = false };
+        var administrator = new UserAccount
+        {
+            Id = user.Id,
+            UserName = "77777777-7777-7777-7777-777777777777",
+            Email = "sa@gmail.com",
+            IsDeleted = false,
+            User = user
+        };
 
         if (_userManager.Users.All(u => u.UserName != administrator.UserName))
         {
-            await _userManager.CreateAsync(administrator, "Administrator1!");
+            await _userManager.CreateAsync(administrator, "Sa@1234");
             if (!string.IsNullOrWhiteSpace(administratorRole.Name))
             {
-                await _userManager.AddToRolesAsync(administrator, new [] { administratorRole.Name });
+                await _userManager.AddToRolesAsync(administrator, new[] { administratorRole.Name });
             }
         }
 
@@ -99,7 +117,7 @@ public class ApplicationDbContextInitialiser
                 {
                     new TodoItem { Title = "Make a todo list 📃" },
                     new TodoItem { Title = "Check off the first item ✅" },
-                    new TodoItem { Title = "Realise you've already done two things on the list! 🤯"},
+                    new TodoItem { Title = "Realise you've already done two things on the list! 🤯" },
                     new TodoItem { Title = "Reward yourself with a nice, long nap 🏆" },
                 }
             });

@@ -40,6 +40,6 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, s
 
         if (!result.Result.Succeeded)
             throw new ErrorCodeException(result.Result.Errors);
-        return result.UserId;
+        return result.UserId.ToString();
     }
 }

@@ -1,9 +1,13 @@
 using CleanArchitectureBase.Application;
+using CleanArchitectureBase.Infrastructure;
 using CleanArchitectureBase.Infrastructure.Data;
-using NSwag.AspNetCore;
+using CleanArchitectureBase.Infrastructure.Settings;
+using CleanArchitectureBase.Web;
+
 
 var builder = WebApplication.CreateBuilder(args);
-
+DotNetEnv.Env.Load("../../.env");
+builder.Configuration.AddEnvironmentVariables();
 // Add services to the container.
 builder.Services.AddKeyVaultIfConfigured(builder.Configuration);
 
@@ -21,12 +25,13 @@ if (app.Environment.IsDevelopment())
 else
 {
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    // app.UseHsts();
 }
 
 app.UseHealthChecks("/health");
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseAuthentication(); 
 
 app.UseSwaggerUi(settings =>
 {
@@ -34,6 +39,8 @@ app.UseSwaggerUi(settings =>
     settings.DocumentPath = "/api/specification.json";
     settings.DocExpansion = "list"; //none/list/full
 });
+
+
 
 app.MapControllerRoute(
     name: "default",
@@ -43,8 +50,12 @@ app.UseExceptionHandler(options => { });
 
 app.Map("/", () => Results.Redirect("/api"));
 
-app.MapEndpoints();
+
+
+
+app.MapEndpoints();    
 
 app.Run();
+
 
 public partial class Program { }

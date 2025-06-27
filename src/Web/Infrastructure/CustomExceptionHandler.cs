@@ -17,7 +17,7 @@ public class CustomExceptionHandler : IExceptionHandler
             #region Code cũ
             // { typeof(ValidationException), HandleValidationException },
             // { typeof(NotFoundException), HandleNotFoundException },
-            // { typeof(UnauthorizedAccessException), HandleUnauthorizedAccessException },
+            { typeof(UnauthorizedAccessException), HandleUnauthorizedAccessException },
             // { typeof(ForbiddenAccessException), HandleForbiddenAccessException },
             #endregion
             { typeof(ErrorCodeException), HandleErrorCodeException },
@@ -81,15 +81,19 @@ public class CustomExceptionHandler : IExceptionHandler
     //     });
     // }
     //
-    // private async Task HandleUnauthorizedAccessException(HttpContext httpContext, Exception ex)
-    // {
-    //     httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
-    //
-    //     await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
-    //     {
-    //         Status = StatusCodes.Status401Unauthorized, Title = "Unauthorized", Type = "https://tools.ietf.org/html/rfc7235#section-3.1"
-    //     });
-    // }
+    private async Task HandleUnauthorizedAccessException(HttpContext httpContext, Exception ex)
+    {
+        httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+    
+        await httpContext.Response.WriteAsJsonAsync(new ApiResponse<object>()
+            {
+                Success = false,
+                Data = null,
+                Errors = new Dictionary<string, string[]>{ {"UNAUTHORIZED", new []{"Người dùng chưa xác thực"}}},
+                ValidationErrors = new Dictionary<string, string[]>()
+            }
+        );
+    }
     //
     // private async Task HandleForbiddenAccessException(HttpContext httpContext, Exception ex)
     // {

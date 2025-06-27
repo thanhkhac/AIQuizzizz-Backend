@@ -480,3 +480,5 @@ $RECYCLE.BIN/
 *.swp
 .azure
 /.idea
+/src/Web/.env
+.env

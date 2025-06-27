@@ -8,12 +8,15 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+<!--    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />-->
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="StackExchange.Redis" />
     <!-- Tùy chỉnh: Chủ template đặt sai package, đã fix ở commit 4fe219e98092022af51e47013510df7efcb31c8b (Nhánh main) nhưng không cập nhật vào nhánh .net 8 -->
     <!--<PackageReference Include="Microsoft.EntityFrameworkCore.Design">
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">

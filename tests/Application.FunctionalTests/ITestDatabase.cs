@@ -7,6 +7,8 @@ public interface ITestDatabase
     Task InitialiseAsync();
 
     DbConnection GetConnection();
+    
+    string GetConnectionString();
 
     Task ResetAsync();
 

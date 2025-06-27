@@ -11,6 +11,7 @@ public static class ErrorCodes
     public const string COMMON_BAD_REQUEST = nameof(COMMON_BAD_REQUEST);
     public const string COMMON_CONFLICT = nameof(COMMON_CONFLICT);
     public const string COMMON_TIMEOUT_ERROR = nameof(COMMON_TIMEOUT_ERROR);
+    public const string FIELD_NAME_NOT_FOUND = nameof(FIELD_NAME_NOT_FOUND);
 
     //ACCOUNT
     public const string ACCOUNT_NOTFOUND = nameof(ACCOUNT_NOTFOUND);
@@ -46,5 +47,12 @@ public static class ErrorCodes
     public const string IDENTITY_PASSWORD_REQUIRES_DIGIT = nameof(IDENTITY_PASSWORD_REQUIRES_DIGIT);
     public const string IDENTITY_PASSWORD_REQUIRES_LOWER = nameof(IDENTITY_PASSWORD_REQUIRES_LOWER);
     public const string IDENTITY_PASSWORD_REQUIRES_UPPER = nameof(IDENTITY_PASSWORD_REQUIRES_UPPER);
+    
+    //Class
+    public const string CLASS_NOTFOUND = nameof(CLASS_NOTFOUND);
+    public const string CLASS_ALREADY_EXISTS = nameof(CLASS_ALREADY_EXISTS);
+    public const string CLASS_NOT_FOUND = nameof(CLASS_NOT_FOUND);
+    public const string CLASS_CODE_NOT_FOUND = nameof(CLASS_NOT_FOUND);
+    public const string STUDENT_ALREADY_EXISTS = nameof(STUDENT_ALREADY_EXISTS);
 
 }
