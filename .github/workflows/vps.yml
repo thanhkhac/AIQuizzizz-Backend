@@ -42,7 +42,7 @@ jobs:
 
 
             # Pull mã nguồn mới từ GitHub bằng token
-            PROJECT_DIR="/home/aiquizziz"
+            PROJECT_DIR="/home/backend"
             echo "==> Thư mục hiện tại là: $(pwd)"
             if [ ! -d "$PROJECT_DIR/.git" ]; then
               echo "==> Repo chưa tồn tại hoặc bị lỗi. Xóa và clone lại"
@@ -68,7 +68,7 @@ jobs:
             echo "==> Thư mục hiện tại là: $(pwd)"
             cd $PROJECT_DIR || exit 1
             echo "==> Thư mục hiện tại là: $(pwd)"
-            
+
             # Restart ứng dụng với build mới
             echo "==> Triển khai ứng dụng"
             docker compose -f docker-compose.yml -f docker-compose.db.yml down || true
