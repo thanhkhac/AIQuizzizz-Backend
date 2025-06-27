@@ -48,7 +48,7 @@ jobs:
             # Pull mã nguồn mới từ GitHub bằng token
             if [ ! -d "/home/user/aiquizziz/.git" ]; then
               echo "==> Repo chưa tồn tại. Cloning..."
-              git clone https://x-access-token:${GIT_AUTH_TOKEN}@github.com/your-username/your-repo.git /home/user/aiquizziz
+              git clone https://x-access-token:${GIT_AUTH_TOKEN}@github.com/thanhkhac/AIQuizzizz-Backend.git /home/user/aiquizziz
             else
               echo "==> Repo đã tồn tại. Pulling..."
               cd /home/user/aiquizziz
@@ -66,6 +66,6 @@ jobs:
 
             # Restart ứng dụng với build mới
             echo "==> Triển khai ứng dụng"
-            docker-compose -f docker-compose.yml -f docker-compose.db.yml down || true
-            docker-compose -f docker-compose.yml -f docker-compose.db.yml up --build -d
+            docker compose -f docker-compose.yml -f docker-compose.db.yml down || true
+            docker compose -f docker-compose.yml -f docker-compose.db.yml up --build -d
             echo "CD hoàn tất"
