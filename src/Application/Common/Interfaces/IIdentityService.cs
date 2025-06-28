@@ -18,4 +18,6 @@ public interface IIdentityService
     Task<TokenDto> TryLoginAsync(string email, string password);
 
     Task<List<Guid>> GetUsersInRoleAsync();
+    
+    Task<Guid> ChangeRoleAsync(Guid userId, string role);
 }

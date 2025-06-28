@@ -9,13 +9,19 @@ public class Account : EndpointGroupBase
 {
     public override void Map(WebApplication app)
     {
-        app.MapGroup(this)    
+        app.MapGroup(this)
             .MapPost(RegisterUser, "Register")
             .MapPost(Login, "Login")
             .MapGet(GetProfile, "Profile")
             .MapGet(GetAllAccount, "")
-            .MapPost( BanUser,"/{UserId}/Ban")
-            .MapPatch( "/{UserId}/Active", ActiveUser);
+            .MapPatch("{UserId}/Role", ChangeRole);
+        
+        app.MapGroup(this)
+            .MapPatch("/{UserId}/Active", ActiveUser);
+        
+        app.MapGroup(this)
+            .MapPatch("/{UserId}/Ban", BanUser);
+
     }
     
    
@@ -89,6 +95,21 @@ public class Account : EndpointGroupBase
         var rq = new ActiveAccountCommand()
         {
             UserId = userId,
+        };
+        
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<Guid>>> ChangeRole(
+        [FromRoute] Guid userId,
+        [FromQuery] string role,
+        ISender sender)
+    {
+        var rq = new ChangeAccountRoleCommand()
+        {
+            UserId = userId,
+            Role = role,
         };
         
         var result = await sender.Send(rq);
