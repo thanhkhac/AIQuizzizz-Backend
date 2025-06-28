@@ -6,7 +6,7 @@ using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 using System.Linq.Dynamic.Core;
 
-namespace CleanArchitectureBase.Application.Accounts;
+namespace CleanArchitectureBase.Application.Users;
 
 public class AccountDto
 {

@@ -2,7 +2,7 @@
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Domain.Constants;
 
-namespace CleanArchitectureBase.Application.Accounts;
+namespace CleanArchitectureBase.Application.Users;
 
 public class ActiveAccountCommand : IRequest<Guid>
 {
