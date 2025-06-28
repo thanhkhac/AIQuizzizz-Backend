@@ -20,4 +20,6 @@ public interface IIdentityService
     
     Task<TokenDto> RefreshTokenAsync(string accessToken, string refreshToken);
     Task RevokeRefreshTokenAsync(string refreshToken, Guid userId);
+    Task<List<Guid>> GetUsersInRoleAsync();
+
 }
