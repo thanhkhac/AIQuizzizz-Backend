@@ -38,7 +38,7 @@
         }
       }
     },
-    "/api/Class/students": {
+    "/api/Class/Students": {
       "post": {
         "tags": [
           "Class"
@@ -70,7 +70,7 @@
         }
       }
     },
-    "/api/Class/{ClassId}/invitations": {
+    "/api/Class/{ClassId}/Invitations": {
       "post": {
         "tags": [
           "Class"
@@ -79,6 +79,7 @@
         "parameters": [
           {
             "name": "ClassId",
+            "x-originalName": "classId",
             "in": "path",
             "required": true,
             "schema": {
@@ -88,7 +89,7 @@
             "x-position": 1
           },
           {
-            "name": "ExpiredTime",
+            "name": "expiredTime",
             "in": "query",
             "required": true,
             "schema": {
@@ -112,15 +113,16 @@
         }
       }
     },
-    "/api/Class/{ClassId}/students": {
-      "get": {
+    "/api/Class/{ClassId}/Questionsets/{QuestionSetId}": {
+      "post": {
         "tags": [
           "Class"
         ],
-        "operationId": "SearchStudent",
+        "operationId": "AddQuestionSet",
         "parameters": [
           {
             "name": "ClassId",
+            "x-originalName": "classId",
             "in": "path",
             "required": true,
             "schema": {
@@ -130,7 +132,93 @@
             "x-position": 1
           },
           {
-            "name": "Keyword",
+            "name": "QuestionSetId",
+            "x-originalName": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Class"
+        ],
+        "operationId": "RemoveQuestionSet",
+        "parameters": [
+          {
+            "name": "ClassId",
+            "x-originalName": "classId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "QuestionSetId",
+            "x-originalName": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Class/{ClassId}/Students": {
+      "get": {
+        "tags": [
+          "Class"
+        ],
+        "operationId": "SearchStudent",
+        "parameters": [
+          {
+            "name": "ClassId",
+            "x-originalName": "classId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "keyword",
             "in": "query",
             "schema": {
               "type": "string",
@@ -139,7 +227,7 @@
             "x-position": 2
           },
           {
-            "name": "FieldName",
+            "name": "fieldName",
             "in": "query",
             "schema": {
               "type": "string",
@@ -148,7 +236,7 @@
             "x-position": 3
           },
           {
-            "name": "PageNumber",
+            "name": "pageNumber",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -158,7 +246,7 @@
             "x-position": 4
           },
           {
-            "name": "PageSize",
+            "name": "pageSize",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -182,7 +270,7 @@
         }
       }
     },
-    "/api/Class/classes": {
+    "/api/Class/Classes": {
       "get": {
         "tags": [
           "Class"
@@ -203,7 +291,7 @@
             "x-position": 1
           },
           {
-            "name": "Name",
+            "name": "name",
             "in": "query",
             "schema": {
               "type": "string",
@@ -212,7 +300,7 @@
             "x-position": 2
           },
           {
-            "name": "PageNumber",
+            "name": "pageNumber",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -222,7 +310,7 @@
             "x-position": 3
           },
           {
-            "name": "PageSize",
+            "name": "pageSize",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -239,6 +327,134 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfClassSearchResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Class/{ClassId}": {
+      "delete": {
+        "tags": [
+          "Class"
+        ],
+        "operationId": "DeleteClass",
+        "parameters": [
+          {
+            "name": "ClassId",
+            "x-originalName": "classId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Class/{ClassId}/Members/{UserId}": {
+      "delete": {
+        "tags": [
+          "Class"
+        ],
+        "operationId": "RemoveStudent",
+        "parameters": [
+          {
+            "name": "ClassId",
+            "x-originalName": "classId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "UserId",
+            "x-originalName": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Class"
+        ],
+        "operationId": "PatchApiClassMembers",
+        "parameters": [
+          {
+            "name": "ClassId",
+            "x-originalName": "classId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "UserId",
+            "x-originalName": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "position",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ClassShareMode"
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfUpdatePositionDto"
                 }
               }
             }
@@ -278,7 +494,7 @@
         }
       }
     },
-    "/api/Test/{ClassId}/tests": {
+    "/api/Test/{ClassId}/Tests": {
       "get": {
         "tags": [
           "Test"
@@ -286,7 +502,7 @@
         "operationId": "SearchTest",
         "parameters": [
           {
-            "name": "Status",
+            "name": "status",
             "in": "query",
             "schema": {
               "nullable": true,
@@ -299,7 +515,7 @@
             "x-position": 1
           },
           {
-            "name": "TestName",
+            "name": "testName",
             "in": "query",
             "schema": {
               "type": "string",
@@ -309,6 +525,7 @@
           },
           {
             "name": "ClassId",
+            "x-originalName": "classId",
             "in": "path",
             "required": true,
             "schema": {
@@ -318,7 +535,7 @@
             "x-position": 3
           },
           {
-            "name": "PageNumber",
+            "name": "pageNumber",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -328,7 +545,7 @@
             "x-position": 4
           },
           {
-            "name": "PageSize",
+            "name": "pageSize",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -727,7 +944,7 @@
         }
       }
     },
-    "/api/Users/refresh-token": {
+    "/api/Users/RefreshToken": {
       "post": {
         "tags": [
           "Users"
@@ -759,7 +976,7 @@
         }
       }
     },
-    "/api/Users/revoke-token": {
+    "/api/Users/RevokeToken": {
       "post": {
         "tags": [
           "Users"
@@ -784,6 +1001,132 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Users": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "GetAllAccount",
+        "parameters": [
+          {
+            "name": "keyword",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "fieldName",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "x-position": 3
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 5
+            },
+            "x-position": 4
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfAccountDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Users/{UserId}/Ban": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "BanUser",
+        "parameters": [
+          {
+            "name": "UserId",
+            "x-originalName": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Users/{UserId}/Active": {
+      "patch": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PatchApiUsersActive",
+        "parameters": [
+          {
+            "name": "UserId",
+            "x-originalName": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
                 }
               }
             }
@@ -1115,6 +1458,54 @@
           "owner": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "ApiResponseOfUpdatePositionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UpdatePositionDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UpdatePositionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "position": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string",
+            "format": "guid"
           }
         }
       },
@@ -1796,6 +2187,91 @@
           "refreshToken": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "ApiResponseOfPaginatedListOfAccountDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedListOfAccountDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PaginatedListOfAccountDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AccountDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "token": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "isBanned": {
+            "type": "boolean"
           }
         }
       },
