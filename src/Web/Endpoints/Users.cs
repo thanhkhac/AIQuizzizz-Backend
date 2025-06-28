@@ -1,4 +1,5 @@
-﻿using CleanArchitectureBase.Application.Common.Models;
+
+using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Users;
 using CleanArchitectureBase.Application.Users.Common;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -8,15 +9,18 @@ namespace CleanArchitectureBase.Web.Endpoints;
 
 public class Users : EndpointGroupBase
 {
+    //TODO: Tách endpoint user ra chỗ khác
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)    
             .MapPost(RegisterUser, "register")
             .MapPost(Login, "login")
             .MapGet(GetProfile, "profile")
-            .MapPost(RefreshToken, "refresh-token")
-            .MapPost(RevokeToken, "revoke-token");
-            ;
+            .MapPost(RefreshToken, "RefreshToken")
+            .MapPost(RevokeToken, "RevokeToken")
+            .MapGet(GetAllAccount, "")
+            .MapPost( BanUser,"/{UserId}/Ban")
+            .MapPatch( "/{UserId}/Active", ActiveUser);
     }
     
    
@@ -65,6 +69,47 @@ public class Users : EndpointGroupBase
     {
         await sender.Send(command);
         return ApiResponse.SuccessResult().ToOk();
+    }
+
+    public async Task<Ok<ApiResponse<PaginatedList<AccountDto>>>> GetAllAccount(
+        ISender sender,
+        [FromQuery] string? keyword,
+        [FromQuery] string? fieldName,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 5)
+    {
+        var rq = new GetAllAccountCommand
+        {
+            Keyword = keyword,
+            FieldName = fieldName,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+        };
+        
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+
+    public async Task<Ok<ApiResponse<Guid>>> BanUser([FromRoute] Guid userId, ISender sender)
+    {
+        var rq = new BanAccountCommand()
+        {
+            UserId = userId,
+        };
+        
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<Guid>>> ActiveUser([FromRoute] Guid userId, ISender sender)
+    {
+        var rq = new ActiveAccountCommand()
+        {
+            UserId = userId,
+        };
+        
+        var result = await sender.Send(rq);
+        return result.ToOk();
     }
 
 }

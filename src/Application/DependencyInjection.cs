@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using CleanArchitectureBase.Application.Classes.Common;
 using CleanArchitectureBase.Application.Common.Behaviours;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,7 +12,9 @@ public static class DependencyInjection
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-
+        
+        services.AddScoped<ClassValidationService>();
+        
         services.AddMediatR(cfg => {
             //Quét assembly hiện tại để tìm tất cả các handler và đăng ký
             cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());

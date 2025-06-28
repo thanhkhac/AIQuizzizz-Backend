@@ -1,9 +1,10 @@
-﻿using CleanArchitectureBase.Application.Common.Exceptions;
+﻿using CleanArchitectureBase.Application.Classes.Common;
+using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Classes.LecturerClasses;
+namespace CleanArchitectureBase.Application.Classes.Lecturer;
 
 public class ClassCodeDto
 {
@@ -30,22 +31,22 @@ public class InviteStudentValidator : AbstractValidator<InviteStudentCommand>
 public class InviteStudentCommandHandler : IRequestHandler<InviteStudentCommand, ClassCodeDto>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ClassValidationService _classValidationService;
     
-    public InviteStudentCommandHandler(IApplicationDbContext context)
+    public InviteStudentCommandHandler(IApplicationDbContext context, ClassValidationService classValidationService)
     {
         _context = context;
+        _classValidationService = classValidationService;
     }
     
     public async Task<ClassCodeDto> Handle(InviteStudentCommand rq, CancellationToken cancellationToken)
     {
-        var classById = await _context.Classes.FindAsync(rq.ClassId);
-        if (classById == null)
-            throw new ErrorCodeException(ErrorCodes.CLASS_NOT_FOUND, "Lớp học không tồn tại");
-            
+        var (isOwner, classExists) = await _classValidationService.ValidateClassAccessAsync(rq.ClassId, cancellationToken);
+        
         var classInvitation = new ClassInvitation()
         {
             Id = Guid.NewGuid(),
-            ClassId = classById.Id,
+            ClassId = classExists.Id,
             TimeStart = DateTime.UtcNow,
             TimeEnd = DateTime.UtcNow.AddDays(rq.ExpiredTime),
             Code = Convert.ToBase64String(Guid.NewGuid().ToByteArray())[..12],
