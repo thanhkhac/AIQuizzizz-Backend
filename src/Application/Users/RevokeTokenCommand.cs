@@ -6,7 +6,7 @@ namespace CleanArchitectureBase.Application.Users;
 [Authorize]
 public class RevokeTokenCommand : IRequest
 {
-    public string? RefreshToken { get; init; }
+    public string? RefreshToken { get; set; }
 }
 
 public class RevokeTokenCommandValidator : AbstractValidator<RevokeTokenCommand>
