@@ -18,9 +18,9 @@ public static class InitialiserExtensions
 
         var initialiser = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitialiser>();
 
-        // await initialiser.InitialiseAsync();
+        await initialiser.InitialiseAsync();
         
-        // await initialiser.SeedAsync();
+        await initialiser.SeedAsync();
         await Task.CompletedTask;
     }
 }
@@ -49,7 +49,12 @@ public class ApplicationDbContextInitialiser
             //OPTION: Xóa database hiện tại
             // await _context.Database.EnsureDeletedAsync();
             //Thực hiện các migrations chưa được áp dụng
-            await _context.Database.MigrateAsync();
+            var databaseExists = await _context.Database.EnsureCreatedAsync();
+
+            // if (!databaseExists)
+            // {
+            //     await _context.Database.MigrateAsync();
+            // }
         }
         catch (Exception ex)
         {
@@ -82,14 +87,13 @@ public class ApplicationDbContextInitialiser
         }
 
         // Default users
-        var user = new User { Id = Guid.NewGuid(), FullName = "Admin", Email = "sa@gmail.com", IsBanned = false };
+        var user = new User { Id = Guid.Parse("77777777-7777-7777-7777-777777777777"), FullName = "Admin", Email = "sa@gmail.com", IsBanned = false };
         var administrator = new UserAccount
         {
             Id = user.Id,
-            UserName = Guid.NewGuid()
-                .ToString(),
+            UserName = "77777777-7777-7777-7777-777777777777",
             Email = "sa@gmail.com",
-            IsDeleted = true,
+            IsDeleted = false,
             User = user
         };
 

@@ -1,5 +1,5 @@
-﻿using CleanArchitectureBase.Application.Common.Exceptions;
-using CleanArchitectureBase.Application.Common.Interfaces;
+﻿using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Users.Common;
 
 namespace CleanArchitectureBase.Application.Users;
 
@@ -9,12 +9,6 @@ public class LoginCommand : IRequest<TokenDto>
     public required string Password { get; set; }
 }
 
-public class TokenDto
-{
-    public required string AccessToken { get; set; }
-    public required string RefreshToken { get; set; }
-    public required int ExpireMin { get; set; }
-}
 
 public class LoginCommandCommandValidator : AbstractValidator<LoginCommand>
 {

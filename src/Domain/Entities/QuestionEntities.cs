@@ -4,7 +4,6 @@ public enum QuestionType
 {
     MultipleChoice,
     Matching,
-    FillInTheBlank,
     Ordering,
     ShortText
 }
@@ -31,13 +30,13 @@ public class QTypeMultipleChoice
     public bool IsAnswer { get; set; }
 }
 
-public class QTypeMatching
-{
-    public required Guid Id { get; set; }
-    // public required string QuestionId { get; set; }
-    public required string Text { get; set; }
-    public required string AnswerId { get; set; }
-}
+    public class QTypeMatching
+    {
+        public required Guid Id { get; set; }
+        // public required string QuestionId { get; set; }
+        public required string Text { get; set; }
+        public string? AnswerId { get; set; }
+    }
 
 public class QTypeOrderingItem
 {
@@ -46,6 +45,12 @@ public class QTypeOrderingItem
     public required string Text { get; set; }
     public required int CorrectOrder { get; set; }
 }
+
+public class QTypeShortAnswer
+{
+    public required string Answer { get; set; }
+}
+
 //====Kết thúc JSON
 
 public class Question : BaseAuditableEntity
@@ -56,7 +61,7 @@ public class Question : BaseAuditableEntity
     public string? QuestionText { get; set; }
     public required TextFormat TextFormat { get; set; }
     public float Score { get; set; }
-    public required string DataJson { get; set; } //Lưu JSON List<QTypeOrderingItem>/List<QTypeMatching>/List<QTypeMultipleChoice>
+    public string? DataJson { get; set; } //Lưu JSON List<QTypeOrderingItem>/List<QTypeMatching>/List<QTypeMultipleChoice>
 
     public object? Data { get; set; } //Không Map
     public QuestionSet? QuestionSet { get; set; }

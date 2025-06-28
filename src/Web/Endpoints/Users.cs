@@ -1,18 +1,22 @@
-﻿using CleanArchitectureBase.Application.Users;
 using CleanArchitectureBase.Application.Common.Models;
+using CleanArchitectureBase.Application.Users;
+using CleanArchitectureBase.Application.Users.Common;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CleanArchitectureBase.Web.Endpoints;
 
-public class Account : EndpointGroupBase
+public class Users : EndpointGroupBase
 {
+    //TODO: Tách endpoint user ra chỗ khác
     public override void Map(WebApplication app)
     {
-        app.MapGroup(this)
-            .MapPost(RegisterUser, "Register")
-            .MapPost(Login, "Login")
-            .MapGet(GetProfile, "Profile")
+        app.MapGroup(this)    
+            .MapPost(RegisterUser, "register")
+            .MapPost(Login, "login")
+            .MapGet(GetProfile, "profile")
+            .MapPost(RefreshToken, "RefreshToken")
+            .MapPost(RevokeToken, "RevokeToken")
             .MapGet(GetAllAccount, "")
             .MapPatch("{UserId}/Role", ChangeRole);
         
@@ -58,6 +62,18 @@ public class Account : EndpointGroupBase
         
         var result = await sender.Send(new GetProfileQuery());
         return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<TokenDto>>> RefreshToken([FromBody] RefreshTokenCommand command, ISender sender)
+    {
+        var result = await sender.Send(command);
+        return result.ToOk();
+    }
+
+    public async Task<Ok<ApiResponse>> RevokeToken([FromBody] RevokeTokenCommand command, ISender sender)
+    {
+        await sender.Send(command);
+        return ApiResponse.SuccessResult().ToOk();
     }
 
     public async Task<Ok<ApiResponse<PaginatedList<AccountDto>>>> GetAllAccount(

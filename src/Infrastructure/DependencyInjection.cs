@@ -24,7 +24,7 @@ public static class DependencyInjection
         var connectionString = configuration.GetConnectionString("DefaultConnection");
 
         Guard.Against.Null(connectionString, message: "Connection string 'DefaultConnection' not found.");
-        
+
         //Cấu hình Interceptor cho Database
         services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
         //Cấu hình Interceptor cho xử lý Event
@@ -45,12 +45,18 @@ public static class DependencyInjection
         // Bind JwtSettings từ appsettings.json
         services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
 
-   
+        var a = configuration.GetSection("JwtSettings").Get<JwtSettings>();
+        if (a == null) throw new Exception("Lỗi");
+        Console.WriteLine(a.SecretKey);
+
         #region Lưu ý AddIdentity
+
         //TODO: Không nên dùng AddIdentity, vì nó sẽ mặc định đăng ký AddAuthentication của nó
         //Nên dùng IDentity
         //Nếu dùng thì phải ghi đè AddAuthentication và đặt hàm AddAuthentication ở sau AddIdentity, tránh bị Identity ghi đè
+
         #endregion
+
         services
             .AddIdentity<UserAccount, ApplicationRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -67,8 +73,8 @@ public static class DependencyInjection
             {
                 var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>();
                 Guard.Against.Null(jwtSettings, message: "JwtSetting not found.");
-                Guard.Against.Null(jwtSettings.SecretKey, message: "Secret key not found.");
-                
+                Guard.Against.NullOrEmpty(jwtSettings.SecretKey, message: "Secret key not found.");
+
                 var keyBytes = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
 
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -85,8 +91,6 @@ public static class DependencyInjection
             });
 
         services.AddAuthorizationBuilder();
-
-
 
 
         services.Configure<IdentityOptions>(

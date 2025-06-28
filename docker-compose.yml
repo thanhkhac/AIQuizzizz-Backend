@@ -1,0 +1,15 @@
+#docker-compose.yml
+services:
+  web:
+    image: ${DOCKER_USERNAME}/backend:${TAG:-latest}
+    build:
+      context: .
+      dockerfile: src/Web/Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - ASPNETCORE_HTTP_PORTS=5000
+      - JWTSETTINGS__SECRETKEY=${JWTSETTINGS__SECRETKEY}
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${DB_NAME};Username=${DB_USERNAME};Password=${DB_PASSWORD}
+    # restart: always
