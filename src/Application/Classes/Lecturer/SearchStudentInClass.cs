@@ -2,11 +2,12 @@
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Domain.Entities;
 using System.Linq.Dynamic.Core;
+using CleanArchitectureBase.Application.Classes.Common;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Domain.Constants;
 
-namespace CleanArchitectureBase.Application.Classes.LecturerClasses;
+namespace CleanArchitectureBase.Application.Classes.Lecturer;
 
 public class StudentSearchResultDto
 {
@@ -14,7 +15,7 @@ public class StudentSearchResultDto
     public required string Email { get; set; }
     public ClassShareMode Position { get; set; }
 }
-public class SearchStudent : IRequest<PaginatedList<StudentSearchResultDto>>
+public class SearchStudentInClass : IRequest<PaginatedList<StudentSearchResultDto>>
 {
     public required Guid ClassId { get; set; }
     public string? Keyword { get; set; }
@@ -23,9 +24,9 @@ public class SearchStudent : IRequest<PaginatedList<StudentSearchResultDto>>
     public int PageSize { get; set; } = 5;
 }
 
-public class SearchStudentValidator : AbstractValidator<SearchStudent>
+public class SearchStudentInClassValidator : AbstractValidator<SearchStudentInClass>
 {
-    public SearchStudentValidator()
+    public SearchStudentInClassValidator()
     {
         RuleFor(x => x.ClassId)
             .NotEmpty().WithMessage("ClassId không được để trống");
@@ -37,20 +38,21 @@ public class SearchStudentValidator : AbstractValidator<SearchStudent>
     }
 }
 
-public class SearchStudentCommandHandler : IRequestHandler<SearchStudent, PaginatedList<StudentSearchResultDto>>
+public class SearchStudentCommandHandler : IRequestHandler<SearchStudentInClass, PaginatedList<StudentSearchResultDto>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ClassValidationService _classValidationService;
 
-    public SearchStudentCommandHandler(IApplicationDbContext context)
+
+    public SearchStudentCommandHandler(IApplicationDbContext context, ClassValidationService classValidationService)
     {
         _context = context;
+        _classValidationService = classValidationService;
     }
     
-    public async Task<PaginatedList<StudentSearchResultDto>> Handle(SearchStudent rq, CancellationToken cancellationToken)
+    public async Task<PaginatedList<StudentSearchResultDto>> Handle(SearchStudentInClass rq, CancellationToken cancellationToken)
     {
-        var classById = await _context.Classes.FindAsync(rq.ClassId);
-        if (classById == null)  
-            throw new ErrorCodeException(ErrorCodes.CLASS_NOT_FOUND, "Lớp học không tồn tại");
+        var (isOwner, classExists) = await _classValidationService.ValidateClassAccessAsync(rq.ClassId, cancellationToken);
         
         var listStudent = _context.ClassUsers
             .Include(x => x.User)

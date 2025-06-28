@@ -123,6 +123,12 @@ public class IdentityService : IIdentityService
         return await GenerateJwtTokenAsync(user);
     }
 
+    public async Task<List<Guid>> GetUsersInRoleAsync()
+    {
+        var admin = await _userManager.GetUsersInRoleAsync(Roles.Administrator);
+        return admin.Select(u => u.Id).ToList();
+    }
+
     private async Task<TokenDto> GenerateJwtTokenAsync(UserAccount userAccount)
     {
         var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, userAccount.Id.ToString()), };
@@ -157,7 +163,8 @@ public class IdentityService : IIdentityService
         {
             _dbContext.Set<RefreshToken>().Remove(storedRefreshToken);
             await _dbContext.SaveChangesAsync();
-        }else
+        }
+        else
         {
             throw new ErrorCodeException(ErrorCodes.COMMON_NOT_FOUND, "Refresh token not found");
         }
