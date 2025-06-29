@@ -91,6 +91,7 @@ public class QuestionSet : BaseAuditableEntity
     public QuestionSetVisibilityMode VisibilityMode { get; set; }
     public int QuestionCount { get; set; }
     public List<Question> Questions { get; set; } = new();
+    public bool IsDeleted { get; set; }
 }
 
 public enum QuestionSetUserShareMode

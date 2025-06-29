@@ -10,21 +10,16 @@ namespace CleanArchitectureBase.Web.Endpoints;
 
 public class Users : EndpointGroupBase
 {
-    private readonly JwtSettings _jwtSettings;
-    public Users(IOptions<JwtSettings> jwtSettings)
-    {
-        _jwtSettings = jwtSettings.Value;
-    }
-
     //TODO: Tách endpoint user ra chỗ khác
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
-            .MapPost(RegisterUser, "register")
-            .MapPost(Login, "login")
-            .MapGet(GetProfile, "profile")
+            .MapPost(RegisterUser, "Register")
+            .MapPost(Login, "Login")
+            .MapGet(GetProfile, "Profile")
             .MapPost(RefreshToken, "RefreshToken")
             .MapPost(RevokeToken, "RevokeToken")
+            .MapPost(LogOut, "LogOut")
             .MapGet(GetAllAccount, "")
             .MapPost(BanUser, "/{UserId}/Ban")
             .MapPatch("/{UserId}/Active", ActiveUser);
@@ -37,9 +32,12 @@ public class Users : EndpointGroupBase
         return result.ToOk();
     }
 
-    public async Task<Ok<ApiResponse<TokenDto>>> Login([FromBody] LoginCommand command, ISender sender)
+    public async Task<Ok<ApiResponse<TokenDto>>> Login([FromBody] LoginCommand command, ISender sender, HttpContext httpContext,
+        IOptions<JwtSettings> jwtSettings)
     {
         var result = await sender.Send(command);
+
+        SetTokenCookies(httpContext, result.AccessToken, result.RefreshToken, jwtSettings.Value);
         return result.ToOk();
     }
 
@@ -50,16 +48,19 @@ public class Users : EndpointGroupBase
         return result.ToOk();
     }
 
-    public async Task<Ok<ApiResponse<TokenDto>>> RefreshToken([FromBody] RefreshTokenCommand command, ISender sender, HttpContext httpContext)
+    public async Task<Ok<ApiResponse<TokenDto>>> RefreshToken([FromBody] RefreshTokenCommand command,
+        ISender sender,
+        HttpContext httpContext,
+        IOptions<JwtSettings> jwtSettings)
     {
         command.AccessToken ??= httpContext.Request.Cookies["access_token"];
         command.RefreshToken ??= httpContext.Request.Cookies["refresh_token"];
 
         var result = await sender.Send(command);
-        
+
         //Set token vào cookie
-        SetTokenCookies(httpContext, result.AccessToken, result.RefreshToken);
-        
+        SetTokenCookies(httpContext, result.AccessToken, result.RefreshToken, jwtSettings.Value);
+
         return result.ToOk();
     }
 
@@ -71,6 +72,12 @@ public class Users : EndpointGroupBase
         //Xóa các token cookie
         ClearTokenCookies(httpContext);
 
+        return ApiResponse.SuccessResult().ToOk();
+    }
+
+    public Ok<ApiResponse> LogOut(HttpContext httpContext)
+    {
+        ClearTokenCookies(httpContext);
         return ApiResponse.SuccessResult().ToOk();
     }
 
@@ -114,17 +121,17 @@ public class Users : EndpointGroupBase
         var result = await sender.Send(rq);
         return result.ToOk();
     }
-    
-    private void SetTokenCookies(HttpContext httpContext, string accessToken, string refreshToken)
+
+    private void SetTokenCookies(HttpContext httpContext, string accessToken, string refreshToken, JwtSettings jwtSettings)
     {
         var expiredOptions = new CookieOptions
         {
             HttpOnly = true,
-            Secure = false,
+            Secure = true,
             SameSite = SameSiteMode.None,
-            Expires = DateTimeOffset.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiryDays)
+            Expires = DateTimeOffset.UtcNow.AddDays(jwtSettings.RefreshTokenExpiryDays)
         };
-        
+
         httpContext.Response.Cookies.Append("access_token", accessToken, expiredOptions);
         httpContext.Response.Cookies.Append("refresh_token", refreshToken, expiredOptions);
     }
@@ -135,7 +142,7 @@ public class Users : EndpointGroupBase
         var expiredOptions = new CookieOptions
         {
             HttpOnly = true,
-            Secure = false,
+            Secure = true,
             SameSite = SameSiteMode.None,
             Expires = DateTimeOffset.UtcNow.AddDays(-1)
         };

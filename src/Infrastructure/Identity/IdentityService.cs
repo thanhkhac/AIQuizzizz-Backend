@@ -56,10 +56,32 @@ public class IdentityService : IIdentityService
 
     public async Task<(Result Result, Guid UserId)> CreateUserAsync(string email, string password)
     {
-        var user = new User { Id = Guid.NewGuid(), Email = email, FullName = email, };
-        var userAccount = new UserAccount { Id = user.Id, UserName = Guid.NewGuid().ToString(), Email = email, User = user };
+    
+        var existingUser = await _userManager.FindByEmailAsync(email);
+        if (existingUser != null)
+        {
+            if (existingUser.IsBanned)
+            {
+                throw new ErrorCodeException(ErrorCodes.ACCOUNT_BANNED);
+            }
+            throw new ErrorCodeException(ErrorCodes.IDENTITY_DUPLICATE_EMAIL);
+        }
+        
+        var user = new User
+        {
+            Id = Guid.NewGuid(),
+            Email = email,
+            FullName = email,
+        };
+        var userAccount = new UserAccount
+        {
+            Id = user.Id,
+            UserName = Guid.NewGuid().ToString(),
+            Email = email,
+            User = user
+        };
 
-        var result = await _userManager.CreateAsync(userAccount, password);
+        IdentityResult result = await _userManager.CreateAsync(userAccount, password);
 
         return (result.ToApplicationResult(), userAccount.Id);
     }
@@ -111,12 +133,20 @@ public class IdentityService : IIdentityService
     public async Task<TokenDto> TryLoginAsync(string email, string password)
     {
         var user = await _userManager.FindByEmailAsync(email);
+        
 
         if (user == null || user.IsDeleted)
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, $"User with email {email} not found");
 
-        var result = await _signInManager.CheckPasswordSignInAsync(user, password, lockoutOnFailure: true);
+        if (user.IsBanned)
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_BANNED);
+            
+        if(user.EmailConfirmed == false) throw new ErrorCodeException(ErrorCodes.ACCOUNT_EMAIL_NOT_VERIFIED);    
 
+        var result = await _signInManager.CheckPasswordSignInAsync(user, password, lockoutOnFailure: true);
+        
+        if(result.IsLockedOut)
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_LOCKED_OUT);
         if (!result.Succeeded)
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, "Incorrect password");
 
@@ -131,7 +161,10 @@ public class IdentityService : IIdentityService
 
     private async Task<TokenDto> GenerateJwtTokenAsync(UserAccount userAccount)
     {
-        var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, userAccount.Id.ToString()), };
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, userAccount.Id.ToString()),
+        };
 
         Guard.Against.NullOrEmpty(_jwtSettings.SecretKey, "Secret key is null or empty");
 
@@ -150,7 +183,9 @@ public class IdentityService : IIdentityService
         var refreshToken = await GenerateRefreshTokenAsync(userAccount);
         return new TokenDto
         {
-            AccessToken = new JwtSecurityTokenHandler().WriteToken(token), RefreshToken = refreshToken.Token, ExpireMin = _jwtSettings.ExpiryMinutes
+            AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
+            RefreshToken = refreshToken.Token,
+            ExpireMin = _jwtSettings.ExpiryMinutes
         };
     }
 

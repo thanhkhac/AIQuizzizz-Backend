@@ -22,13 +22,13 @@ public class PlanConfiguration : IEntityTypeConfiguration<Plan>
         builder.Property(p => p.DayDuration)
             .IsRequired();
 
-        builder.Property(p => p.LearnMode)
+        builder.Property(p => p.CanLearn)
             .IsRequired();
 
-        builder.Property(p => p.OpenTest)
+        builder.Property(p => p.CanOpenTest)
             .IsRequired();
 
-        builder.Property(p => p.CopyQuestionSet)
+        builder.Property(p => p.CanCopyOrImportQuestionSet)
             .IsRequired();
 
         builder.Property(p => p.IsDeleted)
