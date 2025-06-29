@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250625105242_Change jsonb to json")]
-    partial class Changejsonbtojson
+    [Migration("20250629092146_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -102,6 +102,9 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset>("LastModified")
                         .HasColumnType("timestamp with time zone");
@@ -305,6 +308,9 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTimeOffset>("LastModified")
                         .HasColumnType("timestamp with time zone");
 
@@ -385,7 +391,13 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("CopyQuestionSet")
+                    b.Property<bool>("CanCopyOrImportQuestionSet")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CanLearn")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CanOpenTest")
                         .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset>("Created")
@@ -408,16 +420,10 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.Property<Guid?>("LastModifiedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("LearnMode")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
-
-                    b.Property<bool>("OpenTest")
-                        .HasColumnType("boolean");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric(18,2)");
@@ -442,6 +448,9 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.Property<string>("DataJson")
                         .IsRequired()
                         .HasColumnType("json");
+
+                    b.Property<string>("ExplainText")
+                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("LastModified")
                         .HasColumnType("timestamp with time zone");
@@ -490,6 +499,9 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset>("LastModified")
                         .HasColumnType("timestamp with time zone");
@@ -671,6 +683,9 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset>("LastModified")
                         .HasColumnType("timestamp with time zone");
@@ -956,13 +971,11 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("DateFinish")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<DateTime>("DateFinish")
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("DateStart")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<DateTime>("DateStart")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -1158,8 +1171,8 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.Property<string>("Token")
                         .IsRequired()
-                        .HasMaxLength(36)
-                        .HasColumnType("character varying(36)");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<Guid>("UserAccountId")
                         .HasMaxLength(36)
