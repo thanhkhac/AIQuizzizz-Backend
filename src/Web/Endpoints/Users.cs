@@ -21,8 +21,13 @@ public class Users : EndpointGroupBase
             .MapPost(RevokeToken, "RevokeToken")
             .MapPost(LogOut, "LogOut")
             .MapGet(GetAllAccount, "")
-            .MapPost(BanUser, "/{UserId}/Ban")
+            .MapPatch("{UserId}/Role", ChangeRole);
+
+        app.MapGroup(this)
             .MapPatch("/{UserId}/Active", ActiveUser);
+
+        app.MapGroup(this)
+            .MapPatch("/{UserId}/Ban", BanUser);
     }
 
 
@@ -116,6 +121,21 @@ public class Users : EndpointGroupBase
         var rq = new ActiveAccountCommand()
         {
             UserId = userId,
+        };
+
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+
+    public async Task<Ok<ApiResponse<Guid>>> ChangeRole(
+        [FromRoute] Guid userId,
+        [FromQuery] string role,
+        ISender sender)
+    {
+        var rq = new ChangeAccountRoleCommand()
+        {
+            UserId = userId,
+            Role = role,
         };
 
         var result = await sender.Send(rq);

@@ -52,11 +52,10 @@ public static class ErrorCodes
     //Class
     public const string CLASS_NOTFOUND = nameof(CLASS_NOTFOUND);
     public const string CLASS_ALREADY_EXISTS = nameof(CLASS_ALREADY_EXISTS);
-    public const string CLASS_NOT_FOUND = nameof(CLASS_NOT_FOUND);
-    public const string CLASS_CODE_NOT_FOUND = nameof(CLASS_NOT_FOUND);
-    public const string STUDENT_ALREADY_EXISTS = nameof(STUDENT_ALREADY_EXISTS);
+    public const string CLASS_CODE_NOT_FOUND = nameof(CLASS_CODE_NOT_FOUND);
+    public const string STUDENT_ALREADY_EXISTS_IN_CLASS = nameof(STUDENT_ALREADY_EXISTS_IN_CLASS);
     public const string ONLY_OWNERS_CAN_UPDATE = nameof(ONLY_OWNERS_CAN_UPDATE);
-    public const string NOT_FOUND_STUDENT = nameof(NOT_FOUND_STUDENT);
+    public const string NOT_FOUND_STUDENT_IN_CLASS = nameof(NOT_FOUND_STUDENT_IN_CLASS);
     public const string QUESTION_SET_ALREADY_IN_CLASS = nameof(QUESTION_SET_ALREADY_IN_CLASS);
     
     //Question set
