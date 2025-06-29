@@ -67,7 +67,6 @@ public class QuestionCreateDtoValidator : AbstractValidator<CreateQuestionDto>
             .MaximumLength(1000).WithMessage($"Nội dung câu hỏi không được vượt quá 500 ký tự"); //Tăng số ký tự cho phép cho câu hỏi
 
         RuleFor(x => x.ExplainText)
-            .NotEmpty().WithMessage($"Giải thích không được để trống")
             .MaximumLength(1000).WithMessage($" Giải thích không được vượt quá 1000 ký tự");
 
         RuleFor(x => x.Score)

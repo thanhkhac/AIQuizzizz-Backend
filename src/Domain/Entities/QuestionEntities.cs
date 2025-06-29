@@ -60,6 +60,7 @@ public class Question : BaseAuditableEntity
     public required QuestionType Type { get; set; }
     public string? QuestionText { get; set; }
     public required TextFormat TextFormat { get; set; }
+    public string? ExplainText { get; set; }
     public float Score { get; set; }
     public string? DataJson { get; set; } //Lưu JSON List<QTypeOrderingItem>/List<QTypeMatching>/List<QTypeMultipleChoice>
 
