@@ -6,9 +6,9 @@ public class Plan : BaseAuditableEntity
     public required string Name { get; set; }
     public required decimal Price { get; set; }
     public required int DayDuration { get; set; }
-    public required bool LearnMode { get; set; }
-    public required bool OpenTest { get; set; }
-    public required bool CopyQuestionSet { get; set; }
+    public required bool CanLearn { get; set; }
+    public required bool CanOpenTest { get; set; }
+    public required bool CanCopyOrImportQuestionSet { get; set; }
     public bool IsDeleted { get; set; }
 }
 
@@ -36,8 +36,8 @@ public class UserSubscription : BaseEntity
     public required Guid Id { get; set; }
     public required Guid UserId { get; set; }
     public required Guid PlanId { get; set; }
-    public required string DateStart { get; set; }
-    public required string DateFinish { get; set; }
+    public required DateTime DateStart { get; set; }
+    public required DateTime DateFinish { get; set; }
     public bool IsActive { get; set; }
     
     public User User { get; set; } = null!;

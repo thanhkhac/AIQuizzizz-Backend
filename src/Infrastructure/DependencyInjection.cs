@@ -81,12 +81,29 @@ public static class DependencyInjection
                 {
                     ValidateIssuer = false, // Bật kiểm tra Issuer
                     ValidateAudience = false, // Bật kiểm tra Audience
-                    ValidateLifetime = false,
+                    ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = jwtSettings.Issuer,
                     ValidAudience = jwtSettings.Audience,
                     IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
                     ClockSkew = TimeSpan.Zero
+                };
+
+                //Bổ sung cơ chế đọc token từ cookie                
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        if (string.IsNullOrEmpty(context.Request.Headers["Authorization"]))
+                        {
+                            var token = context.Request.Cookies["access_token"];
+                            if (!string.IsNullOrEmpty(token))
+                            {
+                                context.Token = token;
+                            }
+                        }
+                        return Task.CompletedTask;
+                    }
                 };
             });
 

@@ -15,13 +15,14 @@ public static class ErrorCodes
 
     //ACCOUNT
     public const string ACCOUNT_NOTFOUND = nameof(ACCOUNT_NOTFOUND);
-    public const string ACCOUNT_LOCKED = nameof(ACCOUNT_LOCKED);
+    public const string ACCOUNT_LOCKED_OUT = nameof(ACCOUNT_LOCKED_OUT);
     public const string ACCOUNT_BANNED = nameof(ACCOUNT_BANNED);
     public const string ACCOUNT_USERNAME_ALREADY_EXISTS = nameof(ACCOUNT_USERNAME_ALREADY_EXISTS);
     public const string ACCOUNT_EMAIL_ALREADY_EXISTS = nameof(ACCOUNT_EMAIL_ALREADY_EXISTS);
     public const string ACCOUNT_INVALID_PASSWORD = nameof(ACCOUNT_INVALID_PASSWORD);
     public const string ACCOUNT_INVALID_CREDENTIALS = nameof(ACCOUNT_INVALID_CREDENTIALS);
     public const string ACCOUNT_INVALID_VERIFICATION_CODE = nameof(ACCOUNT_INVALID_VERIFICATION_CODE);
+    public const string ACCOUNT_EMAIL_NOT_VERIFIED = nameof(ACCOUNT_EMAIL_NOT_VERIFIED); //TODO: Check xác thực email
     
     
     //IDENTITY OVERRIDE ERROR DESCRIBER
@@ -60,5 +61,9 @@ public static class ErrorCodes
     //Question set
     public const string QUESTION_SET_NOT_FOUND = nameof(QUESTION_SET_NOT_FOUND);
     public const string QUESTION_SET_NOT_FOUND_IN_CLASS = nameof(QUESTION_SET_NOT_FOUND_IN_CLASS);
+    
+    
+    public const string PLAN_REQUIRE_PLAN = nameof(PLAN_REQUIRE_PLAN);
+    public const string PLAN_NOT_FOUND = nameof(PLAN_NOT_FOUND);
 
 }

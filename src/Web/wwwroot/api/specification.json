@@ -462,7 +462,7 @@
         }
       }
     },
-    "/api/QuestionSets/create": {
+    "/api/QuestionSets/Create": {
       "post": {
         "tags": [
           "QuestionSets"
@@ -860,7 +860,7 @@
         }
       }
     },
-    "/api/Users/register": {
+    "/api/Users/Register": {
       "post": {
         "tags": [
           "Users"
@@ -892,7 +892,7 @@
         }
       }
     },
-    "/api/Users/login": {
+    "/api/Users/Login": {
       "post": {
         "tags": [
           "Users"
@@ -924,7 +924,7 @@
         }
       }
     },
-    "/api/Users/profile": {
+    "/api/Users/Profile": {
       "get": {
         "tags": [
           "Users"
@@ -994,6 +994,26 @@
           "required": true,
           "x-position": 1
         },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Users/LogOut": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "LogOut",
         "responses": {
           "200": {
             "description": "",
