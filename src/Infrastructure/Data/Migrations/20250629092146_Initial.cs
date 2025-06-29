@@ -59,6 +59,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uuid", nullable: true),
                     LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -75,6 +76,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uuid", nullable: true),
                     LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -93,9 +95,9 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Price = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
                     DayDuration = table.Column<int>(type: "integer", nullable: false),
-                    LearnMode = table.Column<bool>(type: "boolean", nullable: false),
-                    OpenTest = table.Column<bool>(type: "boolean", nullable: false),
-                    CopyQuestionSet = table.Column<bool>(type: "boolean", nullable: false),
+                    CanLearn = table.Column<bool>(type: "boolean", nullable: false),
+                    CanOpenTest = table.Column<bool>(type: "boolean", nullable: false),
+                    CanCopyOrImportQuestionSet = table.Column<bool>(type: "boolean", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uuid", nullable: true),
@@ -116,6 +118,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     VisibilityMode = table.Column<string>(type: "text", nullable: false),
                     QuestionCount = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uuid", nullable: true),
                     LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -139,33 +142,12 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Tests",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    TimeStart = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    TimeFinish = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    TimeLimit = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    GradeAttemptMethod = table.Column<string>(type: "text", nullable: false),
-                    GradeQuestionMethod = table.Column<string>(type: "text", nullable: false),
-                    IsShowCorrectAnswerInReview = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uuid", nullable: true),
-                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedBy = table.Column<Guid>(type: "uuid", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Tests", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "TestTemplates",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uuid", nullable: true),
                     LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -330,7 +312,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                 {
                     Id = table.Column<string>(type: "character varying(36)", maxLength: 36, nullable: false),
                     UserAccountId = table.Column<Guid>(type: "uuid", maxLength: 36, nullable: false),
-                    Token = table.Column<string>(type: "character varying(36)", maxLength: 36, nullable: false),
+                    Token = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     ExpireAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
@@ -371,6 +353,36 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Tests",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    ClassId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TimeStart = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    TimeFinish = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    TimeLimit = table.Column<int>(type: "integer", nullable: false),
+                    QuestionCount = table.Column<int>(type: "integer", nullable: false),
+                    GradeAttemptMethod = table.Column<string>(type: "text", nullable: false),
+                    GradeQuestionMethod = table.Column<string>(type: "text", nullable: false),
+                    IsShowCorrectAnswerInReview = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uuid", nullable: true),
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tests", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Tests_Classes_ClassId",
+                        column: x => x.ClassId,
+                        principalTable: "Classes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ClassQuestionSets",
                 columns: table => new
                 {
@@ -407,8 +419,9 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     Type = table.Column<string>(type: "text", nullable: false),
                     QuestionText = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     TextFormat = table.Column<string>(type: "text", nullable: false),
+                    ExplainText = table.Column<string>(type: "text", nullable: true),
                     Score = table.Column<float>(type: "numeric(5,2)", nullable: false),
-                    DataJson = table.Column<string>(type: "jsonb", nullable: false),
+                    DataJson = table.Column<string>(type: "json", nullable: false),
                     Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uuid", nullable: true),
                     LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -450,25 +463,6 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TestVersions",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TestId = table.Column<Guid>(type: "uuid", nullable: false),
-                    No = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TestVersions", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_TestVersions_Tests_TestId",
-                        column: x => x.TestId,
-                        principalTable: "Tests",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "FolderTestTemplates",
                 columns: table => new
                 {
@@ -494,35 +488,6 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         principalTable: "TestTemplates",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Attempts",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TestId = table.Column<Guid>(type: "uuid", nullable: false),
-                    TestVersionId = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    TimeStart = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    TimeFinish = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Score = table.Column<float>(type: "numeric(5,2)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Attempts", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Attempts_DomainUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "DomainUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Attempts_Tests_TestId",
-                        column: x => x.TestId,
-                        principalTable: "Tests",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -613,32 +578,6 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TestGrades",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TestId = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Score = table.Column<float>(type: "numeric(5,2)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TestGrades", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_TestGrades_DomainUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "DomainUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_TestGrades_Tests_TestId",
-                        column: x => x.TestId,
-                        principalTable: "Tests",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "TodoLists",
                 columns: table => new
                 {
@@ -669,8 +608,8 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     PlanId = table.Column<Guid>(type: "uuid", nullable: false),
-                    DateStart = table.Column<string>(type: "text", nullable: false),
-                    DateFinish = table.Column<string>(type: "text", nullable: false),
+                    DateStart = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    DateFinish = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
@@ -743,6 +682,80 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         principalTable: "DomainUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Attempts",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TestId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TestVersionId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TimeStart = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    TimeFinish = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Score = table.Column<float>(type: "numeric(5,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Attempts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Attempts_DomainUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "DomainUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Attempts_Tests_TestId",
+                        column: x => x.TestId,
+                        principalTable: "Tests",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TestGrades",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TestId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Score = table.Column<float>(type: "numeric(5,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TestGrades", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TestGrades_DomainUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "DomainUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TestGrades_Tests_TestId",
+                        column: x => x.TestId,
+                        principalTable: "Tests",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TestVersions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TestId = table.Column<Guid>(type: "uuid", nullable: false),
+                    No = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TestVersions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TestVersions_Tests_TestId",
+                        column: x => x.TestId,
+                        principalTable: "Tests",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -843,60 +856,6 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TestVersionQuestions",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    TestVersionId = table.Column<Guid>(type: "uuid", nullable: false),
-                    QuestionId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Order = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TestVersionQuestions", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_TestVersionQuestions_Questions_QuestionId",
-                        column: x => x.QuestionId,
-                        principalTable: "Questions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_TestVersionQuestions_TestVersions_TestVersionId",
-                        column: x => x.TestVersionId,
-                        principalTable: "TestVersions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AttemptQuestions",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    AttemptId = table.Column<Guid>(type: "uuid", nullable: false),
-                    QuestionId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Order = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
-                    Score = table.Column<float>(type: "numeric(5,2)", nullable: false),
-                    DataJson = table.Column<string>(type: "jsonb", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AttemptQuestions", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AttemptQuestions_Attempts_AttemptId",
-                        column: x => x.AttemptId,
-                        principalTable: "Attempts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_AttemptQuestions_Questions_QuestionId",
-                        column: x => x.QuestionId,
-                        principalTable: "Questions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "TodoItems",
                 columns: table => new
                 {
@@ -920,6 +879,60 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         name: "FK_TodoItems_TodoLists_ListId",
                         column: x => x.ListId,
                         principalTable: "TodoLists",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AttemptQuestions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    AttemptId = table.Column<Guid>(type: "uuid", nullable: false),
+                    QuestionId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Order = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    Score = table.Column<float>(type: "numeric(5,2)", nullable: false),
+                    DataJson = table.Column<string>(type: "json", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AttemptQuestions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AttemptQuestions_Attempts_AttemptId",
+                        column: x => x.AttemptId,
+                        principalTable: "Attempts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AttemptQuestions_Questions_QuestionId",
+                        column: x => x.QuestionId,
+                        principalTable: "Questions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TestVersionQuestions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TestVersionId = table.Column<Guid>(type: "uuid", nullable: false),
+                    QuestionId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Order = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TestVersionQuestions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TestVersionQuestions_Questions_QuestionId",
+                        column: x => x.QuestionId,
+                        principalTable: "Questions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_TestVersionQuestions_TestVersions_TestVersionId",
+                        column: x => x.TestVersionId,
+                        principalTable: "TestVersions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1060,6 +1073,11 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                 name: "IX_TestGrades_UserId",
                 table: "TestGrades",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tests_ClassId",
+                table: "Tests",
+                column: "ClassId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TestTemplateQuestions_QuestionId",
@@ -1230,9 +1248,6 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                 name: "TokenPackages");
 
             migrationBuilder.DropTable(
-                name: "Classes");
-
-            migrationBuilder.DropTable(
                 name: "Tests");
 
             migrationBuilder.DropTable(
@@ -1240,6 +1255,9 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "QuestionSets");
+
+            migrationBuilder.DropTable(
+                name: "Classes");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
