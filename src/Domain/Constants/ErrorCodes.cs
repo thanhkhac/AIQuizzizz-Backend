@@ -65,5 +65,9 @@ public static class ErrorCodes
     
     public const string PLAN_REQUIRE_PLAN = nameof(PLAN_REQUIRE_PLAN);
     public const string PLAN_NOT_FOUND = nameof(PLAN_NOT_FOUND);
+    
+    //FOLDER
+    public const string FOLDER_NOT_FOUND = nameof(FOLDER_NOT_FOUND);
+    public const string FOLDER_ALREADY_EXISTS = nameof(FOLDER_ALREADY_EXISTS);
 
 }
