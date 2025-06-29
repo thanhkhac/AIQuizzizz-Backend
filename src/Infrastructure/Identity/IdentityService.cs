@@ -128,7 +128,31 @@ public class IdentityService : IIdentityService
         var admin = await _userManager.GetUsersInRoleAsync(Roles.Administrator);
         return admin.Select(u => u.Id).ToList();
     }
+    
+    public async Task<Guid> ChangeRoleAsync(Guid userId, string role)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {userId} not found");
+        
+        var currentRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
+    
+        if (currentRole == role)
+        {
+            return userId;
+        }
+        
+        if (currentRole != null)
+        {
+          await _userManager.RemoveFromRoleAsync(user, currentRole);
+        }
 
+        await _userManager.AddToRoleAsync(user, role);
+        await _userManager.UpdateSecurityStampAsync(user);
+
+        return userId;
+    }
+    
     private async Task<TokenDto> GenerateJwtTokenAsync(UserAccount userAccount)
     {
         var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, userAccount.Id.ToString()), };

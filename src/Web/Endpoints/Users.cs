@@ -1,4 +1,3 @@
-
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Users;
 using CleanArchitectureBase.Application.Users.Common;
@@ -19,8 +18,14 @@ public class Users : EndpointGroupBase
             .MapPost(RefreshToken, "RefreshToken")
             .MapPost(RevokeToken, "RevokeToken")
             .MapGet(GetAllAccount, "")
-            .MapPost( BanUser,"/{UserId}/Ban")
-            .MapPatch( "/{UserId}/Active", ActiveUser);
+            .MapPatch("{UserId}/Role", ChangeRole);
+        
+        app.MapGroup(this)
+            .MapPatch("/{UserId}/Active", ActiveUser);
+        
+        app.MapGroup(this)
+            .MapPatch("/{UserId}/Ban", BanUser);
+
     }
     
    
@@ -106,6 +111,21 @@ public class Users : EndpointGroupBase
         var rq = new ActiveAccountCommand()
         {
             UserId = userId,
+        };
+        
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<Guid>>> ChangeRole(
+        [FromRoute] Guid userId,
+        [FromQuery] string role,
+        ISender sender)
+    {
+        var rq = new ChangeAccountRoleCommand()
+        {
+            UserId = userId,
+            Role = role,
         };
         
         var result = await sender.Send(rq);

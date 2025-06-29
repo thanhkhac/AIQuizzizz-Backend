@@ -31,7 +31,7 @@ public class ActiveAccountCommandHandler : IRequestHandler<ActiveAccountCommand,
         _identityService = identityService;
     }
     
-    public async Task<Guid> Handle(ActiveAccountCommand request, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(ActiveAccountCommand rq, CancellationToken cancellationToken)
     {
         var admins = await _identityService.GetUsersInRoleAsync();
         
@@ -39,16 +39,16 @@ public class ActiveAccountCommandHandler : IRequestHandler<ActiveAccountCommand,
             .Where(x => x.Id == _user.UserId && x.IsDeleted == false && x.IsBanned == false)
             .FirstOrDefaultAsync(cancellationToken);
         if (user == null)
-            throw new ErrorCodeException(ErrorCodes.COMMON_NOT_FOUND, $"User with id {_user.UserId} not found");
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {_user.UserId} not found");
         
         var bannedUsers = await _context.DomainUsers
             .Where(x => x.IsDeleted == false 
-                        && x.Id == user.Id 
-                        && x.IsDeleted == false && x.IsBanned == true
+                        && x.Id == rq.UserId 
+                        && x.IsDeleted == false
                         && !admins.Contains(x.Id))
             .FirstOrDefaultAsync(cancellationToken);
         if (bannedUsers == null)
-            throw new ErrorCodeException(ErrorCodes.COMMON_NOT_FOUND, $"User with id {_user.UserId} not found");
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {_user.UserId} not found");
 
         bannedUsers.IsBanned = false;
         await _context.SaveChangesAsync(cancellationToken);
