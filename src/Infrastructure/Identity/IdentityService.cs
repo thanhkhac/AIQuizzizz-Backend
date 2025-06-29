@@ -133,7 +133,7 @@ public class IdentityService : IIdentityService
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
-            throw new ErrorCodeException(ErrorCodes.COMMON_NOT_FOUND, $"User with id {userId} not found");
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {userId} not found");
         
         var currentRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
     

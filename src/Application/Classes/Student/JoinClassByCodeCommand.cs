@@ -34,7 +34,7 @@ public class JoinClassByCodeCommandHandler : IRequestHandler<JoinClassByCodeComm
     {
         var user = await _context.DomainUsers.Where(x => x.Id == _user.UserId).FirstOrDefaultAsync();
         if (user == null)
-            throw new ErrorCodeException(ErrorCodes.COMMON_NOT_FOUND, $"User with id {_user.UserId} not found");
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {_user.UserId} not found");
         
         var classInvitation = await _context.ClassInvitations
             .Where(x => x.Code == rq.Code && x.TimeStart <= DateTime.UtcNow && x.TimeEnd >= DateTime.UtcNow)
@@ -44,11 +44,11 @@ public class JoinClassByCodeCommandHandler : IRequestHandler<JoinClassByCodeComm
         
         var classByCode = await _context.Classes.Where(x => x.Id == classInvitation.ClassId && x.IsDeleted == false).FirstOrDefaultAsync();
         if (classByCode == null)
-            throw new ErrorCodeException(ErrorCodes.CLASS_NOT_FOUND, "Lớp học không tồn tại");
+            throw new ErrorCodeException(ErrorCodes.CLASS_NOTFOUND, "Lớp học không tồn tại");
 
         var userInClass = await _context.ClassUsers.Where(x => x.ClassId == classByCode.Id && x.UserId == user.Id).FirstOrDefaultAsync();
         if (userInClass != null)
-            throw new ErrorCodeException(ErrorCodes.STUDENT_ALREADY_EXISTS, "Học sinh đã ở trong lớp");
+            throw new ErrorCodeException(ErrorCodes.STUDENT_ALREADY_EXISTS_IN_CLASS, "Học sinh đã ở trong lớp");
 
         var classUser = new ClassUser
         {

@@ -63,7 +63,7 @@ public class UpdatePositionCommandHandler : IRequestHandler<UpdatePositionComman
         
         var classUser = classUserData.FirstOrDefault(x => x.ClassUser.UserId == rq.UserId && x.ClassUser.ShareMode != ClassShareMode.Owner);
         if (classUser == null)
-            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT, "Không tìm thấy student hoặc không phải student của lớp");
+            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Không tìm thấy student hoặc không phải student của lớp");
         
         classUser.ClassUser.ShareMode = rq.Position;
         
