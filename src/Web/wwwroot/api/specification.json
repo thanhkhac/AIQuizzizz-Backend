@@ -462,7 +462,7 @@
         }
       }
     },
-    "/api/QuestionSets/create": {
+    "/api/QuestionSets/Create": {
       "post": {
         "tags": [
           "QuestionSets"
@@ -860,7 +860,7 @@
         }
       }
     },
-    "/api/Users/register": {
+    "/api/Users/Register": {
       "post": {
         "tags": [
           "Users"
@@ -892,7 +892,7 @@
         }
       }
     },
-    "/api/Users/login": {
+    "/api/Users/Login": {
       "post": {
         "tags": [
           "Users"
@@ -924,7 +924,7 @@
         }
       }
     },
-    "/api/Users/profile": {
+    "/api/Users/Profile": {
       "get": {
         "tags": [
           "Users"
@@ -1008,6 +1008,26 @@
         }
       }
     },
+    "/api/Users/LogOut": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "LogOut",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Users": {
       "get": {
         "tags": [
@@ -1068,12 +1088,54 @@
         }
       }
     },
-    "/api/Users/{UserId}/Ban": {
-      "post": {
+    "/api/Users/{UserId}/Role": {
+      "patch": {
         "tags": [
           "Users"
         ],
-        "operationId": "BanUser",
+        "operationId": "PatchApiUsersRole",
+        "parameters": [
+          {
+            "name": "UserId",
+            "x-originalName": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Users/{UserId}/Active": {
+      "patch": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PatchApiUsersActive",
         "parameters": [
           {
             "name": "UserId",
@@ -1101,12 +1163,12 @@
         }
       }
     },
-    "/api/Users/{UserId}/Active": {
+    "/api/Users/{UserId}/Ban": {
       "patch": {
         "tags": [
           "Users"
         ],
-        "operationId": "PatchApiUsersActive",
+        "operationId": "PatchApiUsersBan",
         "parameters": [
           {
             "name": "UserId",

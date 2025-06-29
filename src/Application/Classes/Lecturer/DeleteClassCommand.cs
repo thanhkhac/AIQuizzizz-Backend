@@ -30,7 +30,8 @@ public class DeleteClassHandler : IRequestHandler<DeleteClassCommand, Guid>
     
     public async Task<Guid> Handle(DeleteClassCommand rq, CancellationToken cancellationToken)
     {
-        var (isOwner, classExists) = await _classValidationService.ValidateClassAccessAsync(rq.ClassId, cancellationToken);
+        var (isOwner, classExists) = await _classValidationService
+            .ValidateClassAccessAsync(rq.ClassId, cancellationToken);
 
         classExists.IsDeleted = true;
         

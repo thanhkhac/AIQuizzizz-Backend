@@ -1,0 +1,9 @@
+﻿POST {{Web_HostAddress}}/api/Users/register
+Content-Type: application/json
+
+{
+  "email": "Sa@1234",
+  "password": "Sa@1234"
+}
+###
+

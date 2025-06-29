@@ -32,10 +32,11 @@ public class CreateClassCommandHandler : IRequestHandler<CreateClassCommand, Gui
     
     public async Task<Guid> Handle(CreateClassCommand rq, CancellationToken cancellationToken)
     {
-        var user = await _context.DomainUsers.Where(x => x.Id == _user.UserId && x.IsDeleted == false && x.IsBanned == false)
+        var user = await _context.DomainUsers
+            .Where(x => x.Id == _user.UserId && x.IsDeleted == false && x.IsBanned == false)
             .FirstOrDefaultAsync();
         if (user == null)
-            throw new ErrorCodeException(ErrorCodes.COMMON_NOT_FOUND, $"User with id {_user.UserId} not found");
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {_user.UserId} not found");
         
         if (await _context.Classes.AnyAsync(x => x.Name == rq.Name && x.IsDeleted == false))
         {

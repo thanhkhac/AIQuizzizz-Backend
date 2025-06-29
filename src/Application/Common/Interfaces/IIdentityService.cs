@@ -22,4 +22,6 @@ public interface IIdentityService
     Task RevokeRefreshTokenAsync(string refreshToken, Guid userId);
     Task<List<Guid>> GetUsersInRoleAsync();
 
+    
+    Task<Guid> ChangeRoleAsync(Guid userId, string role);
 }

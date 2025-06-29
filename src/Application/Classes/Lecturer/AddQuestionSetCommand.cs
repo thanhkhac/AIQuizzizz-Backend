@@ -41,7 +41,7 @@ public class AddQuestionSetCommandHandler : IRequestHandler<AddQuestionSetComman
         var questionSet = await _context.QuestionSets.Where(x => x.Id == rq.QuestionSetId)
             .FirstOrDefaultAsync(cancellationToken);
         if (questionSet == null)
-            throw new ErrorCodeException(ErrorCodes.QUESTION_SET_NOT_FOUND_IN_CLASS, "Bộ câu hỏi không tồn tại hoặc không thuộc lớp học này.");
+            throw new ErrorCodeException(ErrorCodes.QUESTION_SET_NOT_FOUND, "Bộ câu hỏi không tồn tại");
 
         var classQuestion = await _context.ClassQuestionSets
             .Where(x => x.ClassId == classExists.Id && x.QuestionSetId == rq.QuestionSetId)

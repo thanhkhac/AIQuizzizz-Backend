@@ -48,7 +48,7 @@ public class SearchClassHandler : IRequestHandler<SearchClass, PaginatedList<Cla
             .Where(x => x.Id == _user.UserId && x.IsDeleted == false && x.IsBanned == false)
             .FirstOrDefaultAsync();
         if (user == null)
-            throw new ErrorCodeException(ErrorCodes.COMMON_NOT_FOUND, $"User with id {_user.UserId} not found");
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {_user.UserId} not found");
 
         var classes = _context.Classes
             .Where(c => c.IsDeleted == false)
