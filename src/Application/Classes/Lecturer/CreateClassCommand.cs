@@ -34,7 +34,7 @@ public class CreateClassCommandHandler : IRequestHandler<CreateClassCommand, Gui
     {
         var user = await _context.DomainUsers
             .Where(x => x.Id == _user.UserId && x.IsDeleted == false && x.IsBanned == false)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(cancellationToken);
         if (user == null)
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {_user.UserId} not found");
         

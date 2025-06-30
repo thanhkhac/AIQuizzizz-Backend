@@ -2,7 +2,7 @@
 using CleanArchitectureBase.Application.QuestionSets.Common;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Tests;
+namespace CleanArchitectureBase.Application.Tests.Lecturer;
 
 public class CreateTestCommand : IRequest<Guid>
 {

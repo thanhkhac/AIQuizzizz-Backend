@@ -1,6 +1,7 @@
 ﻿using System.Runtime.Serialization;
 using System.Text.Json;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Serializers;
 using CleanArchitectureBase.Application.QuestionSets.Common;
 using CleanArchitectureBase.Domain.Entities;
 
@@ -180,9 +181,9 @@ public class CreateQuestionSetCommandHandler : IRequestHandler<CreateQuestionSet
             // Chuyển các nội dung câu hỏi về JSON
             question.DataJson = questionDto.Type switch
             {
-                nameof(QuestionType.MultipleChoice) when questionDto.MultipleChoices != null => SerializeMultipleChoice(questionDto.MultipleChoices),
-                nameof(QuestionType.Matching) when questionDto.MatchingPairs != null => SerializeMatchingPairs(questionDto.MatchingPairs),
-                nameof(QuestionType.Ordering) when questionDto.OrderingItems != null => SerializeOrderingItems(questionDto.OrderingItems),
+                nameof(QuestionType.MultipleChoice) when questionDto.MultipleChoices != null => QuestionTypeSerializer.SerializeMultipleChoice(questionDto.MultipleChoices),
+                nameof(QuestionType.Matching) when questionDto.MatchingPairs != null => QuestionTypeSerializer.SerializeMatchingPairs(questionDto.MatchingPairs),
+                nameof(QuestionType.Ordering) when questionDto.OrderingItems != null => QuestionTypeSerializer.SerializeOrderingItems(questionDto.OrderingItems),
                 nameof(QuestionType.ShortText) when !string.IsNullOrWhiteSpace(questionDto.ShortAnswer) => JsonSerializer.Serialize(
                     new QTypeShortAnswer { Answer = questionDto.ShortAnswer }),
                 _ => throw new InvalidDataException($"Dữ liệu câu hỏi không hợp lệ cho loại câu hỏi: {questionDto.Type}")
@@ -195,39 +196,4 @@ public class CreateQuestionSetCommandHandler : IRequestHandler<CreateQuestionSet
         await _dbContext.SaveChangesAsync(cancellationToken);
         return questionSet.Id;
     }
-
-    private string SerializeMultipleChoice(List<CreateMultipleChoiceDto> choices)
-    {
-        var jsonData = choices.Select(c => new QTypeMultipleChoice { Id = Guid.NewGuid(), Text = c.Text!, IsAnswer = c.IsAnswer }).ToList();
-
-        return JsonSerializer.Serialize(jsonData);
-    }
-
-    private string SerializeMatchingPairs(List<CreateMatchingPairDto> pairs)
-    {
-        var matchingItems = new List<QTypeMatching>();
-
-        foreach (var pair in pairs)
-        {
-            var leftId = Guid.NewGuid();
-            var rightId = Guid.NewGuid();
-
-            //LeftItem với AnswerId là ID của RightItem
-            matchingItems.Add(new QTypeMatching { Id = leftId, Text = pair.LeftItem!, AnswerId = rightId.ToString() });
-
-            //RightItem không có AnswerId
-            matchingItems.Add(new QTypeMatching { Id = rightId, Text = pair.RightItem!, AnswerId = null });
-        }
-
-        return JsonSerializer.Serialize(matchingItems);
-    }
-
-    private string SerializeOrderingItems(List<CreateOrderingItemDto> items)
-    {
-        var jsonData = items.Select(i => new QTypeOrderingItem { Id = Guid.NewGuid(), Text = i.Text!, CorrectOrder = i.CorrectOrder }).ToList();
-
-        return JsonSerializer.Serialize(jsonData);
-    }
-
-
 }
