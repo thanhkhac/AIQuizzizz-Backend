@@ -1,0 +1,14 @@
+@baseUrl = http://localhost:5000
+@contentType = application/json
+@authorization = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6Ijc3Nzc3Nzc3LTc3NzctNzc3Ny03Nzc3LTc3Nzc3Nzc3Nzc3NyIsImV4cCI6MTc3MjQ1NTUzNiwiaXNzIjoiSXNzdWVyIiwiYXVkIjoiQXVkaWVuY2UifQ.MUAAwfr7bnd0w8UviYdNtnz7jBkK6rRCxcHJFo8-ZTI
+
+#####################################
+### Request: GET /api/Users/Profile
+#####################################
+
+
+GET {{baseUrl}}/api/Users/Profile
+Content-Type: {{contentType}}
+Authorization: {{authorization}}
+
+

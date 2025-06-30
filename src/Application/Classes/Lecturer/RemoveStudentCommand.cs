@@ -44,7 +44,7 @@ public class RemoveStudentHandler : IRequestHandler<RemoveStudentCommand, Guid>
                 cu => cu.UserId,
                 (u, cu) => new { User = u, ClassUser = cu }
             )
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(cancellationToken);
         if (user == null)
             throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Student không tồn tại hoặc không trong lớp");
         

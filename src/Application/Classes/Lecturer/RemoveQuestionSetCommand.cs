@@ -38,9 +38,9 @@ public class RemoveQuestionSetHandler : IRequestHandler<RemoveQuestionSetCommand
     {
         var (isOwner, classExists) = await _classValidationService.ValidateClassAccessAsync(rq.ClassId, cancellationToken);
 
-        var classQuestionSet = _context.ClassQuestionSets
+        var classQuestionSet = await _context.ClassQuestionSets
             .Where(x => x.QuestionSetId == rq.QuestionSetId && x.ClassId == classExists.Id)
-            .FirstOrDefault();
+            .FirstOrDefaultAsync(cancellationToken);
         if (classQuestionSet == null)
             throw new ErrorCodeException(ErrorCodes.QUESTION_SET_NOT_FOUND_IN_CLASS, "Question set không tồn tại hoặc không trong class");
         
