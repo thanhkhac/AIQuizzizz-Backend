@@ -17,6 +17,9 @@ public class Authentication : EndpointGroupBase
             .MapPost(Login, "Login")
             .MapPost(GoogleLogin, "GoogleLogin")
             .MapPost(GoogleRegister, "GoogleRegister")
+            .MapPost(RefreshToken, "RefreshToken")
+            .MapPost(RevokeToken, "RevokeToken")
+            .MapPost(LogOut, "LogOut")
             ;
     }
 
