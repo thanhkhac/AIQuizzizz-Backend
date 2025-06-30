@@ -23,12 +23,14 @@ jobs:
           DB_NAME: ${{ secrets.DB_NAME }}
           GIT_AUTH_TOKEN: ${{ secrets.GIT_AUTH_TOKEN }}
           JWTSETTINGS__SECRETKEY: ${{ secrets.JWTSETTINGS__SECRETKEY }}
+          GOOGLESETTINGS__CLIENTID: ${{ secrets.GOOGLESETTINGS__CLIENTID }}
+          GOOGLESETTINGS__CLIENTSECRET: ${{ secrets.GOOGLESETTINGS__CLIENTSECRET }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 1204
-          envs: DOCKER_USERNAME,TAG,ASPNETCORE_ENVIRONMENT,DB_USERNAME,DB_PASSWORD,DB_NAME,GIT_AUTH_TOKEN,JWTSETTINGS__SECRETKEY
+          envs: DOCKER_USERNAME,TAG,ASPNETCORE_ENVIRONMENT,DB_USERNAME,DB_PASSWORD,DB_NAME,GIT_AUTH_TOKEN,JWTSETTINGS__SECRETKEY,GOOGLESETTINGS__CLIENTID,GOOGLESETTINGS__CLIENTSECRET
           script: |
             # Cài git nếu chưa có
             echo "==> Cài đặt git nếu chưa có"
@@ -65,8 +67,10 @@ jobs:
             echo "ASPNETCORE_ENVIRONMENT=$ASPNETCORE_ENVIRONMENT" >> .env
             echo "DB_USERNAME=$DB_USERNAME" >> .env
             echo "DB_PASSWORD=$DB_PASSWORD" >> .env
-            echo "JWTSETTINGS__SECRETKEY=$JWTSETTINGS__SECRETKEY" >> .env
             echo "DB_NAME=$DB_NAME" >> .env
+            echo "JWTSETTINGS__SECRETKEY=$JWTSETTINGS__SECRETKEY" >> .env
+            echo "GOOGLESETTINGS__CLIENTSECRET=$GOOGLESETTINGS__CLIENTSECRET" >> .env
+            echo "GOOGLESETTINGS__CLIENTID=$GOOGLESETTINGS__CLIENTID" >> .env
 
             echo "==> Thư mục hiện tại là: $(pwd)"
             cd $PROJECT_DIR || exit 1
