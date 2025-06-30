@@ -11,13 +11,13 @@ public class TodoItems : EndpointGroupBase
 {
     public override void Map(WebApplication app)
     {
-        app.MapGroup(this)
-            // .RequireAuthorization()
-            .MapGet(GetTodoItemsWithPagination)
-            .MapPost(CreateTodoItem)
-            .MapPut(UpdateTodoItem, "{id}")
-            .MapPut(UpdateTodoItemDetail, "UpdateDetail/{id}")
-            .MapDelete(DeleteTodoItem, "{id}");
+        // app.MapGroup(this)
+        //     // .RequireAuthorization()
+        //     .MapGet(GetTodoItemsWithPagination)
+        //     .MapPost(CreateTodoItem)
+        //     .MapPut(UpdateTodoItem, "{id}")
+        //     .MapPut(UpdateTodoItemDetail, "UpdateDetail/{id}")
+        //     .MapDelete(DeleteTodoItem, "{id}");
     }
 
     public Task<PaginatedList<TodoItemBriefDto>> GetTodoItemsWithPagination(ISender sender, [AsParameters] GetTodoItemsWithPaginationQuery query)

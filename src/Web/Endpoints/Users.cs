@@ -17,19 +17,20 @@ public class Users : EndpointGroupBase
             .MapGet(GetProfile, "Profile")
             .MapGet(GetAllAccount, "")
             .MapPatch("{UserId}/Role", ChangeRole);
-
         app.MapGroup(this)
             .MapPatch("/{UserId}/Active", ActiveUser);
 
         app.MapGroup(this)
             .MapPatch("/{UserId}/Ban", BanUser);
     }
-    
+
     public async Task<Ok<ApiResponse<UserProfileDto>>> GetProfile(ISender sender, HttpContext httpContext)
     {
         var result = await sender.Send(new GetProfileQuery());
         return result.ToOk();
     }
+
+   
 
     public async Task<Ok<ApiResponse<PaginatedList<AccountDto>>>> GetAllAccount(
         ISender sender,

@@ -28,7 +28,7 @@ public class IdentityService : IIdentityService
     private readonly SignInManager<UserAccount> _signInManager;
     private readonly JwtSettings _jwtSettings;
     private readonly ApplicationDbContext _dbContext;
-
+    private readonly IGoogleAuthService _googleAuthService;
 
     public IdentityService(
         UserManager<UserAccount> userManager,
@@ -37,7 +37,8 @@ public class IdentityService : IIdentityService
         SignInManager<UserAccount> signInManager,
         IConfiguration configuration,
         IOptions<JwtSettings> jwtSettings,
-        ApplicationDbContext dbContext)
+        ApplicationDbContext dbContext,
+        IGoogleAuthService googleAuthService)
     {
         _userManager = userManager;
         _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
@@ -45,6 +46,7 @@ public class IdentityService : IIdentityService
         _signInManager = signInManager;
         _dbContext = dbContext;
         _jwtSettings = jwtSettings.Value;
+        _googleAuthService = googleAuthService;
     }
 
     public async Task<string?> GetUserNameAsync(Guid userId)
@@ -308,5 +310,106 @@ public class IdentityService : IIdentityService
         }
     }
 
+    public async Task<TokenDto> TryGoogleLoginAsync(string authorizationCode, string redirectUri)
+    {
+        var googleUser = await _googleAuthService.ExchangeCodeForUserInfoAsync(authorizationCode, redirectUri);
+        
+        var existingUser = await _userManager.FindByEmailAsync(googleUser.Email);
+        
+        if (existingUser != null)
+        {
+            if (existingUser.IsDeleted)
+                throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, $"User with email {googleUser.Email} not found");
+                
+            if (existingUser.IsBanned)
+                throw new ErrorCodeException(ErrorCodes.ACCOUNT_BANNED);
+                
+            if (!existingUser.EmailConfirmed)
+            {
+                existingUser.EmailConfirmed = true;
+                await _userManager.UpdateAsync(existingUser);
+            }
+            
+            return await GenerateJwtTokenAsync(existingUser);
+        }
+        
+        var user = new User
+        {
+            Id = Guid.NewGuid(),
+            Email = googleUser.Email,
+            FullName = googleUser.Name,
+        };
+        
+        var userAccount = new UserAccount
+        {
+            Id = user.Id,
+            UserName = Guid.NewGuid().ToString(),
+            Email = googleUser.Email,
+            User = user,
+            EmailConfirmed = true 
+        };
+
+        var result = await _userManager.CreateAsync(userAccount);
+        
+        if (!result.Succeeded)
+        {
+            throw new ErrorCodeException(ErrorCodes.IDENTITY_DUPLICATE_EMAIL, "Failed to create user account");
+        }
+        
+        return await GenerateJwtTokenAsync(userAccount);
+    }
+
+    public async Task<TokenDto> TryGoogleRegisterAsync(string authorizationCode, string redirectUri)
+    {
+        var googleUser = await _googleAuthService.ExchangeCodeForUserInfoAsync(authorizationCode, redirectUri);
+        
+        var existingUser = await _userManager.FindByEmailAsync(googleUser.Email);
+        
+        if (existingUser != null)
+        {
+            if (existingUser.IsDeleted)
+                throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, $"User with email {googleUser.Email} not found");
+                
+            if (existingUser.IsBanned)
+                throw new ErrorCodeException(ErrorCodes.ACCOUNT_BANNED);
+                
+            if (!existingUser.EmailConfirmed)
+            {
+                existingUser.EmailConfirmed = true;
+                await _userManager.UpdateAsync(existingUser);
+            }
+            
+            var token = await GenerateJwtTokenAsync(existingUser);
+            
+            return token;
+        }
+        
+        var user = new User
+        {
+            Id = Guid.NewGuid(),
+            Email = googleUser.Email,
+            FullName = googleUser.Name,
+        };
+        
+        var userAccount = new UserAccount
+        {
+            Id = user.Id,
+            UserName = Guid.NewGuid().ToString(),
+            Email = googleUser.Email,
+            User = user,
+            EmailConfirmed = true // Google emails are pre-verified
+        };
+
+        var result = await _userManager.CreateAsync(userAccount);
+        
+        if (!result.Succeeded)
+        {
+            throw new ErrorCodeException(ErrorCodes.IDENTITY_DUPLICATE_EMAIL, "Failed to create user account");
+        }
+        
+        var tokenDto = await GenerateJwtTokenAsync(userAccount);
+        
+        return tokenDto;
+    }
 
 }
