@@ -16,6 +16,8 @@ public class Users : EndpointGroupBase
         app.MapGroup(this)
             .MapPost(RegisterUser, "Register")
             .MapPost(Login, "Login")
+            .MapPost(GoogleLogin, "GoogleLogin")
+            .MapPost(GoogleRegister, "GoogleRegister")
             .MapGet(GetProfile, "Profile")
             .MapPost(RefreshToken, "RefreshToken")
             .MapPost(RevokeToken, "RevokeToken")
@@ -43,9 +45,28 @@ public class Users : EndpointGroupBase
         var result = await sender.Send(command);
 
         SetTokenCookies(httpContext, result.AccessToken, result.RefreshToken, jwtSettings.Value);
+
         return result.ToOk();
     }
 
+    public async Task<Ok<ApiResponse<TokenDto>>> GoogleLogin([FromBody] GoogleLoginCommand command, ISender sender, HttpContext httpContext,
+        IOptions<JwtSettings> jwtSettings)
+    {
+        var result = await sender.Send(command);
+
+        SetTokenCookies(httpContext, result.AccessToken, result.RefreshToken, jwtSettings.Value);
+
+        return result.ToOk();
+    }
+
+    public async Task<Ok<ApiResponse<TokenDto>>> GoogleRegister([FromBody] GoogleRegisterCommand command, ISender sender,
+        HttpContext httpContext,
+        IOptions<JwtSettings> jwtSettings)
+    {
+        var result = await sender.Send(command);
+        SetTokenCookies(httpContext, result.AccessToken, result.RefreshToken, jwtSettings.Value);
+        return result.ToOk();
+    }
 
     public async Task<Ok<ApiResponse<UserProfileDto>>> GetProfile(ISender sender, HttpContext httpContext)
     {
@@ -56,14 +77,20 @@ public class Users : EndpointGroupBase
     public async Task<Ok<ApiResponse<TokenDto>>> RefreshToken([FromBody] RefreshTokenCommand command,
         ISender sender,
         HttpContext httpContext,
-        IOptions<JwtSettings> jwtSettings)
+        IOptions<JwtSettings> jwtSettings, [FromQuery] bool useCookies = true)
     {
-        command.AccessToken ??= httpContext.Request.Cookies["access_token"];
-        command.RefreshToken ??= httpContext.Request.Cookies["refresh_token"];
+        if (string.IsNullOrEmpty(command.AccessToken))
+        {
+            command.AccessToken = httpContext.Request.Cookies["access_token"];
+        }
+        if (string.IsNullOrEmpty(command.RefreshToken))
+        {
+            command.RefreshToken = httpContext.Request.Cookies["refresh_token"];
+        }
 
         var result = await sender.Send(command);
 
-        //Set token vào cookie
+
         SetTokenCookies(httpContext, result.AccessToken, result.RefreshToken, jwtSettings.Value);
 
         return result.ToOk();
@@ -71,10 +98,12 @@ public class Users : EndpointGroupBase
 
     public async Task<Ok<ApiResponse>> RevokeToken([FromBody] RevokeTokenCommand command, ISender sender, HttpContext httpContext)
     {
-        command.RefreshToken ??= httpContext.Request.Cookies["refresh_token"];
+        if (string.IsNullOrEmpty(command.RefreshToken))
+        {
+            command.RefreshToken = httpContext.Request.Cookies["refresh_token"];
+        }
         await sender.Send(command);
 
-        //Xóa các token cookie
         ClearTokenCookies(httpContext);
 
         return ApiResponse.SuccessResult().ToOk();
@@ -83,6 +112,7 @@ public class Users : EndpointGroupBase
     public Ok<ApiResponse> LogOut(HttpContext httpContext)
     {
         ClearTokenCookies(httpContext);
+
         return ApiResponse.SuccessResult().ToOk();
     }
 
