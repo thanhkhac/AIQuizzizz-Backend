@@ -10,6 +10,17 @@ public class User
     public bool IsBanned { get; set; }
     public long TokenCount { get; set; }
     public long Balance { get; set; }
+    public string? EmailVerificationCode { get; set; }
+    public DateTime? EmailVerificationCodeTime { get; set; }
+    public int EmailVerificationLockout { get; set; }
+
+    public string? PasswordResetCode { get; set; }
+    public DateTime? PasswordResetCodeExpiryTime { get; set; }
+    public int PasswordResetLockout { get; set; }
+
+    // Lockout khi gửi quá nhiều yêu cầu email (xác thực/quên mật khẩu)
+    public int EmailRequestLockout { get; set; }
+    public DateTime? EmailRequestLockoutTime { get; set; }
 }
 
 

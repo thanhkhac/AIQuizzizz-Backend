@@ -29,6 +29,7 @@ public class IdentityService : IIdentityService
     private readonly JwtSettings _jwtSettings;
     private readonly ApplicationDbContext _dbContext;
     private readonly IGoogleAuthService _googleAuthService;
+    private readonly IEmailService _emailService;
 
     public IdentityService(
         UserManager<UserAccount> userManager,
@@ -38,7 +39,8 @@ public class IdentityService : IIdentityService
         IConfiguration configuration,
         IOptions<JwtSettings> jwtSettings,
         ApplicationDbContext dbContext,
-        IGoogleAuthService googleAuthService)
+        IGoogleAuthService googleAuthService,
+        IEmailService emailService)
     {
         _userManager = userManager;
         _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
@@ -47,6 +49,7 @@ public class IdentityService : IIdentityService
         _dbContext = dbContext;
         _jwtSettings = jwtSettings.Value;
         _googleAuthService = googleAuthService;
+        _emailService = emailService;
     }
 
     public async Task<string?> GetUserNameAsync(Guid userId)
@@ -430,4 +433,182 @@ public class IdentityService : IIdentityService
         return tokenDto;
     }
 
+    public async Task RequestEmailVerificationAsync(string email)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with email {email} not found");
+
+        // Lockout gửi email
+        const int MAX_EMAIL_REQUEST_ATTEMPTS = 5;
+        const int EMAIL_REQUEST_LOCKOUT_MINUTES = 10;
+        if (user.EmailRequestLockout >= MAX_EMAIL_REQUEST_ATTEMPTS &&
+            user.EmailRequestLockoutTime.HasValue &&
+            DateTime.Now < user.EmailRequestLockoutTime.Value.AddMinutes(EMAIL_REQUEST_LOCKOUT_MINUTES))
+        {
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_TOO_MANY_REQUESTS, $"Quá nhiều yêu cầu gửi email. Vui lòng thử lại sau {EMAIL_REQUEST_LOCKOUT_MINUTES} phút.");
+        }
+        if (user.EmailRequestLockoutTime.HasValue &&
+            DateTime.Now >= user.EmailRequestLockoutTime.Value.AddMinutes(EMAIL_REQUEST_LOCKOUT_MINUTES))
+        {
+            user.EmailRequestLockout = 0;
+        }
+
+        // Lockout xác thực
+        const int MAX_VERIFICATION_ATTEMPTS = 5;
+        const int LOCKOUT_DURATION_MINUTES = 10;
+        if (user.EmailVerificationLockout >= MAX_VERIFICATION_ATTEMPTS &&
+            user.EmailVerificationCodeTime.HasValue &&
+            DateTime.Now < user.EmailVerificationCodeTime.Value.AddMinutes(LOCKOUT_DURATION_MINUTES))
+        {
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_TOO_MANY_REQUESTS, $"Tài khoản bị khóa do gửi quá nhiều mã xác thực. Vui lòng thử lại sau {LOCKOUT_DURATION_MINUTES} phút.");
+        }
+        if (user.EmailVerificationCodeTime.HasValue &&
+            DateTime.Now >= user.EmailVerificationCodeTime.Value.AddMinutes(LOCKOUT_DURATION_MINUTES))
+        {
+            user.EmailVerificationLockout = 0;
+        }
+
+        // Tạo và lưu mã xác thực
+        user.EmailVerificationCode = GenerateRandomCode();
+        user.EmailVerificationCodeTime = DateTime.Now;
+        user.EmailRequestLockout++;
+        user.EmailRequestLockoutTime = DateTime.Now;
+        await _userManager.UpdateAsync(user);
+
+        // Gửi email xác thực
+        const int VERIFICATION_CODE_EXPIRY_MINUTES = 10;
+        var subject = "Xác thực email";
+        var body = $@"<html><body><h2>Xác thực email</h2><p>Mã xác thực của bạn: <strong>{user.EmailVerificationCode}</strong></p><p>Mã xác thực sẽ hết hạn sau {VERIFICATION_CODE_EXPIRY_MINUTES} phút.</p><p>Nếu bạn không gửi yêu cầu xác thực, vui lòng bỏ qua email này.</p><br/><p>Trân trọng,<br/>AIQuizzizz</p></body></html>";
+        await _emailService.SendEmailAsync(email, subject, body);
+    }
+
+    public async Task VerifyEmailAsync(EmailVerificationConfirmDto dto)
+    {
+        var user = await _userManager.FindByEmailAsync(dto.Email);
+        if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with email {dto.Email} not found");
+
+        const int MAX_VERIFICATION_ATTEMPTS = 5;
+        const int LOCKOUT_DURATION_MINUTES = 10;
+        const int VERIFICATION_CODE_EXPIRY_MINUTES = 10;
+        // Lockout
+        if (user.EmailVerificationLockout >= MAX_VERIFICATION_ATTEMPTS &&
+            user.EmailVerificationCodeTime.HasValue &&
+            DateTime.Now < user.EmailVerificationCodeTime.Value.AddMinutes(LOCKOUT_DURATION_MINUTES))
+        {
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_TOO_MANY_REQUESTS, $"Tài khoản bị khóa do nhập sai mã quá nhiều lần. Vui lòng thử lại sau {LOCKOUT_DURATION_MINUTES} phút.");
+        }
+        // Kiểm tra mã và thời gian hết hạn
+        if (user.EmailVerificationCode != dto.VerificationCode ||
+            !user.EmailVerificationCodeTime.HasValue ||
+            DateTime.Now > user.EmailVerificationCodeTime.Value.AddMinutes(VERIFICATION_CODE_EXPIRY_MINUTES))
+        {
+            user.EmailVerificationLockout++;
+            await _userManager.UpdateAsync(user);
+            if (user.EmailVerificationLockout >= MAX_VERIFICATION_ATTEMPTS)
+            {
+                throw new ErrorCodeException(ErrorCodes.ACCOUNT_TOO_MANY_REQUESTS, $"Tài khoản bị khóa do nhập sai mã quá nhiều lần. Vui lòng thử lại sau {LOCKOUT_DURATION_MINUTES} phút.");
+            }
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_VERIFICATION_CODE, "Mã xác thực không hợp lệ hoặc đã hết hạn.");
+        }
+        // Xác minh thành công
+        user.EmailVerificationCode = null;
+        user.EmailVerificationCodeTime = null;
+        user.EmailVerificationLockout = 0;
+        user.EmailConfirmed = true;
+        await _userManager.UpdateAsync(user);
+    }
+
+    public async Task RequestPasswordResetAsync(ForgotPasswordDto dto)
+    {
+        var user = await _userManager.FindByEmailAsync(dto.Email);
+        if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with email {dto.Email} not found");
+
+        // Lockout gửi email
+        const int MAX_EMAIL_REQUEST_ATTEMPTS = 5;
+        const int EMAIL_REQUEST_LOCKOUT_MINUTES = 10;
+        if (user.EmailRequestLockout >= MAX_EMAIL_REQUEST_ATTEMPTS &&
+            user.EmailRequestLockoutTime.HasValue &&
+            DateTime.Now < user.EmailRequestLockoutTime.Value.AddMinutes(EMAIL_REQUEST_LOCKOUT_MINUTES))
+        {
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_TOO_MANY_REQUESTS, $"Quá nhiều yêu cầu gửi email. Vui lòng thử lại sau {EMAIL_REQUEST_LOCKOUT_MINUTES} phút.");
+        }
+        if (user.EmailRequestLockoutTime.HasValue &&
+            DateTime.Now >= user.EmailRequestLockoutTime.Value.AddMinutes(EMAIL_REQUEST_LOCKOUT_MINUTES))
+        {
+            user.EmailRequestLockout = 0;
+        }
+
+        // Lockout reset
+        const int MAX_RESET_ATTEMPTS = 5;
+        const int LOCKOUT_DURATION_MINUTES = 10;
+        if (user.PasswordResetLockout >= MAX_RESET_ATTEMPTS &&
+            user.PasswordResetCodeExpiryTime.HasValue &&
+            DateTime.Now < user.PasswordResetCodeExpiryTime.Value.AddMinutes(LOCKOUT_DURATION_MINUTES))
+        {
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_TOO_MANY_REQUESTS, $"Tài khoản bị khóa do gửi quá nhiều mã reset. Vui lòng thử lại sau {LOCKOUT_DURATION_MINUTES} phút.");
+        }
+        if (user.PasswordResetCodeExpiryTime.HasValue &&
+            DateTime.Now >= user.PasswordResetCodeExpiryTime.Value.AddMinutes(LOCKOUT_DURATION_MINUTES))
+        {
+            user.PasswordResetLockout = 0;
+        }
+
+        // Tạo mã reset ngẫu nhiên
+        const int PASSWORD_RESET_CODE_EXPIRY_MINUTES = 10;
+        var resetCode = GenerateRandomCode();
+        user.PasswordResetCode = resetCode;
+        user.PasswordResetCodeExpiryTime = DateTime.Now;
+        user.EmailRequestLockout++;
+        user.EmailRequestLockoutTime = DateTime.Now;
+        await _userManager.UpdateAsync(user);
+
+        // Gửi email reset mật khẩu
+        var subject = "Đặt lại mật khẩu";
+        var body = $@"<html><body><h2>Đặt lại mật khẩu</h2><p>Mã đặt lại mật khẩu của bạn: <strong>{resetCode}</strong></p><p>Mã này sẽ hết hạn sau {PASSWORD_RESET_CODE_EXPIRY_MINUTES} phút.</p><p>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.</p><br/><p>Trân trọng,<br/>AIQuizzizz</p></body></html>";
+        await _emailService.SendEmailAsync(dto.Email, subject, body);
+    }
+
+    public async Task ResetPasswordAsync(ResetPasswordDto dto)
+    {
+        var user = await _userManager.FindByEmailAsync(dto.Email);
+        if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with email {dto.Email} not found");
+
+        const int MAX_RESET_ATTEMPTS = 5;
+        const int LOCKOUT_DURATION_MINUTES = 10;
+        const int PASSWORD_RESET_CODE_EXPIRY_MINUTES = 10;
+        // Lockout
+        if (user.PasswordResetLockout >= MAX_RESET_ATTEMPTS &&
+            user.PasswordResetCodeExpiryTime.HasValue &&
+            DateTime.Now < user.PasswordResetCodeExpiryTime.Value.AddMinutes(LOCKOUT_DURATION_MINUTES))
+        {
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_TOO_MANY_REQUESTS, $"Tài khoản bị khóa do nhập sai mã quá nhiều lần. Vui lòng thử lại sau {LOCKOUT_DURATION_MINUTES} phút.");
+        }
+        // Kiểm tra mã reset và thời gian hết hạn
+        if (user.PasswordResetCode != dto.ResetCode ||
+            !user.PasswordResetCodeExpiryTime.HasValue ||
+            DateTime.Now > user.PasswordResetCodeExpiryTime.Value.AddMinutes(PASSWORD_RESET_CODE_EXPIRY_MINUTES))
+        {
+            user.PasswordResetLockout++;
+            await _userManager.UpdateAsync(user);
+            if (user.PasswordResetLockout >= MAX_RESET_ATTEMPTS)
+            {
+                throw new ErrorCodeException(ErrorCodes.ACCOUNT_TOO_MANY_REQUESTS, $"Tài khoản bị khóa do nhập sai mã quá nhiều lần. Vui lòng thử lại sau {LOCKOUT_DURATION_MINUTES} phút.");
+            }
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_RESET_CODE, "Mã đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.");
+        }
+        // Đặt lại mật khẩu
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        var result = await _userManager.ResetPasswordAsync(user, token, dto.NewPassword);
+        if (!result.Succeeded) throw new ErrorCodeException(ErrorCodes.COMMON_BAD_REQUEST, $"Đổi mật khẩu thất bại: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        user.PasswordResetCode = null;
+        user.PasswordResetCodeExpiryTime = null;
+        user.PasswordResetLockout = 0;
+        await _userManager.UpdateAsync(user);
+    }
+
+    private string GenerateRandomCode()
+    {
+        var random = new Random();
+        return random.Next(100000, 999999).ToString();
+    }
 }
