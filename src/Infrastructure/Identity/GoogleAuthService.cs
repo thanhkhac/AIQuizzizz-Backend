@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json.Serialization;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Users.Common;
 using CleanArchitectureBase.Domain.Constants;
@@ -18,10 +19,15 @@ public interface IGoogleAuthService
 
 internal class GoogleTokenResponse
 {
+    [JsonPropertyName("access_token")]
     public string AccessToken { get; set; } = string.Empty;
+    [JsonPropertyName("token_type")]
     public string TokenType { get; set; } = string.Empty;
+    [JsonPropertyName("expires_in")]
     public int ExpiresIn { get; set; }
+    [JsonPropertyName("refresh_token")]
     public string RefreshToken { get; set; } = string.Empty;
+    [JsonPropertyName("scope")]
     public string Scope { get; set; } = string.Empty;
 }
 
@@ -53,10 +59,7 @@ public class GoogleAuthService : IGoogleAuthService
     {
         try
         {
-            // Lấy authorization code để đổi lấy access token
             var tokenResponse = await ExchangeCodeForTokenAsync(authorizationCode, redirectUri);
-            
-            // Lấy thông tin người dùng
             var userInfo = await GetUserInfoAsync(tokenResponse.AccessToken);
             
             return userInfo;
@@ -79,7 +82,6 @@ public class GoogleAuthService : IGoogleAuthService
         });
 
         var response = await _httpClient.PostAsync("https://oauth2.googleapis.com/token", tokenRequest);
-        
         if (!response.IsSuccessStatusCode)
         {
             throw new UnauthorizedAccessException("Failed to exchange authorization code for token");
