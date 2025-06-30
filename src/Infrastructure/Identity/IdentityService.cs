@@ -64,7 +64,7 @@ public class IdentityService : IIdentityService
         {
             if (existingUser.IsBanned)
             {
-                throw new ErrorCodeException(ErrorCodes.ACCOUNT_BANNED);
+                throw new ErrorCodeException(ErrorCodes.ACCOUNT_EMAIL_BANNED);
             }
             throw new ErrorCodeException(ErrorCodes.IDENTITY_DUPLICATE_EMAIL);
         }
@@ -312,8 +312,17 @@ public class IdentityService : IIdentityService
 
     public async Task<TokenDto> TryGoogleLoginAsync(string authorizationCode, string redirectUri)
     {
-        var googleUser = await _googleAuthService.ExchangeCodeForUserInfoAsync(authorizationCode, redirectUri);
-        
+        GoogleUserDto? googleUser = null;
+        try
+        {
+            googleUser =  await _googleAuthService.ExchangeCodeForUserInfoAsync(authorizationCode, redirectUri);
+            if(googleUser == null) throw new Exception();
+        }
+        catch (Exception)
+        {
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS);
+        }
+
         var existingUser = await _userManager.FindByEmailAsync(googleUser.Email);
         
         if (existingUser != null)
@@ -353,7 +362,7 @@ public class IdentityService : IIdentityService
         
         if (!result.Succeeded)
         {
-            throw new ErrorCodeException(ErrorCodes.IDENTITY_DUPLICATE_EMAIL, "Failed to create user account");
+            throw new Exception();
         }
         
         return await GenerateJwtTokenAsync(userAccount);
@@ -361,7 +370,16 @@ public class IdentityService : IIdentityService
 
     public async Task<TokenDto> TryGoogleRegisterAsync(string authorizationCode, string redirectUri)
     {
-        var googleUser = await _googleAuthService.ExchangeCodeForUserInfoAsync(authorizationCode, redirectUri);
+        GoogleUserDto? googleUser = null;
+        try
+        {
+            googleUser =  await _googleAuthService.ExchangeCodeForUserInfoAsync(authorizationCode, redirectUri);
+            if(googleUser == null) throw new Exception();
+        }
+        catch (Exception)
+        {
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS);
+        }
         
         var existingUser = await _userManager.FindByEmailAsync(googleUser.Email);
         
@@ -371,7 +389,7 @@ public class IdentityService : IIdentityService
                 throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, $"User with email {googleUser.Email} not found");
                 
             if (existingUser.IsBanned)
-                throw new ErrorCodeException(ErrorCodes.ACCOUNT_BANNED);
+                throw new ErrorCodeException(ErrorCodes.ACCOUNT_EMAIL_BANNED);
                 
             if (!existingUser.EmailConfirmed)
             {
