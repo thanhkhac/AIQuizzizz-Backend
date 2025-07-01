@@ -53,7 +53,7 @@ public class ApplicationDbContextInitialiser
 
             // if (!databaseExists)
             // {
-            //await _context.Database.MigrateAsync();
+            await _context.Database.MigrateAsync();
             // }
             await Task.CompletedTask;
         }
