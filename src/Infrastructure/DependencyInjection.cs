@@ -41,12 +41,13 @@ public static class DependencyInjection
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
         services.AddScoped<ApplicationDbContextInitialiser>();
+        services.AddTransient<IEmailService, EmailService>();
 
-        // Bind JwtSettings từ appsettings.json
         services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
-
-        // Bind GoogleSettings từ appsettings.json
         services.Configure<GoogleSettings>(configuration.GetSection("GoogleSettings"));
+        services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
+        
+        
 
         var a = configuration.GetSection("JwtSettings").Get<JwtSettings>();
         if (a == null) throw new Exception("Lỗi");

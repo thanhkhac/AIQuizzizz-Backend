@@ -28,4 +28,9 @@ public interface IIdentityService
 
     
     Task<Guid> ChangeRoleAsync(Guid userId, string role);
+
+    Task RequestEmailVerificationAsync(string email);
+    Task VerifyEmailAsync(EmailVerificationConfirmDto dto);
+    Task RequestPasswordResetAsync(ForgotPasswordDto dto);
+    Task ResetPasswordAsync(ResetPasswordDto dto);
 }

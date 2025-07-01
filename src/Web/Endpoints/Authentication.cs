@@ -20,6 +20,10 @@ public class Authentication : EndpointGroupBase
             .MapPost(RefreshToken, "RefreshToken")
             .MapPost(RevokeToken, "RevokeToken")
             .MapPost(LogOut, "LogOut")
+            .MapPost(RequestEmailVerification, "RequestEmailVerification")
+            .MapPost(VerifyEmail, "VerifyEmail")
+            .MapPost(RequestPasswordReset, "RequestPasswordReset")
+            .MapPost(ResetPassword, "ResetPassword")
             ;
     }
 
@@ -127,5 +131,29 @@ public class Authentication : EndpointGroupBase
 
         httpContext.Response.Cookies.Append("access_token", "", expiredOptions);
         httpContext.Response.Cookies.Append("refresh_token", "", expiredOptions);
+    }
+
+    public async Task<Ok<ApiResponse>> RequestEmailVerification([FromBody] EmailVerificationRequestDto dto, ISender sender)
+    {
+        await sender.Send(new RequestEmailVerificationCommand { Email = dto.Email });
+        return ApiResponse.SuccessResult().ToOk();
+    }
+
+    public async Task<Ok<ApiResponse>> VerifyEmail([FromBody] EmailVerificationConfirmDto dto, ISender sender)
+    {
+        await sender.Send(new VerifyEmailCommand { Email = dto.Email, VerificationCode = dto.VerificationCode });
+        return ApiResponse.SuccessResult().ToOk();
+    }
+
+    public async Task<Ok<ApiResponse>> RequestPasswordReset([FromBody] ForgotPasswordDto dto, ISender sender)
+    {
+        await sender.Send(new RequestPasswordResetCommand { Email = dto.Email });
+        return ApiResponse.SuccessResult().ToOk();
+    }
+
+    public async Task<Ok<ApiResponse>> ResetPassword([FromBody] ResetPasswordDto dto, ISender sender)
+    {
+        await sender.Send(new ResetPasswordCommand { Email = dto.Email, ResetCode = dto.ResetCode, NewPassword = dto.NewPassword });
+        return ApiResponse.SuccessResult().ToOk();
     }
 }
