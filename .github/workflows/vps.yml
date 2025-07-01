@@ -72,7 +72,7 @@ jobs:
             echo "JWTSETTINGS__SECRETKEY=$JWTSETTINGS__SECRETKEY" >> .env
             echo "GOOGLESETTINGS__CLIENTSECRET=$GOOGLESETTINGS__CLIENTSECRET" >> .env
             echo "GOOGLESETTINGS__CLIENTID=$GOOGLESETTINGS__CLIENTID" >> .env
-            echo "EMAILSETTINGS__SMTPPASS=$EMAILSETTINGS__SMTPPASS" >> .env
+            echo "EMAILSETTINGS__SMTPPASS=`"$EMAILSETTINGS__SMTPPASS`"" >> .env
 
             echo "==> Thư mục hiện tại là: $(pwd)"
             cd $PROJECT_DIR || exit 1
