@@ -418,7 +418,7 @@ public class IdentityService : IIdentityService
             UserName = Guid.NewGuid().ToString(),
             Email = googleUser.Email,
             User = user,
-            EmailConfirmed = true // Google emails are pre-verified
+            EmailConfirmed = true 
         };
 
         var result = await _userManager.CreateAsync(userAccount);
@@ -443,12 +443,12 @@ public class IdentityService : IIdentityService
         const int EMAIL_REQUEST_LOCKOUT_MINUTES = 10;
         if (user.EmailRequestLockout >= MAX_EMAIL_REQUEST_ATTEMPTS &&
             user.EmailRequestLockoutTime.HasValue &&
-            DateTime.Now < user.EmailRequestLockoutTime.Value.AddMinutes(EMAIL_REQUEST_LOCKOUT_MINUTES))
+            DateTime.UtcNow < user.EmailRequestLockoutTime.Value.AddMinutes(EMAIL_REQUEST_LOCKOUT_MINUTES))
         {
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_TOO_MANY_REQUESTS, $"Quá nhiều yêu cầu gửi email. Vui lòng thử lại sau {EMAIL_REQUEST_LOCKOUT_MINUTES} phút.");
         }
         if (user.EmailRequestLockoutTime.HasValue &&
-            DateTime.Now >= user.EmailRequestLockoutTime.Value.AddMinutes(EMAIL_REQUEST_LOCKOUT_MINUTES))
+            DateTime.UtcNow >= user.EmailRequestLockoutTime.Value.AddMinutes(EMAIL_REQUEST_LOCKOUT_MINUTES))
         {
             user.EmailRequestLockout = 0;
         }
@@ -458,21 +458,21 @@ public class IdentityService : IIdentityService
         const int LOCKOUT_DURATION_MINUTES = 10;
         if (user.EmailVerificationLockout >= MAX_VERIFICATION_ATTEMPTS &&
             user.EmailVerificationCodeTime.HasValue &&
-            DateTime.Now < user.EmailVerificationCodeTime.Value.AddMinutes(LOCKOUT_DURATION_MINUTES))
+            DateTime.UtcNow < user.EmailVerificationCodeTime.Value.AddMinutes(LOCKOUT_DURATION_MINUTES))
         {
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_TOO_MANY_REQUESTS, $"Tài khoản bị khóa do gửi quá nhiều mã xác thực. Vui lòng thử lại sau {LOCKOUT_DURATION_MINUTES} phút.");
         }
         if (user.EmailVerificationCodeTime.HasValue &&
-            DateTime.Now >= user.EmailVerificationCodeTime.Value.AddMinutes(LOCKOUT_DURATION_MINUTES))
+            DateTime.UtcNow >= user.EmailVerificationCodeTime.Value.AddMinutes(LOCKOUT_DURATION_MINUTES))
         {
             user.EmailVerificationLockout = 0;
         }
 
         // Tạo và lưu mã xác thực
         user.EmailVerificationCode = GenerateRandomCode();
-        user.EmailVerificationCodeTime = DateTime.Now;
+        user.EmailVerificationCodeTime = DateTime.UtcNow;
         user.EmailRequestLockout++;
-        user.EmailRequestLockoutTime = DateTime.Now;
+        user.EmailRequestLockoutTime = DateTime.UtcNow;
         await _userManager.UpdateAsync(user);
 
         // Gửi email xác thực
@@ -493,14 +493,14 @@ public class IdentityService : IIdentityService
         // Lockout
         if (user.EmailVerificationLockout >= MAX_VERIFICATION_ATTEMPTS &&
             user.EmailVerificationCodeTime.HasValue &&
-            DateTime.Now < user.EmailVerificationCodeTime.Value.AddMinutes(LOCKOUT_DURATION_MINUTES))
+            DateTime.UtcNow < user.EmailVerificationCodeTime.Value.AddMinutes(LOCKOUT_DURATION_MINUTES))
         {
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_TOO_MANY_REQUESTS, $"Tài khoản bị khóa do nhập sai mã quá nhiều lần. Vui lòng thử lại sau {LOCKOUT_DURATION_MINUTES} phút.");
         }
         // Kiểm tra mã và thời gian hết hạn
         if (user.EmailVerificationCode != dto.VerificationCode ||
             !user.EmailVerificationCodeTime.HasValue ||
-            DateTime.Now > user.EmailVerificationCodeTime.Value.AddMinutes(VERIFICATION_CODE_EXPIRY_MINUTES))
+            DateTime.UtcNow > user.EmailVerificationCodeTime.Value.AddMinutes(VERIFICATION_CODE_EXPIRY_MINUTES))
         {
             user.EmailVerificationLockout++;
             await _userManager.UpdateAsync(user);
@@ -524,16 +524,16 @@ public class IdentityService : IIdentityService
         if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with email {dto.Email} not found");
 
         // Lockout gửi email
-        const int MAX_EMAIL_REQUEST_ATTEMPTS = 5;
-        const int EMAIL_REQUEST_LOCKOUT_MINUTES = 10;
+        const int MAX_EMAIL_REQUEST_ATTEMPTS = 3;
+        const int EMAIL_REQUEST_LOCKOUT_MINUTES = 60;
         if (user.EmailRequestLockout >= MAX_EMAIL_REQUEST_ATTEMPTS &&
             user.EmailRequestLockoutTime.HasValue &&
-            DateTime.Now < user.EmailRequestLockoutTime.Value.AddMinutes(EMAIL_REQUEST_LOCKOUT_MINUTES))
+            DateTime.UtcNow < user.EmailRequestLockoutTime.Value.AddMinutes(EMAIL_REQUEST_LOCKOUT_MINUTES))
         {
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_TOO_MANY_REQUESTS, $"Quá nhiều yêu cầu gửi email. Vui lòng thử lại sau {EMAIL_REQUEST_LOCKOUT_MINUTES} phút.");
         }
         if (user.EmailRequestLockoutTime.HasValue &&
-            DateTime.Now >= user.EmailRequestLockoutTime.Value.AddMinutes(EMAIL_REQUEST_LOCKOUT_MINUTES))
+            DateTime.UtcNow >= user.EmailRequestLockoutTime.Value.AddMinutes(EMAIL_REQUEST_LOCKOUT_MINUTES))
         {
             user.EmailRequestLockout = 0;
         }
@@ -543,12 +543,12 @@ public class IdentityService : IIdentityService
         const int LOCKOUT_DURATION_MINUTES = 10;
         if (user.PasswordResetLockout >= MAX_RESET_ATTEMPTS &&
             user.PasswordResetCodeExpiryTime.HasValue &&
-            DateTime.Now < user.PasswordResetCodeExpiryTime.Value.AddMinutes(LOCKOUT_DURATION_MINUTES))
+            DateTime.UtcNow < user.PasswordResetCodeExpiryTime.Value.AddMinutes(LOCKOUT_DURATION_MINUTES))
         {
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_TOO_MANY_REQUESTS, $"Tài khoản bị khóa do gửi quá nhiều mã reset. Vui lòng thử lại sau {LOCKOUT_DURATION_MINUTES} phút.");
         }
         if (user.PasswordResetCodeExpiryTime.HasValue &&
-            DateTime.Now >= user.PasswordResetCodeExpiryTime.Value.AddMinutes(LOCKOUT_DURATION_MINUTES))
+            DateTime.UtcNow >= user.PasswordResetCodeExpiryTime.Value.AddMinutes(LOCKOUT_DURATION_MINUTES))
         {
             user.PasswordResetLockout = 0;
         }
@@ -557,9 +557,9 @@ public class IdentityService : IIdentityService
         const int PASSWORD_RESET_CODE_EXPIRY_MINUTES = 10;
         var resetCode = GenerateRandomCode();
         user.PasswordResetCode = resetCode;
-        user.PasswordResetCodeExpiryTime = DateTime.Now;
+        user.PasswordResetCodeExpiryTime = DateTime.UtcNow;
         user.EmailRequestLockout++;
-        user.EmailRequestLockoutTime = DateTime.Now;
+        user.EmailRequestLockoutTime = DateTime.UtcNow;
         await _userManager.UpdateAsync(user);
 
         // Gửi email reset mật khẩu
@@ -579,14 +579,14 @@ public class IdentityService : IIdentityService
         // Lockout
         if (user.PasswordResetLockout >= MAX_RESET_ATTEMPTS &&
             user.PasswordResetCodeExpiryTime.HasValue &&
-            DateTime.Now < user.PasswordResetCodeExpiryTime.Value.AddMinutes(LOCKOUT_DURATION_MINUTES))
+            DateTime.UtcNow < user.PasswordResetCodeExpiryTime.Value.AddMinutes(LOCKOUT_DURATION_MINUTES))
         {
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_TOO_MANY_REQUESTS, $"Tài khoản bị khóa do nhập sai mã quá nhiều lần. Vui lòng thử lại sau {LOCKOUT_DURATION_MINUTES} phút.");
         }
         // Kiểm tra mã reset và thời gian hết hạn
         if (user.PasswordResetCode != dto.ResetCode ||
             !user.PasswordResetCodeExpiryTime.HasValue ||
-            DateTime.Now > user.PasswordResetCodeExpiryTime.Value.AddMinutes(PASSWORD_RESET_CODE_EXPIRY_MINUTES))
+            DateTime.UtcNow > user.PasswordResetCodeExpiryTime.Value.AddMinutes(PASSWORD_RESET_CODE_EXPIRY_MINUTES))
         {
             user.PasswordResetLockout++;
             await _userManager.UpdateAsync(user);
