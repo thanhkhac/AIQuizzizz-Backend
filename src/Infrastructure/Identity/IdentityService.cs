@@ -606,6 +606,26 @@ public class IdentityService : IIdentityService
         await _userManager.UpdateAsync(user);
     }
 
+    public async Task BanUser(Guid userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id  {userId} not found");
+
+        user.IsBanned = true;
+        
+        await _userManager.UpdateAsync(user);
+    }
+
+    public async Task ActiveUser(Guid userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id  {userId} not found");
+
+        user.IsBanned = true;
+        
+        await _userManager.UpdateAsync(user);
+    }
+
     private string GenerateRandomCode()
     {
         var random = new Random();
