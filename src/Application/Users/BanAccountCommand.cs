@@ -1,9 +1,11 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.Users;
 
+[Authorize (Roles = Roles.Administrator)]
 public class BanAccountCommand : IRequest<Guid>
 {
     public required Guid UserId { get; set; }

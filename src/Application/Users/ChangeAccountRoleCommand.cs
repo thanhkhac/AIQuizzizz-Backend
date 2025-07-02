@@ -1,10 +1,12 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using StackExchange.Redis;
 
 namespace CleanArchitectureBase.Application.Users;
 
+[Authorize (Roles = Roles.Administrator)]
 public class ChangeAccountRoleCommand : IRequest<Guid>
 {
     public required Guid UserId { get; set; }

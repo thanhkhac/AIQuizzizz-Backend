@@ -2,6 +2,7 @@
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
@@ -17,6 +18,7 @@ public class TestSearchResultDto
     public string? Status { get; set; }
 }   
 
+[Authorize]
 public class SearchTestInClass : IRequest<PaginatedList<TestSearchResultDto>>
 {
     public required Guid ClassId { get; set; }

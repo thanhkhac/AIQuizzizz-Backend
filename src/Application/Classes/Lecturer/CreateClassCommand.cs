@@ -1,10 +1,12 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Classes.Lecturer;
 
+[Authorize]
 public class CreateClassCommand : IRequest<Guid>
 {
     public required string Name { get; set; }

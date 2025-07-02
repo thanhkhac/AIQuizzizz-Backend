@@ -1,8 +1,10 @@
 ﻿using CleanArchitectureBase.Application.Classes.Common;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 
 namespace CleanArchitectureBase.Application.Classes.Lecturer;
 
+[Authorize]
 public class DeleteClassCommand : IRequest<Guid>
 {
     public required Guid ClassId { get; set; }   

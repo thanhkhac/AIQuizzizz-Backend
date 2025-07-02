@@ -1,6 +1,7 @@
 ﻿using CleanArchitectureBase.Application.Classes.Common;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
@@ -10,6 +11,8 @@ public class ClassCodeDto
 {
     public required string Code { get; set; }
 }
+
+[Authorize]
 public class InviteStudentCommand : IRequest<ClassCodeDto>
 {
     public required Guid ClassId { get; set; }

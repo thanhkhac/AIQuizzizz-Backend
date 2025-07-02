@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.Common.Serializers;
 using CleanArchitectureBase.Application.QuestionSets;
 using CleanArchitectureBase.Application.QuestionSets.Common;
@@ -9,6 +10,7 @@ using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Tests;
 
+[Authorize]
 public class CreateTestTemplateCommand : IRequest<Guid>
 {
     public required string Name { get; set; }

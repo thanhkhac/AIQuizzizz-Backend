@@ -5,6 +5,7 @@ using System.Linq.Dynamic.Core;
 using CleanArchitectureBase.Application.Classes.Common;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Models;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.Classes.Lecturer;
@@ -15,6 +16,8 @@ public class StudentSearchResultDto
     public required string Email { get; set; }
     public ClassShareMode Position { get; set; }
 }
+
+[Authorize]
 public class SearchStudentInClass : IRequest<PaginatedList<StudentSearchResultDto>>
 {
     public required Guid ClassId { get; set; }

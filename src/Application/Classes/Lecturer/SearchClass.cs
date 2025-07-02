@@ -1,6 +1,7 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
@@ -11,6 +12,8 @@ public class ClassSearchResultDto
     public required string Name { get; set; }
     public string? Owner { get; set; }
 }
+
+[Authorize]
 public class SearchClass : IRequest<PaginatedList<ClassSearchResultDto>>
 {
     public ClassShareMode? ShareMode { get; set; }
