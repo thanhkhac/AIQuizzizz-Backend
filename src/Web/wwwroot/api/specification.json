@@ -6,6 +6,154 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/api/Account/Register": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "operationId": "RegisterUser",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterUserCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfString"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Authentication/Login": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "Login",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfTokenDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Authentication/RefreshToken": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "RefreshToken",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfTokenDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Authentication/RevokeToken": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "RevokeToken",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeTokenCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Authentication/LogOut": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "LogOut",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Class": {
       "post": {
         "tags": [
@@ -462,6 +610,38 @@
         }
       }
     },
+    "/api/Folder": {
+      "post": {
+        "tags": [
+          "Folder"
+        ],
+        "operationId": "CreateFolder",
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFolderCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/QuestionSets/Create": {
       "post": {
         "tags": [
@@ -562,6 +742,38 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfTestSearchResultDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Test/Templates": {
+      "post": {
+        "tags": [
+          "Test"
+        ],
+        "operationId": "CreateTestTemplate",
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTestTemplateCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
                 }
               }
             }
@@ -860,70 +1072,6 @@
         }
       }
     },
-    "/api/Users/Register": {
-      "post": {
-        "tags": [
-          "Users"
-        ],
-        "operationId": "RegisterUser",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RegisterUserCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfString"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Users/Login": {
-      "post": {
-        "tags": [
-          "Users"
-        ],
-        "operationId": "Login",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LoginCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfTokenDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/Users/Profile": {
       "get": {
         "tags": [
@@ -937,90 +1085,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfUserProfileDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Users/RefreshToken": {
-      "post": {
-        "tags": [
-          "Users"
-        ],
-        "operationId": "RefreshToken",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RefreshTokenCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfTokenDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Users/RevokeToken": {
-      "post": {
-        "tags": [
-          "Users"
-        ],
-        "operationId": "RevokeToken",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RevokeTokenCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Users/LogOut": {
-      "post": {
-        "tags": [
-          "Users"
-        ],
-        "operationId": "LogOut",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponse"
                 }
               }
             }
@@ -1222,6 +1286,177 @@
   },
   "components": {
     "schemas": {
+      "ApiResponseOfString": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RegisterUserCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiResponseOfTokenDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TokenDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TokenDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "expireMin": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "LoginCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "RefreshTokenCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "nullable": true
+          },
+          "refreshToken": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ApiResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ApiResponseOfObject"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ApiResponseOfObject": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RevokeTokenCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "ApiResponseOfGuid": {
         "type": "object",
         "additionalProperties": false,
@@ -1571,6 +1806,15 @@
           }
         }
       },
+      "CreateFolderCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "folderName": {
+            "type": "string"
+          }
+        }
+      },
       "CreateQuestionSetCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -1790,6 +2034,21 @@
           2,
           3
         ]
+      },
+      "CreateTestTemplateCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateQuestionDto"
+            }
+          }
+        }
       },
       "PaginatedListOfTodoItemBriefDto": {
         "type": "object",
@@ -2019,112 +2278,6 @@
           }
         }
       },
-      "ApiResponseOfString": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "errors": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "validationErrors": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "data": {
-            "type": "string",
-            "nullable": true
-          },
-          "success": {
-            "type": "boolean"
-          }
-        }
-      },
-      "RegisterUserCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          }
-        }
-      },
-      "ApiResponseOfTokenDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "errors": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "validationErrors": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "data": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/TokenDto"
-              }
-            ]
-          },
-          "success": {
-            "type": "boolean"
-          }
-        }
-      },
-      "TokenDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "accessToken": {
-            "type": "string"
-          },
-          "refreshToken": {
-            "type": "string"
-          },
-          "expireMin": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "LoginCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          }
-        }
-      },
       "ApiResponseOfUserProfileDto": {
         "type": "object",
         "additionalProperties": false,
@@ -2184,71 +2337,6 @@
           "balance": {
             "type": "integer",
             "format": "int64"
-          }
-        }
-      },
-      "RefreshTokenCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "accessToken": {
-            "type": "string",
-            "nullable": true
-          },
-          "refreshToken": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "ApiResponse": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/ApiResponseOfObject"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false
-          }
-        ]
-      },
-      "ApiResponseOfObject": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "errors": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "validationErrors": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "data": {
-            "nullable": true
-          },
-          "success": {
-            "type": "boolean"
-          }
-        }
-      },
-      "RevokeTokenCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "refreshToken": {
-            "type": "string",
-            "nullable": true
           }
         }
       },
