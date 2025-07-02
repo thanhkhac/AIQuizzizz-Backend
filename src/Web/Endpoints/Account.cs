@@ -10,12 +10,13 @@ public class Account : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
-            .MapPost(RegisterUser, "Register");
+            .MapGet(GetProfile, "Profile");
     }
     
-    public async Task<Ok<ApiResponse<string>>> RegisterUser([FromBody] RegisterUserCommand command, ISender sender)
+   
+    public async Task<Ok<ApiResponse<UserProfileDto>>> GetProfile(ISender sender, HttpContext httpContext)
     {
-        var result = await sender.Send(command);
+        var result = await sender.Send(new GetProfileQuery());
         return result.ToOk();
     }
 }

@@ -18,10 +18,19 @@ public interface IIdentityService
     
     Task<TokenDto> TryLoginAsync(string email, string password);
     
+    Task<TokenDto> TryGoogleLoginAsync(string authorizationCode, string redirectUri);
+    
+    Task<TokenDto> TryGoogleRegisterAsync(string authorizationCode, string redirectUri);
+    
     Task<TokenDto> RefreshTokenAsync(string accessToken, string refreshToken);
     Task RevokeRefreshTokenAsync(string refreshToken, Guid userId);
     Task<List<Guid>> GetUsersInRoleAsync();
 
     
     Task<Guid> ChangeRoleAsync(Guid userId, string role);
+
+    Task RequestEmailVerificationAsync(string email);
+    Task VerifyEmailAsync(EmailVerificationConfirmDto dto);
+    Task RequestPasswordResetAsync(ForgotPasswordDto dto);
+    Task ResetPasswordAsync(ResetPasswordDto dto);
 }

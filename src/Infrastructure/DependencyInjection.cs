@@ -41,9 +41,13 @@ public static class DependencyInjection
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
         services.AddScoped<ApplicationDbContextInitialiser>();
+        services.AddTransient<IEmailService, EmailService>();
 
-        // Bind JwtSettings từ appsettings.json
         services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
+        services.Configure<GoogleSettings>(configuration.GetSection("GoogleSettings"));
+        services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
+        
+        
 
         var a = configuration.GetSection("JwtSettings").Get<JwtSettings>();
         if (a == null) throw new Exception("Lỗi");
@@ -89,18 +93,21 @@ public static class DependencyInjection
                     ClockSkew = TimeSpan.Zero
                 };
 
-                //Bổ sung cơ chế đọc token từ cookie                
+                //Bổ sung cơ chế đọc token từ cookie      
                 options.Events = new JwtBearerEvents
                 {
                     OnMessageReceived = context =>
                     {
-                        if (string.IsNullOrEmpty(context.Request.Headers["Authorization"]))
+                        var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+                        if (string.IsNullOrEmpty(token))
                         {
-                            var token = context.Request.Cookies["access_token"];
-                            if (!string.IsNullOrEmpty(token))
-                            {
-                                context.Token = token;
-                            }
+                            token = context.Request.Cookies["access_token"];
+                        }
+
+                        if (!string.IsNullOrEmpty(token))
+                        {
+                            context.Token = token;
                         }
                         return Task.CompletedTask;
                     }
@@ -109,6 +116,32 @@ public static class DependencyInjection
 
         services.AddAuthorizationBuilder();
 
+        services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll", policy =>
+            {
+                policy.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .WithExposedHeaders("Authorization");
+            });
+
+            options.AddPolicy("AllowSpecificOrigins", policy =>
+            {
+                var allowedOrigins = configuration.GetSection("AllowedOrigins").Get<string[]>() ??
+                                     new[]
+                                     {
+                                         "https://thanhkhac.id.vn",
+                                         "https://aiquizizz.com"
+                                     };
+
+                policy.WithOrigins(allowedOrigins)
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials()
+                    .WithExposedHeaders("Authorization");
+            });
+        });
 
         services.Configure<IdentityOptions>(
             options =>
@@ -129,6 +162,9 @@ public static class DependencyInjection
         services.AddSingleton(TimeProvider.System);
         services.AddTransient<IIdentityService, IdentityService>();
         services.AddSingleton<IRedisService, RedisService>();
+
+        // Register Google Auth Service
+        services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();
 
         services.AddAuthorization(options =>
             options.AddPolicy(Policies.CanPurge, policy => policy.RequireRole(Roles.Administrator)));

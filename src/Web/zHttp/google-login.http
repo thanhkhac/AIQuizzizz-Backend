@@ -1,0 +1,51 @@
+### Google login url
+#Sử dụng URL 
+GET https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount?client_id=637359103193-umcet39e9b2k2kc0l369mlebantp1089.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Faiquizizz.com%2Fauthentication%2Fgoogle%2Fcallback&response_type=code&access_type=offline&scope=openid%20email%20profile&prompt=consent&service=lso&o2v=2&flowName=GeneralOAuthFlow
+
+# Sử dụng code ở trên để login
+### Đổi authoirization code lấy access token
+POST https://oauth2.googleapis.com/token
+Content-Type: application/json
+
+{
+  "client_id": "637359103193-umcet39e9b2k2kc0l369mlebantp1089.apps.googleusercontent.com",
+  "client_secret": "<Tự điền>",
+  "code": "4/0AVMBsJgJDOHegFKWprtgZKRzEuEJtJQiENkhbyehIUo4TbCn6ZrzhVCfVWwGPni7HgS4mw",
+  "grant_type": "authorization_code",
+  "redirect_uri": "https://aiquizizz.com/authentication/google/callback"
+ }
+
+### OUTPUT
+#{
+#  "access_token": "ya29.a0AS3H6Nx0E7OrthgV6QgfaPSrV6XKw5Rd2CnEEAJgdJOdm0uqRm2xd59aB6I11W4YQjSrO7CxH7hPKrhJbijC83iB_tHeqnECNi9kMqlbQA4kqE3hoNb47d-4_mrTFIboQaA01mpJepDVn_KTvCs2GC9LYt1PFmt650lEHy7aaCgYKAacSARESFQHGX2MiY7U4EjrhDCcYOLJCHr2z9A0175",
+#  "expires_in": 3599,
+#  "scope": "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile openid",
+#  "token_type": "Bearer",
+#  "id_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6Ijg4MjUwM2E1ZmQ1NmU5ZjczNGRmYmE1YzUwZDdiZjQ4ZGIyODRhZTkiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI2MzczNTkxMDMxOTMtdW1jZXQzOWU5YjJrMmtjMGwzNjltbGViYW50cDEwODkuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI2MzczNTkxMDMxOTMtdW1jZXQzOWU5YjJrMmtjMGwzNjltbGViYW50cDEwODkuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMTE0MTY2NDU3OTUxNDI4ODEyMjciLCJlbWFpbCI6InRoYW5oY3FiMjA0OEBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiYXRfaGFzaCI6IlItMFdjSnJrdHRIZXUwN1NOSy1naHciLCJuYW1lIjoiVGjDoG5oIiwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0pVXzMxc1VQSzkwS2xaVnI5cVBKN2VobW9XWEdmY2JVZllybTd5TTVaVTNpeWdpWm9zPXM5Ni1jIiwiZ2l2ZW5fbmFtZSI6IlRow6BuaCIsImlhdCI6MTc1MTI4MDEzOCwiZXhwIjoxNzUxMjgzNzM4fQ.W3fwsmA9LafzDrybuI8Vm0XiuyUjMpi0AccT5Q3MBWYJ1VfsxpcB8pt9DV09Y8v2yu2Bu7I_ozv_5MiHc370qbh5g7b89DcXs7XYu_poN__oORRlm7TeecIVIy7PVk2T4gs5ou3Yo93OvlOEBDlQMavqZPmXkdDKLFoli9rRWwYKLpTOsi34XTV4QnYRfTan-utCWx1k1q8CausQiSY3Fb3dTtiFyLQ13vt3rdhuz91f3vJOtixILgwkPpn5taotXBZOIVMZomRmmlMWeIMAGFI-C3yK8O5NLcX-iTxC16gI9BOY1Vx2jDo04A1dfR0QHij42aK8VsnfHarbqGP9WA"
+#}
+
+### Google Login Test (Authorization Code Flow)
+POST {{Web_HostAddress}}/api/Users/GoogleLogin
+Content-Type: application/json
+
+{
+  "authorizationCode": ""
+}
+
+### Google Login for Mobile/SPA (without cookies)
+POST {{Web_HostAddress}}/api/Users/GoogleLogin?useCookies=false
+Content-Type: application/json
+
+{
+  "authorizationCode": "code"
+}
+
+### Response:
+# {
+#   "success": true,
+#   "data": {
+#     "accessToken": "jwt-access-token",
+#     "refreshToken": "refresh-token",
+#     "expireMin": 360000
+#   }
+# }

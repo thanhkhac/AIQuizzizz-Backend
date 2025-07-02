@@ -3,6 +3,7 @@ using System;
 using CleanArchitectureBase.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250630164047_UpdateIdentityUser")]
+    partial class UpdateIdentityUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -909,21 +912,6 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("EmailRequestLockout")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("EmailRequestLockoutTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("EmailVerificationCode")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("EmailVerificationCodeTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("EmailVerificationLockout")
-                        .HasColumnType("integer");
-
                     b.Property<string>("FullName")
                         .HasColumnType("text");
 
@@ -932,15 +920,6 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
-
-                    b.Property<string>("PasswordResetCode")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("PasswordResetCodeExpiryTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("PasswordResetLockout")
-                        .HasColumnType("integer");
 
                     b.Property<long>("TokenCount")
                         .HasColumnType("bigint");
@@ -1225,12 +1204,6 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
-
-                    b.Property<int>("EmailRequestLockout")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("EmailRequestLockoutTime")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("EmailVerificationCode")
                         .HasMaxLength(10)

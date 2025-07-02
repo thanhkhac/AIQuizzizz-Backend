@@ -1,0 +1,67 @@
+### Google Register Test (Authorization Code Flow)
+POST {{Web_HostAddress}}/api/Users/GoogleRegister
+Content-Type: application/json
+
+{
+  "authorizationCode": "your-google-authorization-code-here",
+  "redirectUri": "http://localhost:3000/auth/google/callback"
+}
+
+### Google Register for Mobile/SPA (without cookies)
+POST {{Web_HostAddress}}/api/Users/GoogleRegister?useCookies=false
+Content-Type: application/json
+
+{
+  "authorizationCode": "your-google-authorization-code-here",
+  "redirectUri": "http://localhost:3000/auth/google/callback"
+}
+
+### Google Register with Lecturer Role
+POST {{Web_HostAddress}}/api/Users/GoogleRegister
+Content-Type: application/json
+
+{
+  "idToken": "your-google-id-token-here",
+  "role": "Lecturer"
+}
+
+### Google Register without Role (defaults to User)
+POST {{Web_HostAddress}}/api/Users/GoogleRegister
+Content-Type: application/json
+
+{
+  "idToken": ""
+}
+
+### Response should be:
+# {
+#   "success": true,
+#   "data": {
+#     "token": {
+#       "accessToken": "jwt-access-token",
+#       "refreshToken": "refresh-token",
+#       "expireMin": 360000
+#     },
+#     "isNewUser": true,
+#     "userInfo": {
+#       "id": "google-user-id",
+#       "email": "user@gmail.com",
+#       "name": "User Name",
+#       "givenName": "User",
+#       "familyName": "Name",
+#       "picture": "https://...",
+#       "emailVerified": true
+#     }
+#   }
+# }
+
+### Notes:
+# 1. Replace "your-google-authorization-code-here" with actual Google authorization code
+# 2. The authorization code is obtained from Google OAuth flow with response_type=code
+# 3. The redirectUri must match exactly what was used in the OAuth flow
+# 4. Backend will exchange the code for access token and get user info
+# 5. If user already exists, isNewUser will be false
+# 6. New users will have no role by default
+# 7. Use ?useCookies=false for mobile/SPA applications
+# 8. Role parameter is optional, defaults to "User"
+# 9. Valid roles: "User", "Administrator", "Lecturer" 
