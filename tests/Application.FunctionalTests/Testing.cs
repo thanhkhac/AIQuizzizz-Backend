@@ -57,7 +57,7 @@ public partial class Testing
 
     public static async Task<Guid> RunAsAdministratorAsync()
     {
-        return await RunAsUserAsync("administrator@local", "Administrator1234!", new[] { Roles.Administrator });
+        return await RunAsUserAsync("administrator@local", "Administrator1234!", new[] { Domain.Constants.Roles.Administrator });
     }
 
     public static async Task<Guid> RunAsUserAsync(string email, string password, string[] roles)
