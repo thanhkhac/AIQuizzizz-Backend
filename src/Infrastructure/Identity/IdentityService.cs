@@ -139,8 +139,7 @@ public class IdentityService : IIdentityService
     {
         var user = await _userManager.FindByEmailAsync(email);
         
-
-        if (user == null || user.IsDeleted)
+        if (user == null)
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, $"User with email {email} not found");
 
         if (user.IsBanned)
@@ -387,10 +386,7 @@ public class IdentityService : IIdentityService
         var existingUser = await _userManager.FindByEmailAsync(googleUser.Email);
         
         if (existingUser != null)
-        {
-            if (existingUser.IsDeleted)
-                throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, $"User with email {googleUser.Email} not found");
-                
+        {               
             if (existingUser.IsBanned)
                 throw new ErrorCodeException(ErrorCodes.ACCOUNT_EMAIL_BANNED);
                 
