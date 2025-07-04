@@ -5,10 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CleanArchitectureBase.Web.Endpoints;
 
-public class Account : EndpointGroupBase
+public class AccountEndpoints : EndpointGroupBase
 {
     public override void Map(WebApplication app)
     {
+    
         app.MapGroup(this)
             .MapGet(GetProfile, "Profile");
     }
