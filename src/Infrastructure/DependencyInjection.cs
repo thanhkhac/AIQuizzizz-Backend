@@ -133,7 +133,8 @@ public static class DependencyInjection
                                      {
                                          "https://thanhkhac.id.vn",
                                          "https://aiquizizz.com",
-                                         "http://localhost:5173"
+                                         "http://localhost:5173",
+                                         "https://localhost:5173",
                                      };
 
                 policy.WithOrigins(allowedOrigins)
