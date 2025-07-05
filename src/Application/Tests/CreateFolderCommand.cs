@@ -53,8 +53,17 @@ public class CreateFolderCommandHandler : IRequestHandler<CreateFolderCommand, G
             Id = Guid.NewGuid(),
             Name = rq.FolderName
         };
+
+        var folderUser = new FolderUser
+        {
+            UserId = _user.UserId ?? throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {_user.UserId} not found"),
+            FolderId = newFolder.Id,
+            ShareMode = FolderShareMode.Owner
+        };
         
         _context.Folders.Add(newFolder);
+        _context.FolderUsers.Add(folderUser);
+        
         await _context.SaveChangesAsync(cancellationToken);
         
         return newFolder.Id;

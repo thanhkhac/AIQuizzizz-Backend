@@ -21,6 +21,7 @@ public class CreateOrderingItemDto
 
 public class CreateQuestionDto
 {
+    public Guid? QuestionSetId { get; set; }
     public string? Type { get; set; }
     public string? QuestionText { get; set; }
     public string? ExplainText { get; set; } //TODO: Thêm trường explain cho entity
