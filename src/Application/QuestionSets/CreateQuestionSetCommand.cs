@@ -73,6 +73,10 @@ public class QuestionCreateDtoValidator : AbstractValidator<CreateQuestionDto>
         RuleFor(x => x.Score)
             .GreaterThanOrEqualTo(0).WithMessage($"Điểm phải lớn hơn hoặc bằng 0")
             .LessThanOrEqualTo(100).WithMessage($"Điểm không được vượt quá 100");
+        
+        RuleFor(x => x.QuestionId)
+            .Must(id => !id.HasValue || (id.Value != Guid.Empty && id.Value != default(Guid)))
+            .WithMessage("QuestionId phải là một Guid hợp lệ nếu được cung cấp");
 
         // Validate cho MultipleChoice
         When(x => x.Type == "MultipleChoice", () =>

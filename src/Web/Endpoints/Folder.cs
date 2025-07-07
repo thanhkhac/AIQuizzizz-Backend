@@ -1,5 +1,5 @@
 ﻿using CleanArchitectureBase.Application.Common.Models;
-using CleanArchitectureBase.Application.Tests;
+using CleanArchitectureBase.Application.Tests.Common;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 

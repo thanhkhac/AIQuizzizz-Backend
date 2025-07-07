@@ -1,5 +1,6 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
@@ -11,6 +12,7 @@ public class UpdatePositionDto
     public Guid UserId { get; set; }
 }
 
+[Authorize]
 public class UpdatePositionCommand : IRequest<UpdatePositionDto>
 {
     public required Guid ClassId { get; set; }

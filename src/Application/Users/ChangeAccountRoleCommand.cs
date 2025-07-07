@@ -1,10 +1,12 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using StackExchange.Redis;
 
 namespace CleanArchitectureBase.Application.Users;
 
+[Authorize (Roles = Domain.Constants.Roles.Administrator)]
 public class ChangeAccountRoleCommand : IRequest<Guid>
 {
     public required Guid UserId { get; set; }
@@ -38,12 +40,6 @@ public class ChangeAccountRoleCommandHandler : IRequestHandler<ChangeAccountRole
     
     public async Task<Guid> Handle(ChangeAccountRoleCommand rq, CancellationToken cancellationToken)
     {
-        var user = await _context.DomainUsers
-            .Where(x => x.Id == _user.UserId && x.IsDeleted == false && x.IsBanned == false)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (user == null)
-            throw new ErrorCodeException(ErrorCodes.COMMON_NOT_FOUND, $"User with id {_user.UserId} not found");
-
         var result = await _identityService.ChangeRoleAsync(rq.UserId, rq.Role);
         return result;
     }

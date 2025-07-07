@@ -1,6 +1,7 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
@@ -8,9 +9,12 @@ namespace CleanArchitectureBase.Application.Classes.Lecturer;
 
 public class ClassSearchResultDto
 {
+    public required Guid ClassId { get; set; }
     public required string Name { get; set; }
     public string? Owner { get; set; }
 }
+
+[Authorize]
 public class SearchClass : IRequest<PaginatedList<ClassSearchResultDto>>
 {
     public ClassShareMode? ShareMode { get; set; }
@@ -44,11 +48,6 @@ public class SearchClassHandler : IRequestHandler<SearchClass, PaginatedList<Cla
 
     public async Task<PaginatedList<ClassSearchResultDto>> Handle(SearchClass rq, CancellationToken cancellationToken)
     {
-        var user = await _context.DomainUsers
-            .Where(x => x.Id == _user.UserId && x.IsDeleted == false && x.IsBanned == false)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (user == null)
-            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {_user.UserId} not found");
 
         var classes = _context.Classes
             .Where(c => c.IsDeleted == false)
@@ -87,10 +86,11 @@ public class SearchClassHandler : IRequestHandler<SearchClass, PaginatedList<Cla
 
         return await PaginatedList<ClassSearchResultDto>.CreateAsync(
             classes
-                .Where(c => c.ClassUser.UserId == user.Id)
+                .Where(c => c.ClassUser.UserId == _user.UserId)
                 .GroupBy(x => new { x.Class.Id, x.Class.Name })
                 .Select(cl => new ClassSearchResultDto
                 {
+                    ClassId = cl.Key.Id,
                     Name = cl.Key.Name,
                     Owner = classOwnerMap.ContainsKey(cl.Key.Name) ? classOwnerMap[cl.Key.Name] : null
                 }).AsQueryable(),

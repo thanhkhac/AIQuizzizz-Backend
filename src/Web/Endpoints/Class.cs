@@ -16,8 +16,10 @@ public class Class : EndpointGroupBase
             .MapPost(JoinClassByCode, "Students")
             .MapPost(InviteStudent, "/{ClassId}/Invitations")
             .MapPost(AddQuestionSet, "/{ClassId}/Questionsets/{QuestionSetId}")
+            .MapPost(CreateTest, "/Test")
             .MapGet(SearchStudent, "/{ClassId}/Students")
             .MapGet(SearchClass, "/Classes")
+            .MapGet(SearchTest, "/{ClassId}/Tests")
             .MapDelete(DeleteClass, "/{ClassId}")
             .MapDelete(RemoveStudent, "/{ClassId}/Members/{UserId}")
             .MapDelete(RemoveQuestionSet, "/{ClassId}/Questionsets/{QuestionSetId}")
@@ -63,6 +65,26 @@ public class Class : EndpointGroupBase
             ClassId = classId,
             Keyword = keyword,
             FieldName = fieldName,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+        };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<PaginatedList<TestSearchResultDto>>>> SearchTest(
+        [FromQuery] TestStatus? status,
+        [FromQuery] string? testName,
+        [FromRoute] Guid classId,
+        ISender sender,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 5)
+    {
+        var rq = new SearchTestInClass()
+        {
+            ClassId = classId,
+            TestName = testName,
+            Status = status,
             PageNumber = pageNumber,
             PageSize = pageSize,
         };
@@ -154,6 +176,12 @@ public class Class : EndpointGroupBase
             ClassId = classId,
             QuestionSetId = questionSetId
         };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<Guid>>> CreateTest([FromBody] CreateTestCommand rq, ISender sender)
+    {
         var result = await sender.Send(rq);
         return result.ToOk();
     }

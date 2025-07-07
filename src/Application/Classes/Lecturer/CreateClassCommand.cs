@@ -1,10 +1,12 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Classes.Lecturer;
 
+[Authorize]
 public class CreateClassCommand : IRequest<Guid>
 {
     public required string Name { get; set; }
@@ -32,22 +34,17 @@ public class CreateClassCommandHandler : IRequestHandler<CreateClassCommand, Gui
     
     public async Task<Guid> Handle(CreateClassCommand rq, CancellationToken cancellationToken)
     {
-        var user = await _context.DomainUsers
-            .Where(x => x.Id == _user.UserId && x.IsDeleted == false && x.IsBanned == false)
+        var classExists = await _context.Classes
+            .Where(x => x.Name == rq.Name && x.CreatedBy.Equals(_user.UserId))
             .FirstOrDefaultAsync(cancellationToken);
-        if (user == null)
-            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {_user.UserId} not found");
-        
-        if (await _context.Classes.AnyAsync(x => x.Name == rq.Name && x.IsDeleted == false))
-        {
-            throw new ErrorCodeException(ErrorCodes.CLASS_ALREADY_EXISTS, "Tên lớp học đã tồn tại");
-        }
+        if (classExists != null)
+            throw new ErrorCodeException(ErrorCodes.CLASS_ALREADY_EXISTS, "Class đã tồn tại");
 
         var newClass = new Class { Id = Guid.NewGuid(), Name = rq.Name };
         
         var classUser = new ClassUser
         {
-            UserId = user.Id,
+            UserId = _user.UserId!.Value,
             ClassId = newClass.Id,
             ShareMode = ClassShareMode.Owner,
             Class = newClass
