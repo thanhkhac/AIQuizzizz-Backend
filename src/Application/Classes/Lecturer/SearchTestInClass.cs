@@ -47,16 +47,29 @@ public class SearchTestHandler : IRequestHandler<SearchTestInClass, PaginatedLis
 {
     private readonly IApplicationDbContext _context;
     private readonly ClassValidationService _classValidationService;
+    private readonly IUser _user;
     
-    public SearchTestHandler(IApplicationDbContext context, ClassValidationService classValidationService)
+    public SearchTestHandler(
+        IApplicationDbContext context,
+        ClassValidationService classValidationService,
+        IUser user)
     {
         _context = context;
         _classValidationService = classValidationService;
+        _user = user;
     }
     
     public async Task<PaginatedList<TestSearchResultDto>> Handle(SearchTestInClass rq, CancellationToken cancellationToken)
     {
-        var (isOwner, classExists) = await _classValidationService.ValidateClassAccessAsync(rq.ClassId, cancellationToken);
+        var user = await _context.DomainUsers
+            .Join(_context.ClassUsers,
+                u => u.Id,
+                cu => cu.UserId,
+                (u, cu) => new { User = u, ClassUser = cu })
+            .Where(x => x.ClassUser.UserId.Equals(_user.UserId) && x.ClassUser.ClassId.Equals(rq.ClassId))
+            .FirstOrDefaultAsync(cancellationToken);
+        if (user == null)
+            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, $"User with id {_user.UserId} not found in class");
         
         var tests = await _context.Tests.Where(x => x.ClassId.Equals(rq.ClassId))
             .ToListAsync(cancellationToken);
