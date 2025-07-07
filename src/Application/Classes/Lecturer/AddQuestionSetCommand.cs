@@ -1,11 +1,13 @@
 ﻿using CleanArchitectureBase.Application.Classes.Common;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Classes.Lecturer;
 
+[Authorize]
 public class AddQuestionSetCommand : IRequest<Guid>
 {
     public required Guid ClassId { get; set; } 

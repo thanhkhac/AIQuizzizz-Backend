@@ -5,6 +5,7 @@ using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 using System.Linq.Dynamic.Core;
+using CleanArchitectureBase.Application.Common.Security;
 
 namespace CleanArchitectureBase.Application.Users;
 
@@ -16,6 +17,7 @@ public class AccountDto
     public bool IsBanned { get; set; }
 }
 
+[Authorize (Roles = Domain.Constants.Roles.Administrator)]
 public class GetAllAccountCommand : IRequest<PaginatedList<AccountDto>>
 {
     public string? Keyword { get; set; }
