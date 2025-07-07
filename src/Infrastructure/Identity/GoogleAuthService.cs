@@ -66,7 +66,7 @@ public class GoogleAuthService : IGoogleAuthService
         }
         catch (HttpRequestException ex)
         {
-            throw new UnauthorizedAccessException("Failed to exchange authorization code", ex);
+            throw new Exception("Failed to exchange authorization code", ex);
         }
     }
 
@@ -84,14 +84,14 @@ public class GoogleAuthService : IGoogleAuthService
         var response = await _httpClient.PostAsync("https://oauth2.googleapis.com/token", tokenRequest);
         if (!response.IsSuccessStatusCode)
         {
-            throw new UnauthorizedAccessException("Failed to exchange authorization code for token");
+            throw new Exception("Failed to exchange authorization code for token");
         }
 
         var tokenResponse = await response.Content.ReadFromJsonAsync<GoogleTokenResponse>();
         
         if (tokenResponse == null || string.IsNullOrEmpty(tokenResponse.AccessToken))
         {
-            throw new UnauthorizedAccessException("Invalid token response from Google");
+            throw new Exception("Invalid token response from Google");
         }
 
         return tokenResponse;
@@ -106,14 +106,14 @@ public class GoogleAuthService : IGoogleAuthService
         
         if (!response.IsSuccessStatusCode)
         {
-            throw new UnauthorizedAccessException("Failed to get user info from Google");
+            throw new Exception("Failed to get user info from Google");
         }
 
         var userInfo = await response.Content.ReadFromJsonAsync<GoogleUserInfoResponse>();
         
         if (userInfo == null)
         {
-            throw new UnauthorizedAccessException("Failed to parse user info from Google");
+            throw new Exception("Failed to parse user info from Google");
         }
 
         return new GoogleUserDto

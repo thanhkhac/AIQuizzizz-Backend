@@ -6,6 +6,7 @@ public static class ErrorCodes
     //COMMON
     public const string COMMON_FORBIDDEN = nameof(COMMON_FORBIDDEN);
     public const string COMMON_SERVER_INTERNAL_ERROR = nameof(COMMON_SERVER_INTERNAL_ERROR);
+    public const string COMMON_UNHANDLED_ERROR = nameof(COMMON_UNHANDLED_ERROR);
     public const string COMMON_NOT_FOUND = nameof(COMMON_NOT_FOUND);
     public const string COMMON_GONE = nameof(COMMON_GONE);
     public const string COMMON_BAD_REQUEST = nameof(COMMON_BAD_REQUEST);
@@ -25,7 +26,11 @@ public static class ErrorCodes
     public const string ACCOUNT_EMAIL_NOT_VERIFIED = nameof(ACCOUNT_EMAIL_NOT_VERIFIED); 
     public const string ACCOUNT_EMAIL_BANNED  = nameof(ACCOUNT_EMAIL_BANNED ); 
     public const string ACCOUNT_INVALID_RESET_CODE  = nameof(ACCOUNT_INVALID_RESET_CODE ); 
-    public const string ACCOUNT_TOO_MANY_REQUESTS  = nameof(ACCOUNT_TOO_MANY_REQUESTS ); 
+    // public const string ACCOUNT_TOO_MANY_REQUESTS  = nameof(ACCOUNT_TOO_MANY_REQUESTS ); 
+    public const string EMAIL_VERIFICATION_REQUEST_TOO_MANY  = nameof(EMAIL_VERIFICATION_REQUEST_TOO_MANY ); 
+    public const string EMAIL_VERIFICATION_CODE_FAILED_TOO_MANY  = nameof(EMAIL_VERIFICATION_CODE_FAILED_TOO_MANY ); 
+    public const string PASSWORD_RESET_REQUEST_TOO_MANY  = nameof(PASSWORD_RESET_REQUEST_TOO_MANY ); 
+    public const string PASSWORD_RESET_CODE_FAILED_TOO_MANY  = nameof(PASSWORD_RESET_CODE_FAILED_TOO_MANY ); 
     
     
     //IDENTITY OVERRIDE ERROR DESCRIBER
