@@ -4,7 +4,7 @@ using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Tests;
+namespace CleanArchitectureBase.Application.Tests.Common;
 
 [Authorize]
 public class CreateFolderCommand : IRequest<Guid>
@@ -35,16 +35,10 @@ public class CreateFolderCommandHandler : IRequestHandler<CreateFolderCommand, G
     
     public async Task<Guid> Handle(CreateFolderCommand rq, CancellationToken cancellationToken)
     {
-        var user = await _context.DomainUsers
-            .Where(x => x.Id == _user.UserId && x.IsDeleted == false && x.IsBanned == false)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (user == null)
-            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {_user.UserId} not found");
-        
         var folder = await _context.Folders
             .FirstOrDefaultAsync(x => x.Name == rq.FolderName &&
                                       x.IsDeleted == false &&
-                                      x.CreatedBy == user.Id, cancellationToken);
+                                      x.CreatedBy == _user.UserId, cancellationToken);
         if (folder != null)
             throw new ErrorCodeException(ErrorCodes.FOLDER_ALREADY_EXISTS, "Folder đã tồn tại");
 

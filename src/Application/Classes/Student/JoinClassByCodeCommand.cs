@@ -34,10 +34,6 @@ public class JoinClassByCodeCommandHandler : IRequestHandler<JoinClassByCodeComm
     
     public async Task<Unit> Handle(JoinClassByCodeCommand rq, CancellationToken cancellationToken)
     {
-        var user = await _context.DomainUsers.Where(x => x.Id == _user.UserId).FirstOrDefaultAsync();
-        if (user == null)
-            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {_user.UserId} not found");
-        
         var classInvitation = await _context.ClassInvitations
             .Where(x => x.Code == rq.Code && x.TimeStart <= DateTime.UtcNow && x.TimeEnd >= DateTime.UtcNow)
             .FirstOrDefaultAsync();
@@ -48,13 +44,13 @@ public class JoinClassByCodeCommandHandler : IRequestHandler<JoinClassByCodeComm
         if (classByCode == null)
             throw new ErrorCodeException(ErrorCodes.CLASS_NOTFOUND, "Lớp học không tồn tại");
 
-        var userInClass = await _context.ClassUsers.Where(x => x.ClassId == classByCode.Id && x.UserId == user.Id).FirstOrDefaultAsync();
+        var userInClass = await _context.ClassUsers.Where(x => x.ClassId == classByCode.Id && x.UserId == _user.UserId).FirstOrDefaultAsync();
         if (userInClass != null)
             throw new ErrorCodeException(ErrorCodes.STUDENT_ALREADY_EXISTS_IN_CLASS, "Học sinh đã ở trong lớp");
 
         var classUser = new ClassUser
         {
-            UserId = user.Id,
+            UserId = _user.UserId!.Value,
             ClassId = classByCode.Id,
             ShareMode = ClassShareMode.Student,
             Class = classByCode
@@ -63,10 +59,9 @@ public class JoinClassByCodeCommandHandler : IRequestHandler<JoinClassByCodeComm
         var classInvitationUser = new ClassInvitationUser
         {
             Id = Guid.NewGuid(),
-            UserId = user.Id,
+            UserId = _user.UserId.Value,
             ClassInvitationId = classInvitation.Id,
             TimeJoin = DateTime.UtcNow,
-            User = user,
             ClassInvitation = classInvitation
         };
         

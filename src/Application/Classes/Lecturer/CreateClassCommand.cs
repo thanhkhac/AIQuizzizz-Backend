@@ -34,12 +34,6 @@ public class CreateClassCommandHandler : IRequestHandler<CreateClassCommand, Gui
     
     public async Task<Guid> Handle(CreateClassCommand rq, CancellationToken cancellationToken)
     {
-        var user = await _context.DomainUsers
-            .Where(x => x.Id == _user.UserId && x.IsDeleted == false && x.IsBanned == false)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (user == null)
-            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {_user.UserId} not found");
-        
         if (await _context.Classes.AnyAsync(x => x.Name == rq.Name && x.IsDeleted == false))
         {
             throw new ErrorCodeException(ErrorCodes.CLASS_ALREADY_EXISTS, "Tên lớp học đã tồn tại");
@@ -49,7 +43,7 @@ public class CreateClassCommandHandler : IRequestHandler<CreateClassCommand, Gui
         
         var classUser = new ClassUser
         {
-            UserId = user.Id,
+            UserId = _user.UserId!.Value,
             ClassId = newClass.Id,
             ShareMode = ClassShareMode.Owner,
             Class = newClass

@@ -6,7 +6,7 @@ using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Tests.Lecturer;
+namespace CleanArchitectureBase.Application.Classes.Lecturer;
 
 public class TestSearchResultDto
 {

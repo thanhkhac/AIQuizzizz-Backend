@@ -48,11 +48,6 @@ public class SearchClassHandler : IRequestHandler<SearchClass, PaginatedList<Cla
 
     public async Task<PaginatedList<ClassSearchResultDto>> Handle(SearchClass rq, CancellationToken cancellationToken)
     {
-        var user = await _context.DomainUsers
-            .Where(x => x.Id == _user.UserId && x.IsDeleted == false && x.IsBanned == false)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (user == null)
-            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {_user.UserId} not found");
 
         var classes = _context.Classes
             .Where(c => c.IsDeleted == false)
@@ -91,7 +86,7 @@ public class SearchClassHandler : IRequestHandler<SearchClass, PaginatedList<Cla
 
         return await PaginatedList<ClassSearchResultDto>.CreateAsync(
             classes
-                .Where(c => c.ClassUser.UserId == user.Id)
+                .Where(c => c.ClassUser.UserId == _user.UserId)
                 .GroupBy(x => new { x.Class.Id, x.Class.Name })
                 .Select(cl => new ClassSearchResultDto
                 {

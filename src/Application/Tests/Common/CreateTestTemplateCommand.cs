@@ -9,7 +9,7 @@ using CleanArchitectureBase.Application.Tests.Common;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Tests;
+namespace CleanArchitectureBase.Application.Tests.Common;
 
 [Authorize]
 public class CreateTestTemplateCommand : IRequest<Guid>
@@ -72,12 +72,6 @@ public class CreateTestTemplateCommandHandler : IRequestHandler<CreateTestTempla
     
     public async Task<Guid> Handle(CreateTestTemplateCommand rq, CancellationToken cancellationToken)
     {
-        var user = await _context.DomainUsers
-            .Where(x => x.Id == _user.UserId && x.IsDeleted == false && x.IsBanned == false)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (user == null)
-            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {_user.UserId} not found");
-
         await _testValidationService.ValidateQuestionAccessAsync(rq.Questions, cancellationToken);
 
         var testTemplate = new TestTemplate { Id = Guid.NewGuid(), Name = rq.Name, IsDeleted = false, };
