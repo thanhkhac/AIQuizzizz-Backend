@@ -12,6 +12,7 @@ namespace CleanArchitectureBase.Application.Classes.Lecturer;
 
 public class StudentSearchResultDto
 {
+    public required Guid StudentId { get; set; }
     public string? FullName { get; set; }
     public required string Email { get; set; }
     public ClassShareMode Position { get; set; }
@@ -74,6 +75,7 @@ public class SearchStudentCommandHandler : IRequestHandler<SearchStudentInClass,
         return await PaginatedList<StudentSearchResultDto>.CreateAsync(
             listStudent.Select(st => new StudentSearchResultDto
             {
+                StudentId = st.UserId,
                 Email = st.User.Email,
                 FullName = st.User.FullName,
                 Position = st.ShareMode

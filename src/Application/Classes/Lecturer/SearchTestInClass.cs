@@ -10,6 +10,7 @@ namespace CleanArchitectureBase.Application.Classes.Lecturer;
 
 public class TestSearchResultDto
 {
+    public required Guid TestId { get; set; }
     public required string Name { get; set; }
     public int? NumberOfQuestions { get; set; }
     public required int TimeLimit { get; set; }
@@ -94,6 +95,7 @@ public class SearchTestHandler : IRequestHandler<SearchTestInClass, PaginatedLis
 
             return new TestSearchResultDto
             {
+                TestId = test.Id,
                 Name = test.Name,
                 NumberOfQuestions = questionCount.QuestionCount,
                 NumberOfCompletion = completionCount,

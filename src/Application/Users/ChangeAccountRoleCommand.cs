@@ -6,7 +6,7 @@ using StackExchange.Redis;
 
 namespace CleanArchitectureBase.Application.Users;
 
-[Authorize (Roles = Roles.Administrator)]
+[Authorize (Roles = Domain.Constants.Roles.Administrator)]
 public class ChangeAccountRoleCommand : IRequest<Guid>
 {
     public required Guid UserId { get; set; }

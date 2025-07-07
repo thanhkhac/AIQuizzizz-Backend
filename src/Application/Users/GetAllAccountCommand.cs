@@ -17,7 +17,7 @@ public class AccountDto
     public bool IsBanned { get; set; }
 }
 
-[Authorize (Roles = Roles.Administrator)]
+[Authorize (Roles = Domain.Constants.Roles.Administrator)]
 public class GetAllAccountCommand : IRequest<PaginatedList<AccountDto>>
 {
     public string? Keyword { get; set; }
