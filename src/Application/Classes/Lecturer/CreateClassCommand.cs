@@ -34,10 +34,11 @@ public class CreateClassCommandHandler : IRequestHandler<CreateClassCommand, Gui
     
     public async Task<Guid> Handle(CreateClassCommand rq, CancellationToken cancellationToken)
     {
-        if (await _context.Classes.AnyAsync(x => x.Name == rq.Name && x.IsDeleted == false))
-        {
-            throw new ErrorCodeException(ErrorCodes.CLASS_ALREADY_EXISTS, "Tên lớp học đã tồn tại");
-        }
+        var classExists = await _context.Classes
+            .Where(x => x.Name == rq.Name && x.CreatedBy.Equals(_user.UserId))
+            .FirstOrDefaultAsync(cancellationToken);
+        if (classExists != null)
+            throw new ErrorCodeException(ErrorCodes.CLASS_ALREADY_EXISTS, "Class đã tồn tại");
 
         var newClass = new Class { Id = Guid.NewGuid(), Name = rq.Name };
         
