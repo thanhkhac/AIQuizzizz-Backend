@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CleanArchitectureBase.Domain.Constants;
+﻿using CleanArchitectureBase.Domain.Constants;
 
-namespace CleanArchitectureBase.Application.Security.Queries;
+namespace CleanArchitectureBase.Application.Roles.Queries;
 public class GetPermissionGroupsQuery : IRequest<List<PermissionGroupDto>>
 {
 }

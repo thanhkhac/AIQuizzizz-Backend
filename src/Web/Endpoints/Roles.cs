@@ -1,5 +1,4 @@
-﻿
-using CleanArchitectureBase.Application.Security.Queries;
+﻿using CleanArchitectureBase.Application.Roles.Queries;
 using CleanArchitectureBase.Application.Users;
 using Microsoft.AspNetCore.Mvc;
 
