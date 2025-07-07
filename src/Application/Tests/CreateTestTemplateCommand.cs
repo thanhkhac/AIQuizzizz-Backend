@@ -5,6 +5,7 @@ using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.Common.Serializers;
 using CleanArchitectureBase.Application.QuestionSets;
 using CleanArchitectureBase.Application.QuestionSets.Common;
+using CleanArchitectureBase.Application.Tests.Common;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
@@ -57,14 +58,19 @@ public class CreateTestTemplateCommandHandler : IRequestHandler<CreateTestTempla
 {
     private readonly IApplicationDbContext _context;
     public readonly IUser _user;
+    public readonly TestValidationService _testValidationService;
 
-    public CreateTestTemplateCommandHandler(IApplicationDbContext context, IUser user)
+    public CreateTestTemplateCommandHandler(
+        IApplicationDbContext context,
+        IUser user,
+        TestValidationService testValidationService)
     {
         _context = context;
         _user = user;
+        _testValidationService = testValidationService;
     }
     
-    public async Task<Guid> Handle(CreateTestTemplateCommand request, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(CreateTestTemplateCommand rq, CancellationToken cancellationToken)
     {
         var user = await _context.DomainUsers
             .Where(x => x.Id == _user.UserId && x.IsDeleted == false && x.IsBanned == false)
@@ -72,41 +78,55 @@ public class CreateTestTemplateCommandHandler : IRequestHandler<CreateTestTempla
         if (user == null)
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {_user.UserId} not found");
 
-        var testTemplate = new TestTemplate { Id = Guid.NewGuid(), Name = request.Name, IsDeleted = false, };
+        await _testValidationService.ValidateQuestionAccessAsync(rq.Questions, cancellationToken);
+
+        var testTemplate = new TestTemplate { Id = Guid.NewGuid(), Name = rq.Name, IsDeleted = false, };
         
         var listTemplateQuestions = new List<TestTemplateQuestion>();
         
         var listQuestions = new List<Question>();
 
-        foreach (var questionDto in request.Questions)
+        foreach (var questionDto in rq.Questions)
         {
-            var question = new Question
+            if (questionDto.QuestionId.HasValue)
             {
-                Id = Guid.NewGuid(),
-                Type = Enum.Parse<QuestionType>(questionDto.Type!),
-                QuestionText = questionDto.QuestionText,
-                TextFormat = TextFormat.PlainText,
-                Score = questionDto.Score
-            };
+                var templateQuestion = new TestTemplateQuestion
+                {
+                    Id = Guid.NewGuid(), QuestionId = questionDto.QuestionId.Value, TestTemplateId = testTemplate.Id
+                };
+                
+                listTemplateQuestions.Add(templateQuestion);   
+            }
+            else
+            {
+                var question = new Question
+                {
+                    Id = Guid.NewGuid(),
+                    Type = Enum.Parse<QuestionType>(questionDto.Type!),
+                    QuestionText = questionDto.QuestionText,
+                    TextFormat = TextFormat.PlainText,
+                    Score = questionDto.Score
+                };
 
-            var templateQuestion = new TestTemplateQuestion
-            {
-                Id = Guid.NewGuid(), QuestionId = question.Id, TestTemplateId = testTemplate.Id, Question = question
-            };
+                var templateQuestion = new TestTemplateQuestion
+                {
+                    Id = Guid.NewGuid(), QuestionId = question.Id, TestTemplateId = testTemplate.Id, Question = question
+                };
             
-            question.DataJson = questionDto.Type switch
-            {
-                nameof(QuestionType.MultipleChoice) when questionDto.MultipleChoices != null => QuestionTypeSerializer.SerializeMultipleChoice(questionDto.MultipleChoices),
-                nameof(QuestionType.Matching) when questionDto.MatchingPairs != null => QuestionTypeSerializer.SerializeMatchingPairs(questionDto.MatchingPairs),
-                nameof(QuestionType.Ordering) when questionDto.OrderingItems != null => QuestionTypeSerializer.SerializeOrderingItems(questionDto.OrderingItems),
-                nameof(QuestionType.ShortText) when !string.IsNullOrWhiteSpace(questionDto.ShortAnswer) => JsonSerializer.Serialize(
-                    new QTypeShortAnswer { Answer = questionDto.ShortAnswer }),
-                _ => throw new InvalidDataException($"Dữ liệu câu hỏi không hợp lệ cho loại câu hỏi: {questionDto.Type}")
-            };
+                question.DataJson = questionDto.Type switch
+                {
+                    nameof(QuestionType.MultipleChoice) when questionDto.MultipleChoices != null => QuestionTypeSerializer.SerializeMultipleChoice(questionDto.MultipleChoices),
+                    nameof(QuestionType.Matching) when questionDto.MatchingPairs != null => QuestionTypeSerializer.SerializeMatchingPairs(questionDto.MatchingPairs),
+                    nameof(QuestionType.Ordering) when questionDto.OrderingItems != null => QuestionTypeSerializer.SerializeOrderingItems(questionDto.OrderingItems),
+                    nameof(QuestionType.ShortText) when !string.IsNullOrWhiteSpace(questionDto.ShortAnswer) => JsonSerializer.Serialize(
+                        new QTypeShortAnswer { Answer = questionDto.ShortAnswer }),
+                    _ => throw new InvalidDataException($"Dữ liệu câu hỏi không hợp lệ cho loại câu hỏi: {questionDto.Type}")
+                };
             
-            listQuestions.Add(question);
+                listQuestions.Add(question);
             
-            listTemplateQuestions.Add(templateQuestion);
+                listTemplateQuestions.Add(templateQuestion);   
+            }
         }
         
         _context.TestTemplates.Add(testTemplate);

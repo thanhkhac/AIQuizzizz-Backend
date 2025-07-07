@@ -9,6 +9,7 @@ namespace CleanArchitectureBase.Application.Classes.Lecturer;
 
 public class ClassSearchResultDto
 {
+    public required Guid ClassId { get; set; }
     public required string Name { get; set; }
     public string? Owner { get; set; }
 }
@@ -94,6 +95,7 @@ public class SearchClassHandler : IRequestHandler<SearchClass, PaginatedList<Cla
                 .GroupBy(x => new { x.Class.Id, x.Class.Name })
                 .Select(cl => new ClassSearchResultDto
                 {
+                    ClassId = cl.Key.Id,
                     Name = cl.Key.Name,
                     Owner = classOwnerMap.ContainsKey(cl.Key.Name) ? classOwnerMap[cl.Key.Name] : null
                 }).AsQueryable(),
