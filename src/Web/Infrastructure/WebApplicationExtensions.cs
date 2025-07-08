@@ -8,7 +8,10 @@ public static class WebApplicationExtensions
     //Vai trò: ?
     public static RouteGroupBuilder MapGroup(this WebApplication app, EndpointGroupBase group)
     {
-        var groupName = group.GetType().Name;
+        var rawName = group.GetType().Name;
+        var groupName = rawName.EndsWith("Endpoints")
+            ? rawName[..^"Endpoints".Length]
+            : rawName;
 
         return app
             .MapGroup($"/api/{groupName}")

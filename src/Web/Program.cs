@@ -32,9 +32,9 @@ app.UseHealthChecks("/health");
 // app.UseHttpsRedirection();
 
 // CORS MIDDLEWARE
-if (app.Environment.IsDevelopment())
-    app.UseCors("AllowAll");
-else
+// if (app.Environment.IsDevelopment())
+//     app.UseCors("AllowAll");
+// else
     app.UseCors("AllowSpecificOrigins");
 
 

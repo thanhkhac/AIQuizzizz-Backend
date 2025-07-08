@@ -2,13 +2,15 @@
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Tests.Lecturer;
+namespace CleanArchitectureBase.Application.Classes.Lecturer;
 
 public class TestSearchResultDto
 {
+    public required Guid TestId { get; set; }
     public required string Name { get; set; }
     public int? NumberOfQuestions { get; set; }
     public required int TimeLimit { get; set; }
@@ -17,6 +19,7 @@ public class TestSearchResultDto
     public string? Status { get; set; }
 }   
 
+[Authorize]
 public class SearchTestInClass : IRequest<PaginatedList<TestSearchResultDto>>
 {
     public required Guid ClassId { get; set; }
@@ -44,16 +47,29 @@ public class SearchTestHandler : IRequestHandler<SearchTestInClass, PaginatedLis
 {
     private readonly IApplicationDbContext _context;
     private readonly ClassValidationService _classValidationService;
+    private readonly IUser _user;
     
-    public SearchTestHandler(IApplicationDbContext context, ClassValidationService classValidationService)
+    public SearchTestHandler(
+        IApplicationDbContext context,
+        ClassValidationService classValidationService,
+        IUser user)
     {
         _context = context;
         _classValidationService = classValidationService;
+        _user = user;
     }
     
     public async Task<PaginatedList<TestSearchResultDto>> Handle(SearchTestInClass rq, CancellationToken cancellationToken)
     {
-        var (isOwner, classExists) = await _classValidationService.ValidateClassAccessAsync(rq.ClassId, cancellationToken);
+        var user = await _context.DomainUsers
+            .Join(_context.ClassUsers,
+                u => u.Id,
+                cu => cu.UserId,
+                (u, cu) => new { User = u, ClassUser = cu })
+            .Where(x => x.ClassUser.UserId.Equals(_user.UserId) && x.ClassUser.ClassId.Equals(rq.ClassId))
+            .FirstOrDefaultAsync(cancellationToken);
+        if (user == null)
+            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, $"User with id {_user.UserId} not found in class");
         
         var tests = await _context.Tests.Where(x => x.ClassId.Equals(rq.ClassId))
             .ToListAsync(cancellationToken);
@@ -92,6 +108,7 @@ public class SearchTestHandler : IRequestHandler<SearchTestInClass, PaginatedLis
 
             return new TestSearchResultDto
             {
+                TestId = test.Id,
                 Name = test.Name,
                 NumberOfQuestions = questionCount.QuestionCount,
                 NumberOfCompletion = completionCount,

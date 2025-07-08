@@ -6,6 +6,7 @@ public static class ErrorCodes
     //COMMON
     public const string COMMON_FORBIDDEN = nameof(COMMON_FORBIDDEN);
     public const string COMMON_SERVER_INTERNAL_ERROR = nameof(COMMON_SERVER_INTERNAL_ERROR);
+    public const string COMMON_UNHANDLED_ERROR = nameof(COMMON_UNHANDLED_ERROR);
     public const string COMMON_NOT_FOUND = nameof(COMMON_NOT_FOUND);
     public const string COMMON_GONE = nameof(COMMON_GONE);
     public const string COMMON_BAD_REQUEST = nameof(COMMON_BAD_REQUEST);
@@ -25,7 +26,11 @@ public static class ErrorCodes
     public const string ACCOUNT_EMAIL_NOT_VERIFIED = nameof(ACCOUNT_EMAIL_NOT_VERIFIED); 
     public const string ACCOUNT_EMAIL_BANNED  = nameof(ACCOUNT_EMAIL_BANNED ); 
     public const string ACCOUNT_INVALID_RESET_CODE  = nameof(ACCOUNT_INVALID_RESET_CODE ); 
-    public const string ACCOUNT_TOO_MANY_REQUESTS  = nameof(ACCOUNT_TOO_MANY_REQUESTS ); 
+    // public const string ACCOUNT_TOO_MANY_REQUESTS  = nameof(ACCOUNT_TOO_MANY_REQUESTS ); 
+    public const string EMAIL_VERIFICATION_REQUEST_TOO_MANY  = nameof(EMAIL_VERIFICATION_REQUEST_TOO_MANY ); 
+    public const string EMAIL_VERIFICATION_CODE_FAILED_TOO_MANY  = nameof(EMAIL_VERIFICATION_CODE_FAILED_TOO_MANY ); 
+    public const string PASSWORD_RESET_REQUEST_TOO_MANY  = nameof(PASSWORD_RESET_REQUEST_TOO_MANY ); 
+    public const string PASSWORD_RESET_CODE_FAILED_TOO_MANY  = nameof(PASSWORD_RESET_CODE_FAILED_TOO_MANY ); 
     
     
     //IDENTITY OVERRIDE ERROR DESCRIBER
@@ -64,7 +69,7 @@ public static class ErrorCodes
     //Question set
     public const string QUESTION_SET_NOT_FOUND = nameof(QUESTION_SET_NOT_FOUND);
     public const string QUESTION_SET_NOT_FOUND_IN_CLASS = nameof(QUESTION_SET_NOT_FOUND_IN_CLASS);
-    
+    public const string USER_NOT_ACCESS_TO_QUESTION_SET = nameof(USER_NOT_ACCESS_TO_QUESTION_SET);
     
     public const string PLAN_REQUIRE_PLAN = nameof(PLAN_REQUIRE_PLAN);
     public const string PLAN_NOT_FOUND = nameof(PLAN_NOT_FOUND);
@@ -72,5 +77,7 @@ public static class ErrorCodes
     //FOLDER
     public const string FOLDER_NOT_FOUND = nameof(FOLDER_NOT_FOUND);
     public const string FOLDER_ALREADY_EXISTS = nameof(FOLDER_ALREADY_EXISTS);
-
+    
+    //Test
+    public const string NUMBER_OF_QUESTION_EXCEED_LIMIT = nameof(NUMBER_OF_QUESTION_EXCEED_LIMIT);
 }

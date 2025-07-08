@@ -1,11 +1,9 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
-using CleanArchitectureBase.Application.Users;
 using CleanArchitectureBase.Application.Users.Common;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
@@ -14,9 +12,10 @@ using CleanArchitectureBase.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+
+// ReSharper disable InconsistentNaming
 
 namespace CleanArchitectureBase.Infrastructure.Identity;
 
@@ -31,12 +30,35 @@ public class IdentityService : IIdentityService
     private readonly IGoogleAuthService _googleAuthService;
     private readonly IEmailService _emailService;
 
+    private static class LockoutSettings
+    {
+        //Số lần gửi email tối đa
+        public const int MaxEmailRequestAttempts = 5;
+
+        //Lượng thời gian khóa sau khi người dùng gửi vượt quá lượt email cho phép
+        public const int EmailRequestLockoutMinutes = 10;
+
+        //Số lượt xác minh cho phép
+        public const int MaxEmailVerificationAttempts = 5;
+
+        //Thời gian hiệu lực cho mã xác minh email
+        public const int EmailVerificationCodeExpiryMinutes = 10;
+
+        //Số lần tối đa cho phép reset password
+        public const int MaxPasswordResetAttempts = 5;
+
+        //Thời gian hiệu lực cho mã reset password
+        public const int PasswordResetCodeExpiryMinutes = 10;
+
+        //Lượng thời gian khóa sau khi người dùng lock email 
+        public const int PasswordResetLockoutMinutes = 60;
+    }
+
     public IdentityService(
         UserManager<UserAccount> userManager,
         IUserClaimsPrincipalFactory<UserAccount> userClaimsPrincipalFactory,
         IAuthorizationService authorizationService,
         SignInManager<UserAccount> signInManager,
-        IConfiguration configuration,
         IOptions<JwtSettings> jwtSettings,
         ApplicationDbContext dbContext,
         IGoogleAuthService googleAuthService,
@@ -55,69 +77,70 @@ public class IdentityService : IIdentityService
     public async Task<string?> GetUserNameAsync(Guid userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
-
         return user?.UserName;
     }
 
-    public async Task<(Result Result, Guid UserId)> CreateUserAsync(string email, string password)
+    private async Task<UserAccount> CreateUserAccountAsync(string email, string? password = null, string? fullName = null, bool emailConfirmed = false)
     {
-    
         var existingUser = await _userManager.FindByEmailAsync(email);
         if (existingUser != null)
         {
             if (existingUser.IsBanned)
-            {
                 throw new ErrorCodeException(ErrorCodes.ACCOUNT_EMAIL_BANNED);
-            }
             throw new ErrorCodeException(ErrorCodes.IDENTITY_DUPLICATE_EMAIL);
         }
-        
+
         var user = new User
         {
             Id = Guid.NewGuid(),
             Email = email,
-            FullName = email,
+            FullName = fullName ?? email
         };
         var userAccount = new UserAccount
         {
             Id = user.Id,
             UserName = Guid.NewGuid().ToString(),
             Email = email,
-            User = user
+            User = user,
+            EmailConfirmed = emailConfirmed
         };
 
-        IdentityResult result = await _userManager.CreateAsync(userAccount, password);
+        IdentityResult result = password != null
+            ? await _userManager.CreateAsync(userAccount, password)
+            : await _userManager.CreateAsync(userAccount);
 
-        return (result.ToApplicationResult(), userAccount.Id);
+        if (!result.Succeeded)
+            throw new ErrorCodeException(ErrorCodes.COMMON_UNHANDLED_ERROR);
+
+        return userAccount;
+    }
+
+    public async Task<(Result Result, Guid UserId)> CreateUserAsync(string email, string password)
+    {
+        var userAccount = await CreateUserAccountAsync(email, password);
+        return (Result.Success(), userAccount.Id);
     }
 
     public async Task<bool> IsInRoleAsync(Guid userId, string role)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
-
         return user != null && await _userManager.IsInRoleAsync(user, role);
     }
 
     public async Task<bool> AuthorizeAsync(Guid userId, string policyName)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
-
         if (user == null)
-        {
             return false;
-        }
 
         var principal = await _userClaimsPrincipalFactory.CreateAsync(user);
-
         var result = await _authorizationService.AuthorizeAsync(principal, policyName);
-
         return result.Succeeded;
     }
 
     public async Task<Result> DeleteUserAsync(Guid userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
-
         return user != null ? await DeleteUserAsync(user) : Result.Success();
     }
 
@@ -129,28 +152,21 @@ public class IdentityService : IIdentityService
         return result.ToApplicationResult();
     }
 
-    public async Task<bool> IsLockedOutAsync(UserAccount userAccount)
-    {
-        return await _userManager.IsLockedOutAsync(userAccount);
-    }
-
 
     public async Task<TokenDto> TryLoginAsync(string email, string password)
     {
         var user = await _userManager.FindByEmailAsync(email);
-        
 
-        if (user == null || user.IsDeleted)
+        if (user == null)
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, $"User with email {email} not found");
-
         if (user.IsBanned)
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_BANNED);
-            
-        if(user.EmailConfirmed == false) throw new ErrorCodeException(ErrorCodes.ACCOUNT_EMAIL_NOT_VERIFIED);    
+        if (user.EmailConfirmed == false)
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_EMAIL_NOT_VERIFIED);
 
         var result = await _signInManager.CheckPasswordSignInAsync(user, password, lockoutOnFailure: true);
-        
-        if(result.IsLockedOut)
+
+        if (result.IsLockedOut)
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_LOCKED_OUT);
         if (!result.Succeeded)
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, "Incorrect password");
@@ -158,36 +174,33 @@ public class IdentityService : IIdentityService
         return await GenerateJwtTokenAsync(user);
     }
 
+    //TODO: Tên hàm đặt sai
     public async Task<List<Guid>> GetUsersInRoleAsync()
     {
         var admin = await _userManager.GetUsersInRoleAsync(Roles.Administrator);
         return admin.Select(u => u.Id).ToList();
     }
-    
+
     public async Task<Guid> ChangeRoleAsync(Guid userId, string role)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {userId} not found");
-        
+
         var currentRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
-    
+
         if (currentRole == role)
-        {
             return userId;
-        }
-        
+
         if (currentRole != null)
-        {
-          await _userManager.RemoveFromRoleAsync(user, currentRole);
-        }
+            await _userManager.RemoveFromRoleAsync(user, currentRole);
 
         await _userManager.AddToRoleAsync(user, role);
         await _userManager.UpdateSecurityStampAsync(user);
 
         return userId;
     }
-    
+
     private async Task<TokenDto> GenerateJwtTokenAsync(UserAccount userAccount)
     {
         var claims = new List<Claim>
@@ -228,10 +241,7 @@ public class IdentityService : IIdentityService
             _dbContext.Set<RefreshToken>().Remove(storedRefreshToken);
             await _dbContext.SaveChangesAsync();
         }
-        else
-        {
-            throw new ErrorCodeException(ErrorCodes.COMMON_NOT_FOUND, "Refresh token not found");
-        }
+        else { throw new ErrorCodeException(ErrorCodes.COMMON_NOT_FOUND, "Refresh token not found"); }
     }
 
     public async Task<TokenDto> RefreshTokenAsync(string accessToken, string refreshToken)
@@ -240,22 +250,16 @@ public class IdentityService : IIdentityService
             .FirstOrDefaultAsync(rt => rt.Token == refreshToken);
 
         if (storedRefreshToken == null || storedRefreshToken.ExpireAt < DateTime.UtcNow)
-        {
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, "Invalid or expired refresh token");
-        }
 
         var principal = GetPrincipalFromToken(accessToken, validateLifetime: false);
         var userIdClaim = principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId) || userId != storedRefreshToken.UserAccountId)
-        {
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, "Invalid access token for refresh");
-        }
 
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null || user.IsDeleted || user.IsBanned || await _userManager.IsLockedOutAsync(user))
-        {
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, "User account is invalid or locked out or banned");
-        }
 
         _dbContext.Set<RefreshToken>().Remove(storedRefreshToken);
         await _dbContext.SaveChangesAsync();
@@ -315,121 +319,114 @@ public class IdentityService : IIdentityService
 
     public async Task<TokenDto> TryGoogleLoginAsync(string authorizationCode, string redirectUri)
     {
-        GoogleUserDto? googleUser = null;
+        GoogleUserDto? googleUser;
         try
         {
-            googleUser =  await _googleAuthService.ExchangeCodeForUserInfoAsync(authorizationCode, redirectUri);
-            if(googleUser == null) throw new Exception();
+            googleUser = await _googleAuthService.ExchangeCodeForUserInfoAsync(authorizationCode, redirectUri);
+            if (googleUser == null) throw new Exception();
         }
         catch (Exception)
         {
-            throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS);
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, "Invalid authorization code");
         }
 
         var existingUser = await _userManager.FindByEmailAsync(googleUser.Email);
-        
+
         if (existingUser != null)
         {
             if (existingUser.IsDeleted)
                 throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, $"User with email {googleUser.Email} not found");
-                
+
             if (existingUser.IsBanned)
                 throw new ErrorCodeException(ErrorCodes.ACCOUNT_BANNED);
-                
+
             if (!existingUser.EmailConfirmed)
             {
                 existingUser.EmailConfirmed = true;
                 await _userManager.UpdateAsync(existingUser);
             }
-            
+
             return await GenerateJwtTokenAsync(existingUser);
         }
-        
+
         var user = new User
         {
             Id = Guid.NewGuid(),
             Email = googleUser.Email,
             FullName = googleUser.Name,
         };
-        
+
         var userAccount = new UserAccount
         {
             Id = user.Id,
             UserName = Guid.NewGuid().ToString(),
             Email = googleUser.Email,
             User = user,
-            EmailConfirmed = true 
+            EmailConfirmed = true
         };
 
         var result = await _userManager.CreateAsync(userAccount);
-        
+
         if (!result.Succeeded)
-        {
             throw new Exception();
-        }
-        
+
         return await GenerateJwtTokenAsync(userAccount);
     }
 
     public async Task<TokenDto> TryGoogleRegisterAsync(string authorizationCode, string redirectUri)
     {
-        GoogleUserDto? googleUser = null;
+        GoogleUserDto? googleUser;
         try
         {
-            googleUser =  await _googleAuthService.ExchangeCodeForUserInfoAsync(authorizationCode, redirectUri);
-            if(googleUser == null) throw new Exception();
+            googleUser = await _googleAuthService.ExchangeCodeForUserInfoAsync(authorizationCode, redirectUri);
+            if (googleUser == null) throw new Exception();
         }
         catch (Exception)
         {
-            throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS);
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, "Invalid authorization code");
         }
-        
+
         var existingUser = await _userManager.FindByEmailAsync(googleUser.Email);
-        
+
         if (existingUser != null)
         {
-            if (existingUser.IsDeleted)
-                throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, $"User with email {googleUser.Email} not found");
-                
             if (existingUser.IsBanned)
                 throw new ErrorCodeException(ErrorCodes.ACCOUNT_EMAIL_BANNED);
-                
+
             if (!existingUser.EmailConfirmed)
             {
                 existingUser.EmailConfirmed = true;
                 await _userManager.UpdateAsync(existingUser);
             }
-            
+
             var token = await GenerateJwtTokenAsync(existingUser);
-            
+
             return token;
         }
-        
+
         var user = new User
         {
             Id = Guid.NewGuid(),
             Email = googleUser.Email,
             FullName = googleUser.Name,
         };
-        
+
         var userAccount = new UserAccount
         {
             Id = user.Id,
             UserName = Guid.NewGuid().ToString(),
             Email = googleUser.Email,
             User = user,
-            EmailConfirmed = true 
+            EmailConfirmed = true
         };
 
         var result = await _userManager.CreateAsync(userAccount);
-        
+
         if (!result.Succeeded)
-        {
             throw new ErrorCodeException(ErrorCodes.IDENTITY_DUPLICATE_EMAIL, "Failed to create user account");
-        }
-        
+
         var tokenDto = await GenerateJwtTokenAsync(userAccount);
-        
+
         return tokenDto;
     }
 
@@ -438,47 +435,33 @@ public class IdentityService : IIdentityService
         var user = await _userManager.FindByEmailAsync(email);
         if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with email {email} not found");
 
-        // Lockout gửi email
-        const int MAX_EMAIL_REQUEST_ATTEMPTS = 5;
-        const int EMAIL_REQUEST_LOCKOUT_MINUTES = 10;
-        if (user.EmailRequestLockout >= MAX_EMAIL_REQUEST_ATTEMPTS &&
-            user.EmailRequestLockoutTime.HasValue &&
-            DateTime.UtcNow < user.EmailRequestLockoutTime.Value.AddMinutes(EMAIL_REQUEST_LOCKOUT_MINUTES))
+        // Lockout gửi email xác thực
+        if (user.EmailVerificationRequestAttempts >= LockoutSettings.MaxEmailRequestAttempts &&
+            user.EmailVerificationRequestLockoutEnd.HasValue &&
+            DateTimeOffset.UtcNow < user.EmailVerificationRequestLockoutEnd.Value)
         {
-            throw new ErrorCodeException(ErrorCodes.ACCOUNT_TOO_MANY_REQUESTS, $"Quá nhiều yêu cầu gửi email. Vui lòng thử lại sau {EMAIL_REQUEST_LOCKOUT_MINUTES} phút.");
+            throw new ErrorCodeException(ErrorCodes.EMAIL_VERIFICATION_REQUEST_TOO_MANY,
+                $"Too much sent email request, please try after {LockoutSettings.EmailRequestLockoutMinutes} minutes.");
         }
-        if (user.EmailRequestLockoutTime.HasValue &&
-            DateTime.UtcNow >= user.EmailRequestLockoutTime.Value.AddMinutes(EMAIL_REQUEST_LOCKOUT_MINUTES))
+        if (user.EmailVerificationRequestLockoutEnd.HasValue &&
+            DateTimeOffset.UtcNow >= user.EmailVerificationRequestLockoutEnd.Value)
         {
-            user.EmailRequestLockout = 0;
-        }
-
-        // Lockout xác thực
-        const int MAX_VERIFICATION_ATTEMPTS = 5;
-        const int LOCKOUT_DURATION_MINUTES = 10;
-        if (user.EmailVerificationLockout >= MAX_VERIFICATION_ATTEMPTS &&
-            user.EmailVerificationCodeTime.HasValue &&
-            DateTime.UtcNow < user.EmailVerificationCodeTime.Value.AddMinutes(LOCKOUT_DURATION_MINUTES))
-        {
-            throw new ErrorCodeException(ErrorCodes.ACCOUNT_TOO_MANY_REQUESTS, $"Tài khoản bị khóa do gửi quá nhiều mã xác thực. Vui lòng thử lại sau {LOCKOUT_DURATION_MINUTES} phút.");
-        }
-        if (user.EmailVerificationCodeTime.HasValue &&
-            DateTime.UtcNow >= user.EmailVerificationCodeTime.Value.AddMinutes(LOCKOUT_DURATION_MINUTES))
-        {
-            user.EmailVerificationLockout = 0;
+            user.EmailVerificationRequestAttempts = 0;
         }
 
         // Tạo và lưu mã xác thực
         user.EmailVerificationCode = GenerateRandomCode();
-        user.EmailVerificationCodeTime = DateTime.UtcNow;
-        user.EmailRequestLockout++;
-        user.EmailRequestLockoutTime = DateTime.UtcNow;
+        user.EmailVerificationCodeExpiryTime = DateTimeOffset.UtcNow.AddMinutes(LockoutSettings.EmailVerificationCodeExpiryMinutes);
+        user.EmailVerificationRequestAttempts++;
+        if (user.EmailVerificationRequestAttempts >= LockoutSettings.MaxEmailRequestAttempts)
+        {
+            user.EmailVerificationRequestLockoutEnd = DateTimeOffset.UtcNow.AddMinutes(LockoutSettings.EmailRequestLockoutMinutes);
+        }
         await _userManager.UpdateAsync(user);
 
-        // Gửi email xác thực
-        const int VERIFICATION_CODE_EXPIRY_MINUTES = 10;
         var subject = "Xác thực email";
-        var body = $@"<html><body><h2>Xác thực email</h2><p>Mã xác thực của bạn: <strong>{user.EmailVerificationCode}</strong></p><p>Mã xác thực sẽ hết hạn sau {VERIFICATION_CODE_EXPIRY_MINUTES} phút.</p><p>Nếu bạn không gửi yêu cầu xác thực, vui lòng bỏ qua email này.</p><br/><p>Trân trọng,<br/>AIQuizzizz</p></body></html>";
+        var body =
+            $@"<html><body><h2>Xác thực email</h2><p>Mã xác thực của bạn: <strong>{user.EmailVerificationCode}</strong></p><p>Mã xác thực sẽ hết hạn sau {LockoutSettings.EmailVerificationCodeExpiryMinutes} phút.</p><p>Nếu bạn không gửi yêu cầu xác thực, vui lòng bỏ qua email này.</p><br/><p>Trân trọng,<br/>AIQuizzizz</p></body></html>";
         await _emailService.SendEmailAsync(email, subject, body);
     }
 
@@ -487,33 +470,39 @@ public class IdentityService : IIdentityService
         var user = await _userManager.FindByEmailAsync(dto.Email);
         if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with email {dto.Email} not found");
 
-        const int MAX_VERIFICATION_ATTEMPTS = 5;
-        const int LOCKOUT_DURATION_MINUTES = 10;
-        const int VERIFICATION_CODE_EXPIRY_MINUTES = 10;
-        // Lockout
-        if (user.EmailVerificationLockout >= MAX_VERIFICATION_ATTEMPTS &&
-            user.EmailVerificationCodeTime.HasValue &&
-            DateTime.UtcNow < user.EmailVerificationCodeTime.Value.AddMinutes(LOCKOUT_DURATION_MINUTES))
+        // Check lock
+        if (user.FailedEmailVerificationAttempts >= LockoutSettings.MaxEmailVerificationAttempts &&
+            user.EmailVerificationLockoutEnd.HasValue &&
+            DateTimeOffset.UtcNow < user.EmailVerificationLockoutEnd.Value)
         {
-            throw new ErrorCodeException(ErrorCodes.ACCOUNT_TOO_MANY_REQUESTS, $"Tài khoản bị khóa do nhập sai mã quá nhiều lần. Vui lòng thử lại sau {LOCKOUT_DURATION_MINUTES} phút.");
+            throw new ErrorCodeException(ErrorCodes.EMAIL_VERIFICATION_CODE_FAILED_TOO_MANY,
+                $"Failed too many. Try again after {LockoutSettings.EmailVerificationCodeExpiryMinutes} minutes.");
+        }
+        if (user.EmailVerificationLockoutEnd.HasValue &&
+            DateTimeOffset.UtcNow >= user.EmailVerificationLockoutEnd.Value)
+        {
+            user.FailedEmailVerificationAttempts = 0;
         }
         // Kiểm tra mã và thời gian hết hạn
         if (user.EmailVerificationCode != dto.VerificationCode ||
-            !user.EmailVerificationCodeTime.HasValue ||
-            DateTime.UtcNow > user.EmailVerificationCodeTime.Value.AddMinutes(VERIFICATION_CODE_EXPIRY_MINUTES))
+            !user.EmailVerificationCodeExpiryTime.HasValue ||
+            DateTimeOffset.UtcNow > user.EmailVerificationCodeExpiryTime.Value)
         {
-            user.EmailVerificationLockout++;
-            await _userManager.UpdateAsync(user);
-            if (user.EmailVerificationLockout >= MAX_VERIFICATION_ATTEMPTS)
+            user.FailedEmailVerificationAttempts++;
+            if (user.FailedEmailVerificationAttempts >= LockoutSettings.MaxEmailVerificationAttempts)
             {
-                throw new ErrorCodeException(ErrorCodes.ACCOUNT_TOO_MANY_REQUESTS, $"Tài khoản bị khóa do nhập sai mã quá nhiều lần. Vui lòng thử lại sau {LOCKOUT_DURATION_MINUTES} phút.");
+                user.EmailVerificationLockoutEnd = DateTimeOffset.UtcNow.AddMinutes(LockoutSettings.EmailVerificationCodeExpiryMinutes);
             }
-            throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_VERIFICATION_CODE, "Mã xác thực không hợp lệ hoặc đã hết hạn.");
+            await _userManager.UpdateAsync(user);
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_VERIFICATION_CODE, "Invalid verification code");
         }
         // Xác minh thành công
         user.EmailVerificationCode = null;
-        user.EmailVerificationCodeTime = null;
-        user.EmailVerificationLockout = 0;
+        user.EmailVerificationCodeExpiryTime = null;
+        user.FailedEmailVerificationAttempts = 0;
+        user.EmailVerificationRequestAttempts = 0;
+        user.EmailVerificationRequestLockoutEnd = null;
+        user.EmailVerificationLockoutEnd = null;
         user.EmailConfirmed = true;
         await _userManager.UpdateAsync(user);
     }
@@ -523,48 +512,35 @@ public class IdentityService : IIdentityService
         var user = await _userManager.FindByEmailAsync(dto.Email);
         if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with email {dto.Email} not found");
 
-        // Lockout gửi email
-        const int MAX_EMAIL_REQUEST_ATTEMPTS = 3;
-        const int EMAIL_REQUEST_LOCKOUT_MINUTES = 60;
-        if (user.EmailRequestLockout >= MAX_EMAIL_REQUEST_ATTEMPTS &&
-            user.EmailRequestLockoutTime.HasValue &&
-            DateTime.UtcNow < user.EmailRequestLockoutTime.Value.AddMinutes(EMAIL_REQUEST_LOCKOUT_MINUTES))
+        // Lockout gửi email reset password
+        if (user.PasswordResetRequestAttempts >= LockoutSettings.MaxEmailRequestAttempts &&
+            user.PasswordResetRequestLockoutEnd.HasValue &&
+            DateTimeOffset.UtcNow < user.PasswordResetRequestLockoutEnd.Value)
         {
-            throw new ErrorCodeException(ErrorCodes.ACCOUNT_TOO_MANY_REQUESTS, $"Quá nhiều yêu cầu gửi email. Vui lòng thử lại sau {EMAIL_REQUEST_LOCKOUT_MINUTES} phút.");
+            throw new ErrorCodeException(ErrorCodes.PASSWORD_RESET_REQUEST_TOO_MANY,
+                $"Too many request. Please try again after {LockoutSettings.EmailRequestLockoutMinutes} minutes.");
         }
-        if (user.EmailRequestLockoutTime.HasValue &&
-            DateTime.UtcNow >= user.EmailRequestLockoutTime.Value.AddMinutes(EMAIL_REQUEST_LOCKOUT_MINUTES))
+        if (user.PasswordResetRequestLockoutEnd.HasValue &&
+            DateTimeOffset.UtcNow >= user.PasswordResetRequestLockoutEnd.Value)
         {
-            user.EmailRequestLockout = 0;
-        }
-
-        // Lockout reset
-        const int MAX_RESET_ATTEMPTS = 5;
-        const int LOCKOUT_DURATION_MINUTES = 10;
-        if (user.PasswordResetLockout >= MAX_RESET_ATTEMPTS &&
-            user.PasswordResetCodeExpiryTime.HasValue &&
-            DateTime.UtcNow < user.PasswordResetCodeExpiryTime.Value.AddMinutes(LOCKOUT_DURATION_MINUTES))
-        {
-            throw new ErrorCodeException(ErrorCodes.ACCOUNT_TOO_MANY_REQUESTS, $"Tài khoản bị khóa do gửi quá nhiều mã reset. Vui lòng thử lại sau {LOCKOUT_DURATION_MINUTES} phút.");
-        }
-        if (user.PasswordResetCodeExpiryTime.HasValue &&
-            DateTime.UtcNow >= user.PasswordResetCodeExpiryTime.Value.AddMinutes(LOCKOUT_DURATION_MINUTES))
-        {
-            user.PasswordResetLockout = 0;
+            user.PasswordResetRequestAttempts = 0;
         }
 
         // Tạo mã reset ngẫu nhiên
-        const int PASSWORD_RESET_CODE_EXPIRY_MINUTES = 10;
         var resetCode = GenerateRandomCode();
         user.PasswordResetCode = resetCode;
-        user.PasswordResetCodeExpiryTime = DateTime.UtcNow;
-        user.EmailRequestLockout++;
-        user.EmailRequestLockoutTime = DateTime.UtcNow;
+        user.PasswordResetCodeExpiryTime = DateTimeOffset.UtcNow.AddMinutes(LockoutSettings.PasswordResetCodeExpiryMinutes);
+        user.PasswordResetRequestAttempts++;
+        if (user.PasswordResetRequestAttempts >= LockoutSettings.MaxEmailRequestAttempts)
+        {
+            user.PasswordResetRequestLockoutEnd = DateTimeOffset.UtcNow.AddMinutes(LockoutSettings.EmailRequestLockoutMinutes);
+        }
         await _userManager.UpdateAsync(user);
 
         // Gửi email reset mật khẩu
         var subject = "Đặt lại mật khẩu";
-        var body = $@"<html><body><h2>Đặt lại mật khẩu</h2><p>Mã đặt lại mật khẩu của bạn: <strong>{resetCode}</strong></p><p>Mã này sẽ hết hạn sau {PASSWORD_RESET_CODE_EXPIRY_MINUTES} phút.</p><p>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.</p><br/><p>Trân trọng,<br/>AIQuizzizz</p></body></html>";
+        var body =
+            $@"<html><body><h2>Đặt lại mật khẩu</h2><p>Mã đặt lại mật khẩu của bạn: <strong>{resetCode}</strong></p><p>Mã này sẽ hết hạn sau {LockoutSettings.PasswordResetCodeExpiryMinutes} phút.</p><p>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.</p><br/><p>Trân trọng,<br/>AIQuizzizz</p></body></html>";
         await _emailService.SendEmailAsync(dto.Email, subject, body);
     }
 
@@ -573,36 +549,61 @@ public class IdentityService : IIdentityService
         var user = await _userManager.FindByEmailAsync(dto.Email);
         if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with email {dto.Email} not found");
 
-        const int MAX_RESET_ATTEMPTS = 5;
-        const int LOCKOUT_DURATION_MINUTES = 10;
-        const int PASSWORD_RESET_CODE_EXPIRY_MINUTES = 10;
         // Lockout
-        if (user.PasswordResetLockout >= MAX_RESET_ATTEMPTS &&
-            user.PasswordResetCodeExpiryTime.HasValue &&
-            DateTime.UtcNow < user.PasswordResetCodeExpiryTime.Value.AddMinutes(LOCKOUT_DURATION_MINUTES))
+        if (user.FailedPasswordResetAttempts >= LockoutSettings.MaxPasswordResetAttempts &&
+            user.PasswordResetLockoutEnd.HasValue &&
+            DateTimeOffset.UtcNow < user.PasswordResetLockoutEnd.Value)
         {
-            throw new ErrorCodeException(ErrorCodes.ACCOUNT_TOO_MANY_REQUESTS, $"Tài khoản bị khóa do nhập sai mã quá nhiều lần. Vui lòng thử lại sau {LOCKOUT_DURATION_MINUTES} phút.");
+            throw new ErrorCodeException(ErrorCodes.PASSWORD_RESET_CODE_FAILED_TOO_MANY,
+                $"Failed too many. Try again after {LockoutSettings.PasswordResetLockoutMinutes} minutes.");
+        }
+        if (user.PasswordResetLockoutEnd.HasValue &&
+            DateTimeOffset.UtcNow >= user.PasswordResetLockoutEnd.Value)
+        {
+            user.FailedPasswordResetAttempts = 0;
         }
         // Kiểm tra mã reset và thời gian hết hạn
         if (user.PasswordResetCode != dto.ResetCode ||
             !user.PasswordResetCodeExpiryTime.HasValue ||
-            DateTime.UtcNow > user.PasswordResetCodeExpiryTime.Value.AddMinutes(PASSWORD_RESET_CODE_EXPIRY_MINUTES))
+            DateTimeOffset.UtcNow > user.PasswordResetCodeExpiryTime.Value)
         {
-            user.PasswordResetLockout++;
-            await _userManager.UpdateAsync(user);
-            if (user.PasswordResetLockout >= MAX_RESET_ATTEMPTS)
+            user.FailedPasswordResetAttempts++;
+            if (user.FailedPasswordResetAttempts >= LockoutSettings.MaxPasswordResetAttempts)
             {
-                throw new ErrorCodeException(ErrorCodes.ACCOUNT_TOO_MANY_REQUESTS, $"Tài khoản bị khóa do nhập sai mã quá nhiều lần. Vui lòng thử lại sau {LOCKOUT_DURATION_MINUTES} phút.");
+                user.PasswordResetLockoutEnd = DateTimeOffset.UtcNow.AddMinutes(LockoutSettings.PasswordResetLockoutMinutes);
             }
+            await _userManager.UpdateAsync(user);
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_RESET_CODE, "Mã đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.");
         }
         // Đặt lại mật khẩu
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
         var result = await _userManager.ResetPasswordAsync(user, token, dto.NewPassword);
-        if (!result.Succeeded) throw new ErrorCodeException(ErrorCodes.COMMON_BAD_REQUEST, $"Đổi mật khẩu thất bại: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        if (!result.Succeeded)
+            throw new ErrorCodeException(ErrorCodes.COMMON_SERVER_INTERNAL_ERROR, "Đổi mật khẩu thất bại");
         user.PasswordResetCode = null;
         user.PasswordResetCodeExpiryTime = null;
-        user.PasswordResetLockout = 0;
+        user.FailedPasswordResetAttempts = 0;
+        user.PasswordResetLockoutEnd = null;
+        await _userManager.UpdateAsync(user);
+    }
+
+    public async Task BanUser(Guid userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id  {userId} not found");
+
+        user.IsBanned = true;
+        
+        await _userManager.UpdateAsync(user);
+    }
+
+    public async Task ActiveUser(Guid userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id  {userId} not found");
+
+        user.IsBanned = true;
+        
         await _userManager.UpdateAsync(user);
     }
 
