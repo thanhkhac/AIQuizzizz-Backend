@@ -18,7 +18,7 @@ public enum QuestionSetVisibilityMode
 {
     Public = 0, //Các số có thể dùng để đẩy vào priority nếu cần
     Private = 1,
-    OnlyClass =2
+    OnlyClass = 2
 }
 
 //====Bắt đầu JSON
@@ -28,15 +28,17 @@ public class QTypeMultipleChoice
     // public required string QuestionId { get; set; }
     public required string Text { get; set; }
     public bool IsAnswer { get; set; }
+    public short ShuffleOrder { get; set; }
 }
 
-    public class QTypeMatching
-    {
-        public required Guid Id { get; set; }
-        // public required string QuestionId { get; set; }
-        public required string Text { get; set; }
-        public string? AnswerId { get; set; }
-    }
+public class QTypeMatching
+{
+    public required Guid Id { get; set; }
+    // public required string QuestionId { get; set; }
+    public required string Text { get; set; }
+    public string? AnswerId { get; set; }
+    public short ShuffleOrder { get; set; }
+}
 
 public class QTypeOrderingItem
 {
@@ -44,6 +46,7 @@ public class QTypeOrderingItem
     // public required string QuestionId { get; set; }
     public required string Text { get; set; }
     public required int CorrectOrder { get; set; }
+    public short ShuffleOrder { get; set; }
 }
 
 public class QTypeShortAnswer
@@ -68,7 +71,6 @@ public class Question : BaseAuditableEntity
     public QuestionSet? QuestionSet { get; set; }
 }
 
-
 public class Tag : BaseEntity
 {
     public required Guid Id { get; set; }
@@ -79,7 +81,7 @@ public class QuestionSetTag
 {
     public required Guid TagId { get; set; }
     public required Guid QuestionSetId { get; set; }
-    
+
     public Tag? Tag { get; set; }
     public QuestionSet? QuestionSet { get; set; }
 }
@@ -107,10 +109,10 @@ public class QuestionSetUser : BaseAuditableEntity
     public required Guid UserId { get; set; }
     public required Guid QuestionSetId { get; set; }
     public QuestionSetUserShareMode ShareMode { get; set; }
-    
+
     public User? User { get; set; }
     public QuestionSet? QuestionSet { get; set; }
-    
+
 }
 
 public class Comment : BaseAuditableEntity
