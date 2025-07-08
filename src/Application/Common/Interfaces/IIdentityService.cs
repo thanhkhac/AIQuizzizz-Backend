@@ -33,4 +33,5 @@ public interface IIdentityService
     Task VerifyEmailAsync(EmailVerificationConfirmDto dto);
     Task RequestPasswordResetAsync(ForgotPasswordDto dto);
     Task ResetPasswordAsync(ResetPasswordDto dto);
+    Task ChangePasswordAsync(Guid userId, string currentPassword, string newPassword);
 }
