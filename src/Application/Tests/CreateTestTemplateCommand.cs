@@ -9,7 +9,7 @@ using CleanArchitectureBase.Application.Tests.Common;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Tests.Common;
+namespace CleanArchitectureBase.Application.Tests;
 
 [Authorize]
 public class CreateTestTemplateCommand : IRequest<Guid>
