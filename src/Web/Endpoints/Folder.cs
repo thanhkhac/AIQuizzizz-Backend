@@ -10,6 +10,7 @@ public class Folder : EndpointGroupBase
     public override void Map(WebApplication app){
         app.MapGroup(this)
             .MapGet(SearchFolderTest, "")
+            .MapGet(SearchTestTemplateInFolder, "/{FolderId}/TestTemplates")
             .MapPost(CreateFolder, "");
 }
 
@@ -19,12 +20,40 @@ public class Folder : EndpointGroupBase
         return result.ToOk();
     }
     
-    public async Task<Ok<ApiResponse<List<SearchFolderTestDto>>>> SearchFolderTest(
+    public async Task<Ok<ApiResponse<PaginatedList<SearchFolderTestDto>>>> SearchFolderTest(
         [FromQuery] string? folderName,
         [FromQuery] string? sharedMode,
-        ISender sender)
+        ISender sender,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 5)
     {
-        var rq = new SearchFolderTest { SharedMode = sharedMode, FolderName = folderName };
+        var rq = new SearchFolderTest
+        {
+            SharedMode = sharedMode,
+            FolderName = folderName,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+        };
+        
+        var result = await sender.Send(rq);
+        
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<PaginatedList<TestTemplateDto>>>> SearchTestTemplateInFolder(
+        [FromRoute] Guid FolderId,
+        [FromQuery] string? TestTemplateName,
+        ISender sender,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 5)
+    {
+        var rq = new SearchTestTemplateInFolder
+        {
+            FolderId = FolderId,
+            TestTemplateName = TestTemplateName,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+        };
         
         var result = await sender.Send(rq);
         
