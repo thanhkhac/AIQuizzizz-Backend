@@ -1,8 +1,8 @@
 ﻿using System.Runtime.Serialization;
 using System.Text.Json;
 using CleanArchitectureBase.Application.Common.Interfaces;
-using CleanArchitectureBase.Application.QuestionSets.Common;
-using CleanArchitectureBase.Application.QuestionSets.Services;
+using CleanArchitectureBase.Application.Questions.Utils;
+using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.QuestionSets;

@@ -1,8 +1,7 @@
 ﻿using System.Text.Json;
-using CleanArchitectureBase.Application.QuestionSets.Common;
-using CleanArchitectureBase.Domain.Entities;
+using CleanArchitectureBase.Application.QuestionSets.Dtos;
 
-namespace CleanArchitectureBase.Application.QuestionSets.Services;
+namespace CleanArchitectureBase.Application.Questions.Utils;
 
 public static class QuestionTypeSerializer
 {

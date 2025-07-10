@@ -19,6 +19,7 @@ public interface IApplicationDbContext
     public DbSet<UserQuestionSetHistory> UserQuestionSetHistories { get; }
     public DbSet<TestTemplate> TestTemplates { get; }
     public DbSet<TestTemplateQuestion> TestTemplateQuestions { get; }
+    public DbSet<TestTemplateUser> TestTemplateUsers { get; }
     public DbSet<Folder> Folders { get; }
     public DbSet<FolderTestTemplate> FolderTestTemplates { get; }
     public DbSet<FolderUser> FolderUsers { get; }

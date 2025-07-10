@@ -21,6 +21,27 @@ public enum QuestionSetVisibilityMode
     OnlyClass = 2
 }
 
+public enum QuestionSetUserShareMode
+{
+    Owner,
+    Editable, 
+    ViewOnly 
+}
+
+public enum FolderShareMode
+{
+    Owner,
+    Editable, 
+    ViewOnly 
+}
+
+public enum TestTemplateUserShareMode
+{
+    Owner,
+    Editable, 
+    ViewOnly    
+}
+
 //====Bắt đầu JSON
 public class QTypeMultipleChoice
 {
@@ -68,13 +89,23 @@ public class Question : BaseAuditableEntity
     public string? DataJson { get; set; } //Lưu JSON List<QTypeOrderingItem>/List<QTypeMatching>/List<QTypeMultipleChoice>
 
     public object? Data { get; set; } //Không Map
+    
+    // Navigation properties
     public QuestionSet? QuestionSet { get; set; }
+    public List<Comment> Comments { get; set; } = new();
+    public List<UserQuestionSetHistory> UserQuestionSetHistories { get; set; } = new();
+    public List<TestTemplateQuestion> TestTemplateQuestions { get; set; } = new();
+    public List<TestVersionQuestion> TestVersionQuestions { get; set; } = new();
+    public List<AttemptQuestion> AttemptQuestions { get; set; } = new();
 }
 
 public class Tag : BaseEntity
 {
     public required Guid Id { get; set; }
     public required string Name { get; set; }
+
+    // Navigation properties
+    public List<QuestionSetTag> QuestionSetTags { get; set; } = new();
 }
 
 public class QuestionSetTag
@@ -95,12 +126,11 @@ public class QuestionSet : BaseAuditableEntity
     public int QuestionCount { get; set; }
     public List<Question> Questions { get; set; } = new();
     public bool IsDeleted { get; set; }
-}
 
-public enum QuestionSetUserShareMode
-{
-    CanView,
-    CanEdit
+    // Navigation properties
+    public List<QuestionSetUser> QuestionSetUsers { get; set; } = new();
+    public List<QuestionSetTag> QuestionSetTags { get; set; } = new();
+    public List<ClassQuestionSet> ClassQuestionSets { get; set; } = new();
 }
 
 public class QuestionSetUser : BaseAuditableEntity
@@ -148,6 +178,10 @@ public class TestTemplate : BaseAuditableEntity
     public required string Name { get; set; }
     public bool IsDeleted { get; set; }
 
+    // Navigation properties
+    public List<TestTemplateQuestion> TestTemplateQuestions { get; set; } = new();
+    public List<TestTemplateUser> TestTemplateUsers { get; set; } = new();
+    public List<FolderTestTemplate> FolderTestTemplates { get; set; } = new();
 }
 
 public class TestTemplateQuestion : BaseAuditableEntity
@@ -160,11 +194,25 @@ public class TestTemplateQuestion : BaseAuditableEntity
     public Question? Question { get; set; }
 }
 
+public class TestTemplateUser : BaseAuditableEntity
+{
+    public required Guid UserId { get; set; }
+    public required Guid TestTemplateId { get; set; }
+    public TestTemplateUserShareMode ShareMode { get; set; }
+
+    public User? User { get; set; }
+    public TestTemplate? TestTemplate { get; set; }
+}
+
 public class Folder : BaseAuditableEntity
 {
     public required Guid Id { get; set; }
     public required string Name { get; set; }
     public bool IsDeleted { get; set; }
+
+    // Navigation properties
+    public List<FolderUser> FolderUsers { get; set; } = new();
+    public List<FolderTestTemplate> FolderTestTemplates { get; set; } = new();
 }
 
 public class FolderTestTemplate : BaseAuditableEntity
@@ -174,13 +222,6 @@ public class FolderTestTemplate : BaseAuditableEntity
 
     public Folder? Folder { get; set; }
     public TestTemplate? TestTemplate { get; set; }
-}
-
-public enum FolderShareMode
-{
-    Owner,
-    Editable,
-    ViewOnly
 }
 
 public class FolderUser : BaseAuditableEntity
@@ -227,6 +268,8 @@ public class Test : BaseAuditableEntity
     public bool IsShowCorrectAnswerInReview { get; set; }
 
     public List<TestGrade> TestGrades { get; set; } = new();
+    public List<TestVersion> TestVersions { get; set; } = new();
+    public List<Attempt> Attempts { get; set; } = new();
     public Class? Class { get; set; }
 }
 
@@ -236,6 +279,8 @@ public class TestVersion : BaseEntity
     public required Guid TestId { get; set; }
     public required int No { get; set; }
 
+    public List<TestVersionQuestion> TestVersionQuestions { get; set; } = new();
+    public List<Attempt> Attempts { get; set; } = new();
     public Test? Test { get; set; }
 }
 
@@ -271,7 +316,9 @@ public class Attempt
     public required DateTime TimeFinish { get; set; }
     public required float Score { get; set; }
 
+    public List<AttemptQuestion> AttemptQuestions { get; set; } = new();
     public Test? Test { get; set; }
+    public TestVersion? TestVersion { get; set; }
     public User? User { get; set; }
 }
 
@@ -298,7 +345,7 @@ public class QTypeMultipleChoiceAnswer
 public class QTypeOrderingAnswer
 {
     public required Guid ItemId { get; set; }
-    public required int OrderIndex { get; set; }
+    public required int Order { get; set; }
 }
 
 public class QTypeMatchingAnswer

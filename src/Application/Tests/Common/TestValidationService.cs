@@ -1,6 +1,6 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
-using CleanArchitectureBase.Application.QuestionSets.Common;
+using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.Tests.Common;

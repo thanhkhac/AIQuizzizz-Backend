@@ -2,9 +2,9 @@
 using CleanArchitectureBase.Application.Classes.Common;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
-using CleanArchitectureBase.Application.Common.Serializers;
+using CleanArchitectureBase.Application.Questions.Utils;
 using CleanArchitectureBase.Application.QuestionSets;
-using CleanArchitectureBase.Application.QuestionSets.Common;
+using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using CleanArchitectureBase.Application.Tests.Common;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;

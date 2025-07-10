@@ -1,7 +1,7 @@
-﻿using CleanArchitectureBase.Application.QuestionSets.Common;
+﻿using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.QuestionSets.Services;
+namespace CleanArchitectureBase.Application.Questions.Utils;
 
 public static class QuestionTypeMapper
 {
