@@ -1,31 +1,36 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
-using CleanArchitectureBase.Application.QuestionSets.Dtos;
+using CleanArchitectureBase.Application.Common.Models;
+using CleanArchitectureBase.Application.Questions.Dtos;
+using CleanArchitectureBase.Application.Questions.Services;
 using CleanArchitectureBase.Application.QuestionSets.Services;
-using CleanArchitectureBase.Application.Users.Common;
 using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.QuestionSets;
 
-public class GetQuestionSetDetailQuery : IRequest<QuestionSetDetailDto>
+public class GetQuestionSetQuestionsQuery : IRequest<List<QuestionResponseDto>>
 {
     public Guid QuestionSetId { get; set; }
 }
 
-public class GetQuestionSetDetailQueryHandler : IRequestHandler<GetQuestionSetDetailQuery, QuestionSetDetailDto>
+public class GetQuestionSetQuestionsQueryHandler : IRequestHandler<GetQuestionSetQuestionsQuery, List<QuestionResponseDto>>
 {
+
     private IApplicationDbContext _context;
     private IQuestionSetService _questionSetService;
+    private IQuestionService _questionService;
     private IUser _user;
 
-    public GetQuestionSetDetailQueryHandler(IApplicationDbContext context, IQuestionSetService questionSetService, IUser user)
+    public GetQuestionSetQuestionsQueryHandler(IApplicationDbContext context, IQuestionSetService questionSetService, IUser user,
+        IQuestionService questionService)
     {
         _context = context;
         _questionSetService = questionSetService;
         _user = user;
+        _questionService = questionService;
     }
 
-    public async Task<QuestionSetDetailDto> Handle(GetQuestionSetDetailQuery request, CancellationToken cancellationToken)
+    public async Task<List<QuestionResponseDto>> Handle(GetQuestionSetQuestionsQuery request, CancellationToken cancellationToken)
     {
         var questionSet = await _context.QuestionSets
             .Include(x => x.CreatedByUser)
@@ -40,23 +45,7 @@ public class GetQuestionSetDetailQueryHandler : IRequestHandler<GetQuestionSetDe
         var canView = await _questionSetService.CanUserViewQuestionSet(_user.UserId, questionSet);
         if (canView == false) throw new ErrorCodeException(ErrorCodes.COMMON_FORBIDDEN, "You are not allowed to view this question set");
 
-        QuestionSetDetailDto result = new QuestionSetDetailDto
-        {
-            Id = questionSet.Id,
-            Name = questionSet.Name,
-            Description = questionSet.Description,
-            VisibilityMode = questionSet.VisibilityMode.ToString(),
-            QuestionCount = questionSet.QuestionCount,
-            IsDeleted = questionSet.IsDeleted,
-            CreatedAt = questionSet.Created,
-            CreatedBy = new CreatedByDto
-            {
-                Id = questionSet.CreatedByUser!.Id,
-                FullName = questionSet.CreatedByUser!.FullName,
-                Email = questionSet.CreatedByUser!.Email,
-            }
-        };
-
+        var result = await _questionService.GetQuestionsBySetIdForDetailAndLearnAsync(request.QuestionSetId, _user.UserId);
         return result;
     }
 }
