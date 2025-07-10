@@ -4,7 +4,7 @@ using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Tests.Common;
+namespace CleanArchitectureBase.Application.FolderTest;
 
 [Authorize]
 public class CreateFolderCommand : IRequest<Guid>
