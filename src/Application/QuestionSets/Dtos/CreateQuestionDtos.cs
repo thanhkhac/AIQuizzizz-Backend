@@ -1,4 +1,4 @@
-﻿namespace CleanArchitectureBase.Application.QuestionSets.Common;
+﻿namespace CleanArchitectureBase.Application.QuestionSets.Dtos;
 
 public class CreateMultipleChoiceDto
 {

@@ -19,6 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Common\Serializers\" />
+    <Folder Include="QuestionSets\Repository\" />
     <Folder Include="zExample\" />
   </ItemGroup>
 
