@@ -1,0 +1,129 @@
+﻿[
+  {
+    "id": "11111111-1111-1111-1111-111111111111",
+    "questionSetId": "11111111-1111-1111-1111-111111111111",
+    "type": "MultipleChoice",
+    "textFormat": "PlainText",
+    "questionText": "Which of the following are prime numbers?",
+    "score": 10.0,
+    "scoreGraded": 0.0,
+    "questionData": {
+      "multipleChoice": [
+        { "id": "22222222-2222-2222-2222-222222222222", "text": "2", "isAnswer": true },
+        { "id": "33333333-3333-3333-3333-333333333333", "text": "4", "isAnswer": false },
+        { "id": "44444444-4444-4444-4444-444444444444", "text": "5", "isAnswer": true }
+      ],
+      "matching": null,
+      "ordering": null,
+      "shortText": null
+    },
+    "userAnswerData": {
+      "multipleChoice": [
+        "22222222-2222-2222-2222-222222222222",
+        "33333333-3333-3333-3333-333333333333"
+      ],
+      "matching": null,
+      "ordering": null,
+      "shortText": null
+    }
+  },
+  {
+    "id": "55555555-5555-5555-5555-555555555555",
+    "questionSetId": "11111111-1111-1111-1111-111111111111",
+    "type": "Matching",
+    "textFormat": "PlainText",
+    "questionText": "Match the countries to their capitals.",
+    "score": 10.0,
+    "scoreGraded": 10.0,
+    "questionData": {
+      "multipleChoice": null,
+      "ordering": null,
+      "shortText": null,
+      "matching": {
+        "leftItems": [
+          { "id": "66666666-6666-6666-6666-666666666666", "text": "France" },
+          { "id": "88888888-8888-8888-8888-888888888888", "text": "Germany" }
+        ],
+        "rightItems": [
+          { "id": "77777777-7777-7777-7777-777777777777", "text": "Paris" },
+          { "id": "99999999-9999-9999-9999-999999999999", "text": "Berlin" }
+        ],
+        "matches": [
+          {
+            "leftId": "66666666-6666-6666-6666-666666666666",
+            "rightId": "77777777-7777-7777-7777-777777777777"
+          },
+          {
+            "leftId": "88888888-8888-8888-8888-888888888888",
+            "rightId": "99999999-9999-9999-9999-999999999999"
+          }
+        ]
+      }
+    },
+    "userAnswerData": {
+      "multipleChoice": null,
+      "ordering": null,
+      "shortText": null,
+      "matching": [
+        {
+          "leftId": "66666666-6666-6666-6666-666666666666",
+          "rightId": "77777777-7777-7777-7777-777777777777"
+        },
+        {
+          "leftId": "88888888-8888-8888-8888-888888888888",
+          "rightId": "99999999-9999-9999-9999-999999999999"
+        }
+      ]
+    }
+  },
+  {
+    "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    "questionSetId": "11111111-1111-1111-1111-111111111111",
+    "type": "Ordering",
+    "textFormat": "PlainText",
+    "questionText": "Arrange the steps of the water cycle.",
+    "score": 10.0,
+    "scoreGraded": 3.33,
+    "questionData": {
+      "multipleChoice": null,
+      "matching": null,
+      "shortText": null,
+      "ordering": [
+        { "id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "text": "Evaporation", "correctOrder": 1 },
+        { "id": "cccccccc-cccc-cccc-cccc-cccccccccccc", "text": "Condensation", "correctOrder": 2 },
+        { "id": "dddddddd-dddd-dddd-dddd-dddddddddddd", "text": "Precipitation", "correctOrder": 3 }
+      ]
+    },
+    "userAnswerData": {
+      "multipleChoice": null,
+      "matching": null,
+      "shortText": null,
+      "ordering": [
+        { "itemId": "cccccccc-cccc-cccc-cccc-cccccccccccc", "order": 1 },
+        { "itemId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", "order": 2 },
+        { "itemId": "dddddddd-dddd-dddd-dddd-dddddddddddd", "order": 3 }
+      ]
+    }
+  },
+  {
+    "id": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+    "questionSetId": "11111111-1111-1111-1111-111111111111",
+    "type": "ShortText",
+    "textFormat": "PlainText",
+    "questionText": "What is the chemical symbol for water?",
+    "score": 5.0,
+    "scoreGraded": 5.0,
+    "questionData": {
+      "multipleChoice": null,
+      "matching": null,
+      "ordering": null,
+      "shortText": "H2O"
+    },
+    "userAnswerData": {
+      "multipleChoice": null,
+      "matching": null,
+      "ordering": null,
+      "shortText": "H20"
+    }
+  }
+]

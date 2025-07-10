@@ -41,4 +41,6 @@ public interface IIdentityService
     Task BanUser(Guid userId);
     
     Task ActiveUser(Guid userId);
+    
+    Task<bool> IsInAnyRoleAsync(Guid userId, params string[] roles);
 }
