@@ -60,21 +60,7 @@ public class CreateTestCommandValidator : AbstractValidator<CreateTestCommand>
             .WithMessage($"Loại câu hỏi phải là Partial, AllOrNothing");
         
         RuleForEach(x => x.Questions)
-            .SetValidator((command, question) => new QuestionCreateDtoValidator());
-    }
-    
-    private bool IsValidQuestionType(CreateQuestionDto createQuestion)
-    {
-        bool isValid = createQuestion.Type switch
-        {
-            nameof(QuestionType.MultipleChoice) => createQuestion.MultipleChoices != null && createQuestion.MultipleChoices.Any(),
-            nameof(QuestionType.Matching) => createQuestion.MatchingPairs != null && createQuestion.MatchingPairs.Any(),
-            nameof(QuestionType.Ordering) => createQuestion.OrderingItems != null && createQuestion.OrderingItems.Any(),
-            nameof(QuestionType.ShortText) => !string.IsNullOrWhiteSpace(createQuestion.ShortAnswer),
-            _ => false
-        };
-
-        return isValid;
+            .SetValidator((command, question) => new CreateQuestionDto.QuestionCreateDtoValidator());
     }
 }
 
