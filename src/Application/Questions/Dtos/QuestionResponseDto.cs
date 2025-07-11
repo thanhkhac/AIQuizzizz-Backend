@@ -10,6 +10,7 @@ public class QuestionResponseDto
     public string Type { get; set; } = null!;
     public TextFormat TextFormat { get; set; }
     public string QuestionText { get; set; } = null!;
+    public string? ExplainText { get; set; }
     public float Score { get; set; }
     public bool Completed { get; set; }
     public QuestionDataDto QuestionData { get; set; } = null!;
@@ -25,6 +26,7 @@ public class QuestionResponseDto
                 Type = question.Type.ToString(),
                 TextFormat = question.TextFormat,
                 QuestionText = question.QuestionText ?? string.Empty,
+                ExplainText = question.ExplainText,
                 Score = question.Score,
                 Completed = completed,
                 QuestionData = QuestionDataDto.Deserializer.FromJson(question.Type, question.DataJson)

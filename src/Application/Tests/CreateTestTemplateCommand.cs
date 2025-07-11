@@ -4,9 +4,10 @@ using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.Questions.Utils;
 using CleanArchitectureBase.Application.QuestionSets;
 using CleanArchitectureBase.Application.QuestionSets.Dtos;
+using CleanArchitectureBase.Application.Tests.Common;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Tests.Common;
+namespace CleanArchitectureBase.Application.Tests;
 
 [Authorize]
 public class CreateTestTemplateCommand : IRequest<Guid>
@@ -33,7 +34,7 @@ public class CreateTestTemplateCommandValidator : AbstractValidator<CreateTestTe
             .WithMessage("Một hoặc nhiều câu hỏi có loại hoặc dữ liệu không hợp lệ");
         
         RuleForEach(x => x.Questions)
-            .SetValidator((command, question) => new QuestionCreateDtoValidator());
+            .SetValidator((command, question) => new CreateQuestionDto.QuestionCreateDtoValidator());
     }
     
     private bool IsValidQuestionType(CreateQuestionDto createQuestion)
