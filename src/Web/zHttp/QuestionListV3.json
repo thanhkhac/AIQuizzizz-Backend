@@ -5,6 +5,7 @@
     "type": "MultipleChoice",
     "textFormat": "PlainText",
     "questionText": "Which of the following are prime numbers?",
+    "explainText": "",
     "score": 10.0,
     "scoreGraded": 0.0,
     "questionData": {
@@ -33,6 +34,7 @@
     "type": "Matching",
     "textFormat": "PlainText",
     "questionText": "Match the countries to their capitals.",
+    "explainText": "",
     "score": 10.0,
     "scoreGraded": 10.0,
     "questionData": {
@@ -82,6 +84,7 @@
     "type": "Ordering",
     "textFormat": "PlainText",
     "questionText": "Arrange the steps of the water cycle.",
+    "explainText": "",
     "score": 10.0,
     "scoreGraded": 3.33,
     "questionData": {
@@ -111,6 +114,7 @@
     "type": "ShortText",
     "textFormat": "PlainText",
     "questionText": "What is the chemical symbol for water?",
+    "explainText": "",
     "score": 5.0,
     "scoreGraded": 5.0,
     "questionData": {
