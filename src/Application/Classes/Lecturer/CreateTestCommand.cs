@@ -2,9 +2,9 @@
 using CleanArchitectureBase.Application.Classes.Common;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
-using CleanArchitectureBase.Application.Common.Serializers;
+using CleanArchitectureBase.Application.Questions.Utils;
 using CleanArchitectureBase.Application.QuestionSets;
-using CleanArchitectureBase.Application.QuestionSets.Common;
+using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using CleanArchitectureBase.Application.Tests.Common;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
@@ -60,21 +60,7 @@ public class CreateTestCommandValidator : AbstractValidator<CreateTestCommand>
             .WithMessage($"Loại câu hỏi phải là Partial, AllOrNothing");
         
         RuleForEach(x => x.Questions)
-            .SetValidator((command, question) => new QuestionCreateDtoValidator());
-    }
-    
-    private bool IsValidQuestionType(CreateQuestionDto createQuestion)
-    {
-        bool isValid = createQuestion.Type switch
-        {
-            nameof(QuestionType.MultipleChoice) => createQuestion.MultipleChoices != null && createQuestion.MultipleChoices.Any(),
-            nameof(QuestionType.Matching) => createQuestion.MatchingPairs != null && createQuestion.MatchingPairs.Any(),
-            nameof(QuestionType.Ordering) => createQuestion.OrderingItems != null && createQuestion.OrderingItems.Any(),
-            nameof(QuestionType.ShortText) => !string.IsNullOrWhiteSpace(createQuestion.ShortAnswer),
-            _ => false
-        };
-
-        return isValid;
+            .SetValidator((command, question) => new CreateQuestionDto.QuestionCreateDtoValidator());
     }
 }
 
