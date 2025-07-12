@@ -27,7 +27,9 @@ public class QuestionService : IQuestionService
         if (userId == Guid.Empty || userId == null)
         {
             var questions = await _context.Questions
-                .Where(q => q.QuestionSetId == questionSetId)
+                .Where(q =>
+                    q.QuestionSetId == questionSetId
+                    && q.IsDeleted == false)
                 .ToListAsync(cancellationToken);
 
             return questions

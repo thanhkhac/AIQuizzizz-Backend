@@ -1849,12 +1849,12 @@
           "questions": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/CreateQuestionDto"
+              "$ref": "#/components/schemas/CreateUpdateQuestionDto"
             }
           }
         }
       },
-      "CreateQuestionDto": {
+      "CreateUpdateQuestionDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -2483,7 +2483,7 @@
           "questions": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/CreateQuestionDto"
+              "$ref": "#/components/schemas/CreateUpdateQuestionDto"
             }
           }
         }
@@ -2589,6 +2589,10 @@
           },
           "questionText": {
             "type": "string"
+          },
+          "explainText": {
+            "type": "string",
+            "nullable": true
           },
           "score": {
             "type": "number",
@@ -2740,7 +2744,7 @@
           "questions": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/CreateQuestionDto"
+              "$ref": "#/components/schemas/CreateUpdateQuestionDto"
             }
           }
         }

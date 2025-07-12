@@ -1,4 +1,6 @@
-﻿using CleanArchitectureBase.Domain.Entities;
+﻿using System.Text.Json;
+using CleanArchitectureBase.Application.Questions.Utils;
+using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.QuestionSets.Dtos;
 
@@ -20,7 +22,7 @@ public class CreateOrderingItemDto
     public int CorrectOrder { get; set; }
 }
 
-public class CreateQuestionDto
+public class CreateUpdateQuestionDto
 {
     public Guid? QuestionId { get; set; }
     public string? Type { get; set; }
@@ -32,7 +34,7 @@ public class CreateQuestionDto
     public List<CreateOrderingItemDto>? OrderingItems { get; set; }
     public string? ShortAnswer { get; set; }
 
-    public class QuestionCreateDtoValidator : AbstractValidator<CreateQuestionDto>
+    public class QuestionCreateDtoValidator : AbstractValidator<CreateUpdateQuestionDto>
     {
         public QuestionCreateDtoValidator()
         {
@@ -43,7 +45,7 @@ public class CreateQuestionDto
                     "MultipleChoice", "Matching", "Ordering", "ShortText"
                 }.Contains(type))
                 .WithMessage($"Loại câu hỏi phải là 'MultipleChoice', 'Matching', 'Ordering','ShortText'");
-                
+
             RuleFor(x => x)
                 .Must(question => question.Type switch
                 {
@@ -85,7 +87,7 @@ public class CreateQuestionDto
                     {
                         options.RuleFor(o => o.Text)
                             .NotEmpty().WithMessage($"Nội dung không được để trống");
-                            // .MaximumLength(500).WithMessage($"Nội dung không được vượt quá 200 ký tự");
+                        // .MaximumLength(500).WithMessage($"Nội dung không được vượt quá 200 ký tự");
                     });
             });
 
@@ -135,6 +137,24 @@ public class CreateQuestionDto
                     .NotEmpty().WithMessage($"Đáp án không được để trống")
                     .MaximumLength(500).WithMessage($"Đáp án không được vượt quá 500 ký tự");
             });
+        }
+    }
+
+    public static class Serializer
+    {
+        public static string Serialize(CreateUpdateQuestionDto dto)
+        {
+            return dto.Type switch
+            {
+                nameof(QuestionType.MultipleChoice) => QuestionTypeSerializer.SerializeMultipleChoice(dto.MultipleChoices!),
+                nameof(QuestionType.Matching) => QuestionTypeSerializer.SerializeMatchingPairs(dto.MatchingPairs!),
+                nameof(QuestionType.Ordering) => QuestionTypeSerializer.SerializeOrderingItems(dto.OrderingItems!),
+                nameof(QuestionType.ShortText) => JsonSerializer.Serialize(new QTypeShortAnswer
+                {
+                    Answer = dto.ShortAnswer!
+                }),
+                _ => throw new InvalidDataException($"Invalid question type: {dto.Type}")
+            };
         }
     }
 }
