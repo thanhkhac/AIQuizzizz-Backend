@@ -252,8 +252,7 @@ public enum TestStatus
 {
     Active,
     Completed,
-    Upcoming,
-    Overdue
+    Upcoming
 }
 
 public class Test : BaseAuditableEntity

@@ -9,7 +9,7 @@ public class SearchFolderTestDto
 {
     public Guid FolderTestId { get; set; }
     public string? Name { get; set; }
-    public string? SharedBy { get; set; }
+    public string? CreateBy { get; set; }
 }
 
 [Authorize]
@@ -49,48 +49,37 @@ public class SearchFolderTestCommandHandler : IRequestHandler<SearchFolderTest, 
 
     public async Task<PaginatedList<SearchFolderTestDto>> Handle(SearchFolderTest rq, CancellationToken cancellationToken)
     {
-        var authors = await _context.Folders
-            .Join(_context.FolderUsers,
-                f => f.Id,
-                fu => fu.FolderId,
-                (f, fu) => new { Folder = f, FolderUser = fu })
-            .Join(_context.DomainUsers,
-                f => f.Folder.CreatedBy,
-                u => u.Id,
-                (f, u) => new { 
-                    Id = f.Folder.Id,
-                    FullName = u.FullName,
-                    FolderUser = f.FolderUser })
-            .Where(f => f.FolderUser.UserId.Equals(_user.UserId))
+        var authors = await _context.FolderUsers
+            .Include(fu => fu.Folder)
+            .ThenInclude(f => f!.CreatedByUser) 
+            .Where(fu => fu.UserId.Equals(_user.UserId))
+            .Select(fu => new
+            {
+                Id = fu.Folder!.Id,
+                FullName = fu.Folder.CreatedByUser!.FullName
+            })
             .ToDictionaryAsync(x => x.Id, x => x.FullName, cancellationToken);
-
-        var folders = _context.Folders
-            .GroupJoin(_context.FolderUsers,
-                folder => folder.Id,
-                folderUser => folderUser.FolderId,
-                (folder, folderUsers) => new { Folder = folder, FolderUsers = folderUsers })
-            .SelectMany(
-                x => x.FolderUsers.DefaultIfEmpty(),
-                (folder, folderUser) => new { Folder = folder.Folder, FolderUser = folderUser })
-            .Where(x => x.FolderUser != null && x.FolderUser.UserId == _user.UserId)
-            .Distinct();
         
-        if (!string.IsNullOrEmpty(rq.SharedMode) && Enum.TryParse<FolderShareMode>(rq.SharedMode, out var shareMode))
+        FolderShareMode? shareMode = null;
+        if (!string.IsNullOrEmpty(rq.SharedMode) && Enum.TryParse<FolderShareMode>(rq.SharedMode, out var ShareMode))
         {
-            folders = folders.Where(f => f.FolderUser!.ShareMode == shareMode);
+            shareMode = ShareMode;
         }
-
-        if (!string.IsNullOrEmpty(rq.FolderName))
-        {
-            folders = folders.Where(f => f.Folder.Name.Contains(rq.FolderName));
-        }
+        
+        var folders = _context.FolderUsers
+            .Include(fu => fu.Folder)
+            .Where(fu => fu.UserId == _user.UserId
+            && (string.IsNullOrEmpty(rq.FolderName) || fu.Folder!.Name.Contains(rq.FolderName))
+            && (shareMode == null || fu.ShareMode == shareMode))
+            .Select(fu => new { Folder = fu.Folder, FolderUser = fu })
+            .Distinct();
 
         return await PaginatedList<SearchFolderTestDto>.CreateAsync(
                 folders.Select(f => new SearchFolderTestDto
                 {
-                    FolderTestId = f.Folder.Id,
+                    FolderTestId = f.Folder!.Id,
                     Name = f.Folder.Name,
-                    SharedBy = authors.ContainsKey(f.Folder.Id) ? authors[f.Folder.Id] : null,
+                    CreateBy = authors.ContainsKey(f.Folder.Id) ? authors[f.Folder.Id] : null,
                 }),
                 rq.PageNumber,
                 rq.PageSize

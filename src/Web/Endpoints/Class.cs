@@ -73,7 +73,7 @@ public class Class : EndpointGroupBase
     }
     
     public async Task<Ok<ApiResponse<PaginatedList<TestSearchResultDto>>>> SearchTest(
-        [FromQuery] TestStatus? status,
+        [FromQuery] string? status,
         [FromQuery] string? testName,
         [FromRoute] Guid classId,
         ISender sender,
