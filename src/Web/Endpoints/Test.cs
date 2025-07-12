@@ -1,5 +1,4 @@
 ﻿using CleanArchitectureBase.Application.Common.Models;
-using CleanArchitectureBase.Application.QuestionSets.Common;
 using CleanArchitectureBase.Application.Tests;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +10,9 @@ public class Test : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
-            .MapPost(CreateTestTemplate, "/Templates")
+            .MapPost(CreateTestTemplate, "/Templates");
+
+        app.MapGroup(this).DisableAntiforgery()
             .MapPost(ImportFileTestTemplate, "/Templates/ImportFile");
     }
 
@@ -21,8 +22,8 @@ public class Test : EndpointGroupBase
         return result.ToOk();
     }
 
-    public async Task<Ok<ApiResponse<List<CreateQuestionDto>>>> ImportFileTestTemplate(
-        [FromForm] FileData fileData,
+    public async Task<Ok<ApiResponse<ImportedQuestionDto>>> ImportFileTestTemplate(
+        [FromForm] IFormFile fileData,
         ISender sender)
     {
         var rq = new ImportFileTestTemplateCommand
