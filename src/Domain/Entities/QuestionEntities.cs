@@ -11,7 +11,8 @@ public enum QuestionType
 public enum TextFormat
 {
     MarkDown,
-    PlainText
+    PlainText,
+    Html
 }
 
 public enum QuestionSetVisibilityMode
@@ -24,22 +25,22 @@ public enum QuestionSetVisibilityMode
 public enum QuestionSetUserShareMode
 {
     Owner,
-    Editable, 
-    ViewOnly 
+    Editable,
+    ViewOnly
 }
 
 public enum FolderShareMode
 {
     Owner,
-    Editable, 
-    ViewOnly 
+    Editable,
+    ViewOnly
 }
 
 public enum TestTemplateUserShareMode
 {
     Owner,
-    Editable, 
-    ViewOnly    
+    Editable,
+    ViewOnly
 }
 
 //====Bắt đầu JSON
@@ -87,9 +88,10 @@ public class Question : BaseAuditableEntity
     public string? ExplainText { get; set; }
     public float Score { get; set; }
     public string? DataJson { get; set; } //Lưu JSON List<QTypeOrderingItem>/List<QTypeMatching>/List<QTypeMultipleChoice>
-
+    public bool IsDeleted { get; set; }
     public object? Data { get; set; } //Không Map
-    
+
+
     // Navigation properties
     public QuestionSet? QuestionSet { get; set; }
     public List<Comment> Comments { get; set; } = new();

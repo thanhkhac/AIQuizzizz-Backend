@@ -1091,10 +1091,10 @@
         }
       }
     },
-    "/api/QuestionSets/Create": {
+    "/api/QuestionSet": {
       "post": {
         "tags": [
-          "QuestionSets"
+          "QuestionSet"
         ],
         "operationId": "CreateQuestionSet",
         "requestBody": {
@@ -1123,10 +1123,10 @@
         }
       }
     },
-    "/api/QuestionSets/{questionSetId}/permissions": {
+    "/api/QuestionSet/{questionSetId}/Permissions": {
       "get": {
         "tags": [
-          "QuestionSets"
+          "QuestionSet"
         ],
         "operationId": "GetPermissions",
         "parameters": [
@@ -1155,10 +1155,10 @@
         }
       }
     },
-    "/api/QuestionSets/{questionSetId}/questions": {
+    "/api/QuestionSet/{questionSetId}/Questions": {
       "get": {
         "tags": [
-          "QuestionSets"
+          "QuestionSet"
         ],
         "operationId": "GetQuestions",
         "parameters": [
@@ -1180,6 +1180,97 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfListOfQuestionResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/QuestionSet/{questionSetId}": {
+      "patch": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "UpdateQuestionSet",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateQuestionSetCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/QuestionSet/{questionSetId}/History": {
+      "post": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "UpdateQuestionSetHistory",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "questions",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/QuestionHistoryUpdate"
+                }
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfUnit"
                 }
               }
             }
@@ -1849,12 +1940,12 @@
           "questions": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/CreateQuestionDto"
+              "$ref": "#/components/schemas/CreateUpdateQuestionDto"
             }
           }
         }
       },
-      "CreateQuestionDto": {
+      "CreateUpdateQuestionDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -2483,7 +2574,7 @@
           "questions": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/CreateQuestionDto"
+              "$ref": "#/components/schemas/CreateUpdateQuestionDto"
             }
           }
         }
@@ -2590,12 +2681,17 @@
           "questionText": {
             "type": "string"
           },
+          "explainText": {
+            "type": "string",
+            "nullable": true
+          },
           "score": {
             "type": "number",
             "format": "float"
           },
-          "completed": {
-            "type": "boolean"
+          "isCorrect": {
+            "type": "boolean",
+            "nullable": true
           },
           "questionData": {
             "$ref": "#/components/schemas/QuestionDataDto"
@@ -2607,11 +2703,13 @@
         "description": "",
         "x-enumNames": [
           "MarkDown",
-          "PlainText"
+          "PlainText",
+          "Html"
         ],
         "enum": [
           0,
-          1
+          1,
+          2
         ]
       },
       "QuestionDataDto": {
@@ -2730,6 +2828,50 @@
           }
         }
       },
+      "UpdateQuestionSetCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "questionSetId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "createUpdateQuestions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateUpdateQuestionDto"
+            }
+          },
+          "deleteQuestionIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "guid"
+            }
+          }
+        }
+      },
+      "QuestionHistoryUpdate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "questionId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "isCorrect": {
+            "type": "boolean"
+          }
+        }
+      },
       "CreateTestTemplateCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -2740,7 +2882,7 @@
           "questions": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/CreateQuestionDto"
+              "$ref": "#/components/schemas/CreateUpdateQuestionDto"
             }
           }
         }

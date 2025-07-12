@@ -1,0 +1,32 @@
+﻿# POST Users Register
+POST {{Web_HostAddress}}/api/Users/register
+Content-Type: application/json
+
+{
+  "email": "Sa@1234",
+  "password": "Sa@1234"
+}
+
+###
+
+# POST Users Login
+POST {{Web_HostAddress}}/api/Users/login
+Content-Type: application/json
+
+{
+  "email": "{{Email}}",
+  "password": "{{Password}}"
+}
+
+###
+
+# POST Users Refresh
+POST {{Web_HostAddress}}/api/Users/refresh-token
+Authorization: Bearer {{BearerToken}}
+Content-Type: application/json
+
+{
+  "refreshToken": "68df8c13-ddcb-4c9c-a0e8-b8d3e28017d5",
+  "accessToken": "{{BearerToken}}"
+}
+###
