@@ -1,4 +1,5 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
@@ -13,6 +14,7 @@ public class ImportedQuestionDto
     public List<CreateQuestionDto>? invalidQuestions { get; set; }
 }
 
+[Authorize]
 public class ImportFileTestTemplateCommand : IRequest<ImportedQuestionDto>
 {
     public required IFormFile FileData { get; set; }
