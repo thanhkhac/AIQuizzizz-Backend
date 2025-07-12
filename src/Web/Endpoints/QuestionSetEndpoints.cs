@@ -9,20 +9,29 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CleanArchitectureBase.Web.Endpoints;
 
-public class QuestionSets : EndpointGroupBase
+public class QuestionSetEndpoints : EndpointGroupBase
 {
 
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
-            .MapPost(CreateQuestionSet, "Create")
-            .MapGet(GetPermissions, "{questionSetId}/permissions")
-            .MapGet(GetQuestions, "{questionSetId}/questions")
+            .MapPost(CreateQuestionSet)
+            .MapGet(GetPermissions, "{questionSetId}/Permissions")
+            .MapGet(GetQuestions, "{questionSetId}/Questions")
+            .MapPatch("{questionSetId}", UpdateQuestionSet)
             ;
-        ;
     }
 
     public async Task<Ok<ApiResponse<Guid>>> CreateQuestionSet([FromBody] CreateQuestionSetCommand command, ISender sender)
+    {
+        var result = await sender.Send(command);
+        return result.ToOk();
+    }
+
+    public async Task<Ok<ApiResponse<Guid>>> UpdateQuestionSet(
+        [FromRoute] Guid questionSetId,
+        [FromBody] UpdateQuestionSetCommand command,
+        ISender sender)
     {
         var result = await sender.Send(command);
         return result.ToOk();

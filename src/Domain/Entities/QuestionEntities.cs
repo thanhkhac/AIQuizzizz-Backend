@@ -11,7 +11,8 @@ public enum QuestionType
 public enum TextFormat
 {
     MarkDown,
-    PlainText
+    PlainText,
+    Html
 }
 
 public enum QuestionSetVisibilityMode

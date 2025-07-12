@@ -74,7 +74,7 @@ public class CreateQuestionSetCommandHandler : IRequestHandler<CreateQuestionSet
                 QuestionSetId = questionSet.Id,
                 Type = Enum.Parse<QuestionType>(questionDto.Type!),
                 QuestionText = questionDto.QuestionText,
-                TextFormat = TextFormat.PlainText, // Có thể thay đổi theo yêu cầu
+                TextFormat = TextFormat.Html, 
                 Score = questionDto.Score
             };
 

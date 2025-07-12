@@ -1091,10 +1091,10 @@
         }
       }
     },
-    "/api/QuestionSets/Create": {
+    "/api/QuestionSet": {
       "post": {
         "tags": [
-          "QuestionSets"
+          "QuestionSet"
         ],
         "operationId": "CreateQuestionSet",
         "requestBody": {
@@ -1123,10 +1123,10 @@
         }
       }
     },
-    "/api/QuestionSets/{questionSetId}/permissions": {
+    "/api/QuestionSet/{questionSetId}/Permissions": {
       "get": {
         "tags": [
-          "QuestionSets"
+          "QuestionSet"
         ],
         "operationId": "GetPermissions",
         "parameters": [
@@ -1155,10 +1155,10 @@
         }
       }
     },
-    "/api/QuestionSets/{questionSetId}/questions": {
+    "/api/QuestionSet/{questionSetId}/Questions": {
       "get": {
         "tags": [
-          "QuestionSets"
+          "QuestionSet"
         ],
         "operationId": "GetQuestions",
         "parameters": [
@@ -1180,6 +1180,50 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfListOfQuestionResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/QuestionSet/{questionSetId}": {
+      "patch": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "PatchApiQuestionSet",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateQuestionSetCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
                 }
               }
             }
@@ -2611,11 +2655,13 @@
         "description": "",
         "x-enumNames": [
           "MarkDown",
-          "PlainText"
+          "PlainText",
+          "Html"
         ],
         "enum": [
           0,
-          1
+          1,
+          2
         ]
       },
       "QuestionDataDto": {
@@ -2731,6 +2777,37 @@
           "correctOrder": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "UpdateQuestionSetCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "questionSetId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "createUpdateQuestions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateUpdateQuestionDto"
+            }
+          },
+          "deleteQuestionIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "guid"
+            }
           }
         }
       },

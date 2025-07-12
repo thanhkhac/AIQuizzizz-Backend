@@ -98,7 +98,8 @@ public class UpdateQuestionSetCommandHandler : IRequestHandler<UpdateQuestionSet
             .Where(q => request.DeleteQuestionIds.Contains(q.Id))
             .ToList();
 
-        _dbContext.Questions.RemoveRange(questionsToDelete);
+            question.IsDeleted = true;
+
 
         var questionCountAdd = 0 - questionsToDelete.Count;
         // Thêm hoặc cập nhật câu hỏi
@@ -115,6 +116,7 @@ public class UpdateQuestionSetCommandHandler : IRequestHandler<UpdateQuestionSet
                     existing.Type = type;
                     existing.QuestionText = dto.QuestionText;
                     existing.Score = dto.Score;
+                    existing.TextFormat = TextFormat.Html;
                     existing.DataJson = dataJson;
                 }
             }
