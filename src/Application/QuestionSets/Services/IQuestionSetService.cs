@@ -12,6 +12,7 @@ public interface IQuestionSetService
     public Task<bool> CanUserDeleteQuestionSet(Guid userId, Guid questionSetId);
     public Task<bool> CanUserViewQuestionSet(Guid? userId, QuestionSet questionSet);
     public Task<QuestionSetPermissionsDto> GetPermissions(Guid userId, Guid questionSetId);
+    public Task<QuestionSet?> GetActiveQuestionSet(Guid questionSetId, CancellationToken cancellationToken);
 }
 
 public class QuestionSetService : IQuestionSetService
@@ -43,6 +44,7 @@ public class QuestionSetService : IQuestionSetService
         var questionSet = await _context.QuestionSets
             .Include(qs => qs.QuestionSetUsers)
             .Include(qs => qs.ClassQuestionSets)
+            .Where(x => x.IsDeleted == false)
             .FirstOrDefaultAsync(qs => qs.Id == questionSetId);
 
         if (questionSet == null)
@@ -113,6 +115,18 @@ public class QuestionSetService : IQuestionSetService
             CanEdit = canEdit,
             CanDelete = canDelete
         };
+    }
+    public async Task<QuestionSet?> GetActiveQuestionSet(Guid questionSetId, CancellationToken cancellationToken)
+    {
+        var questionSet = await _context.QuestionSets
+            .Include(x => x.CreatedByUser)
+            .FirstOrDefaultAsync(x =>
+                x.Id == questionSetId
+                && x.IsDeleted == false
+                && x.CreatedByUser != null
+                && x.CreatedByUser.IsDeleted == false
+                && x.CreatedByUser.IsBanned == false, cancellationToken: cancellationToken);
+        return questionSet;
     }
 
 

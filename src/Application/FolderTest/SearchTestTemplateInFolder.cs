@@ -4,14 +4,17 @@ using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
+using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.FolderTest;
 
 public class TestTemplateDto
 {
+    public Guid TestTemplateId { get; set; }
     public string? Name { get; set; }
     public int NumberOfQuestion { get; set; }
     public DateTime? DateCreated { get; set; }
+    public string? CreatedBy { get; set; }
 }
 
 [Authorize]
@@ -19,6 +22,7 @@ public class SearchTestTemplateInFolder : IRequest<PaginatedList<TestTemplateDto
 {
     public required Guid FolderId { get; set; }
     public required string? TestTemplateName { get; set; }
+    public required string? SharedMode { get; set; }
     public int PageNumber { get; set; } = 1;
     public int PageSize { get; set; } = 5;
 }
@@ -29,6 +33,10 @@ public class SearchTestTemplateInFolderValidator : AbstractValidator<SearchTestT
     {
         RuleFor(x => x.FolderId)
             .NotEmpty().WithMessage("FolderId không được null");
+        
+        RuleFor(x => x.SharedMode)
+            .Must(mode => new[] {"Owner", "Editable", "ViewOnly"}.Contains(mode) || string.IsNullOrEmpty(mode))
+            .WithMessage($"SharedMode phải là Owner, Editable, ViewOnly");
     }
 }
 
@@ -51,21 +59,27 @@ public class SearchTestTemplateInFolderHandler : IRequestHandler<SearchTestTempl
         if (accessUser == null)
             throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_FOLDER, "User không có quyền trong folder");
 
-        var testTemplates = _context.TestTemplates
-            .Join(_context.FolderTestTemplates,
-                t => t.Id,
-                ft => ft.TestTemplateId,
-                (t, ft) => new { TestTemplate = t, FolderTestTemplate = ft })
-            .Where(ft => ft.FolderTestTemplate.FolderId == rq.FolderId)
-            .GroupJoin(_context.TestTemplateQuestions,
-                ft => ft.TestTemplate.Id,
-                tq => tq.TestTemplateId,
-                (ft, tq) => new { ft.TestTemplate, ft.FolderTestTemplate, tq })
-            .Select(x => new TestTemplateDto
+        TestTemplateUserShareMode? sharedMode = null;
+        if (!string.IsNullOrEmpty(rq.SharedMode) &&
+            Enum.TryParse<TestTemplateUserShareMode>(rq.SharedMode, true, out var parsedSharedMode))
+        {
+            sharedMode = parsedSharedMode;
+        }
+        
+        var testTemplates = _context.FolderTestTemplates
+            .Include(ft => ft.TestTemplate)
+            .ThenInclude(t => t!.TestTemplateQuestions)
+            .Include(t => t.TestTemplate!.CreatedByUser)
+            .Where(ft => ft.FolderId == rq.FolderId
+            && (string.IsNullOrEmpty(rq.TestTemplateName) || ft.TestTemplate!.Name.Contains(rq.TestTemplateName))
+            && (sharedMode == null || ft.TestTemplate!.TestTemplateUsers.Any(t => t.ShareMode == sharedMode)))
+            .Select(ft => new TestTemplateDto
             {
-                Name = x.TestTemplate.Name,
-                NumberOfQuestion = x.tq.Count(),
-                DateCreated = x.TestTemplate.Created.UtcDateTime
+                TestTemplateId = ft.TestTemplate!.Id,
+                Name = ft.TestTemplate.Name,
+                NumberOfQuestion = ft.TestTemplate.TestTemplateQuestions.Count(),
+                DateCreated = ft.TestTemplate.Created.UtcDateTime,
+                CreatedBy = ft.TestTemplate.CreatedByUser!.FullName,
             });
 
         return await PaginatedList<TestTemplateDto>.CreateAsync(

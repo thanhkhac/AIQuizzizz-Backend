@@ -13,7 +13,7 @@ namespace CleanArchitectureBase.Application.Tests;
 public class CreateTestTemplateCommand : IRequest<Guid>
 {
     public required string Name { get; set; }
-    public List<CreateQuestionDto> Questions { get; set; } = new ();
+    public List<CreateUpdateQuestionDto> Questions { get; set; } = new ();
 }
 
 public class CreateTestTemplateCommandValidator : AbstractValidator<CreateTestTemplateCommand>
@@ -34,17 +34,17 @@ public class CreateTestTemplateCommandValidator : AbstractValidator<CreateTestTe
             .WithMessage("Một hoặc nhiều câu hỏi có loại hoặc dữ liệu không hợp lệ");
         
         RuleForEach(x => x.Questions)
-            .SetValidator((command, question) => new CreateQuestionDto.QuestionCreateDtoValidator());
+            .SetValidator((command, question) => new CreateUpdateQuestionDto.QuestionCreateDtoValidator());
     }
     
-    private bool IsValidQuestionType(CreateQuestionDto createQuestion)
+    private bool IsValidQuestionType(CreateUpdateQuestionDto createUpdateQuestion)
     {
-        bool isValid = createQuestion.Type switch
+        bool isValid = createUpdateQuestion.Type switch
         {
-            nameof(QuestionType.MultipleChoice) => createQuestion.MultipleChoices != null && createQuestion.MultipleChoices.Any(),
-            nameof(QuestionType.Matching) => createQuestion.MatchingPairs != null && createQuestion.MatchingPairs.Any(),
-            nameof(QuestionType.Ordering) => createQuestion.OrderingItems != null && createQuestion.OrderingItems.Any(),
-            nameof(QuestionType.ShortText) => !string.IsNullOrWhiteSpace(createQuestion.ShortAnswer),
+            nameof(QuestionType.MultipleChoice) => createUpdateQuestion.MultipleChoices != null && createUpdateQuestion.MultipleChoices.Any(),
+            nameof(QuestionType.Matching) => createUpdateQuestion.MatchingPairs != null && createUpdateQuestion.MatchingPairs.Any(),
+            nameof(QuestionType.Ordering) => createUpdateQuestion.OrderingItems != null && createUpdateQuestion.OrderingItems.Any(),
+            nameof(QuestionType.ShortText) => !string.IsNullOrWhiteSpace(createUpdateQuestion.ShortAnswer),
             _ => false
         };
 
@@ -73,6 +73,13 @@ public class CreateTestTemplateCommandHandler : IRequestHandler<CreateTestTempla
         await _testValidationService.ValidateQuestionAccessAsync(rq.Questions, cancellationToken);
 
         var testTemplate = new TestTemplate { Id = Guid.NewGuid(), Name = rq.Name, IsDeleted = false, };
+
+        var testTemplateUser = new TestTemplateUser
+        {
+            UserId = _user.UserId!.Value,
+            TestTemplateId = testTemplate.Id,
+            ShareMode = TestTemplateUserShareMode.Owner
+        };
         
         var listTemplateQuestions = new List<TestTemplateQuestion>();
         
@@ -122,6 +129,8 @@ public class CreateTestTemplateCommandHandler : IRequestHandler<CreateTestTempla
         }
         
         _context.TestTemplates.Add(testTemplate);
+        
+        _context.TestTemplateUsers.Add(testTemplateUser);
         
         _context.Questions.AddRange(listQuestions);
         

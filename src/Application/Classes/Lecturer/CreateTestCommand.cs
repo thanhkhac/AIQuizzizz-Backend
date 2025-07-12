@@ -21,7 +21,7 @@ public class CreateTestCommand : IRequest<Guid>
     public required string GradeAttemptMethod { get; set; }
     public required string GradeQuestionMethod { get; set; }
     public bool IsShowCorrectAnswerInReview { get; set; }
-    public List<CreateQuestionDto> Questions { get; set; } = new ();
+    public List<CreateUpdateQuestionDto> Questions { get; set; } = new ();
 }
 
 public class CreateTestCommandValidator : AbstractValidator<CreateTestCommand>
@@ -60,7 +60,7 @@ public class CreateTestCommandValidator : AbstractValidator<CreateTestCommand>
             .WithMessage($"Loại câu hỏi phải là Partial, AllOrNothing");
         
         RuleForEach(x => x.Questions)
-            .SetValidator((command, question) => new CreateQuestionDto.QuestionCreateDtoValidator());
+            .SetValidator((command, question) => new CreateUpdateQuestionDto.QuestionCreateDtoValidator());
     }
 }
 

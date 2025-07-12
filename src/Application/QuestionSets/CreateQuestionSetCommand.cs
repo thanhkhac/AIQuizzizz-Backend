@@ -13,7 +13,7 @@ public class CreateQuestionSetCommand : IRequest<Guid>
 {
     public string? Name { get; set; }
     public string? Description { get; set; }
-    public List<CreateQuestionDto> Questions { get; set; } = new();
+    public List<CreateUpdateQuestionDto> Questions { get; set; } = new();
 }
 
 public class CreateQuestionSetCommandValidator : AbstractValidator<CreateQuestionSetCommand>
@@ -36,7 +36,7 @@ public class CreateQuestionSetCommandValidator : AbstractValidator<CreateQuestio
             .WithMessage("Bộ câu hỏi không được vượt quá 500 câu");
 
         RuleForEach(x => x.Questions)
-            .SetValidator((command, question) => new CreateQuestionDto.QuestionCreateDtoValidator());
+            .SetValidator((command, question) => new CreateUpdateQuestionDto.QuestionCreateDtoValidator());
     }
 }
 
@@ -74,26 +74,12 @@ public class CreateQuestionSetCommandHandler : IRequestHandler<CreateQuestionSet
                 QuestionSetId = questionSet.Id,
                 Type = Enum.Parse<QuestionType>(questionDto.Type!),
                 QuestionText = questionDto.QuestionText,
-                TextFormat = TextFormat.PlainText, // Có thể thay đổi theo yêu cầu
+                TextFormat = TextFormat.Html, 
                 Score = questionDto.Score
             };
 
             // Chuyển các nội dung câu hỏi về JSON
-            question.DataJson = questionDto.Type switch
-            {
-                nameof(QuestionType.MultipleChoice) when questionDto.MultipleChoices != null => QuestionTypeSerializer.SerializeMultipleChoice(
-                    questionDto.MultipleChoices),
-                nameof(QuestionType.Matching) when questionDto.MatchingPairs != null => QuestionTypeSerializer.SerializeMatchingPairs(questionDto
-                    .MatchingPairs),
-                nameof(QuestionType.Ordering) when questionDto.OrderingItems != null => QuestionTypeSerializer.SerializeOrderingItems(questionDto
-                    .OrderingItems),
-                nameof(QuestionType.ShortText) when !string.IsNullOrWhiteSpace(questionDto.ShortAnswer) => JsonSerializer.Serialize(
-                    new QTypeShortAnswer
-                    {
-                        Answer = questionDto.ShortAnswer
-                    }),
-                _ => throw new InvalidDataException($"Dữ liệu câu hỏi không hợp lệ cho loại câu hỏi: {questionDto.Type}")
-            };
+            question.DataJson = CreateUpdateQuestionDto.Serializer.Serialize(questionDto);
 
             questionSet.Questions.Add(question);
         }
