@@ -80,4 +80,10 @@ public static class ErrorCodes
     
     //Test
     public const string NUMBER_OF_QUESTION_EXCEED_LIMIT = nameof(NUMBER_OF_QUESTION_EXCEED_LIMIT);
+    
+    //File
+    public const string FILE_NOT_FOUND = nameof(FILE_NOT_FOUND);
+    public const string INVALID_FILE_FORMAT = nameof(INVALID_FILE_FORMAT);
+    public const string ERROR_FORMAT_FILE = nameof(ERROR_FORMAT_FILE);
+    
 }
