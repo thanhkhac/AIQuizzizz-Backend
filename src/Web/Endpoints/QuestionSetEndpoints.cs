@@ -18,7 +18,10 @@ public class QuestionSetEndpoints : EndpointGroupBase
             .MapPost(CreateQuestionSet)
             .MapGet(GetPermissions, "{questionSetId}/Permissions")
             .MapGet(GetQuestions, "{questionSetId}/Questions")
-            .MapPatch("{questionSetId}", UpdateQuestionSet)
+            .MapPatch(UpdateQuestionSet, "{questionSetId}")
+            .MapGet(GetLearnQuestions, "{questionSetId}/LearnQuestions")
+            .MapPost(UpdateQuestionSetHistory, "{questionSetId}/History")
+            .MapDelete(ResetQuestionSetHistory, "{questionSetId}/History")
             ;
     }
 
@@ -53,6 +56,50 @@ public class QuestionSetEndpoints : EndpointGroupBase
         {
             QuestionSetId = questionSetId
         };
+        var result = await sender.Send(query);
+        return result.ToOk();
+    }
+
+    public async Task<Ok<ApiResponse<Unit>>> UpdateQuestionSetHistory(
+        [FromRoute] Guid questionSetId,
+        [FromBody] List<QuestionHistoryUpdate> questions,
+        ISender sender)
+    {
+        var command = new UpdateQuestionSetHistoryCommand
+        {
+            QuestionSetId = questionSetId,
+            Questions = questions
+        };
+
+        var result = await sender.Send(command);
+        return result.ToOk();
+    }
+
+    public async Task<Ok<ApiResponse<Unit>>> ResetQuestionSetHistory(
+        [FromRoute] Guid questionSetId,
+        ISender sender)
+    {
+        var command = new ResetQuestionSetHistoryCommand
+        {
+            QuestionSetId = questionSetId
+        };
+
+        var result = await sender.Send(command);
+        return result.ToOk();
+    }
+
+
+    public async Task<Ok<ApiResponse<List<QuestionResponseDto>>>> GetLearnQuestions(
+        [FromRoute] Guid questionSetId,
+        [FromQuery] int questionCount,
+        ISender sender)
+    {
+        var query = new GetQuestionSetLearnQuestionsQuery
+        {
+            QuestionSetId = questionSetId,
+            QuestionCount = questionCount
+        };
+
         var result = await sender.Send(query);
         return result.ToOk();
     }

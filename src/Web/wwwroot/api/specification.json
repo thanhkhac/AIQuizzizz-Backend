@@ -1192,7 +1192,7 @@
         "tags": [
           "QuestionSet"
         ],
-        "operationId": "PatchApiQuestionSet",
+        "operationId": "UpdateQuestionSet",
         "parameters": [
           {
             "name": "questionSetId",
@@ -1224,6 +1224,53 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/QuestionSet/{questionSetId}/History": {
+      "post": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "UpdateQuestionSetHistory",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "questions",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/QuestionHistoryUpdate"
+                }
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfUnit"
                 }
               }
             }
@@ -2642,8 +2689,9 @@
             "type": "number",
             "format": "float"
           },
-          "completed": {
-            "type": "boolean"
+          "isCorrect": {
+            "type": "boolean",
+            "nullable": true
           },
           "questionData": {
             "$ref": "#/components/schemas/QuestionDataDto"
@@ -2808,6 +2856,19 @@
               "type": "string",
               "format": "guid"
             }
+          }
+        }
+      },
+      "QuestionHistoryUpdate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "questionId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "isCorrect": {
+            "type": "boolean"
           }
         }
       },

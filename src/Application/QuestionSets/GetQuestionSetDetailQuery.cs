@@ -27,16 +27,9 @@ public class GetQuestionSetDetailQueryHandler : IRequestHandler<GetQuestionSetDe
 
     public async Task<QuestionSetDetailDto> Handle(GetQuestionSetDetailQuery request, CancellationToken cancellationToken)
     {
-        var questionSet = await _context.QuestionSets
-            .Include(x => x.CreatedByUser)
-            .FirstOrDefaultAsync(x =>
-                x.Id == request.QuestionSetId
-                && x.IsDeleted == false
-                && x.CreatedByUser != null
-                && x.CreatedByUser.IsDeleted == false
-                && x.CreatedByUser.IsBanned == false, cancellationToken: cancellationToken);
-
+        var questionSet = await _questionSetService.GetActiveQuestionSet(request.QuestionSetId, cancellationToken);
         if (questionSet == null) throw new ErrorCodeException(ErrorCodes.QUESTION_SET_NOT_FOUND);
+        
         var canView = await _questionSetService.CanUserViewQuestionSet(_user.UserId, questionSet);
         if (canView == false) throw new ErrorCodeException(ErrorCodes.COMMON_FORBIDDEN, "You are not allowed to view this question set");
 

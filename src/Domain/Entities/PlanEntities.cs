@@ -26,7 +26,7 @@ public class UserTokenPurchase : BaseAuditableEntity
     public required Guid Id { get; set; }
     public required Guid TokenPackageId { get; set; }
     public required Guid UserId { get; set; }
-    
+
     public TokenPackage TokenPackage { get; set; } = null!;
     public User User { get; set; } = null!;
 }
@@ -36,10 +36,10 @@ public class UserSubscription : BaseEntity
     public required Guid Id { get; set; }
     public required Guid UserId { get; set; }
     public required Guid PlanId { get; set; }
-    public required DateTime DateStart { get; set; }
-    public required DateTime DateFinish { get; set; }
+    public required DateTimeOffset DateStart { get; set; }
+    public required DateTimeOffset DateFinish { get; set; }
     public bool IsActive { get; set; }
-    
+
     public User User { get; set; } = null!;
     public Plan Plan { get; set; } = null!;
 }
