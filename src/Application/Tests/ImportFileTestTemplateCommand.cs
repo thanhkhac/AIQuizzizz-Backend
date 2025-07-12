@@ -95,7 +95,7 @@ public class ImportFileTestTemplateCommandHandler : IRequestHandler<ImportFileTe
                     
                     try
                     {
-                        question.Score = Convert.ToSingle(reader.GetValue(headers.IndexOf("Score")) ?? 0);
+                        question.Score = Convert.ToSingle(reader.GetValue(headers.IndexOf("Score")));
                     }
                     catch (FormatException)
                     {
@@ -110,14 +110,11 @@ public class ImportFileTestTemplateCommandHandler : IRequestHandler<ImportFileTe
                         if (optionIndex >= 0)
                         {
                             var optValue = reader.GetValue(optionIndex)?.ToString()?.Trim();
+                            
                             if (!string.IsNullOrEmpty(optValue))
-                            {
                                 options.Add(optValue);
-                            }
                             else
-                            {
                                 options.Add("");
-                            }
                         }
                     }
 
@@ -159,6 +156,16 @@ public class ImportFileTestTemplateCommandHandler : IRequestHandler<ImportFileTe
                                         question.OrderingItems.Add(new CreateOrderingItemDto { Text = options[i], CorrectOrder = order });
 
                                         order++;
+                                    }
+                                }
+                                break;
+                            
+                            case nameof(QuestionType.ShortText):
+                                for (int i = 0; i < options.Count; i++)
+                                {
+                                    if (options[i].Length > 0)
+                                    {
+                                        question.ShortAnswer = options[i];
                                     }
                                 }
                                 break;
