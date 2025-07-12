@@ -43,6 +43,7 @@ public class Folder : EndpointGroupBase
     public async Task<Ok<ApiResponse<PaginatedList<TestTemplateDto>>>> SearchTestTemplateInFolder(
         [FromRoute] Guid FolderId,
         [FromQuery] string? TestTemplateName,
+        [FromQuery] string? sharedMode,
         ISender sender,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
@@ -51,6 +52,7 @@ public class Folder : EndpointGroupBase
         {
             FolderId = FolderId,
             TestTemplateName = TestTemplateName,
+            SharedMode = sharedMode,
             PageNumber = pageNumber,
             PageSize = pageSize,
         };

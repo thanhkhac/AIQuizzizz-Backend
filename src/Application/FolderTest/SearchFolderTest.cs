@@ -9,7 +9,7 @@ public class SearchFolderTestDto
 {
     public Guid FolderTestId { get; set; }
     public string? Name { get; set; }
-    public string? SharedBy { get; set; }
+    public string? CreateBy { get; set; }
 }
 
 [Authorize]
@@ -59,29 +59,27 @@ public class SearchFolderTestCommandHandler : IRequestHandler<SearchFolderTest, 
                 FullName = fu.Folder.CreatedByUser!.FullName
             })
             .ToDictionaryAsync(x => x.Id, x => x.FullName, cancellationToken);
-
+        
+        FolderShareMode? shareMode = null;
+        if (!string.IsNullOrEmpty(rq.SharedMode) && Enum.TryParse<FolderShareMode>(rq.SharedMode, out var ShareMode))
+        {
+            shareMode = ShareMode;
+        }
+        
         var folders = _context.FolderUsers
             .Include(fu => fu.Folder)
-            .Where(fu => fu.UserId == _user.UserId)
+            .Where(fu => fu.UserId == _user.UserId
+            && (string.IsNullOrEmpty(rq.FolderName) || fu.Folder!.Name.Contains(rq.FolderName))
+            && (shareMode == null || fu.ShareMode == shareMode))
             .Select(fu => new { Folder = fu.Folder, FolderUser = fu })
             .Distinct();
-        
-        if (!string.IsNullOrEmpty(rq.SharedMode) && Enum.TryParse<FolderShareMode>(rq.SharedMode, out var shareMode))
-        {
-            folders = folders.Where(f => f.FolderUser!.ShareMode == shareMode);
-        }
-
-        if (!string.IsNullOrEmpty(rq.FolderName))
-        {
-            folders = folders.Where(f => f.Folder!.Name.Contains(rq.FolderName));
-        }
 
         return await PaginatedList<SearchFolderTestDto>.CreateAsync(
                 folders.Select(f => new SearchFolderTestDto
                 {
                     FolderTestId = f.Folder!.Id,
                     Name = f.Folder.Name,
-                    SharedBy = authors.ContainsKey(f.Folder.Id) ? authors[f.Folder.Id] : null,
+                    CreateBy = authors.ContainsKey(f.Folder.Id) ? authors[f.Folder.Id] : null,
                 }),
                 rq.PageNumber,
                 rq.PageSize

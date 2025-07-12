@@ -74,14 +74,11 @@ public class SearchTestHandler : IRequestHandler<SearchTestInClass, PaginatedLis
         if (user == null)
             throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, $"User with id {_user.UserId} not found in class");
         
-        var tests = await _context.Tests.Where(x => x.ClassId.Equals(rq.ClassId))
+        var tests = await _context.Tests
+            .Where(x => x.ClassId.Equals(rq.ClassId)
+            && (string.IsNullOrEmpty(rq.TestName) || x.Name.Contains(rq.TestName)))
             .ToListAsync(cancellationToken);
-
-        if (!string.IsNullOrEmpty(rq.TestName))
-        {
-            tests = tests.Where(x => x.Name.Contains(rq.TestName)).ToList();
-        }
-
+        
         switch (rq.Status)
         {
             case nameof(TestStatus.Active):
