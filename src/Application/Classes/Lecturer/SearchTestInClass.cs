@@ -24,7 +24,7 @@ public class SearchTestInClass : IRequest<PaginatedList<TestSearchResultDto>>
 {
     public required Guid ClassId { get; set; }
     public string? TestName { get; set; }
-    public TestStatus? Status { get; set; }
+    public string? Status { get; set; }
     public int PageNumber { get; set; } = 1;
     public int PageSize { get; set; } = 5;
 }
@@ -40,6 +40,10 @@ public class SearchTestValidator : AbstractValidator<SearchTestInClass>
 
         RuleFor(x => x.PageSize)
             .InclusiveBetween(1, 100).WithMessage("Kích thước trang phải từ 1 đến 100");
+        
+        RuleFor(x => x.Status)
+            .Must(mode => new[] {"Active", "Completed", "Upcoming"}.Contains(mode) || string.IsNullOrEmpty(mode))
+            .WithMessage($"SharedMode phải là Active, Completed, Upcoming");
     }
 }
 
@@ -61,32 +65,47 @@ public class SearchTestHandler : IRequestHandler<SearchTestInClass, PaginatedLis
     
     public async Task<PaginatedList<TestSearchResultDto>> Handle(SearchTestInClass rq, CancellationToken cancellationToken)
     {
-        var user = await _context.DomainUsers
-            .Join(_context.ClassUsers,
-                u => u.Id,
-                cu => cu.UserId,
-                (u, cu) => new { User = u, ClassUser = cu })
-            .Where(x => x.ClassUser.UserId.Equals(_user.UserId) && x.ClassUser.ClassId.Equals(rq.ClassId))
+        var user = await _context.ClassUsers
+            .Include(cu => cu.User)
+            .Where(cu => cu.UserId.Equals(_user.UserId) && cu.ClassId.Equals(rq.ClassId))
+            .Select(cu => new { User = cu.User, ClassUser = cu })
             .FirstOrDefaultAsync(cancellationToken);
+        
         if (user == null)
             throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, $"User with id {_user.UserId} not found in class");
         
         var tests = await _context.Tests.Where(x => x.ClassId.Equals(rq.ClassId))
             .ToListAsync(cancellationToken);
+
+        if (!string.IsNullOrEmpty(rq.TestName))
+        {
+            tests = tests.Where(x => x.Name.Contains(rq.TestName)).ToList();
+        }
+
+        switch (rq.Status)
+        {
+            case nameof(TestStatus.Active):
+                tests = tests.Where(x => x.TimeStart <= DateTime.UtcNow && x.TimeFinish >= DateTime.UtcNow).ToList();
+                break;
+            case nameof(TestStatus.Completed):
+                tests = tests.Where(x => x.TimeFinish < DateTime.UtcNow).ToList();
+                break;
+            case nameof(TestStatus.Upcoming):
+                tests = tests.Where(x => x.TimeStart > DateTime.UtcNow).ToList();
+                break;
+        }
         
         var testIds = tests.Select(t => t.Id).ToList();
         
         var versionQuestionCounts = await _context.TestVersions
-            .Where(x => testIds.Contains(x.TestId) && x.No == 0)
-            .GroupJoin(_context.TestVersionQuestions,
-                tv => tv.Id,
-                q => q.TestVersionId,
-                (tv, qs) => new
-                {
-                    TestId = tv.TestId,
-                    TestVersionId = tv.Id,
-                    QuestionCount = qs.Count()
-                })
+            .Include(tv => tv.TestVersionQuestions)
+            .Where(tv => testIds.Contains(tv.TestId) && tv.No == 0)
+            .Select(tv => new
+            {
+                TestId = tv.TestId,
+                TestVersionId = tv.Id,
+                QuestionCount = tv.TestVersionQuestions.Count()
+            })
             .ToDictionaryAsync(
                 x => x.TestId,
                 x => new { x.TestVersionId, x.QuestionCount },

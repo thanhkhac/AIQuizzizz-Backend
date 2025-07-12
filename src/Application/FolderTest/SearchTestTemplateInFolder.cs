@@ -9,9 +9,11 @@ namespace CleanArchitectureBase.Application.FolderTest;
 
 public class TestTemplateDto
 {
+    public Guid TestTemplateId { get; set; }
     public string? Name { get; set; }
     public int NumberOfQuestion { get; set; }
     public DateTime? DateCreated { get; set; }
+    public string? CreatedBy { get; set; }
 }
 
 [Authorize]
@@ -51,21 +53,16 @@ public class SearchTestTemplateInFolderHandler : IRequestHandler<SearchTestTempl
         if (accessUser == null)
             throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_FOLDER, "User không có quyền trong folder");
 
-        var testTemplates = _context.TestTemplates
-            .Join(_context.FolderTestTemplates,
-                t => t.Id,
-                ft => ft.TestTemplateId,
-                (t, ft) => new { TestTemplate = t, FolderTestTemplate = ft })
-            .Where(ft => ft.FolderTestTemplate.FolderId == rq.FolderId)
-            .GroupJoin(_context.TestTemplateQuestions,
-                ft => ft.TestTemplate.Id,
-                tq => tq.TestTemplateId,
-                (ft, tq) => new { ft.TestTemplate, ft.FolderTestTemplate, tq })
-            .Select(x => new TestTemplateDto
+        var testTemplates = _context.FolderTestTemplates
+            .Include(ft => ft.TestTemplate)
+            .ThenInclude(t => t!.TestTemplateQuestions)
+            .Where(ft => ft.FolderId == rq.FolderId)
+            .Select(ft => new TestTemplateDto
             {
-                Name = x.TestTemplate.Name,
-                NumberOfQuestion = x.tq.Count(),
-                DateCreated = x.TestTemplate.Created.UtcDateTime
+                TestTemplateId = ft.TestTemplate!.Id,
+                Name = ft.TestTemplate.Name,
+                NumberOfQuestion = ft.TestTemplate.TestTemplateQuestions.Count(),
+                DateCreated = ft.TestTemplate.Created.UtcDateTime
             });
 
         return await PaginatedList<TestTemplateDto>.CreateAsync(

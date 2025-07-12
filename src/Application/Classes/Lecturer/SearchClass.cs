@@ -51,14 +51,14 @@ public class SearchClassHandler : IRequestHandler<SearchClass, PaginatedList<Cla
 
         var classes = _context.Classes
             .Where(c => c.IsDeleted == false)
-            .Join(_context.ClassUsers,
-                c => c.Id,
-                cu => cu.ClassId,
-                (c, cu) => new { Class = c, ClassUser = cu })
-            .Join(_context.DomainUsers,
-                cu => cu.ClassUser.UserId,
-                u => u.Id,
-                (cu, u) => new { Class = cu.Class, ClassUser = cu.ClassUser, User = u });
+            .Include(c => c.ClassUsers)
+            .ThenInclude(cu => cu.User)
+            .SelectMany(c => c.ClassUsers, (c, cu) => new
+            {
+                Class = c,
+                ClassUser = cu,
+                User = cu.User
+            });
         
         var classOwnerMap = await classes
             .Where(x => x.ClassUser.ShareMode == ClassShareMode.Owner)

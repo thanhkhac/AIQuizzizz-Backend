@@ -73,6 +73,13 @@ public class CreateTestTemplateCommandHandler : IRequestHandler<CreateTestTempla
         await _testValidationService.ValidateQuestionAccessAsync(rq.Questions, cancellationToken);
 
         var testTemplate = new TestTemplate { Id = Guid.NewGuid(), Name = rq.Name, IsDeleted = false, };
+
+        var testTemplateUser = new TestTemplateUser
+        {
+            UserId = _user.UserId!.Value,
+            TestTemplateId = testTemplate.Id,
+            ShareMode = TestTemplateUserShareMode.Owner
+        };
         
         var listTemplateQuestions = new List<TestTemplateQuestion>();
         
@@ -122,6 +129,8 @@ public class CreateTestTemplateCommandHandler : IRequestHandler<CreateTestTempla
         }
         
         _context.TestTemplates.Add(testTemplate);
+        
+        _context.TestTemplateUsers.Add(testTemplateUser);
         
         _context.Questions.AddRange(listQuestions);
         
