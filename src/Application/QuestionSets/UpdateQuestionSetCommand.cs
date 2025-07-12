@@ -98,6 +98,7 @@ public class UpdateQuestionSetCommandHandler : IRequestHandler<UpdateQuestionSet
             .Where(q => request.DeleteQuestionIds.Contains(q.Id))
             .ToList();
 
+        foreach (var question in questionsToDelete)
             question.IsDeleted = true;
 
 
