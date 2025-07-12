@@ -1,9 +1,8 @@
 ﻿using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.UserQuestionSetHistories.Services;
-using CleanArchitectureBase.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace CleanArchitectureBase.Infrastructure.UserQuestionSetHistoryService;
+namespace CleanArchitectureBase.Infrastructure.DomainServices;
 
 public class UserQuestionSetHistoryService : IUserQuestionSetHistoryService
 {

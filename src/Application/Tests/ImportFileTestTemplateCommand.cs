@@ -10,8 +10,8 @@ namespace CleanArchitectureBase.Application.Tests;
 
 public class ImportedQuestionDto
 {
-    public List<CreateQuestionDto>? validQuestions { get; set; }
-    public List<CreateQuestionDto>? invalidQuestions { get; set; }
+    public List<CreateUpdateQuestionDto>? validQuestions { get; set; }
+    public List<CreateUpdateQuestionDto>? invalidQuestions { get; set; }
 }
 
 [Authorize]
@@ -47,9 +47,9 @@ public class ImportFileTestTemplateCommandHandler : IRequestHandler<ImportFileTe
             throw new ErrorCodeException(ErrorCodes.ERROR_FORMAT_FILE, "File không đúng định dạng");
         }
         
-        var validQuestions = new List<CreateQuestionDto>();
-        var invalidQuestions = new List<CreateQuestionDto>();
-        var validator = new CreateQuestionDto.QuestionCreateDtoValidator();
+        var validQuestions = new List<CreateUpdateQuestionDto>();
+        var invalidQuestions = new List<CreateUpdateQuestionDto>();
+        var validator = new CreateUpdateQuestionDto.QuestionCreateDtoValidator();
         
         using (var stream = new MemoryStream())
         {
@@ -82,7 +82,7 @@ public class ImportFileTestTemplateCommandHandler : IRequestHandler<ImportFileTe
 
                 while (reader.Read())
                 {
-                    var question = new CreateQuestionDto
+                    var question = new CreateUpdateQuestionDto
                     {
                         MultipleChoices = new List<CreateMultipleChoiceDto>(),
                         MatchingPairs = new List<CreateMatchingPairDto>(),
