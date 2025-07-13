@@ -603,6 +603,42 @@ public class IdentityService : IIdentityService
             throw new ErrorCodeException(ErrorCodes.COMMON_SERVER_INTERNAL_ERROR, $"Error at change password");
         }
     }
+    
+    public async Task BanUser(Guid userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id  {userId} not found");
+
+        user.IsBanned = true;
+
+        await _userManager.UpdateAsync(user);
+    }
+
+    public async Task ActiveUser(Guid userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id  {userId} not found");
+
+        user.IsBanned = true;
+
+        await _userManager.UpdateAsync(user);
+    }
+    //TODO: Thêm navigation để truy vấn ngắn hơn
+    public async Task<bool> IsInAnyRoleAsync(Guid userId, params string[] roles)
+    {
+        var isInRole = await _dbContext.UserRoles
+            .Join(_dbContext.Roles,
+                ur => ur.RoleId,
+                r => r.Id,
+                (ur, r) => new
+                {
+                    ur.UserId,
+                    RoleName = r.Name
+                })
+            .Where(x => x.UserId == userId && roles.Contains(x.RoleName))
+            .AnyAsync();
+        return isInRole;
+    }
 
     private string GenerateRandomCode()
     {

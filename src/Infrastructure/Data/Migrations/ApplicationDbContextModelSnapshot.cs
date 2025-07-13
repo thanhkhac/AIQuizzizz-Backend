@@ -50,6 +50,8 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("TestId");
 
+                    b.HasIndex("TestVersionId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("Attempts");
@@ -116,6 +118,8 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedBy");
+
                     b.ToTable("Classes");
                 });
 
@@ -159,6 +163,8 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ClassId");
+
+                    b.HasIndex("CreatedBy");
 
                     b.ToTable("ClassInvitations");
                 });
@@ -209,6 +215,8 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasKey("ClassId", "QuestionSetId");
 
+                    b.HasIndex("CreatedBy");
+
                     b.HasIndex("QuestionSetId");
 
                     b.ToTable("ClassQuestionSets");
@@ -239,6 +247,8 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("ClassId", "UserId");
+
+                    b.HasIndex("CreatedBy");
 
                     b.HasIndex("UserId");
 
@@ -284,6 +294,8 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedBy");
+
                     b.HasIndex("ParentId");
 
                     b.HasIndex("QuestionId");
@@ -321,6 +333,8 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedBy");
+
                     b.ToTable("Folders");
                 });
 
@@ -345,6 +359,8 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("FolderId", "TestTemplateId");
+
+                    b.HasIndex("CreatedBy");
 
                     b.HasIndex("TestTemplateId");
 
@@ -376,6 +392,8 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("UserId", "FolderId");
+
+                    b.HasIndex("CreatedBy");
 
                     b.HasIndex("FolderId");
 
@@ -427,6 +445,8 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedBy");
+
                     b.ToTable("Plans");
                 });
 
@@ -447,7 +467,11 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .HasColumnType("json");
 
                     b.Property<string>("ExplainText")
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset>("LastModified")
                         .HasColumnType("timestamp with time zone");
@@ -463,7 +487,9 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .HasColumnType("character varying(1000)");
 
                     b.Property<float>("Score")
-                        .HasColumnType("numeric(5,2)");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric(5,2)")
+                        .HasDefaultValue(0f);
 
                     b.Property<string>("TextFormat")
                         .IsRequired()
@@ -474,6 +500,8 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
 
                     b.HasIndex("QuestionSetId");
 
@@ -522,6 +550,8 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedBy");
+
                     b.ToTable("QuestionSets");
                 });
 
@@ -565,6 +595,8 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("UserId", "QuestionSetId");
+
+                    b.HasIndex("CreatedBy");
 
                     b.HasIndex("QuestionSetId");
 
@@ -642,6 +674,8 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("ClassId");
 
+                    b.HasIndex("CreatedBy");
+
                     b.ToTable("Tests");
                 });
 
@@ -697,6 +731,8 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedBy");
+
                     b.ToTable("TestTemplates");
                 });
 
@@ -726,11 +762,46 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedBy");
+
                     b.HasIndex("QuestionId");
 
                     b.HasIndex("TestTemplateId");
 
                     b.ToTable("TestTemplateQuestions");
+                });
+
+            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.TestTemplateUser", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TestTemplateId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("LastModifiedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ShareMode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("UserId", "TestTemplateId");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("TestTemplateId");
+
+                    b.ToTable("TestTemplateUsers");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.TestVersion", b =>
@@ -818,6 +889,8 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedBy");
+
                     b.HasIndex("ListId");
 
                     b.ToTable("TodoItems");
@@ -852,6 +925,8 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
 
                     b.HasIndex("UserId");
 
@@ -894,6 +969,8 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedBy");
+
                     b.ToTable("TokenPackages");
                 });
 
@@ -907,19 +984,27 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("FullName")
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<bool>("IsBanned")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<long>("TokenCount")
-                        .HasColumnType("bigint");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasDefaultValue(0L);
 
                     b.HasKey("Id");
 
@@ -954,6 +1039,8 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
 
                     b.HasIndex("QuestionId");
 
@@ -1019,6 +1106,8 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
 
                     b.HasIndex("TokenPackageId");
 
@@ -1302,18 +1391,26 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Attempt", b =>
                 {
                     b.HasOne("CleanArchitectureBase.Domain.Entities.Test", "Test")
-                        .WithMany()
+                        .WithMany("Attempts")
                         .HasForeignKey("TestId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.TestVersion", "TestVersion")
+                        .WithMany("Attempts")
+                        .HasForeignKey("TestVersionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("CleanArchitectureBase.Domain.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("Attempts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Test");
+
+                    b.Navigation("TestVersion");
 
                     b.Navigation("User");
                 });
@@ -1321,13 +1418,13 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.AttemptQuestion", b =>
                 {
                     b.HasOne("CleanArchitectureBase.Domain.Entities.Attempt", "Attempt")
-                        .WithMany()
+                        .WithMany("AttemptQuestions")
                         .HasForeignKey("AttemptId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("CleanArchitectureBase.Domain.Entities.Question", "Question")
-                        .WithMany()
+                        .WithMany("AttemptQuestions")
                         .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -1337,15 +1434,32 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.Navigation("Question");
                 });
 
+            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Class", b =>
+                {
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreatedByUser");
+                });
+
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.ClassInvitation", b =>
                 {
                     b.HasOne("CleanArchitectureBase.Domain.Entities.Class", "Class")
-                        .WithMany()
+                        .WithMany("ClassInvitations")
                         .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Class");
+
+                    b.Navigation("CreatedByUser");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.ClassInvitationUser", b =>
@@ -1357,7 +1471,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .IsRequired();
 
                     b.HasOne("CleanArchitectureBase.Domain.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("ClassInvitationUsers")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -1375,13 +1489,20 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CleanArchitectureBase.Domain.Entities.QuestionSet", "QuestionSet")
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
                         .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.QuestionSet", "QuestionSet")
+                        .WithMany("ClassQuestionSets")
                         .HasForeignKey("QuestionSetId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Class");
+
+                    b.Navigation("CreatedByUser");
 
                     b.Navigation("QuestionSet");
                 });
@@ -1389,24 +1510,36 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.ClassUser", b =>
                 {
                     b.HasOne("CleanArchitectureBase.Domain.Entities.Class", "Class")
-                        .WithMany()
+                        .WithMany("ClassUsers")
                         .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "User")
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
                         .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "User")
+                        .WithMany("ClassUsers")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Class");
 
+                    b.Navigation("CreatedByUser");
+
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Comment", b =>
                 {
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("CleanArchitectureBase.Domain.Entities.Comment", "ParentComment")
                         .WithMany("ChildComments")
                         .HasForeignKey("ParentId")
@@ -1414,16 +1547,18 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .IsRequired();
 
                     b.HasOne("CleanArchitectureBase.Domain.Entities.Question", "Question")
-                        .WithMany()
+                        .WithMany("Comments")
                         .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("CleanArchitectureBase.Domain.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("Comments")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("CreatedByUser");
 
                     b.Navigation("ParentComment");
 
@@ -1432,19 +1567,36 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Folder", b =>
+                {
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreatedByUser");
+                });
+
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.FolderTestTemplate", b =>
                 {
-                    b.HasOne("CleanArchitectureBase.Domain.Entities.Folder", "Folder")
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
                         .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.Folder", "Folder")
+                        .WithMany("FolderTestTemplates")
                         .HasForeignKey("FolderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("CleanArchitectureBase.Domain.Entities.TestTemplate", "TestTemplate")
-                        .WithMany()
+                        .WithMany("FolderTestTemplates")
                         .HasForeignKey("TestTemplateId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("CreatedByUser");
 
                     b.Navigation("Folder");
 
@@ -1453,43 +1605,77 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.FolderUser", b =>
                 {
-                    b.HasOne("CleanArchitectureBase.Domain.Entities.Folder", "Folder")
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
                         .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.Folder", "Folder")
+                        .WithMany("FolderUsers")
                         .HasForeignKey("FolderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("CleanArchitectureBase.Domain.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("FolderUsers")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("CreatedByUser");
 
                     b.Navigation("Folder");
 
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Plan", b =>
+                {
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreatedByUser");
+                });
+
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Question", b =>
                 {
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("CleanArchitectureBase.Domain.Entities.QuestionSet", "QuestionSet")
                         .WithMany("Questions")
                         .HasForeignKey("QuestionSetId")
                         .OnDelete(DeleteBehavior.Cascade);
 
+                    b.Navigation("CreatedByUser");
+
                     b.Navigation("QuestionSet");
+                });
+
+            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.QuestionSet", b =>
+                {
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreatedByUser");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.QuestionSetTag", b =>
                 {
                     b.HasOne("CleanArchitectureBase.Domain.Entities.QuestionSet", "QuestionSet")
-                        .WithMany()
+                        .WithMany("QuestionSetTags")
                         .HasForeignKey("QuestionSetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("CleanArchitectureBase.Domain.Entities.Tag", "Tag")
-                        .WithMany()
+                        .WithMany("QuestionSetTags")
                         .HasForeignKey("TagId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1501,17 +1687,24 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.QuestionSetUser", b =>
                 {
-                    b.HasOne("CleanArchitectureBase.Domain.Entities.QuestionSet", "QuestionSet")
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
                         .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.QuestionSet", "QuestionSet")
+                        .WithMany("QuestionSetUsers")
                         .HasForeignKey("QuestionSetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("CleanArchitectureBase.Domain.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("QuestionSetUsers")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("CreatedByUser");
 
                     b.Navigation("QuestionSet");
 
@@ -1521,12 +1714,19 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Test", b =>
                 {
                     b.HasOne("CleanArchitectureBase.Domain.Entities.Class", "Class")
-                        .WithMany()
+                        .WithMany("Tests")
                         .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Class");
+
+                    b.Navigation("CreatedByUser");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.TestGrade", b =>
@@ -1538,7 +1738,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .IsRequired();
 
                     b.HasOne("CleanArchitectureBase.Domain.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("TestGrades")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1548,29 +1748,72 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.TestTemplate", b =>
+                {
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreatedByUser");
+                });
+
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.TestTemplateQuestion", b =>
                 {
-                    b.HasOne("CleanArchitectureBase.Domain.Entities.Question", "Question")
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
                         .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.Question", "Question")
+                        .WithMany("TestTemplateQuestions")
                         .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("CleanArchitectureBase.Domain.Entities.TestTemplate", "TestTemplate")
-                        .WithMany()
+                        .WithMany("TestTemplateQuestions")
                         .HasForeignKey("TestTemplateId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("CreatedByUser");
 
                     b.Navigation("Question");
 
                     b.Navigation("TestTemplate");
                 });
 
+            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.TestTemplateUser", b =>
+                {
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.TestTemplate", "TestTemplate")
+                        .WithMany("TestTemplateUsers")
+                        .HasForeignKey("TestTemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "User")
+                        .WithMany("TestTemplateUsers")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("TestTemplate");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.TestVersion", b =>
                 {
                     b.HasOne("CleanArchitectureBase.Domain.Entities.Test", "Test")
-                        .WithMany()
+                        .WithMany("TestVersions")
                         .HasForeignKey("TestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1581,13 +1824,13 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.TestVersionQuestion", b =>
                 {
                     b.HasOne("CleanArchitectureBase.Domain.Entities.Question", "Question")
-                        .WithMany()
+                        .WithMany("TestVersionQuestions")
                         .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("CleanArchitectureBase.Domain.Entities.TestVersion", "TestVersion")
-                        .WithMany()
+                        .WithMany("TestVersionQuestions")
                         .HasForeignKey("TestVersionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1599,17 +1842,29 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.TodoItem", b =>
                 {
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("CleanArchitectureBase.Domain.Entities.TodoList", "List")
                         .WithMany("Items")
                         .HasForeignKey("ListId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("CreatedByUser");
+
                     b.Navigation("List");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.TodoList", b =>
                 {
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("CleanArchitectureBase.Domain.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
@@ -1634,7 +1889,19 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.Navigation("Colour")
                         .IsRequired();
 
+                    b.Navigation("CreatedByUser");
+
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.TokenPackage", b =>
+                {
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreatedByUser");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.User", b =>
@@ -1648,17 +1915,24 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.UserQuestionSetHistory", b =>
                 {
-                    b.HasOne("CleanArchitectureBase.Domain.Entities.Question", "Question")
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
                         .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.Question", "Question")
+                        .WithMany("UserQuestionSetHistories")
                         .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("CleanArchitectureBase.Domain.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("UserQuestionSetHistories")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("CreatedByUser");
 
                     b.Navigation("Question");
 
@@ -1674,7 +1948,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .IsRequired();
 
                     b.HasOne("CleanArchitectureBase.Domain.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("UserSubscriptions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -1686,6 +1960,11 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.UserTokenPurchase", b =>
                 {
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("CleanArchitectureBase.Domain.Entities.TokenPackage", "TokenPackage")
                         .WithMany()
                         .HasForeignKey("TokenPackageId")
@@ -1693,10 +1972,12 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .IsRequired();
 
                     b.HasOne("CleanArchitectureBase.Domain.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("UserTokenPurchases")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("CreatedByUser");
 
                     b.Navigation("TokenPackage");
 
@@ -1765,9 +2046,20 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.Navigation("UserAccount");
                 });
 
+            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Attempt", b =>
+                {
+                    b.Navigation("AttemptQuestions");
+                });
+
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Class", b =>
                 {
+                    b.Navigation("ClassInvitations");
+
                     b.Navigation("ClassQuestionSets");
+
+                    b.Navigation("ClassUsers");
+
+                    b.Navigation("Tests");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Comment", b =>
@@ -1775,19 +2067,95 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.Navigation("ChildComments");
                 });
 
+            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Folder", b =>
+                {
+                    b.Navigation("FolderTestTemplates");
+
+                    b.Navigation("FolderUsers");
+                });
+
+            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Question", b =>
+                {
+                    b.Navigation("AttemptQuestions");
+
+                    b.Navigation("Comments");
+
+                    b.Navigation("TestTemplateQuestions");
+
+                    b.Navigation("TestVersionQuestions");
+
+                    b.Navigation("UserQuestionSetHistories");
+                });
+
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.QuestionSet", b =>
                 {
+                    b.Navigation("ClassQuestionSets");
+
+                    b.Navigation("QuestionSetTags");
+
+                    b.Navigation("QuestionSetUsers");
+
                     b.Navigation("Questions");
+                });
+
+            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Tag", b =>
+                {
+                    b.Navigation("QuestionSetTags");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Test", b =>
                 {
+                    b.Navigation("Attempts");
+
                     b.Navigation("TestGrades");
+
+                    b.Navigation("TestVersions");
+                });
+
+            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.TestTemplate", b =>
+                {
+                    b.Navigation("FolderTestTemplates");
+
+                    b.Navigation("TestTemplateQuestions");
+
+                    b.Navigation("TestTemplateUsers");
+                });
+
+            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.TestVersion", b =>
+                {
+                    b.Navigation("Attempts");
+
+                    b.Navigation("TestVersionQuestions");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.TodoList", b =>
                 {
                     b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.User", b =>
+                {
+                    b.Navigation("Attempts");
+
+                    b.Navigation("ClassInvitationUsers");
+
+                    b.Navigation("ClassUsers");
+
+                    b.Navigation("Comments");
+
+                    b.Navigation("FolderUsers");
+
+                    b.Navigation("QuestionSetUsers");
+
+                    b.Navigation("TestGrades");
+
+                    b.Navigation("TestTemplateUsers");
+
+                    b.Navigation("UserQuestionSetHistories");
+
+                    b.Navigation("UserSubscriptions");
+
+                    b.Navigation("UserTokenPurchases");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Infrastructure.Identity.UserAccount", b =>

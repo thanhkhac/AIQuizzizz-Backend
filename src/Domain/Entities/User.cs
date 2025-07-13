@@ -10,7 +10,19 @@ public class User
     public bool IsBanned { get; set; }
     public long TokenCount { get; set; }
     public long Balance { get; set; }
-}
 
+    // Navigation properties
+    public List<UserTokenPurchase> UserTokenPurchases { get; set; } = new();
+    public List<UserSubscription> UserSubscriptions { get; set; } = new();
+    public List<QuestionSetUser> QuestionSetUsers { get; set; } = new();
+    public List<Comment> Comments { get; set; } = new();
+    public List<UserQuestionSetHistory> UserQuestionSetHistories { get; set; } = new();
+    public List<TestTemplateUser> TestTemplateUsers { get; set; } = new();
+    public List<FolderUser> FolderUsers { get; set; } = new();
+    public List<ClassUser> ClassUsers { get; set; } = new();
+    public List<ClassInvitationUser> ClassInvitationUsers { get; set; } = new();
+    public List<TestGrade> TestGrades { get; set; } = new();
+    public List<Attempt> Attempts { get; set; } = new();
+}
 
 //TODO: bảng nạp tiền

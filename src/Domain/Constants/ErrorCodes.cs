@@ -33,7 +33,6 @@ public static class ErrorCodes
     public const string PASSWORD_RESET_REQUEST_TOO_MANY  = nameof(PASSWORD_RESET_REQUEST_TOO_MANY ); 
     public const string PASSWORD_RESET_CODE_FAILED_TOO_MANY  = nameof(PASSWORD_RESET_CODE_FAILED_TOO_MANY ); 
     
-    
     //IDENTITY OVERRIDE ERROR DESCRIBER
     public const string IDENTITY_DEFAULT_ERROR = nameof(IDENTITY_DEFAULT_ERROR);
     public const string IDENTITY_CONCURRENCY_FAILURE = nameof(IDENTITY_CONCURRENCY_FAILURE);
@@ -70,7 +69,7 @@ public static class ErrorCodes
     //Question set
     public const string QUESTION_SET_NOT_FOUND = nameof(QUESTION_SET_NOT_FOUND);
     public const string QUESTION_SET_NOT_FOUND_IN_CLASS = nameof(QUESTION_SET_NOT_FOUND_IN_CLASS);
-    
+    public const string USER_NOT_ACCESS_TO_QUESTION_SET = nameof(USER_NOT_ACCESS_TO_QUESTION_SET);
     
     public const string PLAN_REQUIRE_PLAN = nameof(PLAN_REQUIRE_PLAN);
     public const string PLAN_NOT_FOUND = nameof(PLAN_NOT_FOUND);
@@ -78,5 +77,14 @@ public static class ErrorCodes
     //FOLDER
     public const string FOLDER_NOT_FOUND = nameof(FOLDER_NOT_FOUND);
     public const string FOLDER_ALREADY_EXISTS = nameof(FOLDER_ALREADY_EXISTS);
-
+    public const string USER_NOT_HAVE_PERMISSION_IN_FOLDER = nameof(USER_NOT_HAVE_PERMISSION_IN_FOLDER);
+    
+    //Test
+    public const string NUMBER_OF_QUESTION_EXCEED_LIMIT = nameof(NUMBER_OF_QUESTION_EXCEED_LIMIT);
+    
+    //File
+    public const string FILE_NOT_FOUND = nameof(FILE_NOT_FOUND);
+    public const string INVALID_FILE_FORMAT = nameof(INVALID_FILE_FORMAT);
+    public const string ERROR_FORMAT_FILE = nameof(ERROR_FORMAT_FILE);
+    
 }

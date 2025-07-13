@@ -1,7 +1,6 @@
 ﻿using CleanArchitectureBase.Application.Common.Models;
+using CleanArchitectureBase.Application.FolderTest;
 using CleanArchitectureBase.Application.Tests;
-using CleanArchitectureBase.Application.Tests.Lecturer;
-using CleanArchitectureBase.Domain.Entities;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,32 +11,54 @@ public class Test : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
-            .MapGet(SearchTest, "/{ClassId}/Tests")
+            .MapGet(SearchTestTemplate, "/Templates")
+            .MapGet(GetTestTemplatePermissions, "/{testTemplateId}/Permissions")
             .MapPost(CreateTestTemplate, "/Templates");
+
+        app.MapGroup(this).DisableAntiforgery()
+            .MapPost(ImportFileTestTemplate, "/Templates/ImportFile");
     }
 
-    public async Task<Ok<ApiResponse<PaginatedList<TestSearchResultDto>>>> SearchTest(
-        [FromQuery] TestStatus? status,
-        [FromQuery] string? testName,
-        [FromRoute] Guid classId,
+    public async Task<Ok<ApiResponse<PaginatedList<TestTemplateDto>>>> SearchTestTemplate(
+        [FromQuery] string? folderName,
+        [FromQuery] string? sharedMode,
         ISender sender,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
-        var rq = new SearchTestInClass()
+        var rq = new SearchTestTemplate
         {
-            ClassId = classId,
-            TestName = testName,
-            Status = status,
-            PageNumber = pageNumber,
-            PageSize = pageSize,
+            TestTemplateName = folderName, SharedMode = sharedMode, PageNumber = pageNumber, PageSize = pageSize,
         };
+        
         var result = await sender.Send(rq);
         return result.ToOk();
     }
 
     public async Task<Ok<ApiResponse<Guid>>> CreateTestTemplate([FromBody] CreateTestTemplateCommand rq, ISender sender)
     {
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<TestTemplatePermissionsDto>>> GetTestTemplatePermissions([FromRoute] Guid testTemplateId, ISender sender)
+    {
+        var query = new GetTestTemplatePermissions
+        {
+            TestTemplateId = testTemplateId
+        };
+        var result = await sender.Send(query);
+        return result.ToOk();
+    }
+
+    public async Task<Ok<ApiResponse<ImportedQuestionDto>>> ImportFileTestTemplate(
+        [FromForm] IFormFile fileData,
+        ISender sender)
+    {
+        var rq = new ImportFileTestTemplateCommand
+        {
+            FileData = fileData
+        };
         var result = await sender.Send(rq);
         return result.ToOk();
     }

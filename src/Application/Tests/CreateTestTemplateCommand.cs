@@ -1,18 +1,19 @@
 ﻿using System.Text.Json;
-using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
-using CleanArchitectureBase.Application.Common.Serializers;
+using CleanArchitectureBase.Application.Common.Security;
+using CleanArchitectureBase.Application.Questions.Utils;
 using CleanArchitectureBase.Application.QuestionSets;
-using CleanArchitectureBase.Application.QuestionSets.Common;
-using CleanArchitectureBase.Domain.Constants;
+using CleanArchitectureBase.Application.QuestionSets.Dtos;
+using CleanArchitectureBase.Application.Tests.Common;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Tests;
 
+[Authorize]
 public class CreateTestTemplateCommand : IRequest<Guid>
 {
     public required string Name { get; set; }
-    public List<CreateQuestionDto> Questions { get; set; } = new ();
+    public List<CreateUpdateQuestionDto> Questions { get; set; } = new ();
 }
 
 public class CreateTestTemplateCommandValidator : AbstractValidator<CreateTestTemplateCommand>
@@ -33,17 +34,17 @@ public class CreateTestTemplateCommandValidator : AbstractValidator<CreateTestTe
             .WithMessage("Một hoặc nhiều câu hỏi có loại hoặc dữ liệu không hợp lệ");
         
         RuleForEach(x => x.Questions)
-            .SetValidator((command, question) => new QuestionCreateDtoValidator());
+            .SetValidator((command, question) => new CreateUpdateQuestionDto.QuestionCreateDtoValidator());
     }
     
-    private bool IsValidQuestionType(CreateQuestionDto createQuestion)
+    private bool IsValidQuestionType(CreateUpdateQuestionDto createUpdateQuestion)
     {
-        bool isValid = createQuestion.Type switch
+        bool isValid = createUpdateQuestion.Type switch
         {
-            nameof(QuestionType.MultipleChoice) => createQuestion.MultipleChoices != null && createQuestion.MultipleChoices.Any(),
-            nameof(QuestionType.Matching) => createQuestion.MatchingPairs != null && createQuestion.MatchingPairs.Any(),
-            nameof(QuestionType.Ordering) => createQuestion.OrderingItems != null && createQuestion.OrderingItems.Any(),
-            nameof(QuestionType.ShortText) => !string.IsNullOrWhiteSpace(createQuestion.ShortAnswer),
+            nameof(QuestionType.MultipleChoice) => createUpdateQuestion.MultipleChoices != null && createUpdateQuestion.MultipleChoices.Any(),
+            nameof(QuestionType.Matching) => createUpdateQuestion.MatchingPairs != null && createUpdateQuestion.MatchingPairs.Any(),
+            nameof(QuestionType.Ordering) => createUpdateQuestion.OrderingItems != null && createUpdateQuestion.OrderingItems.Any(),
+            nameof(QuestionType.ShortText) => !string.IsNullOrWhiteSpace(createUpdateQuestion.ShortAnswer),
             _ => false
         };
 
@@ -55,59 +56,81 @@ public class CreateTestTemplateCommandHandler : IRequestHandler<CreateTestTempla
 {
     private readonly IApplicationDbContext _context;
     public readonly IUser _user;
+    public readonly TestValidationService _testValidationService;
 
-    public CreateTestTemplateCommandHandler(IApplicationDbContext context, IUser user)
+    public CreateTestTemplateCommandHandler(
+        IApplicationDbContext context,
+        IUser user,
+        TestValidationService testValidationService)
     {
         _context = context;
         _user = user;
+        _testValidationService = testValidationService;
     }
     
-    public async Task<Guid> Handle(CreateTestTemplateCommand request, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(CreateTestTemplateCommand rq, CancellationToken cancellationToken)
     {
-        var user = await _context.DomainUsers
-            .Where(x => x.Id == _user.UserId && x.IsDeleted == false && x.IsBanned == false)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (user == null)
-            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {_user.UserId} not found");
+        await _testValidationService.ValidateQuestionAccessAsync(rq.Questions, cancellationToken);
 
-        var testTemplate = new TestTemplate { Id = Guid.NewGuid(), Name = request.Name, IsDeleted = false, };
+        var testTemplate = new TestTemplate { Id = Guid.NewGuid(), Name = rq.Name, IsDeleted = false, };
+
+        var testTemplateUser = new TestTemplateUser
+        {
+            UserId = _user.UserId!.Value,
+            TestTemplateId = testTemplate.Id,
+            ShareMode = TestTemplateUserShareMode.Owner
+        };
         
         var listTemplateQuestions = new List<TestTemplateQuestion>();
         
         var listQuestions = new List<Question>();
 
-        foreach (var questionDto in request.Questions)
+        foreach (var questionDto in rq.Questions)
         {
-            var question = new Question
+            if (questionDto.QuestionId.HasValue)
             {
-                Id = Guid.NewGuid(),
-                Type = Enum.Parse<QuestionType>(questionDto.Type!),
-                QuestionText = questionDto.QuestionText,
-                TextFormat = TextFormat.PlainText,
-                Score = questionDto.Score
-            };
+                var templateQuestion = new TestTemplateQuestion
+                {
+                    Id = Guid.NewGuid(), QuestionId = questionDto.QuestionId.Value, TestTemplateId = testTemplate.Id
+                };
+                
+                listTemplateQuestions.Add(templateQuestion);   
+            }
+            else
+            {
+                var question = new Question
+                {
+                    Id = Guid.NewGuid(),
+                    Type = Enum.Parse<QuestionType>(questionDto.Type!),
+                    QuestionText = questionDto.QuestionText,
+                    TextFormat = TextFormat.PlainText,
+                    Score = questionDto.Score
+                };
 
-            var templateQuestion = new TestTemplateQuestion
-            {
-                Id = Guid.NewGuid(), QuestionId = question.Id, TestTemplateId = testTemplate.Id, Question = question
-            };
+                var templateQuestion = new TestTemplateQuestion
+                {
+                    Id = Guid.NewGuid(), QuestionId = question.Id, TestTemplateId = testTemplate.Id, Question = question
+                };
             
-            question.DataJson = questionDto.Type switch
-            {
-                nameof(QuestionType.MultipleChoice) when questionDto.MultipleChoices != null => QuestionTypeSerializer.SerializeMultipleChoice(questionDto.MultipleChoices),
-                nameof(QuestionType.Matching) when questionDto.MatchingPairs != null => QuestionTypeSerializer.SerializeMatchingPairs(questionDto.MatchingPairs),
-                nameof(QuestionType.Ordering) when questionDto.OrderingItems != null => QuestionTypeSerializer.SerializeOrderingItems(questionDto.OrderingItems),
-                nameof(QuestionType.ShortText) when !string.IsNullOrWhiteSpace(questionDto.ShortAnswer) => JsonSerializer.Serialize(
-                    new QTypeShortAnswer { Answer = questionDto.ShortAnswer }),
-                _ => throw new InvalidDataException($"Dữ liệu câu hỏi không hợp lệ cho loại câu hỏi: {questionDto.Type}")
-            };
+                question.DataJson = questionDto.Type switch
+                {
+                    nameof(QuestionType.MultipleChoice) when questionDto.MultipleChoices != null => QuestionTypeSerializer.SerializeMultipleChoice(questionDto.MultipleChoices),
+                    nameof(QuestionType.Matching) when questionDto.MatchingPairs != null => QuestionTypeSerializer.SerializeMatchingPairs(questionDto.MatchingPairs),
+                    nameof(QuestionType.Ordering) when questionDto.OrderingItems != null => QuestionTypeSerializer.SerializeOrderingItems(questionDto.OrderingItems),
+                    nameof(QuestionType.ShortText) when !string.IsNullOrWhiteSpace(questionDto.ShortAnswer) => JsonSerializer.Serialize(
+                        new QTypeShortAnswer { Answer = questionDto.ShortAnswer }),
+                    _ => throw new InvalidDataException($"Dữ liệu câu hỏi không hợp lệ cho loại câu hỏi: {questionDto.Type}")
+                };
             
-            listQuestions.Add(question);
+                listQuestions.Add(question);
             
-            listTemplateQuestions.Add(templateQuestion);
+                listTemplateQuestions.Add(templateQuestion);   
+            }
         }
         
         _context.TestTemplates.Add(testTemplate);
+        
+        _context.TestTemplateUsers.Add(testTemplateUser);
         
         _context.Questions.AddRange(listQuestions);
         

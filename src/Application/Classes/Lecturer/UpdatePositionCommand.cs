@@ -1,5 +1,6 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
@@ -11,6 +12,7 @@ public class UpdatePositionDto
     public Guid UserId { get; set; }
 }
 
+[Authorize]
 public class UpdatePositionCommand : IRequest<UpdatePositionDto>
 {
     public required Guid ClassId { get; set; }
@@ -45,12 +47,10 @@ public class UpdatePositionCommandHandler : IRequestHandler<UpdatePositionComman
     public async Task<UpdatePositionDto> Handle(UpdatePositionCommand rq, CancellationToken cancellationToken)
     {
         var classUserData = await _context.ClassUsers
-            .Where(cu => cu.ClassId == rq.ClassId)
-            .Join(_context.Classes,
-                cu => cu.ClassId,
-                c => c.Id,
-                (cu, c) => new { ClassUser = cu, Class = c })
-            .Where(x => x.ClassUser.UserId == _user.UserId || x.ClassUser.UserId == rq.UserId && x.Class.IsDeleted == false)
+            .Include(x => x.Class)  
+            .Where(cu => cu.ClassId == rq.ClassId &&
+                          (cu.UserId == _user.UserId || (cu.UserId == rq.UserId && cu.Class.IsDeleted == false)))
+            .Select(cu => new { ClassUser = cu, Class = cu.Class })
             .ToListAsync(cancellationToken);
         
         var isOwner = classUserData.FirstOrDefault(x => x.ClassUser.UserId == _user.UserId && x.ClassUser.ShareMode == ClassShareMode.Owner);

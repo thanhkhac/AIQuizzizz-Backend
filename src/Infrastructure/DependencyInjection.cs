@@ -1,8 +1,14 @@
 ﻿using System.Text;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Plans;
+using CleanArchitectureBase.Application.Questions.Services;
+using CleanArchitectureBase.Application.QuestionSets.Services;
+using CleanArchitectureBase.Application.UserQuestionSetHistories.Services;
 using CleanArchitectureBase.Domain.Constants;
+using CleanArchitectureBase.Domain.Entities;
 using CleanArchitectureBase.Infrastructure.Data;
 using CleanArchitectureBase.Infrastructure.Data.Interceptors;
+using CleanArchitectureBase.Infrastructure.DomainServices;
 using CleanArchitectureBase.Infrastructure.Identity;
 using CleanArchitectureBase.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -46,8 +52,7 @@ public static class DependencyInjection
         services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
         services.Configure<GoogleSettings>(configuration.GetSection("GoogleSettings"));
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
-        
-        
+
 
         var a = configuration.GetSection("JwtSettings").Get<JwtSettings>();
         if (a == null) throw new Exception("Lỗi");
@@ -131,10 +136,7 @@ public static class DependencyInjection
                 var allowedOrigins = configuration.GetSection("AllowedOrigins").Get<string[]>() ??
                                      new[]
                                      {
-                                         "https://thanhkhac.id.vn",
-                                         "https://aiquizizz.com",
-                                         "http://localhost:5173",
-                                         "https://localhost:5173",
+                                         "https://thanhkhac.id.vn", "https://aiquizizz.com", "http://localhost:5173", "https://localhost:5173",
                                      };
 
                 policy.WithOrigins(allowedOrigins)
@@ -145,8 +147,7 @@ public static class DependencyInjection
             });
         });
 
-        services.Configure<IdentityOptions>(
-            options =>
+        services.Configure<IdentityOptions>(options =>
             {
                 options.Password.RequiredLength = 2;
                 options.Password.RequireDigit = false;
@@ -163,6 +164,10 @@ public static class DependencyInjection
 
         services.AddSingleton(TimeProvider.System);
         services.AddTransient<IIdentityService, IdentityService>();
+        services.AddTransient<IQuestionService, QuestionService>();
+        services.AddTransient<IQuestionSetService, QuestionSetService>();
+        services.AddTransient<IUserQuestionSetHistoryService, UserQuestionSetHistoryService>();
+        services.AddTransient<IPlanService, PlanService>();
         services.AddSingleton<IRedisService, RedisService>();
 
         // Register Google Auth Service

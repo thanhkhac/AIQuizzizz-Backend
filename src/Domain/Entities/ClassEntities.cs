@@ -6,6 +6,9 @@ public class Class : BaseAuditableEntity
     public required string Name { get; set; }
     public bool IsDeleted { get; set; }
     public List<ClassQuestionSet> ClassQuestionSets { get; set; } = new();
+    public List<ClassUser> ClassUsers { get; set; } = new();
+    public List<ClassInvitation> ClassInvitations { get; set; } = new();
+    public List<Test> Tests { get; set; } = new();
 }
 
 public enum ClassShareMode
