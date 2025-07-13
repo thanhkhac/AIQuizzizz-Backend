@@ -110,7 +110,7 @@ public class IdentityService : IIdentityService
             : await _userManager.CreateAsync(userAccount);
 
         if (!result.Succeeded)
-            throw new ErrorCodeException(ErrorCodes.COMMON_UNHANDLED_ERROR);
+            throw new ErrorCodeException(ErrorCodes.COMMON_SERVER_INTERNAL_ERROR);
 
         return userAccount;
     }
@@ -241,7 +241,6 @@ public class IdentityService : IIdentityService
             _dbContext.Set<RefreshToken>().Remove(storedRefreshToken);
             await _dbContext.SaveChangesAsync();
         }
-        else { throw new ErrorCodeException(ErrorCodes.COMMON_NOT_FOUND, "Refresh token not found"); }
     }
 
     public async Task<TokenDto> RefreshTokenAsync(string accessToken, string refreshToken)
@@ -423,8 +422,11 @@ public class IdentityService : IIdentityService
         var result = await _userManager.CreateAsync(userAccount);
 
         if (!result.Succeeded)
-            throw new ErrorCodeException(ErrorCodes.IDENTITY_DUPLICATE_EMAIL, "Failed to create user account");
-
+        {
+            if (result.Errors.Any(e => e.Code == nameof(IdentityErrorDescriber.DuplicateEmail)))
+                throw new ErrorCodeException(ErrorCodes.IDENTITY_DUPLICATE_EMAIL);
+            throw new ErrorCodeException(ErrorCodes.COMMON_SERVER_INTERNAL_ERROR, $"Error at change password");
+        }
         var tokenDto = await GenerateJwtTokenAsync(userAccount);
 
         return tokenDto;
@@ -587,6 +589,21 @@ public class IdentityService : IIdentityService
         await _userManager.UpdateAsync(user);
     }
 
+    public async Task ChangePasswordAsync(Guid userId, string currentPassword, string newPassword)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {userId} not found");
+
+        var result = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+        if (!result.Succeeded)
+        {
+            if (result.Errors.Any(e => e.Code == nameof(IdentityErrorDescriber.PasswordMismatch)))
+                throw new ErrorCodeException(ErrorCodes.ACCOUNT_WRONG_PASSWORD);
+            throw new ErrorCodeException(ErrorCodes.COMMON_SERVER_INTERNAL_ERROR, $"Error at change password");
+        }
+    }
+
     public async Task BanUser(Guid userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
@@ -621,6 +638,14 @@ public class IdentityService : IIdentityService
             .Where(x => x.UserId == userId && roles.Contains(x.RoleName))
             .AnyAsync();
         return isInRole;
+    }
+    public async Task<IList<string>> GetUserRolesAsync(Guid userId)
+    {
+        var identityUser = await _userManager.FindByIdAsync(userId.ToString());
+        if (identityUser == null)
+            return new List<string>();
+
+        return await _userManager.GetRolesAsync(identityUser);
     }
 
     private string GenerateRandomCode()

@@ -37,10 +37,15 @@ public interface IIdentityService
     Task RequestPasswordResetAsync(ForgotPasswordDto dto);
     
     Task ResetPasswordAsync(ResetPasswordDto dto);
+    
+    Task ChangePasswordAsync(Guid userId, string currentPassword, string newPassword);
 
     Task BanUser(Guid userId);
     
     Task ActiveUser(Guid userId);
     
     Task<bool> IsInAnyRoleAsync(Guid userId, params string[] roles);
+    
+    Task<IList<string>> GetUserRolesAsync(Guid userId);
+
 }
