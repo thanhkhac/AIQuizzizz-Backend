@@ -1,0 +1,37 @@
+@startuml
+actor User
+participant UI
+participant AuthEndpoint
+participant RefreshTokenHandler
+participant IdentityService
+participant Database
+participant UserManager
+
+User -> UI : Tiếp tục thao tác khi token hết hạn
+UI -> AuthEndpoint : POST /api/Authentication/RefreshToken
+AuthEndpoint -> RefreshTokenHandler : Handle(command)
+RefreshTokenHandler -> IdentityService : RefreshTokenAsync(accessToken, refreshToken)
+IdentityService -> Database : Find RefreshToken
+Database --> IdentityService : RefreshToken/null
+alt RefreshToken invalid/expired
+    IdentityService --> RefreshTokenHandler : Error: ACCOUNT_INVALID_CREDENTIALS
+    RefreshTokenHandler --> AuthEndpoint : Error (ACCOUNT_INVALID_CREDENTIALS)
+    AuthEndpoint --> UI : 400 Bad Request (ACCOUNT_INVALID_CREDENTIALS)
+    UI -> User : Thông báo lỗi: Phiên đăng nhập hết hạn
+else RefreshToken valid
+    IdentityService -> UserManager : FindByIdAsync(userId)
+    UserManager -> Database : Query UserAccount
+    Database --> UserManager : UserAccount/null
+    alt User invalid/banned
+        IdentityService --> RefreshTokenHandler : Error: ACCOUNT_INVALID_CREDENTIALS
+        RefreshTokenHandler --> AuthEndpoint : Error (ACCOUNT_INVALID_CREDENTIALS)
+        AuthEndpoint --> UI : 400 Bad Request (ACCOUNT_INVALID_CREDENTIALS)
+        UI -> User : Thông báo lỗi: Phiên đăng nhập hết hạn
+    else User valid
+        IdentityService --> RefreshTokenHandler : New TokenDto
+        RefreshTokenHandler --> AuthEndpoint : TokenDto
+        AuthEndpoint --> UI : 200 OK + New Tokens
+        UI -> User : Tiếp tục sử dụng hệ thống
+    end
+end
+@enduml

@@ -1,0 +1,46 @@
+@startuml
+actor User
+participant UI
+participant AuthEndpoint
+participant GoogleLoginHandler
+participant IdentityService
+participant GoogleAuthService
+participant GoogleAPI
+participant UserManager
+participant Database
+
+User -> UI : Nhấn nút Google Login
+UI -> AuthEndpoint : POST /api/Authentication/GoogleLogin
+AuthEndpoint -> GoogleLoginHandler : Handle(command)
+GoogleLoginHandler -> IdentityService : TryGoogleLoginAsync(code, redirectUri)
+IdentityService -> GoogleAuthService : ExchangeCodeForUserInfoAsync(code, redirectUri)
+GoogleAuthService -> GoogleAPI : Exchange code for tokens
+GoogleAPI --> GoogleAuthService : Access token
+GoogleAuthService -> GoogleAPI : Get user info
+GoogleAPI --> GoogleAuthService : User info
+GoogleAuthService --> IdentityService : GoogleUserDto
+IdentityService -> UserManager : FindByEmailAsync(googleUser.Email)
+UserManager -> Database : Query UserAccount
+Database --> UserManager : UserAccount/null
+alt User exists
+    alt User banned
+        IdentityService --> GoogleLoginHandler : Error: ACCOUNT_BANNED
+        GoogleLoginHandler --> AuthEndpoint : Error (ACCOUNT_BANNED)
+        AuthEndpoint --> UI : 400 Bad Request (ACCOUNT_BANNED)
+        UI -> User : Thông báo lỗi: Tài khoản bị khóa
+    else User không bị ban
+        IdentityService --> GoogleLoginHandler : TokenDto
+        GoogleLoginHandler --> AuthEndpoint : TokenDto
+        AuthEndpoint --> UI : 200 OK + Tokens
+        UI -> User : Đăng nhập thành công, chuyển trang
+    end
+else User doesn't exist
+    IdentityService -> UserManager : CreateAsync(userAccount)
+    UserManager -> Database : Insert UserAccount + User
+    Database --> UserManager : Success
+    IdentityService --> GoogleLoginHandler : TokenDto
+    GoogleLoginHandler --> AuthEndpoint : TokenDto
+    AuthEndpoint --> UI : 200 OK + Tokens
+    UI -> User : Đăng nhập thành công, chuyển trang
+end
+@enduml

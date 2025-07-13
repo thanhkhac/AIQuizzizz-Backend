@@ -1,0 +1,38 @@
+@startuml
+actor User
+participant UI
+participant AuthEndpoint
+participant LoginHandler
+participant IdentityService
+participant UserManager
+participant Database
+
+User -> UI : Nhập email, password
+UI -> AuthEndpoint : POST /api/Authentication/Login
+AuthEndpoint -> LoginHandler : Handle(command)
+LoginHandler -> IdentityService : TryLoginAsync(email, password)
+IdentityService -> UserManager : FindByEmailAsync(email)
+UserManager -> Database : Query UserAccount
+Database --> UserManager : UserAccount/null
+alt User not found
+    IdentityService --> LoginHandler : Error: ACCOUNT_INVALID_CREDENTIALS
+    LoginHandler --> AuthEndpoint : Error (ACCOUNT_INVALID_CREDENTIALS)
+    AuthEndpoint --> UI : 400 Bad Request (ACCOUNT_INVALID_CREDENTIALS)
+    UI -> User : Thông báo lỗi: Sai tài khoản hoặc mật khẩu
+else User found
+    IdentityService -> UserManager : CheckPasswordSignInAsync(user, password)
+    UserManager -> Database : Verify password
+    Database --> UserManager : Result
+    alt Password correct
+        IdentityService --> LoginHandler : TokenDto
+        LoginHandler --> AuthEndpoint : TokenDto
+        AuthEndpoint --> UI : 200 OK + Tokens
+        UI -> User : Đăng nhập thành công, chuyển trang
+    else Password incorrect
+        IdentityService --> LoginHandler : Error: ACCOUNT_INVALID_CREDENTIALS
+        LoginHandler --> AuthEndpoint : Error (ACCOUNT_INVALID_CREDENTIALS)
+        AuthEndpoint --> UI : 400 Bad Request (ACCOUNT_INVALID_CREDENTIALS)
+        UI -> User : Thông báo lỗi: Sai tài khoản hoặc mật khẩu
+    end
+end
+@enduml

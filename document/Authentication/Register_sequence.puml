@@ -1,0 +1,32 @@
+@startuml
+actor User
+participant UI
+participant AuthEndpoint
+participant RegisterUserHandler
+participant IdentityService
+participant UserManager
+participant Database
+
+User -> UI : Nhập email, password, fullName
+UI -> AuthEndpoint : POST /api/Authentication/Register
+AuthEndpoint -> RegisterUserHandler : Handle(command)
+RegisterUserHandler -> IdentityService : CreateUserAsync(email, password)
+IdentityService -> UserManager : FindByEmailAsync(email)
+UserManager -> Database : Query UserAccount
+Database --> UserManager : UserAccount/null
+alt User exists
+    IdentityService --> RegisterUserHandler : Error: ACCOUNT_EMAIL_ALREADY_EXISTS
+    RegisterUserHandler --> AuthEndpoint : Error (ACCOUNT_EMAIL_ALREADY_EXISTS)
+    AuthEndpoint --> UI : 400 Bad Request (ACCOUNT_EMAIL_ALREADY_EXISTS)
+    UI -> User : Thông báo lỗi: Email đã tồn tại
+else User doesn't exist
+    IdentityService -> UserManager : CreateAsync(userAccount, password)
+    UserManager -> Database : Insert UserAccount + User
+    Database --> UserManager : Success
+    UserManager --> IdentityService : Success
+    IdentityService --> RegisterUserHandler : Success + UserId
+    RegisterUserHandler --> AuthEndpoint : Success
+    AuthEndpoint --> UI : 200 OK + UserId
+    UI -> User : Thông báo đăng ký thành công
+end
+@enduml

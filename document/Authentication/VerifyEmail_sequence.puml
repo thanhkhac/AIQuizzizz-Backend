@@ -1,0 +1,47 @@
+@startuml
+actor User
+participant UI
+participant AuthEndpoint
+participant VerifyEmailHandler
+participant IdentityService
+participant UserManager
+participant Database
+
+User -> UI : Nhập mã xác thực, nhấn xác nhận
+UI -> AuthEndpoint : POST /api/Authentication/VerifyEmail
+AuthEndpoint -> VerifyEmailHandler : Handle(command)
+VerifyEmailHandler -> IdentityService : VerifyEmailAsync(email, code)
+IdentityService -> UserManager : FindByEmailAsync(email)
+UserManager -> Database : Query UserAccount
+Database --> UserManager : UserAccount/null
+alt User not found
+    IdentityService --> VerifyEmailHandler : Error: ACCOUNT_NOTFOUND
+    VerifyEmailHandler --> AuthEndpoint : Error (ACCOUNT_NOTFOUND)
+    AuthEndpoint --> UI : 400 Bad Request (ACCOUNT_NOTFOUND)
+    UI -> User : Thông báo lỗi: Không tìm thấy tài khoản
+else User found
+    IdentityService -> IdentityService : Check lockout
+    alt Quá số lần nhập sai
+        IdentityService --> VerifyEmailHandler : Error: EMAIL_VERIFICATION_CODE_FAILED_TOO_MANY
+        VerifyEmailHandler --> AuthEndpoint : Error (EMAIL_VERIFICATION_CODE_FAILED_TOO_MANY)
+        AuthEndpoint --> UI : 400 Bad Request (EMAIL_VERIFICATION_CODE_FAILED_TOO_MANY)
+        UI -> User : Thông báo lỗi: Nhập sai quá nhiều lần
+    else Được phép xác thực
+        IdentityService -> IdentityService : Kiểm tra mã và hạn
+        alt Mã sai/hết hạn
+            IdentityService --> VerifyEmailHandler : Error: ACCOUNT_INVALID_VERIFICATION_CODE
+            VerifyEmailHandler --> AuthEndpoint : Error (ACCOUNT_INVALID_VERIFICATION_CODE)
+            AuthEndpoint --> UI : 400 Bad Request (ACCOUNT_INVALID_VERIFICATION_CODE)
+            UI -> User : Thông báo lỗi: Mã xác thực sai/hết hạn
+        else Mã đúng
+            IdentityService -> UserManager : UpdateAsync(user)
+            UserManager -> Database : Update UserAccount
+            Database --> UserManager : Success
+            IdentityService --> VerifyEmailHandler : Success
+            VerifyEmailHandler --> AuthEndpoint : Success
+            AuthEndpoint --> UI : 200 OK
+            UI -> User : Thông báo xác thực thành công
+        end
+    end
+end
+@enduml

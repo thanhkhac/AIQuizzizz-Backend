@@ -1,0 +1,43 @@
+@startuml
+actor User
+participant UI
+participant AuthEndpoint
+participant RequestEmailVerificationHandler
+participant IdentityService
+participant UserManager
+participant Database
+participant EmailService
+
+User -> UI : Nhập email, nhấn gửi mã xác thực
+UI -> AuthEndpoint : POST /api/Authentication/RequestEmailVerification
+AuthEndpoint -> RequestEmailVerificationHandler : Handle(command)
+RequestEmailVerificationHandler -> IdentityService : RequestEmailVerificationAsync(email)
+IdentityService -> UserManager : FindByEmailAsync(email)
+UserManager -> Database : Query UserAccount
+Database --> UserManager : UserAccount/null
+alt User not found
+    IdentityService --> RequestEmailVerificationHandler : Error: ACCOUNT_NOTFOUND
+    RequestEmailVerificationHandler --> AuthEndpoint : Error (ACCOUNT_NOTFOUND)
+    AuthEndpoint --> UI : 400 Bad Request (ACCOUNT_NOTFOUND)
+    UI -> User : Thông báo lỗi: Không tìm thấy tài khoản
+else User found
+    IdentityService -> IdentityService : Check lockout
+    alt Quá số lần gửi
+        IdentityService --> RequestEmailVerificationHandler : Error: EMAIL_VERIFICATION_REQUEST_TOO_MANY
+        RequestEmailVerificationHandler --> AuthEndpoint : Error (EMAIL_VERIFICATION_REQUEST_TOO_MANY)
+        AuthEndpoint --> UI : 400 Bad Request (EMAIL_VERIFICATION_REQUEST_TOO_MANY)
+        UI -> User : Thông báo lỗi: Gửi quá nhiều lần
+    else Được phép gửi
+        IdentityService -> IdentityService : GenerateRandomCode()
+        IdentityService -> UserManager : UpdateAsync(user)
+        UserManager -> Database : Update UserAccount
+        Database --> UserManager : Success
+        IdentityService -> EmailService : SendEmailAsync(email, subject, body)
+        EmailService --> IdentityService : Success
+        IdentityService --> RequestEmailVerificationHandler : Success
+        RequestEmailVerificationHandler --> AuthEndpoint : Success
+        AuthEndpoint --> UI : 200 OK
+        UI -> User : Thông báo đã gửi mã xác thực
+    end
+end
+@enduml
