@@ -16,12 +16,13 @@ public class QuestionSetEndpoints : EndpointGroupBase
     {
         app.MapGroup(this)
             .MapPost(CreateQuestionSet)
-            .MapGet(GetPermissions, "{questionSetId}/Permissions")
             .MapGet(GetQuestions, "{questionSetId}/Questions")
             .MapPatch(UpdateQuestionSet, "{questionSetId}")
+            .MapDelete(DeleteQuestionSet, "{questionSetId}")
+            .MapGet(GetPermissions, "{questionSetId}/Permissions")
             .MapGet(GetLearnQuestions, "{questionSetId}/LearnQuestions")
-            .MapPost(UpdateQuestionSetHistory, "{questionSetId}/History")
-            .MapDelete(ResetQuestionSetHistory, "{questionSetId}/History")
+            .MapPost(UpdateQuestionSetHistory, "{questionSetId}/LearnHistory")
+            .MapDelete(ResetQuestionSetHistory, "{questionSetId}/LearnHistory")
             ;
     }
 
@@ -101,6 +102,20 @@ public class QuestionSetEndpoints : EndpointGroupBase
         };
 
         var result = await sender.Send(query);
+        return result.ToOk();
+    }
+
+
+    public async Task<Ok<ApiResponse<Unit>>> DeleteQuestionSet(
+        [FromRoute] Guid questionSetId,
+        ISender sender)
+    {
+        var command = new DeleteQuestionSetCommand
+        {
+            QuestionSetId = questionSetId
+        };
+
+        var result = await sender.Send(command);
         return result.ToOk();
     }
 

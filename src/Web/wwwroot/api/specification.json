@@ -1128,38 +1128,6 @@
         }
       }
     },
-    "/api/QuestionSet/{questionSetId}/Permissions": {
-      "get": {
-        "tags": [
-          "QuestionSet"
-        ],
-        "operationId": "GetPermissions",
-        "parameters": [
-          {
-            "name": "questionSetId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "guid"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfQuestionSetPermissionsDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/QuestionSet/{questionSetId}/Questions": {
       "get": {
         "tags": [
@@ -1234,6 +1202,68 @@
             }
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "DeleteQuestionSet",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfUnit"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/QuestionSet/{questionSetId}/Permissions": {
+      "get": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "GetPermissions",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfQuestionSetPermissionsDto"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/QuestionSet/{questionSetId}/LearnQuestions": {
@@ -1278,7 +1308,7 @@
         }
       }
     },
-    "/api/QuestionSet/{questionSetId}/History": {
+    "/api/QuestionSet/{questionSetId}/LearnHistory": {
       "post": {
         "tags": [
           "QuestionSet"
@@ -2774,53 +2804,6 @@
           }
         }
       },
-      "ApiResponseOfQuestionSetPermissionsDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "errors": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "validationErrors": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "data": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/QuestionSetPermissionsDto"
-              }
-            ]
-          },
-          "success": {
-            "type": "boolean"
-          }
-        }
-      },
-      "QuestionSetPermissionsDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "canEdit": {
-            "type": "boolean"
-          },
-          "canDelete": {
-            "type": "boolean"
-          }
-        }
-      },
       "ApiResponseOfListOfQuestionResponseDto": {
         "type": "object",
         "additionalProperties": false,
@@ -3051,6 +3034,53 @@
               "type": "string",
               "format": "guid"
             }
+          }
+        }
+      },
+      "ApiResponseOfQuestionSetPermissionsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/QuestionSetPermissionsDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "QuestionSetPermissionsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "canEdit": {
+            "type": "boolean"
+          },
+          "canDelete": {
+            "type": "boolean"
           }
         }
       },
