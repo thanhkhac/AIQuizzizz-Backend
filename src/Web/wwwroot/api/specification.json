@@ -1837,6 +1837,12 @@
           "balance": {
             "type": "integer",
             "format": "int64"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },

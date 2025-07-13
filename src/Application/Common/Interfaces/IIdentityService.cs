@@ -45,4 +45,7 @@ public interface IIdentityService
     Task ActiveUser(Guid userId);
     
     Task<bool> IsInAnyRoleAsync(Guid userId, params string[] roles);
+    
+    Task<IList<string>> GetUserRolesAsync(Guid userId);
+
 }

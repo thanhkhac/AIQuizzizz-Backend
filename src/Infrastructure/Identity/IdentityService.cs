@@ -603,7 +603,7 @@ public class IdentityService : IIdentityService
             throw new ErrorCodeException(ErrorCodes.COMMON_SERVER_INTERNAL_ERROR, $"Error at change password");
         }
     }
-    
+
     public async Task BanUser(Guid userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
@@ -638,6 +638,14 @@ public class IdentityService : IIdentityService
             .Where(x => x.UserId == userId && roles.Contains(x.RoleName))
             .AnyAsync();
         return isInRole;
+    }
+    public async Task<IList<string>> GetUserRolesAsync(Guid userId)
+    {
+        var identityUser = await _userManager.FindByIdAsync(userId.ToString());
+        if (identityUser == null)
+            return new List<string>();
+
+        return await _userManager.GetRolesAsync(identityUser);
     }
 
     private string GenerateRandomCode()
