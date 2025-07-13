@@ -63,8 +63,9 @@ public class UpdateQuestionSetCommandHandler : IRequestHandler<UpdateQuestionSet
 
     public async Task<Guid> Handle(UpdateQuestionSetCommand request, CancellationToken cancellationToken)
     {
-        var questionSet = await _dbContext.QuestionSets
-            .FirstOrDefaultAsync(qs => qs.Id == request.QuestionSetId, cancellationToken);
+        var questionSet = await _questionSetService.GetActiveQuestionSet(request.QuestionSetId, cancellationToken);
+        if (questionSet == null)
+            throw new ErrorCodeException(ErrorCodes.QUESTION_SET_NOT_FOUND);
 
         if (questionSet == null)
             throw new ErrorCodeException(ErrorCodes.QUESTION_SET_NOT_FOUND);
@@ -119,6 +120,7 @@ public class UpdateQuestionSetCommandHandler : IRequestHandler<UpdateQuestionSet
                     existing.Score = dto.Score;
                     existing.TextFormat = TextFormat.Html;
                     existing.DataJson = dataJson;
+                    existing.ExplainText = dto.ExplainText;
                 }
             }
             else
@@ -131,6 +133,7 @@ public class UpdateQuestionSetCommandHandler : IRequestHandler<UpdateQuestionSet
                     Type = type,
                     QuestionText = dto.QuestionText,
                     TextFormat = TextFormat.PlainText,
+                    ExplainText = dto.ExplainText,
                     Score = dto.Score,
                     DataJson = dataJson
                 });

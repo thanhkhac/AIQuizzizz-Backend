@@ -45,7 +45,8 @@ public class ResetQuestionSetHistoryCommandHandler : IRequestHandler<ResetQuesti
         var userId = _user.UserId!.Value;
         
         var questionSet = await _questionSetService.GetActiveQuestionSet(request.QuestionSetId, cancellationToken);
-        if (questionSet == null) throw new ErrorCodeException(ErrorCodes.QUESTION_SET_NOT_FOUND);
+        if (questionSet == null)
+            throw new ErrorCodeException(ErrorCodes.QUESTION_SET_NOT_FOUND);
 
         var canView = await _questionSetService.CanUserViewQuestionSet(userId, questionSet);
         if (canView == false) throw new ErrorCodeException(ErrorCodes.COMMON_FORBIDDEN, "You are not allowed to view this question set");
