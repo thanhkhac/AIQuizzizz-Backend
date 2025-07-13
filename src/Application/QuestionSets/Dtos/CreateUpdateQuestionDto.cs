@@ -157,4 +157,90 @@ public class CreateUpdateQuestionDto
             };
         }
     }
+
+    public static class Deserializer
+    {
+        public static CreateUpdateQuestionDto Deserialize(Question question)
+        {
+            var dto = new CreateUpdateQuestionDto
+            {
+                QuestionId = question.Id,
+                Type = question.Type.ToString(),
+                QuestionText = question.QuestionText,
+                ExplainText = question.ExplainText,
+                Score = question.Score
+            };
+
+            if (string.IsNullOrEmpty(question.DataJson))
+                return dto;
+
+            switch (question.Type)
+            {
+                case QuestionType.MultipleChoice:
+                    var multipleChoices = JsonSerializer.Deserialize<List<QTypeMultipleChoice>>(question.DataJson);
+                    if (multipleChoices != null)
+                    {
+                        dto.MultipleChoices = multipleChoices
+                            .OrderBy(x => x.ShuffleOrder)
+                            .Select(x => new CreateMultipleChoiceDto
+                            {
+                                Text = x.Text,
+                                IsAnswer = x.IsAnswer
+                            })
+                            .ToList();
+                    }
+                    break;
+
+                case QuestionType.Matching:
+                    var matchingItems = JsonSerializer.Deserialize<List<QTypeMatching>>(question.DataJson);
+                    if (matchingItems != null)
+                    {
+                        // Group items by AnswerId to reconstruct pairs
+                        var leftItems = matchingItems.Where(x => !string.IsNullOrEmpty(x.AnswerId)).ToList();
+                        var rightItems = matchingItems.Where(x => string.IsNullOrEmpty(x.AnswerId)).ToList();
+                        
+                        dto.MatchingPairs = new List<CreateMatchingPairDto>();
+                        
+                        foreach (var leftItem in leftItems)
+                        {
+                            var rightItem = rightItems.FirstOrDefault(x => x.Id.ToString() == leftItem.AnswerId);
+                            if (rightItem != null)
+                            {
+                                dto.MatchingPairs.Add(new CreateMatchingPairDto
+                                {
+                                    LeftItem = leftItem.Text,
+                                    RightItem = rightItem.Text
+                                });
+                            }
+                        }
+                    }
+                    break;
+
+                case QuestionType.Ordering:
+                    var orderingItems = JsonSerializer.Deserialize<List<QTypeOrderingItem>>(question.DataJson);
+                    if (orderingItems != null)
+                    {
+                        dto.OrderingItems = orderingItems
+                            .OrderBy(x => x.ShuffleOrder)
+                            .Select(x => new CreateOrderingItemDto
+                            {
+                                Text = x.Text,
+                                CorrectOrder = x.CorrectOrder
+                            })
+                            .ToList();
+                    }
+                    break;
+
+                case QuestionType.ShortText:
+                    var shortAnswer = JsonSerializer.Deserialize<QTypeShortAnswer>(question.DataJson);
+                    if (shortAnswer != null)
+                    {
+                        dto.ShortAnswer = shortAnswer.Answer;
+                    }
+                    break;
+            }
+
+            return dto;
+        }
+    }
 }

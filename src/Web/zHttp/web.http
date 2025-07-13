@@ -1,4 +1,4 @@
-﻿POST {{Web_HostAddress}}/api/QuestionSets/create
+﻿POST {{Web_HostAddress}}/api/QuestionSet
 Authorization: Bearer {{BearerToken}}
 Content-Type: application/json
 
@@ -264,7 +264,7 @@ Content-Type: application/json
 ###
 
 
-PATCH {{Web_HostAddress}}/api/QuestionSets/create
+PATCH {{Web_HostAddress}}/api/QuestionSets
 Authorization: Bearer {{BearerToken}}
 Content-Type: application/json
 

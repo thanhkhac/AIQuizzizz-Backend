@@ -7,11 +7,12 @@ namespace CleanArchitectureBase.Application.Questions.Services;
 
 public interface IQuestionService
 {
-    Task<List<QuestionResponseDto>> GetQuestionsBySetIdForDetailAsync(Guid questionSetId, Guid? userId,
+    public Task<List<QuestionResponseDto>> GetQuestionsBySetIdForDetailAsync(Guid questionSetId, Guid? userId,
         CancellationToken cancellationToken = default);
         
     public Task<List<QuestionResponseDto>> GetQuestionsBySetIdForLearnAsync(Guid questionSetId, Guid userId, int questionCount,
         CancellationToken cancellationToken = default);
+        
 }
 
 public class QuestionService : IQuestionService
