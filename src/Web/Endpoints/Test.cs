@@ -13,6 +13,7 @@ public class Test : EndpointGroupBase
         app.MapGroup(this)
             .MapGet(SearchTestTemplate, "/Templates")
             .MapGet(GetTestTemplatePermissions, "/{testTemplateId}/Permissions")
+            .MapGet(GetTestTemplateDetail, "/Template/{testTemplateId}")
             .MapPost(CreateTestTemplate, "/Templates");
 
         app.MapGroup(this).DisableAntiforgery()
@@ -44,6 +45,16 @@ public class Test : EndpointGroupBase
     public async Task<Ok<ApiResponse<TestTemplatePermissionsDto>>> GetTestTemplatePermissions([FromRoute] Guid testTemplateId, ISender sender)
     {
         var query = new GetTestTemplatePermissions
+        {
+            TestTemplateId = testTemplateId
+        };
+        var result = await sender.Send(query);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<TestTemplateResponseDto>>> GetTestTemplateDetail([FromRoute] Guid testTemplateId, ISender sender)
+    {
+        var query = new GetTestTemplateDetail
         {
             TestTemplateId = testTemplateId
         };
