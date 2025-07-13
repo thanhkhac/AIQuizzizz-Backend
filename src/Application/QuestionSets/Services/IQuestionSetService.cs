@@ -95,7 +95,7 @@ public class QuestionSetService : IQuestionSetService
     {
         var canEdit = false;
         bool canDelete = await _identityService.IsInAnyRoleAsync(userId, Domain.Constants.Roles.Administrator, Domain.Constants.Roles.Moderator);
-        // Nếu là admin hoặc moderator thì có toàn quyền
+        // Nếu là admin hoặc moderator thì có quyền delete
 
         // Nếu không phải admin thì kiểm tra theo bảng QuestionSetUsers
         var qsu = await _context.QuestionSetUsers

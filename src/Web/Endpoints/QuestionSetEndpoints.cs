@@ -19,10 +19,11 @@ public class QuestionSetEndpoints : EndpointGroupBase
             .MapGet(GetQuestions, "{questionSetId}/Questions")
             .MapPatch(UpdateQuestionSet, "{questionSetId}")
             .MapDelete(DeleteQuestionSet, "{questionSetId}")
-            .MapGet(GetPermissions, "{questionSetId}/Permissions")
             .MapGet(GetLearnQuestions, "{questionSetId}/LearnQuestions")
             .MapPost(UpdateQuestionSetHistory, "{questionSetId}/LearnHistory")
             .MapDelete(ResetQuestionSetHistory, "{questionSetId}/LearnHistory")
+            .MapGet(GetPermissions, "{questionSetId}/Permissions")
+            .MapGet(GetQuestionsForEdit, "{questionSetId}/QuestionsForEdit")
             ;
     }
 
@@ -54,6 +55,16 @@ public class QuestionSetEndpoints : EndpointGroupBase
     public async Task<Ok<ApiResponse<List<QuestionResponseDto>>>> GetQuestions([FromRoute] Guid questionSetId, ISender sender)
     {
         var query = new GetQuestionSetQuestionsQuery
+        {
+            QuestionSetId = questionSetId
+        };
+        var result = await sender.Send(query);
+        return result.ToOk();
+    }
+
+    public async Task<Ok<ApiResponse<List<CreateUpdateQuestionDto>>>> GetQuestionsForEdit([FromRoute] Guid questionSetId, ISender sender)
+    {
+        var query = new GetQuestionSetQuestionsForEditQuery
         {
             QuestionSetId = questionSetId
         };

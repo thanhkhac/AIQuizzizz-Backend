@@ -1234,38 +1234,6 @@
         }
       }
     },
-    "/api/QuestionSet/{questionSetId}/Permissions": {
-      "get": {
-        "tags": [
-          "QuestionSet"
-        ],
-        "operationId": "GetPermissions",
-        "parameters": [
-          {
-            "name": "questionSetId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "guid"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfQuestionSetPermissionsDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/QuestionSet/{questionSetId}/LearnQuestions": {
       "get": {
         "tags": [
@@ -1378,6 +1346,70 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfUnit"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/QuestionSet/{questionSetId}/Permissions": {
+      "get": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "GetPermissions",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfQuestionSetPermissionsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/QuestionSet/{questionSetId}/QuestionsForEdit": {
+      "get": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "GetQuestionsForEdit",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfCreateUpdateQuestionDto"
                 }
               }
             }
@@ -3037,6 +3069,19 @@
           }
         }
       },
+      "QuestionHistoryUpdate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "questionId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "isCorrect": {
+            "type": "boolean"
+          }
+        }
+      },
       "ApiResponseOfQuestionSetPermissionsDto": {
         "type": "object",
         "additionalProperties": false,
@@ -3084,15 +3129,36 @@
           }
         }
       },
-      "QuestionHistoryUpdate": {
+      "ApiResponseOfListOfCreateUpdateQuestionDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "questionId": {
-            "type": "string",
-            "format": "guid"
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           },
-          "isCorrect": {
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CreateUpdateQuestionDto"
+            }
+          },
+          "success": {
             "type": "boolean"
           }
         }

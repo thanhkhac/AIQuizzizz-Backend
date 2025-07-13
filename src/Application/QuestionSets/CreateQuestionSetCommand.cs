@@ -72,6 +72,7 @@ public class CreateQuestionSetCommandHandler : IRequestHandler<CreateQuestionSet
             {
                 Id = Guid.NewGuid(),
                 QuestionSetId = questionSet.Id,
+                ExplainText = questionDto.ExplainText,
                 Type = Enum.Parse<QuestionType>(questionDto.Type!),
                 QuestionText = questionDto.QuestionText,
                 TextFormat = TextFormat.Html, 

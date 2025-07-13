@@ -1,23 +1,22 @@
 ﻿# POST Users Register
-POST {{Web_HostAddress}}/api/Users/register
+POST {{Web_HostAddress}}/api/Authentiation/register
 Content-Type: application/json
 
 {
-  "email": "Sa@1234",
+  "email": "sa@gmail.com",
   "password": "Sa@1234"
 }
 
 ###
 
 # POST Users Login
-POST {{Web_HostAddress}}/api/Users/login
+POST {{Web_HostAddress}}/api/Authentiation/login
 Content-Type: application/json
 
 {
-  "email": "{{Email}}",
-  "password": "{{Password}}"
+  "email": "sa@gmail.com",
+  "password": "Sa@1234"
 }
-
 ###
 
 # POST Users Refresh

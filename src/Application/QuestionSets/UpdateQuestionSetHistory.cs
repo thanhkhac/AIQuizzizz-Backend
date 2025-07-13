@@ -1,11 +1,13 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.QuestionSets.Services;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.QuestionSets;
 
+[Authorize]
 public class UpdateQuestionSetHistoryCommand : IRequest<Unit>
 {
     public Guid QuestionSetId { get; set; }
@@ -48,7 +50,11 @@ public class UpdateQuestionSetHistoryCommandHandler : IRequestHandler<UpdateQues
 
     public async Task<Unit> Handle(UpdateQuestionSetHistoryCommand request, CancellationToken cancellationToken)
     {
-        var userId = _user.UserId ?? throw new UnauthorizedAccessException();
+        var userId = _user.UserId!.Value;
+        
+        var questionSet = await _questionSetService.GetActiveQuestionSet(request.QuestionSetId, cancellationToken);
+        if (questionSet == null)
+            throw new ErrorCodeException(ErrorCodes.QUESTION_SET_NOT_FOUND);
 
         // Kiểm tra quyền truy cập question set
         if (!await _questionSetService.CanUserViewQuestionSet(userId, request.QuestionSetId))
