@@ -122,38 +122,6 @@
         }
       }
     },
-    "/api/Authentication/GoogleRegister": {
-      "post": {
-        "tags": [
-          "Authentication"
-        ],
-        "operationId": "GoogleRegister",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/GoogleRegisterCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfTokenDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/Authentication/RefreshToken": {
       "post": {
         "tags": [
@@ -256,11 +224,11 @@
         ],
         "operationId": "RequestEmailVerification",
         "requestBody": {
-          "x-name": "dto",
+          "x-name": "command",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/EmailVerificationRequestDto"
+                "$ref": "#/components/schemas/RequestEmailVerificationCommand"
               }
             }
           },
@@ -288,11 +256,11 @@
         ],
         "operationId": "VerifyEmail",
         "requestBody": {
-          "x-name": "dto",
+          "x-name": "command",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/EmailVerificationConfirmDto"
+                "$ref": "#/components/schemas/VerifyEmailCommand"
               }
             }
           },
@@ -320,11 +288,11 @@
         ],
         "operationId": "RequestPasswordReset",
         "requestBody": {
-          "x-name": "dto",
+          "x-name": "command",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ForgotPasswordDto"
+                "$ref": "#/components/schemas/RequestPasswordResetCommand"
               }
             }
           },
@@ -352,11 +320,11 @@
         ],
         "operationId": "ResetPassword",
         "requestBody": {
-          "x-name": "dto",
+          "x-name": "command",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ResetPasswordDto"
+                "$ref": "#/components/schemas/ResetPasswordCommand"
               }
             }
           },
@@ -389,6 +357,38 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ChangePasswordCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Authentication/SetPassword": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "SetPassword",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetPasswordCommand"
               }
             }
           },
@@ -1937,6 +1937,9 @@
           "expireMin": {
             "type": "integer",
             "format": "int32"
+          },
+          "hasPassword": {
+            "type": "boolean"
           }
         }
       },
@@ -1958,14 +1961,8 @@
         "properties": {
           "authorizationCode": {
             "type": "string"
-          }
-        }
-      },
-      "GoogleRegisterCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "authorizationCode": {
+          },
+          "redirectUri": {
             "type": "string"
           }
         }
@@ -2035,7 +2032,7 @@
           }
         }
       },
-      "EmailVerificationRequestDto": {
+      "RequestEmailVerificationCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -2044,7 +2041,7 @@
           }
         }
       },
-      "EmailVerificationConfirmDto": {
+      "VerifyEmailCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -2056,7 +2053,7 @@
           }
         }
       },
-      "ForgotPasswordDto": {
+      "RequestPasswordResetCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -2065,7 +2062,7 @@
           }
         }
       },
-      "ResetPasswordDto": {
+      "ResetPasswordCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -2088,6 +2085,18 @@
             "type": "string"
           },
           "newPassword": {
+            "type": "string"
+          }
+        }
+      },
+      "SetPasswordCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
             "type": "string"
           }
         }
