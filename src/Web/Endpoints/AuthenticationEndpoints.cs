@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 
 namespace CleanArchitectureBase.Web.Endpoints;
 
-public class Authentication : EndpointGroupBase
+public class AuthenticationEndpoints : EndpointGroupBase
 {
     public override void Map(WebApplication app)
     {
