@@ -13,6 +13,7 @@ public class Test : EndpointGroupBase
         app.MapGroup(this)
             .MapGet(SearchTestTemplate, "/Templates")
             .MapGet(GetTestTemplatePermissions, "/{testTemplateId}/Permissions")
+            .MapGet(GetTestTemplateDetail, "/Template/{testTemplateId}")
             .MapPost(CreateTestTemplate, "/Templates");
 
         app.MapGroup(this).DisableAntiforgery()
@@ -50,16 +51,31 @@ public class Test : EndpointGroupBase
         var result = await sender.Send(query);
         return result.ToOk();
     }
+    
+    public async Task<Ok<ApiResponse<TestTemplateResponseDto>>> GetTestTemplateDetail([FromRoute] Guid testTemplateId, ISender sender)
+    {
+        var query = new GetTestTemplateDetail
+        {
+            TestTemplateId = testTemplateId
+        };
+        var result = await sender.Send(query);
+        return result.ToOk();
+    }
 
     public async Task<Ok<ApiResponse<ImportedQuestionDto>>> ImportFileTestTemplate(
-        [FromForm] IFormFile fileData,
+        [FromForm] IFormFile file,
         ISender sender)
     {
-        var rq = new ImportFileTestTemplateCommand
+        var rq = new FileStreamData()
         {
-            FileData = fileData
+            Data = file.OpenReadStream(),
+            ContentType = file.ContentType,
+            FileName = file.FileName,
         };
-        var result = await sender.Send(rq);
+        var result = await sender.Send(new ImportFileTestTemplateCommand
+        {
+            FileData = rq
+        });
         return result.ToOk();
     }
 }

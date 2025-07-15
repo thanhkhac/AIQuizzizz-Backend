@@ -80,7 +80,9 @@ public static class ErrorCodes
     public const string USER_NOT_HAVE_PERMISSION_IN_FOLDER = nameof(USER_NOT_HAVE_PERMISSION_IN_FOLDER);
     
     //Test
+    public const string TEST_TEMPLATE_NOT_FOUND = nameof(TEST_TEMPLATE_NOT_FOUND);
     public const string NUMBER_OF_QUESTION_EXCEED_LIMIT = nameof(NUMBER_OF_QUESTION_EXCEED_LIMIT);
+    public const string USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE = nameof(USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE);
     
     //File
     public const string FILE_NOT_FOUND = nameof(FILE_NOT_FOUND);
