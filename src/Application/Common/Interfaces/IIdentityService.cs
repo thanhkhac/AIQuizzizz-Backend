@@ -20,7 +20,7 @@ public interface IIdentityService
     
     Task<TokenDto> TryGoogleLoginAsync(string authorizationCode, string redirectUri);
     
-    Task<TokenDto> TryGoogleRegisterAsync(string authorizationCode, string redirectUri);
+    Task TrySetPasswordAsync(Guid userId, string password);
     
     Task<TokenDto> RefreshTokenAsync(string accessToken, string refreshToken);
     

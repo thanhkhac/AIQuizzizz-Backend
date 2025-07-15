@@ -243,6 +243,20 @@ public class IdentityService : IIdentityService
         }
     }
 
+    public async Task TrySetPasswordAsync(Guid userId, string password)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {userId} not found");
+
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        var result = await _userManager.ResetPasswordAsync(user, token, password);
+
+        if (!result.Succeeded)
+            throw new ErrorCodeException(ErrorCodes.COMMON_SERVER_INTERNAL_ERROR, "Failed to set password");
+    }
+
+
     public async Task<TokenDto> RefreshTokenAsync(string accessToken, string refreshToken)
     {
         var storedRefreshToken = await _dbContext.Set<RefreshToken>()
@@ -367,70 +381,14 @@ public class IdentityService : IIdentityService
         var result = await _userManager.CreateAsync(userAccount);
 
         if (!result.Succeeded)
-            throw new Exception();
-
-        return await GenerateJwtTokenAsync(userAccount);
-    }
-
-    public async Task<TokenDto> TryGoogleRegisterAsync(string authorizationCode, string redirectUri)
-    {
-        GoogleUserDto? googleUser;
-        try
-        {
-            googleUser = await _googleAuthService.ExchangeCodeForUserInfoAsync(authorizationCode, redirectUri);
-            if (googleUser == null) throw new Exception();
-        }
-        catch (Exception)
-        {
-            throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, "Invalid authorization code");
-        }
-
-        var existingUser = await _userManager.FindByEmailAsync(googleUser.Email);
-
-        if (existingUser != null)
-        {
-            if (existingUser.IsBanned)
-                throw new ErrorCodeException(ErrorCodes.ACCOUNT_EMAIL_BANNED);
-
-            if (!existingUser.EmailConfirmed)
-            {
-                existingUser.EmailConfirmed = true;
-                await _userManager.UpdateAsync(existingUser);
-            }
-
-            var token = await GenerateJwtTokenAsync(existingUser);
-
-            return token;
-        }
-
-        var user = new User
-        {
-            Id = Guid.NewGuid(),
-            Email = googleUser.Email,
-            FullName = googleUser.Name,
-        };
-
-        var userAccount = new UserAccount
-        {
-            Id = user.Id,
-            UserName = Guid.NewGuid().ToString(),
-            Email = googleUser.Email,
-            User = user,
-            EmailConfirmed = true
-        };
-
-        var result = await _userManager.CreateAsync(userAccount);
-
-        if (!result.Succeeded)
-        {
-            if (result.Errors.Any(e => e.Code == nameof(IdentityErrorDescriber.DuplicateEmail)))
-                throw new ErrorCodeException(ErrorCodes.IDENTITY_DUPLICATE_EMAIL);
             throw new ErrorCodeException(ErrorCodes.COMMON_SERVER_INTERNAL_ERROR, $"Error at change password");
-        }
+
         var tokenDto = await GenerateJwtTokenAsync(userAccount);
+        tokenDto.HasPassword = false;
 
         return tokenDto;
     }
+
 
     public async Task RequestEmailVerificationAsync(string email)
     {
