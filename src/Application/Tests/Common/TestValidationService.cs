@@ -16,7 +16,7 @@ public class TestValidationService
         _user = user;
     }
     
-    public async Task ValidateQuestionAccessAsync(List<CreateQuestionDto> question , CancellationToken cancellationToken)
+    public async Task ValidateQuestionAccessAsync(List<CreateUpdateQuestionDto> question , CancellationToken cancellationToken)
     {
         var questionSetPairs = question
             .Where(q => q.QuestionId.HasValue)

@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 
 namespace CleanArchitectureBase.Web.Endpoints;
 
-public class Authentication : EndpointGroupBase
+public class AuthenticationEndpoints : EndpointGroupBase
 {
     public override void Map(WebApplication app)
     {
@@ -24,6 +24,7 @@ public class Authentication : EndpointGroupBase
             .MapPost(VerifyEmail, "VerifyEmail")
             .MapPost(RequestPasswordReset, "RequestPasswordReset")
             .MapPost(ResetPassword, "ResetPassword")
+            .MapPost(ChangePassword, "ChangePassword")
             ;
     }
 
@@ -133,27 +134,38 @@ public class Authentication : EndpointGroupBase
         httpContext.Response.Cookies.Append("refresh_token", "", expiredOptions);
     }
 
+    //TODO: Loại bỏ DTO, thay trực tiếp bằng command
     public async Task<Ok<ApiResponse>> RequestEmailVerification([FromBody] EmailVerificationRequestDto dto, ISender sender)
     {
         await sender.Send(new RequestEmailVerificationCommand { Email = dto.Email });
         return ApiResponse.SuccessResult().ToOk();
     }
-
+    
+    //TODO: Loại bỏ DTO, thay trực tiếp bằng command
     public async Task<Ok<ApiResponse>> VerifyEmail([FromBody] EmailVerificationConfirmDto dto, ISender sender)
     {
         await sender.Send(new VerifyEmailCommand { Email = dto.Email, VerificationCode = dto.VerificationCode });
         return ApiResponse.SuccessResult().ToOk();
     }
 
+    //TODO: Loại bỏ DTO, thay trực tiếp bằng command
     public async Task<Ok<ApiResponse>> RequestPasswordReset([FromBody] ForgotPasswordDto dto, ISender sender)
     {
         await sender.Send(new RequestPasswordResetCommand { Email = dto.Email });
         return ApiResponse.SuccessResult().ToOk();
     }
 
+    //TODO: Loại bỏ DTO, thay trực tiếp bằng command
     public async Task<Ok<ApiResponse>> ResetPassword([FromBody] ResetPasswordDto dto, ISender sender)
     {
         await sender.Send(new ResetPasswordCommand { Email = dto.Email, ResetCode = dto.ResetCode, NewPassword = dto.NewPassword });
+        return ApiResponse.SuccessResult().ToOk();
+    }
+
+    //TODO: Loại bỏ DTO, thay trực tiếp bằng command
+    public async Task<Ok<ApiResponse>> ChangePassword([FromBody] ChangePasswordCommand command, ISender sender)
+    {
+        await sender.Send(command);
         return ApiResponse.SuccessResult().ToOk();
     }
 }

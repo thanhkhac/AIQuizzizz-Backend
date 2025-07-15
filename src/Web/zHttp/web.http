@@ -1,37 +1,4 @@
-﻿# POST Users Register
-POST {{Web_HostAddress}}/api/Users/register
-Content-Type: application/json
-
-{
-  "email": "Sa@1234",
-  "password": "Sa@1234"
-}
-
-###
-
-# POST Users Login
-POST {{Web_HostAddress}}/api/Users/login
-Content-Type: application/json
-
-{
-  "email": "{{Email}}",
-  "password": "{{Password}}"
-}
-
-###
-
-# POST Users Refresh
-POST {{Web_HostAddress}}/api/Users/refresh-token
-Authorization: Bearer {{BearerToken}}
-Content-Type: application/json
-
-{
-  "refreshToken": "68df8c13-ddcb-4c9c-a0e8-b8d3e28017d5",
-  "accessToken": "{{BearerToken}}"
-}
-###
-
-POST {{Web_HostAddress}}/api/QuestionSets/create
+﻿POST {{Web_HostAddress}}/api/QuestionSet
 Authorization: Bearer {{BearerToken}}
 Content-Type: application/json
 
@@ -297,3 +264,44 @@ Content-Type: application/json
 ###
 
 
+PATCH {{Web_HostAddress}}/api/QuestionSets
+Authorization: Bearer {{BearerToken}}
+Content-Type: application/json
+
+{
+  "name": "Kiểm tra kiến thức tổng quát",
+  "description": "Bài kiểm tra ngắn về các chủ đề cơ bản",
+  "questions": [
+    {
+      "questionId": "<Id của question cần update>",
+      "type": "MultipleChoice",
+      "questionText": "2 + 3 bằng bao nhiêu?",
+      "explainText": "Cộng hai số 2 và 3 sẽ cho kết quả là 5.",
+      "score": 10,
+      "multipleChoices": [
+        { "text": "5", "isAnswer": true },
+        { "text": "6", "isAnswer": false },
+        { "text": "7", "isAnswer": false }
+      ],
+      "matchingPairs": [],
+      "orderingItems": [],
+      "shortAnswer": ""
+    },
+    {
+      "questionId": null,
+      "type": "Matching",
+      "questionText": "Nối các thành phố với quốc gia của chúng",
+      "explainText": "Mỗi thành phố thuộc một quốc gia duy nhất.",
+      "score": 15,
+      "multipleChoices": [],
+      "matchingPairs": [
+        { "leftItem": "Hà Nội", "rightItem": "Việt Nam" },
+        { "leftItem": "Paris", "rightItem": "Pháp" }
+      ],
+      "orderingItems": [],
+      "shortAnswer": ""
+    }
+  ],
+  "deleteQuestionIds": ["<GUID>", "<GUID>"]
+}
+###

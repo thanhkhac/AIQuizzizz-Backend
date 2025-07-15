@@ -12,12 +12,12 @@ public class QuestionResponseDto
     public string QuestionText { get; set; } = null!;
     public string? ExplainText { get; set; }
     public float Score { get; set; }
-    public bool Completed { get; set; }
+    public bool? IsCorrect { get; set; }
     public QuestionDataDto QuestionData { get; set; } = null!;
 
     public static class Mapper
     {
-        public static QuestionResponseDto FromEntity(Question question, bool completed)
+        public static QuestionResponseDto FromEntity(Question question, bool? isCorrect)
         {
             return new QuestionResponseDto
             {
@@ -28,7 +28,7 @@ public class QuestionResponseDto
                 QuestionText = question.QuestionText ?? string.Empty,
                 ExplainText = question.ExplainText,
                 Score = question.Score,
-                Completed = completed,
+                IsCorrect = isCorrect,
                 QuestionData = QuestionDataDto.Deserializer.FromJson(question.Type, question.DataJson)
             };
         }

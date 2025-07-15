@@ -377,6 +377,38 @@
         }
       }
     },
+    "/api/Authentication/ChangePassword": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "ChangePassword",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Class": {
       "post": {
         "tags": [
@@ -748,12 +780,8 @@
             "name": "status",
             "in": "query",
             "schema": {
-              "nullable": true,
-              "oneOf": [
-                {
-                  "$ref": "#/components/schemas/TestStatus"
-                }
-              ]
+              "type": "string",
+              "nullable": true
             },
             "x-position": 1
           },
@@ -1057,6 +1085,396 @@
             "x-position": 2
           },
           {
+            "name": "sharedMode",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "x-position": 4
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 5
+            },
+            "x-position": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfTestTemplateDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/QuestionSet": {
+      "post": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "CreateQuestionSet",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateQuestionSetCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/QuestionSet/{questionSetId}/Questions": {
+      "get": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "GetQuestions",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfQuestionResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/QuestionSet/{questionSetId}": {
+      "patch": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "UpdateQuestionSet",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateQuestionSetCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "DeleteQuestionSet",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfUnit"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/QuestionSet/{questionSetId}/LearnQuestions": {
+      "get": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "GetLearnQuestions",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "questionCount",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfQuestionResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/QuestionSet/{questionSetId}/LearnHistory": {
+      "post": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "UpdateQuestionSetHistory",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "questions",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/QuestionHistoryUpdate"
+                }
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfUnit"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "ResetQuestionSetHistory",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfUnit"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/QuestionSet/{questionSetId}/Permissions": {
+      "get": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "GetPermissions",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfQuestionSetPermissionsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/QuestionSet/{questionSetId}/QuestionsForEdit": {
+      "get": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "GetQuestionsForEdit",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfCreateUpdateQuestionDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Test/Templates": {
+      "get": {
+        "tags": [
+          "Test"
+        ],
+        "operationId": "SearchTestTemplate",
+        "parameters": [
+          {
+            "name": "folderName",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "sharedMode",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
             "name": "pageNumber",
             "in": "query",
             "schema": {
@@ -1089,105 +1507,7 @@
             }
           }
         }
-      }
-    },
-    "/api/QuestionSets/Create": {
-      "post": {
-        "tags": [
-          "QuestionSets"
-        ],
-        "operationId": "CreateQuestionSet",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateQuestionSetCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfGuid"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/QuestionSets/{questionSetId}/permissions": {
-      "get": {
-        "tags": [
-          "QuestionSets"
-        ],
-        "operationId": "GetPermissions",
-        "parameters": [
-          {
-            "name": "questionSetId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "guid"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfQuestionSetPermissionsDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/QuestionSets/{questionSetId}/questions": {
-      "get": {
-        "tags": [
-          "QuestionSets"
-        ],
-        "operationId": "GetQuestions",
-        "parameters": [
-          {
-            "name": "questionSetId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "guid"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfQuestionResponseDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Test/Templates": {
+      },
       "post": {
         "tags": [
           "Test"
@@ -1212,6 +1532,74 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Test/{testTemplateId}/Permissions": {
+      "get": {
+        "tags": [
+          "Test"
+        ],
+        "operationId": "GetTestTemplatePermissions",
+        "parameters": [
+          {
+            "name": "testTemplateId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfTestTemplatePermissionsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Test/Templates/ImportFile": {
+      "post": {
+        "tags": [
+          "Test"
+        ],
+        "operationId": "ImportFileTestTemplate",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fileData": {
+                    "type": "string",
+                    "format": "binary",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfImportedQuestionDto"
                 }
               }
             }
@@ -1449,6 +1837,12 @@
           "balance": {
             "type": "integer",
             "format": "int64"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
@@ -1686,6 +2080,18 @@
           }
         }
       },
+      "ChangePasswordCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "currentPassword": {
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string"
+          }
+        }
+      },
       "ApiResponseOfGuid": {
         "type": "object",
         "additionalProperties": false,
@@ -1849,12 +2255,12 @@
           "questions": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/CreateQuestionDto"
+              "$ref": "#/components/schemas/CreateUpdateQuestionDto"
             }
           }
         }
       },
-      "CreateQuestionDto": {
+      "CreateUpdateQuestionDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -2228,22 +2634,6 @@
           }
         }
       },
-      "TestStatus": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "Active",
-          "Completed",
-          "Upcoming",
-          "Overdue"
-        ],
-        "enum": [
-          0,
-          1,
-          2,
-          3
-        ]
-      },
       "ApiResponseOfUpdatePositionDto": {
         "type": "object",
         "additionalProperties": false,
@@ -2369,7 +2759,7 @@
             "type": "string",
             "nullable": true
           },
-          "sharedBy": {
+          "createBy": {
             "type": "string",
             "nullable": true
           }
@@ -2444,6 +2834,10 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "testTemplateId": {
+            "type": "string",
+            "format": "guid"
+          },
           "name": {
             "type": "string",
             "nullable": true
@@ -2455,6 +2849,10 @@
           "dateCreated": {
             "type": "string",
             "format": "date-time",
+            "nullable": true
+          },
+          "createdBy": {
+            "type": "string",
             "nullable": true
           }
         }
@@ -2483,55 +2881,8 @@
           "questions": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/CreateQuestionDto"
+              "$ref": "#/components/schemas/CreateUpdateQuestionDto"
             }
-          }
-        }
-      },
-      "ApiResponseOfQuestionSetPermissionsDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "errors": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "validationErrors": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "data": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/QuestionSetPermissionsDto"
-              }
-            ]
-          },
-          "success": {
-            "type": "boolean"
-          }
-        }
-      },
-      "QuestionSetPermissionsDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "canEdit": {
-            "type": "boolean"
-          },
-          "canDelete": {
-            "type": "boolean"
           }
         }
       },
@@ -2590,12 +2941,17 @@
           "questionText": {
             "type": "string"
           },
+          "explainText": {
+            "type": "string",
+            "nullable": true
+          },
           "score": {
             "type": "number",
             "format": "float"
           },
-          "completed": {
-            "type": "boolean"
+          "isCorrect": {
+            "type": "boolean",
+            "nullable": true
           },
           "questionData": {
             "$ref": "#/components/schemas/QuestionDataDto"
@@ -2607,11 +2963,13 @@
         "description": "",
         "x-enumNames": [
           "MarkDown",
-          "PlainText"
+          "PlainText",
+          "Html"
         ],
         "enum": [
           0,
-          1
+          1,
+          2
         ]
       },
       "QuestionDataDto": {
@@ -2730,6 +3088,178 @@
           }
         }
       },
+      "UpdateQuestionSetCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "questionSetId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "createUpdateQuestions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateUpdateQuestionDto"
+            }
+          },
+          "deleteQuestionIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "guid"
+            }
+          }
+        }
+      },
+      "QuestionHistoryUpdate": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "questionId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "isCorrect": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ApiResponseOfQuestionSetPermissionsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/QuestionSetPermissionsDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "QuestionSetPermissionsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "canEdit": {
+            "type": "boolean"
+          },
+          "canDelete": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ApiResponseOfListOfCreateUpdateQuestionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CreateUpdateQuestionDto"
+            }
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ApiResponseOfTestTemplatePermissionsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TestTemplatePermissionsDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TestTemplatePermissionsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "canEdit": {
+            "type": "boolean"
+          },
+          "canDelete": {
+            "type": "boolean"
+          }
+        }
+      },
       "CreateTestTemplateCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -2740,7 +3270,62 @@
           "questions": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/CreateQuestionDto"
+              "$ref": "#/components/schemas/CreateUpdateQuestionDto"
+            }
+          }
+        }
+      },
+      "ApiResponseOfImportedQuestionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ImportedQuestionDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ImportedQuestionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "validQuestions": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CreateUpdateQuestionDto"
+            }
+          },
+          "invalidQuestions": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CreateUpdateQuestionDto"
             }
           }
         }

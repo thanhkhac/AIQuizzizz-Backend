@@ -1,6 +1,6 @@
 ﻿namespace CleanArchitectureBase.Application.Questions.Utils;
 
-public static class QuestionShuffleHelper
+public static class ShuffleHelper
 {
     private static readonly Random _random = new();
 

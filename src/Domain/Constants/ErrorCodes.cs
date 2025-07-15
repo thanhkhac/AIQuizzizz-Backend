@@ -26,6 +26,7 @@ public static class ErrorCodes
     public const string ACCOUNT_EMAIL_NOT_VERIFIED = nameof(ACCOUNT_EMAIL_NOT_VERIFIED); 
     public const string ACCOUNT_EMAIL_BANNED  = nameof(ACCOUNT_EMAIL_BANNED ); 
     public const string ACCOUNT_INVALID_RESET_CODE  = nameof(ACCOUNT_INVALID_RESET_CODE ); 
+    public const string ACCOUNT_WRONG_PASSWORD  = nameof(ACCOUNT_WRONG_PASSWORD ); 
     // public const string ACCOUNT_TOO_MANY_REQUESTS  = nameof(ACCOUNT_TOO_MANY_REQUESTS ); 
     public const string EMAIL_VERIFICATION_REQUEST_TOO_MANY  = nameof(EMAIL_VERIFICATION_REQUEST_TOO_MANY ); 
     public const string EMAIL_VERIFICATION_CODE_FAILED_TOO_MANY  = nameof(EMAIL_VERIFICATION_CODE_FAILED_TOO_MANY ); 
