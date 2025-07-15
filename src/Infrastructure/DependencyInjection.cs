@@ -9,6 +9,7 @@ using CleanArchitectureBase.Domain.Entities;
 using CleanArchitectureBase.Infrastructure.Data;
 using CleanArchitectureBase.Infrastructure.Data.Interceptors;
 using CleanArchitectureBase.Infrastructure.DomainServices;
+using CleanArchitectureBase.Infrastructure.File;
 using CleanArchitectureBase.Infrastructure.Identity;
 using CleanArchitectureBase.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -169,6 +170,7 @@ public static class DependencyInjection
         services.AddTransient<IUserQuestionSetHistoryService, UserQuestionSetHistoryService>();
         services.AddTransient<IPlanService, PlanService>();
         services.AddSingleton<IRedisService, RedisService>();
+        services.AddSingleton<IFileService, FileService>();
 
         // Register Google Auth Service
         services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();

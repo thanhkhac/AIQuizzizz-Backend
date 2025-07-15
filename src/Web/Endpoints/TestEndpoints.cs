@@ -63,14 +63,19 @@ public class Test : EndpointGroupBase
     }
 
     public async Task<Ok<ApiResponse<ImportedQuestionDto>>> ImportFileTestTemplate(
-        [FromForm] IFormFile fileData,
+        [FromForm] IFormFile file,
         ISender sender)
     {
-        var rq = new ImportFileTestTemplateCommand
+        var rq = new FileStreamData()
         {
-            FileData = fileData
+            Data = file.OpenReadStream(),
+            ContentType = file.ContentType,
+            FileName = file.FileName,
         };
-        var result = await sender.Send(rq);
+        var result = await sender.Send(new ImportFileTestTemplateCommand
+        {
+            FileData = rq
+        });
         return result.ToOk();
     }
 }
