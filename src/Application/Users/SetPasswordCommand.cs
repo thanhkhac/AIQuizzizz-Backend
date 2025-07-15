@@ -6,7 +6,6 @@ namespace CleanArchitectureBase.Application.Users;
 [Authorize]
 public class SetPasswordCommand : IRequest
 {
-    public required string Email { get; set; }
     public required string Password { get; set; }
 }
 
@@ -15,9 +14,6 @@ public class SetPasswordCommandValidator : AbstractValidator<SetPasswordCommand>
 {
     public SetPasswordCommandValidator()
     {
-        RuleFor(x => x.Email)
-            .NotEmpty()
-            .EmailAddress();
         RuleFor(x => x.Password)
             .NotEmpty()
             .MinimumLength(6);
