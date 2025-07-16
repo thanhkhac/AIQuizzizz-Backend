@@ -264,6 +264,7 @@ public class Test : BaseAuditableEntity
     public required DateTime TimeFinish { get; set; }
     public required int TimeLimit { get; set; }
     public required int QuestionCount { get; set; }
+    public float PassingScore{ get; set; }
     public required GradeAttemptMethod GradeAttemptMethod { get; set; }
     public required GradeQuestionMethod GradeQuestionMethod { get; set; }
     public bool IsShowCorrectAnswerInReview { get; set; }
