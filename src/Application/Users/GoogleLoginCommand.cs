@@ -26,12 +26,10 @@ public class GoogleLoginCommandValidator : AbstractValidator<GoogleLoginCommand>
 public class GoogleLoginCommandHandler : IRequestHandler<GoogleLoginCommand, TokenDto>
 {
     private readonly IIdentityService _identityService;
-    private readonly IApplicationDbContext _context;
 
     public GoogleLoginCommandHandler(IIdentityService identityService, IApplicationDbContext context)
     {
         _identityService = identityService;
-        _context = context;
     }
 
     public async Task<TokenDto> Handle(GoogleLoginCommand request, CancellationToken cancellationToken)
