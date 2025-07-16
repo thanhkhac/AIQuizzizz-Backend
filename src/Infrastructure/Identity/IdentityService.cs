@@ -248,6 +248,9 @@ public class IdentityService : IIdentityService
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {userId} not found");
+            
+        if (await _userManager.HasPasswordAsync(user))
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_ALREADY_HAS_PASSWORD, $"User with id {userId} already has a password set");
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
         var result = await _userManager.ResetPasswordAsync(user, token, password);
