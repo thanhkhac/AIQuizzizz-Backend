@@ -262,6 +262,7 @@ public class Test : BaseAuditableEntity
     public required Guid ClassId { get; set; }
     public required DateTime TimeStart { get; set; }
     public required DateTime TimeFinish { get; set; }
+    public int MaxAttempt { get; set; } 
     public required int TimeLimit { get; set; }
     public required int QuestionCount { get; set; }
     public float PassingScore{ get; set; }

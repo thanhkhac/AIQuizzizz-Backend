@@ -1,18 +1,19 @@
 ﻿using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Questions.Dtos;
 using CleanArchitectureBase.Application.Tests.Dto;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Tests;
 
-public class StartAttemptTestCommand : IRequest<TestDetailDto>
+public class StartAttemptTestCommand : IRequest<AttemptDetailDto>
 {
     public Guid TestId { get; set; }
 }
 
-public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCommand, TestDetailDto>
+public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCommand, AttemptDetailDto>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
@@ -25,7 +26,7 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
         _user = user;
     }
     
-    public async Task<TestDetailDto> Handle(StartAttemptTestCommand rq, CancellationToken cancellationToken)
+    public async Task<AttemptDetailDto> Handle(StartAttemptTestCommand rq, CancellationToken cancellationToken)
     {
         var test = await _context.Tests.Where(x => x.Id == rq.TestId)
             .FirstOrDefaultAsync(cancellationToken);
@@ -58,11 +59,25 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
             UserId = _user.UserId ?? Guid.Empty,
             TestId = rq.TestId
         };
+
+        var attemptDetail = new AttemptDetailDto
+        {
+            AttemptId = attempt.Id,
+            Name = test.Name,
+            TimeStart = test.TimeStart,
+            TimeEnd = test.TimeFinish,
+            TimeLimit = test.TimeLimit,
+        };
+        
+        // var questions = _context.TestVersionQuestions
+        //     .Include(x => x.Question)
+        //     .Where(x => x.TestVersion!.Id == testVersionId)
+        //     .Select(q => QuestionResponseDto.Mapper.FromEntity())
         
         _context.Attempts.Add(attempt);
         
         await _context.SaveChangesAsync(cancellationToken);
         
-        return new TestDetailDto();
+        return new AttemptDetailDto();
     }
 }
