@@ -26,7 +26,8 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
     
     public async Task<Guid> Handle(StartAttemptTestCommand rq, CancellationToken cancellationToken)
     {
-        var test = await _context.Tests.Where(x => x.Id == rq.TestId).FirstOrDefaultAsync(cancellationToken);
+        var test = await _context.Tests.Where(x => x.Id == rq.TestId)
+            .FirstOrDefaultAsync(cancellationToken);
         if (test == null)
             throw new ErrorCodeException(ErrorCodes.TEST_NOT_FOUND, "Bài test không tồn tại");
         

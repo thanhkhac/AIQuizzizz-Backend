@@ -1,19 +1,12 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Questions.Dtos;
+using CleanArchitectureBase.Application.Tests.Dto;
 using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.Tests;
 
-public class TestTemplateResponseDto
-{
-    public Guid TestTemplateId { get; set; }
-    public string?Name { get; set; }
-    public int QuestionCount { get; set; }
-    public List<QuestionResponseDto> Questions { get; set; } = new();
-}
-
-public class GetTestTemplateDetail : IRequest<TestTemplateResponseDto>
+public class GetTestTemplateDetail : IRequest<TestTemplateDetailDto>
 {
     public required Guid TestTemplateId { get; set; }
 }
@@ -27,7 +20,7 @@ public class GetTestTemplateDetailValidator : AbstractValidator<GetTestTemplateD
     }
 }
 
-public class GetTestTemplateDetailHandler : IRequestHandler<GetTestTemplateDetail, TestTemplateResponseDto>
+public class GetTestTemplateDetailHandler : IRequestHandler<GetTestTemplateDetail, TestTemplateDetailDto>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
@@ -40,9 +33,10 @@ public class GetTestTemplateDetailHandler : IRequestHandler<GetTestTemplateDetai
         _identityService = identityService;
     }
     
-    public async Task<TestTemplateResponseDto> Handle(GetTestTemplateDetail rq, CancellationToken cancellationToken)
+    public async Task<TestTemplateDetailDto> Handle(GetTestTemplateDetail rq, CancellationToken cancellationToken)
     {
-        var testTemplate = await _context.TestTemplates.Where(t => t.Id == rq.TestTemplateId).FirstOrDefaultAsync(cancellationToken);
+        var testTemplate = await _context.TestTemplates.Where(t => t.Id == rq.TestTemplateId && t.IsDeleted == false)
+            .FirstOrDefaultAsync(cancellationToken);
         if (testTemplate == null)
             throw new ErrorCodeException(ErrorCodes.TEST_TEMPLATE_NOT_FOUND, "TestTemplate không tồn tại");
         
@@ -58,7 +52,7 @@ public class GetTestTemplateDetailHandler : IRequestHandler<GetTestTemplateDetai
             .Include(t => t.TestTemplateQuestions)
             .ThenInclude(t => t.Question)
             .Where(t => t.Id == rq.TestTemplateId)
-            .Select(t => new TestTemplateResponseDto
+            .Select(t => new TestTemplateDetailDto
             {
                 TestTemplateId = t.Id,
                 Name = t.Name,
@@ -69,6 +63,6 @@ public class GetTestTemplateDetailHandler : IRequestHandler<GetTestTemplateDetai
                     .ToList()
             }).FirstOrDefaultAsync(cancellationToken);
         
-        return result != null ? result : new TestTemplateResponseDto();
+        return result != null ? result : new TestTemplateDetailDto();
     }
 }

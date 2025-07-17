@@ -56,7 +56,7 @@ public class Test : EndpointGroupBase
         return result.ToOk();
     }
     
-    public async Task<Ok<ApiResponse<TestTemplateResponseDto>>> GetTestTemplateDetail([FromRoute] Guid testTemplateId, ISender sender)
+    public async Task<Ok<ApiResponse<TestTemplateDetailDto>>> GetTestTemplateDetail([FromRoute] Guid testTemplateId, ISender sender)
     {
         var query = new GetTestTemplateDetail
         {

@@ -18,7 +18,7 @@ public class Class : EndpointGroupBase
             .MapPost(AddQuestionSet, "/{ClassId}/Questionsets/{QuestionSetId}")
             .MapPost(CreateTest, "/Test")
             .MapGet(SearchStudent, "/{ClassId}/Students")
-            .MapGet(SearchClass, "/Classes")
+            .MapGet(SearchClass, "")
             .MapGet(SearchTest, "/{ClassId}/Tests")
             .MapGet(GetTestSchedule, "/{ClassId}/Schedule")
             .MapDelete(DeleteClass, "/{ClassId}")
@@ -94,7 +94,7 @@ public class Class : EndpointGroupBase
     }
     
     public async Task<Ok<ApiResponse<PaginatedList<ClassSearchResultDto>>>> SearchClass(
-        [FromQuery] ClassShareMode? shareMode,
+        [FromQuery] string? shareMode,
         [FromQuery] string? name,
         ISender sender,
         [FromQuery] int pageNumber = 1,
