@@ -10,6 +10,7 @@ public class QuestionResponseWithUserAnswerDto : QuestionResponseDto
 
 public class UserAnswerDataDto
 {
+    public string? Type { get; set; }
     public List<Guid>? MultipleChoice { get; set; }
     public List<UserMatchingAnswerDto>? Matching { get; set; }
     public List<UserOrderingAnswerDto>? Ordering { get; set; }

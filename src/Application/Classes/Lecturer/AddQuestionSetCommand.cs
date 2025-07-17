@@ -1,4 +1,4 @@
-﻿using CleanArchitectureBase.Application.Classes.Common;
+﻿using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
@@ -28,17 +28,17 @@ public class AddQuestionSetCommandValidator : AbstractValidator<AddQuestionSetCo
 public class AddQuestionSetCommandHandler : IRequestHandler<AddQuestionSetCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
-    private readonly ClassValidationService _classValidationService;
+    private readonly IClassService _classService;
     
-    public AddQuestionSetCommandHandler(IApplicationDbContext context, ClassValidationService classValidationService)
+    public AddQuestionSetCommandHandler(IApplicationDbContext context, IClassService classService)
     {
         _context = context;
-        _classValidationService = classValidationService;
+        _classService = classService;
     } 
     
     public async Task<Guid> Handle(AddQuestionSetCommand rq, CancellationToken cancellationToken)
     {
-        var (isOwner, classExists) = await _classValidationService.ValidateClassAccessAsync(rq.ClassId, cancellationToken);
+        var (isOwner, classExists) = await _classService.GetClassOwnerAccess(rq.ClassId, cancellationToken);
 
         var questionSet = await _context.QuestionSets.Where(x => x.Id == rq.QuestionSetId)
             .FirstOrDefaultAsync(cancellationToken);

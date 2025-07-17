@@ -3,20 +3,28 @@ using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Classes.Common;
+namespace CleanArchitectureBase.Application.Classes.Service;
 
-public class ClassValidationService
+public interface IClassService
 {
+    Task<(ClassUser IsOwner, Class ClassExists)> GetClassOwnerAccess(Guid classId,
+        CancellationToken cancellationToken);
+    Task IsStudentInClass(Guid classId);
+    Task IsUserInClass(Guid classId);
+}
+
+public class ClassService : IClassService{
+    
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     
-    public ClassValidationService(IApplicationDbContext context, IUser user)
+    public ClassService(IApplicationDbContext context, IUser user)
     {
         _context = context;
         _user = user;
     }
-    
-    public async Task<(ClassUser IsOwner, Class ClassExists)> ValidateClassAccessAsync(Guid classId, CancellationToken cancellationToken)
+
+    public async Task<(ClassUser IsOwner, Class ClassExists)> GetClassOwnerAccess(Guid classId, CancellationToken cancellationToken)
     {
         var result = await _context.Classes
             .Where(c => c.Id == classId && c.IsDeleted == false)
@@ -43,4 +51,23 @@ public class ClassValidationService
         return (result.ClassUser, result.Class);
     }
 
+    public async Task IsStudentInClass(Guid classId)
+    {
+        var student = await _context.ClassUsers
+            .Where(u => u.UserId == _user.UserId && u.ClassId == classId && ClassShareMode.Student == u.ShareMode)
+            .FirstOrDefaultAsync();
+
+        if (student == null)
+            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Student không có trong lớp");
+    }
+
+    public async Task IsUserInClass(Guid classId)
+    {
+        var user = await _context.ClassUsers
+            .Where(u => u.UserId == _user.UserId && u.ClassId == classId)
+            .FirstOrDefaultAsync();
+
+        if (user == null)
+            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Student không có trong lớp");
+    }
 }

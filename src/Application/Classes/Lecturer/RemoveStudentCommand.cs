@@ -1,4 +1,4 @@
-﻿using CleanArchitectureBase.Application.Classes.Common;
+﻿using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
@@ -28,30 +28,27 @@ public class RemoveStudentValidator : AbstractValidator<RemoveStudentCommand>
 public class RemoveStudentHandler : IRequestHandler<RemoveStudentCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
-    private readonly ClassValidationService _classValidationService;
+    private readonly IClassService _classService;
     
-    public RemoveStudentHandler(IApplicationDbContext context, ClassValidationService classValidationService)
+    public RemoveStudentHandler(IApplicationDbContext context, IClassService classService)
     {
         _context = context;
-        _classValidationService = classValidationService;
+        _classService = classService;
     }
     
     public async Task<Guid> Handle(RemoveStudentCommand rq, CancellationToken cancellationToken)
     {
         var user = await _context.DomainUsers
-            .Where(x => x.Id == rq.UserId && x.IsDeleted == false && x.IsBanned == false)
-            .Join(
-                _context.ClassUsers.Where(c => c.ClassId == rq.ClassId && c.ShareMode != ClassShareMode.Owner && c.Class.IsDeleted == false),
-                u => u.Id,
-                cu => cu.UserId,
-                (u, cu) => new { User = u, ClassUser = cu }
-            )
+            .Include(u => u.ClassUsers)
+            .Where(u => u.ClassUsers.Any(cu => cu.ClassId == rq.ClassId && cu.ShareMode != ClassShareMode.Owner && cu.Class.IsDeleted == false))
+            .Select(u => new { User = u, ClassUser = u.ClassUsers.FirstOrDefault(cu => cu.ClassId == rq.ClassId) })
             .FirstOrDefaultAsync(cancellationToken);
-        if (user == null)
-            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Student không tồn tại hoặc không trong lớp");
-        
-        var (isOwner, classExists) = await _classValidationService.ValidateClassAccessAsync(rq.ClassId, cancellationToken);
 
+        if (user == null || user.ClassUser == null)
+            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_USER_IN_CLASS, "User không tồn tại hoặc không trong lớp");
+        
+        var (isOwner, classExists) = await _classService.GetClassOwnerAccess(rq.ClassId, cancellationToken);
+    
         _context.ClassUsers.Remove(user.ClassUser);
         await _context.SaveChangesAsync(cancellationToken);
         return user.User.Id;
