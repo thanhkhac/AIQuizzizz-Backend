@@ -14,6 +14,7 @@ public class TestSearchResultDto
     public required string Name { get; set; }
     public int? NumberOfQuestions { get; set; }
     public required int TimeLimit { get; set; }
+    public DateTime TimeStart { get; set; }
     public double RelativeTime { get; set; }
     public int? NumberOfCompletion { get; set; }
     public string? Status { get; set; }
@@ -62,7 +63,7 @@ public class SearchTestHandler : IRequestHandler<SearchTestInClass, PaginatedLis
     
     public async Task<PaginatedList<TestSearchResultDto>> Handle(SearchTestInClass rq, CancellationToken cancellationToken)
     {
-        var (isOwner, classExists) = await _classService.GetClassOwnerAccess(rq.ClassId, cancellationToken);
+        await _classService.IsUserInClass(rq.ClassId);
         
         var tests = await _context.Tests
             .Where(x => x.ClassId.Equals(rq.ClassId)
@@ -123,6 +124,7 @@ public class SearchTestHandler : IRequestHandler<SearchTestInClass, PaginatedLis
                     : TestStatus.Active.ToString(),
                 TimeLimit = test.TimeLimit,
                 RelativeTime = Math.Floor((DateTime.UtcNow - test.TimeStart).TotalHours),
+                TimeStart = test.TimeStart,
             };
         });
 

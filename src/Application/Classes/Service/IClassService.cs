@@ -10,6 +10,7 @@ public interface IClassService
     Task<(ClassUser IsOwner, Class ClassExists)> GetClassOwnerAccess(Guid classId,
         CancellationToken cancellationToken);
     Task IsStudentInClass(Guid classId);
+    Task IsUserInClass(Guid classId);
 }
 
 public class ClassService : IClassService{
@@ -60,8 +61,13 @@ public class ClassService : IClassService{
             throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Student không có trong lớp");
     }
 
-    public Task IsUserInClass(Guid classId)
+    public async Task IsUserInClass(Guid classId)
     {
-        throw new NotImplementedException();
+        var user = await _context.ClassUsers
+            .Where(u => u.UserId == _user.UserId && u.ClassId == classId)
+            .FirstOrDefaultAsync();
+
+        if (user == null)
+            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Student không có trong lớp");
     }
 }
