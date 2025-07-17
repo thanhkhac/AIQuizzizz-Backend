@@ -1,17 +1,18 @@
 ﻿using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Tests.Dto;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Tests;
 
-public class StartAttemptTestCommand : IRequest<Guid>
+public class StartAttemptTestCommand : IRequest<TestDetailDto>
 {
     public Guid TestId { get; set; }
 }
 
-public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCommand, Guid>
+public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCommand, TestDetailDto>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
@@ -24,7 +25,7 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
         _user = user;
     }
     
-    public async Task<Guid> Handle(StartAttemptTestCommand rq, CancellationToken cancellationToken)
+    public async Task<TestDetailDto> Handle(StartAttemptTestCommand rq, CancellationToken cancellationToken)
     {
         var test = await _context.Tests.Where(x => x.Id == rq.TestId)
             .FirstOrDefaultAsync(cancellationToken);
@@ -62,6 +63,6 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
         
         await _context.SaveChangesAsync(cancellationToken);
         
-        return attempt.Id;
+        return new TestDetailDto();
     }
 }

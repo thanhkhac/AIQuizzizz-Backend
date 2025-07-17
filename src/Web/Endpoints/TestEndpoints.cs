@@ -66,7 +66,7 @@ public class Test : EndpointGroupBase
         return result.ToOk();
     }
     
-    public async Task<Ok<ApiResponse<Guid>>> StartAttemptTestTestAttempt(
+    public async Task<Ok<ApiResponse<TestDetailDto>>> StartAttemptTestTestAttempt(
         [FromRoute] Guid testId,
         ISender sender)
     {
