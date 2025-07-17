@@ -1,6 +1,8 @@
 ﻿using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.FolderTest;
 using CleanArchitectureBase.Application.Tests;
+using CleanArchitectureBase.Application.Tests.Dto;
+using CleanArchitectureBase.Domain.Entities;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,6 +16,8 @@ public class Test : EndpointGroupBase
             .MapGet(SearchTestTemplate, "/Templates")
             .MapGet(GetTestTemplatePermissions, "/{testTemplateId}/Permissions")
             .MapGet(GetTestTemplateDetail, "/Template/{testTemplateId}")
+            .MapPost(SubmitTestAttempt, "/Submit")
+            .MapPost(StartAttemptTestTestAttempt, "/{TestId}/Attempt")
             .MapPost(CreateTestTemplate, "/Templates");
 
         app.MapGroup(this).DisableAntiforgery()
@@ -59,6 +63,22 @@ public class Test : EndpointGroupBase
             TestTemplateId = testTemplateId
         };
         var result = await sender.Send(query);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<Guid>>> StartAttemptTestTestAttempt(
+        [FromRoute] Guid testId,
+        ISender sender)
+    {
+        var result = await sender.Send(new StartAttemptTestCommand{TestId = testId});
+        return result.ToOk();
+    } 
+
+    public async Task<Ok<ApiResponse<TestResultDto>>> SubmitTestAttempt(
+        [FromBody] SubmitTestAttemptCommand userAnswer,
+        ISender sender)
+    {
+        var result = await sender.Send(userAnswer);
         return result.ToOk();
     }
 

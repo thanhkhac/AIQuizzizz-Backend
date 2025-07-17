@@ -20,6 +20,7 @@ public class Class : EndpointGroupBase
             .MapGet(SearchStudent, "/{ClassId}/Students")
             .MapGet(SearchClass, "/Classes")
             .MapGet(SearchTest, "/{ClassId}/Tests")
+            .MapGet(GetTestSchedule, "/{ClassId}/Schedule")
             .MapDelete(DeleteClass, "/{ClassId}")
             .MapDelete(RemoveStudent, "/{ClassId}/Members/{UserId}")
             .MapDelete(RemoveQuestionSet, "/{ClassId}/Questionsets/{QuestionSetId}")
@@ -108,6 +109,18 @@ public class Class : EndpointGroupBase
         };
         var result = await sender.Send(rq);
         return result.ToOk();
+    }
+
+    public async Task<Ok<ApiResponse<List<TestScheduleResponse>>>> GetTestSchedule(
+        [FromRoute] Guid classId,
+        [FromQuery] int? month,
+        [FromQuery] int? year,
+        ISender sender)
+    {
+        var rq = new GetTestSchedule { ClassId = classId, Month = month, Year = year };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+        
     }
 
     public async Task<Ok<ApiResponse<UpdatePositionDto>>> UpdatePosition(

@@ -69,6 +69,6 @@ public class GetTestTemplateDetailHandler : IRequestHandler<GetTestTemplateDetai
                     .ToList()
             }).FirstOrDefaultAsync(cancellationToken);
         
-        return result!;
+        return result != null ? result : new TestTemplateResponseDto();
     }
 }

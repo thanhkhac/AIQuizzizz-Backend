@@ -2,9 +2,8 @@
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.Questions.Utils;
-using CleanArchitectureBase.Application.QuestionSets;
 using CleanArchitectureBase.Application.QuestionSets.Dtos;
-using CleanArchitectureBase.Application.Tests.Common;
+using CleanArchitectureBase.Application.Tests.Service;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Tests;
@@ -56,21 +55,21 @@ public class CreateTestTemplateCommandHandler : IRequestHandler<CreateTestTempla
 {
     private readonly IApplicationDbContext _context;
     public readonly IUser _user;
-    public readonly TestValidationService _testValidationService;
+    public readonly ITestService _testService;
 
     public CreateTestTemplateCommandHandler(
         IApplicationDbContext context,
         IUser user,
-        TestValidationService testValidationService)
+        ITestService testService)
     {
         _context = context;
         _user = user;
-        _testValidationService = testValidationService;
+        _testService = testService;
     }
     
     public async Task<Guid> Handle(CreateTestTemplateCommand rq, CancellationToken cancellationToken)
     {
-        await _testValidationService.ValidateQuestionAccessAsync(rq.Questions, cancellationToken);
+        await _testService.QuestionAccess(rq.Questions, cancellationToken);
 
         var testTemplate = new TestTemplate { Id = Guid.NewGuid(), Name = rq.Name, IsDeleted = false, };
 
@@ -112,15 +111,7 @@ public class CreateTestTemplateCommandHandler : IRequestHandler<CreateTestTempla
                     Id = Guid.NewGuid(), QuestionId = question.Id, TestTemplateId = testTemplate.Id, Question = question
                 };
             
-                question.DataJson = questionDto.Type switch
-                {
-                    nameof(QuestionType.MultipleChoice) when questionDto.MultipleChoices != null => QuestionTypeSerializer.SerializeMultipleChoice(questionDto.MultipleChoices),
-                    nameof(QuestionType.Matching) when questionDto.MatchingPairs != null => QuestionTypeSerializer.SerializeMatchingPairs(questionDto.MatchingPairs),
-                    nameof(QuestionType.Ordering) when questionDto.OrderingItems != null => QuestionTypeSerializer.SerializeOrderingItems(questionDto.OrderingItems),
-                    nameof(QuestionType.ShortText) when !string.IsNullOrWhiteSpace(questionDto.ShortAnswer) => JsonSerializer.Serialize(
-                        new QTypeShortAnswer { Answer = questionDto.ShortAnswer }),
-                    _ => throw new InvalidDataException($"Dữ liệu câu hỏi không hợp lệ cho loại câu hỏi: {questionDto.Type}")
-                };
+                question.DataJson = CreateUpdateQuestionDto.Serializer.Serialize(questionDto);
             
                 listQuestions.Add(question);
             
