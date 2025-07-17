@@ -3,20 +3,25 @@ using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using CleanArchitectureBase.Domain.Constants;
 
-namespace CleanArchitectureBase.Application.Tests.Common;
+namespace CleanArchitectureBase.Application.Tests.Service;
 
-public class TestValidationService
+public interface ITestService
+{
+    Task QuestionAccess(List<CreateUpdateQuestionDto> question, CancellationToken cancellationToken);
+}
+
+public class TestService : ITestService
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
-    
-    public TestValidationService(IApplicationDbContext context, IUser user)
+
+    public TestService(IApplicationDbContext context, IUser user)
     {
         _context = context;
         _user = user;
     }
-    
-    public async Task ValidateQuestionAccessAsync(List<CreateUpdateQuestionDto> question , CancellationToken cancellationToken)
+
+    public async Task QuestionAccess(List<CreateUpdateQuestionDto> question, CancellationToken cancellationToken)
     {
         var questionSetPairs = question
             .Where(q => q.QuestionId.HasValue)
@@ -38,7 +43,7 @@ public class TestValidationService
             .Where(qs => qs.QuestionSet.CreatedBy.Equals(_user.UserId)
                          || qs.QuestionSetUser!.UserId.Equals(_user.UserId))
             .ToListAsync(cancellationToken);
-        
+
         var invalidQuestion = questionSetPairs
             .Where(q => !validQuestion.Any(v => v.QuestionSet.Id == q!.Value))
             .ToList();
@@ -49,11 +54,12 @@ public class TestValidationService
             {
                 {
                     ErrorCodes.USER_NOT_ACCESS_TO_QUESTION_SET,
-                    invalidQuestion.Select(q => $"Question {q!.Value} không có quyền truy cập hoặc không tồn tại").ToArray()   
+                    invalidQuestion.Select(q => $"Question {q!.Value} không có quyền truy cập hoặc không tồn tại")
+                        .ToArray()
                 }
             };
-            
+
             throw new ErrorCodeException(errors);
-        } 
+        }
     }
 }

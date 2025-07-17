@@ -1,4 +1,4 @@
-﻿using CleanArchitectureBase.Application.Classes.Common;
+﻿using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
 
@@ -22,18 +22,18 @@ public class DeleteClassValidator : AbstractValidator<DeleteClassCommand>
 public class DeleteClassHandler : IRequestHandler<DeleteClassCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
-    private readonly ClassValidationService _classValidationService;
+    private readonly IClassService _classService;
     
-    public DeleteClassHandler(IApplicationDbContext context, ClassValidationService classValidationService)
+    public DeleteClassHandler(IApplicationDbContext context, IClassService classService)
     {
         _context = context;
-        _classValidationService = classValidationService;
+        _classService = classService;
     }
     
     public async Task<Guid> Handle(DeleteClassCommand rq, CancellationToken cancellationToken)
     {
-        var (isOwner, classExists) = await _classValidationService
-            .ValidateClassAccessAsync(rq.ClassId, cancellationToken);
+        var (isOwner, classExists) = await _classService
+            .GetClassOwnerAccess(rq.ClassId, cancellationToken);
 
         classExists.IsDeleted = true;
         

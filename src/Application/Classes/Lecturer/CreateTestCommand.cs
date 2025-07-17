@@ -1,11 +1,10 @@
 ﻿using System.Text.Json;
-using CleanArchitectureBase.Application.Classes.Common;
+using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Questions.Utils;
-using CleanArchitectureBase.Application.QuestionSets;
 using CleanArchitectureBase.Application.QuestionSets.Dtos;
-using CleanArchitectureBase.Application.Tests.Common;
+using CleanArchitectureBase.Application.Tests.Service;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
@@ -67,27 +66,24 @@ public class CreateTestCommandValidator : AbstractValidator<CreateTestCommand>
 public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
-    public readonly IUser _user;
-    public readonly TestValidationService _testValidationService;
-    private readonly ClassValidationService _classValidationService;
-
+    public readonly ITestService _testService;
+    private readonly IClassService _classService;
     
     public CreateTestCommandHandler(
         IApplicationDbContext context,
-        IUser user,
-        TestValidationService testValidationService,
-        ClassValidationService classValidationService)
+        ITestService testService,
+        IClassService classService)
     {
         _context = context;
-        _user = user;
-        _testValidationService = testValidationService;
-        _classValidationService = classValidationService;
+        _testService = testService;
+        _classService = classService;
     }
-    
+
     public async Task<Guid> Handle(CreateTestCommand rq, CancellationToken cancellationToken)
     {
-        var (isOwner, classExists) = await _classValidationService.ValidateClassAccessAsync(rq.ClassId, cancellationToken);
-        
+        var (isOwner, classExists) =
+            await _classService.GetClassOwnerAccess(rq.ClassId, cancellationToken);
+
         var test = new Test
         {
             Id = Guid.NewGuid(),
@@ -104,20 +100,21 @@ public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
         var testVersion = new TestVersion { Id = Guid.NewGuid(), TestId = test.Id, No = 0, };
 
         if (rq.Questions.Count > 100)
-            throw new ErrorCodeException(ErrorCodes.NUMBER_OF_QUESTION_EXCEED_LIMIT, "Số lượng câu hỏi không được vượt quá 100");
-        
-        await _testValidationService.ValidateQuestionAccessAsync(rq.Questions, cancellationToken);
-        
+            throw new ErrorCodeException(ErrorCodes.NUMBER_OF_QUESTION_EXCEED_LIMIT,
+                "Số lượng câu hỏi không được vượt quá 100");
+
+        await _testService.QuestionAccess(rq.Questions, cancellationToken);
+
         var listQuestions = new List<Question>();
-        
+
         var listTestVersionQuestions = new List<TestVersionQuestion>();
 
-        int order  = 0;
+        int order = 0;
 
         foreach (var questionDto in rq.Questions)
         {
             var questionId = Guid.NewGuid();
-            
+
             if (questionDto.QuestionId.HasValue)
             {
                 questionId = questionDto.QuestionId.Value;
@@ -132,19 +129,11 @@ public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
                     TextFormat = TextFormat.PlainText,
                     Score = questionDto.Score
                 };
-                
-                question.DataJson = questionDto.Type switch
-                {
-                    nameof(QuestionType.MultipleChoice) when questionDto.MultipleChoices != null => QuestionTypeSerializer.SerializeMultipleChoice(questionDto.MultipleChoices),
-                    nameof(QuestionType.Matching) when questionDto.MatchingPairs != null => QuestionTypeSerializer.SerializeMatchingPairs(questionDto.MatchingPairs),
-                    nameof(QuestionType.Ordering) when questionDto.OrderingItems != null => QuestionTypeSerializer.SerializeOrderingItems(questionDto.OrderingItems),
-                    nameof(QuestionType.ShortText) when !string.IsNullOrWhiteSpace(questionDto.ShortAnswer) => JsonSerializer.Serialize(
-                        new QTypeShortAnswer { Answer = questionDto.ShortAnswer }),
-                    _ => throw new InvalidDataException($"Dữ liệu câu hỏi không hợp lệ cho loại câu hỏi: {questionDto.Type}")
-                };
-                
+
+                question.DataJson = CreateUpdateQuestionDto.Serializer.Serialize(questionDto);
+
                 listQuestions.Add(question);
-                
+
                 questionId = question.Id;
             }
 
@@ -152,9 +141,9 @@ public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
             {
                 Id = Guid.NewGuid(), QuestionId = questionId, Order = order, TestVersionId = testVersion.Id
             };
-            
+
             order++;
-            
+
             listTestVersionQuestions.Add(testVersionQuestion);
         }
         

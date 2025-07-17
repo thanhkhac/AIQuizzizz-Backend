@@ -18,8 +18,9 @@ public class Class : EndpointGroupBase
             .MapPost(AddQuestionSet, "/{ClassId}/Questionsets/{QuestionSetId}")
             .MapPost(CreateTest, "/Test")
             .MapGet(SearchStudent, "/{ClassId}/Students")
-            .MapGet(SearchClass, "/Classes")
+            .MapGet(SearchClass, "")
             .MapGet(SearchTest, "/{ClassId}/Tests")
+            .MapGet(GetTestSchedule, "/{ClassId}/Schedule")
             .MapDelete(DeleteClass, "/{ClassId}")
             .MapDelete(RemoveStudent, "/{ClassId}/Members/{UserId}")
             .MapDelete(RemoveQuestionSet, "/{ClassId}/Questionsets/{QuestionSetId}")
@@ -93,7 +94,7 @@ public class Class : EndpointGroupBase
     }
     
     public async Task<Ok<ApiResponse<PaginatedList<ClassSearchResultDto>>>> SearchClass(
-        [FromQuery] ClassShareMode? shareMode,
+        [FromQuery] string? shareMode,
         [FromQuery] string? name,
         ISender sender,
         [FromQuery] int pageNumber = 1,
@@ -108,6 +109,18 @@ public class Class : EndpointGroupBase
         };
         var result = await sender.Send(rq);
         return result.ToOk();
+    }
+
+    public async Task<Ok<ApiResponse<List<TestScheduleResponse>>>> GetTestSchedule(
+        [FromRoute] Guid classId,
+        [FromQuery] int? month,
+        [FromQuery] int? year,
+        ISender sender)
+    {
+        var rq = new GetTestSchedule { ClassId = classId, Month = month, Year = year };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+        
     }
 
     public async Task<Ok<ApiResponse<UpdatePositionDto>>> UpdatePosition(

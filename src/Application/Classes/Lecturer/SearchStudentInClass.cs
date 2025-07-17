@@ -2,7 +2,7 @@
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Domain.Entities;
 using System.Linq.Dynamic.Core;
-using CleanArchitectureBase.Application.Classes.Common;
+using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Common.Security;
@@ -45,18 +45,18 @@ public class SearchStudentInClassValidator : AbstractValidator<SearchStudentInCl
 public class SearchStudentCommandHandler : IRequestHandler<SearchStudentInClass, PaginatedList<StudentSearchResultDto>>
 {
     private readonly IApplicationDbContext _context;
-    private readonly ClassValidationService _classValidationService;
+    private readonly IClassService _classService;
 
 
-    public SearchStudentCommandHandler(IApplicationDbContext context, ClassValidationService classValidationService)
+    public SearchStudentCommandHandler(IApplicationDbContext context, IClassService classService)
     {
         _context = context;
-        _classValidationService = classValidationService;
+        _classService = classService;
     }
     
     public async Task<PaginatedList<StudentSearchResultDto>> Handle(SearchStudentInClass rq, CancellationToken cancellationToken)
     {
-        var (isOwner, classExists) = await _classValidationService.ValidateClassAccessAsync(rq.ClassId, cancellationToken);
+        var (isOwner, classExists) = await _classService.GetClassOwnerAccess(rq.ClassId, cancellationToken);
         
         var listStudent = _context.ClassUsers
             .Include(x => x.User)
