@@ -1,9 +1,8 @@
-﻿using CleanArchitectureBase.Application.Classes.Common;
+﻿using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
-using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Classes.Lecturer;
 
@@ -28,17 +27,17 @@ public class RemoveQuestionSetValidator : AbstractValidator<RemoveQuestionSetCom
 public class RemoveQuestionSetHandler : IRequestHandler<RemoveQuestionSetCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
-    private readonly ClassValidationService _classValidationService;
+    private readonly IClassService _classService;
     
-    public RemoveQuestionSetHandler(IApplicationDbContext context, ClassValidationService classValidationService)
+    public RemoveQuestionSetHandler(IApplicationDbContext context, IClassService classService)
     {
         _context = context;
-        _classValidationService = classValidationService;
+        _classService = classService;
     }
     
     public async Task<Guid> Handle(RemoveQuestionSetCommand rq, CancellationToken cancellationToken)
     {
-        var (isOwner, classExists) = await _classValidationService.ValidateClassAccessAsync(rq.ClassId, cancellationToken);
+        var (isOwner, classExists) = await _classService.GetClassOwnerAccess(rq.ClassId, cancellationToken);
 
         var classQuestionSet = await _context.ClassQuestionSets
             .Where(x => x.QuestionSetId == rq.QuestionSetId && x.ClassId == classExists.Id)

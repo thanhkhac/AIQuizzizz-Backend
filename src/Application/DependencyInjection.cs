@@ -1,7 +1,5 @@
 ﻿using System.Reflection;
-using CleanArchitectureBase.Application.Classes.Common;
 using CleanArchitectureBase.Application.Common.Behaviours;
-using CleanArchitectureBase.Application.Tests.Common;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CleanArchitectureBase.Application;
@@ -14,8 +12,6 @@ public static class DependencyInjection
 
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         
-        services.AddScoped<ClassValidationService>();
-        services.AddScoped<TestValidationService>();
         
         services.AddMediatR(cfg => {
             //Quét assembly hiện tại để tìm tất cả các handler và đăng ký
