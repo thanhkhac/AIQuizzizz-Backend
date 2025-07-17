@@ -2,9 +2,9 @@
 
 namespace CleanArchitectureBase.Application.Tests.Dto;
 
-public class TestDetailDto
+public class AttemptDetailDto
 {
-    public Guid TestId { get; set; }
+    public Guid AttemptId { get; set; }
     public string?Name { get; set; }
     public int QuestionCount { get; set; }
     public DateTime? TimeStart { get; set; }
