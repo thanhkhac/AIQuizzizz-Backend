@@ -47,7 +47,7 @@ public class SearchTestTemplateHandler : IRequestHandler<SearchTestTemplate, Pag
             .Include(t => t.TestTemplate)
             .Where(t => t.UserId == _user.UserId
                         && (string.IsNullOrEmpty(rq.TestTemplateName) ||
-                            t.TestTemplate!.Name.Contains(rq.TestTemplateName))
+                            t.TestTemplate!.Name.ToLower().Contains(rq.TestTemplateName.ToLower()))
                         && (sharedMode == null || t.ShareMode == sharedMode)
                         && t.TestTemplate!.IsDeleted == false)
             .Select(t => new TestTemplateDto

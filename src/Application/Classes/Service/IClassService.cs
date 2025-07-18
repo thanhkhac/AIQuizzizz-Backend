@@ -58,7 +58,7 @@ public class ClassService : IClassService{
             .FirstOrDefaultAsync();
 
         if (student == null)
-            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Student không có trong lớp");
+            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Chỉ student trong lớp mới có quyền");
     }
 
     public async Task IsUserInClass(Guid classId)
