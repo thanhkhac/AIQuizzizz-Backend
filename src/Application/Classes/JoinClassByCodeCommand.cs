@@ -4,7 +4,7 @@ using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Classes.Student;
+namespace CleanArchitectureBase.Application.Classes;
 
 [Authorize]
 public class JoinClassByCodeCommand : IRequest<Unit>

@@ -1,5 +1,4 @@
-﻿using CleanArchitectureBase.Application.Classes.Lecturer;
-using CleanArchitectureBase.Application.Common.Exceptions;
+﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Common.Security;

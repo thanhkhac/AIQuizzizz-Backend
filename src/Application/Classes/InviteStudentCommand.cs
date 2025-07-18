@@ -5,7 +5,7 @@ using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Classes.Lecturer;
+namespace CleanArchitectureBase.Application.Classes;
 
 public class ClassCodeDto
 {
