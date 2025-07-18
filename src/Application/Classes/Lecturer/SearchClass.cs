@@ -64,7 +64,7 @@ public class SearchClassHandler : IRequestHandler<SearchClass, PaginatedList<Cla
                 ClassUser = cu,
                 CreatedByUser = c.CreatedByUser
             })
-            .Where(x => (string.IsNullOrEmpty(rq.Name) || x.Class.Name.Contains(rq.Name)) &&
+            .Where(x => (string.IsNullOrEmpty(rq.Name) || x.Class.Name.ToLower().Contains(rq.Name.ToLower())) &&
                         x.ClassUser.UserId.Equals(_user.UserId))
             .OrderByDescending(x => x.Class.LastModified)
             .AsQueryable();

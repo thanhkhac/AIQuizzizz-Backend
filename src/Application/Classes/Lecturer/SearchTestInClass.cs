@@ -67,7 +67,7 @@ public class SearchTestHandler : IRequestHandler<SearchTestInClass, PaginatedLis
         
         var tests = await _context.Tests
             .Where(x => x.ClassId.Equals(rq.ClassId)
-            && (string.IsNullOrEmpty(rq.TestName) || x.Name.Contains(rq.TestName)))
+            && (string.IsNullOrEmpty(rq.TestName) || x.Name.ToLower().Contains(rq.TestName.ToLower())))
             .ToListAsync(cancellationToken);
         
         switch (rq.Status)

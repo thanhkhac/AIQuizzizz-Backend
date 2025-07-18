@@ -10,6 +10,9 @@ namespace CleanArchitectureBase.Application.Tests;
 
 public class StartAttemptTestCommand : IRequest<AttemptDetailDto>
 {
+    /// <summary>
+    /// Id của bài test học sinh chọn làm
+    /// </summary>
     public Guid TestId { get; set; }
 }
 
@@ -26,6 +29,11 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
         _user = user;
     }
     
+    /// <summary>
+    /// Hàm tạo ra attempt của bài test cho học sinh và trả về các câu hỏi của bài test
+    /// </summary>
+    /// <param name="rq">Request chứa thông tin TestId</param>
+    /// <param name="cancellationToken">Token để hủy tác vụ</param>
     public async Task<AttemptDetailDto> Handle(StartAttemptTestCommand rq, CancellationToken cancellationToken)
     {
         var test = await _context.Tests.Where(x => x.Id == rq.TestId)
@@ -33,7 +41,7 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
         if (test == null)
             throw new ErrorCodeException(ErrorCodes.TEST_NOT_FOUND, "Bài test không tồn tại");
         
-        if (test.TimeStart < DateTime.UtcNow)
+        if (test.TimeFinish < DateTime.UtcNow)
             throw new ErrorCodeException(ErrorCodes.TEST_IS_OVERDUE, "Hết hạn làm bài");
         
         await _classService.IsStudentInClass(test.ClassId);
@@ -68,16 +76,20 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
             TimeEnd = test.TimeFinish,
             TimeLimit = test.TimeLimit,
         };
+
+        var questions = _context.TestVersionQuestions
+            .Include(x => x.Question)
+            .Where(x => x.TestVersion!.Id == testVersionId)
+            .OrderBy(x => x.Order)
+            .Select(q => QuestionAttemptDetailDto.Mapper.FromEntity(q.Question!));
         
-        // var questions = _context.TestVersionQuestions
-        //     .Include(x => x.Question)
-        //     .Where(x => x.TestVersion!.Id == testVersionId)
-        //     .Select(q => QuestionResponseDto.Mapper.FromEntity())
+        attemptDetail.Questions = questions.ToList();
+        attemptDetail.QuestionCount = questions.Count();
         
         _context.Attempts.Add(attempt);
         
         await _context.SaveChangesAsync(cancellationToken);
         
-        return new AttemptDetailDto();
+        return attemptDetail;
     }
 }
