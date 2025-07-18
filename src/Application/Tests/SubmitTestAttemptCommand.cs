@@ -105,6 +105,8 @@ public class AttemptTestCommandHandler : IRequestHandler<SubmitTestAttemptComman
             attemptQuestions.Add(attemptQuestion);
         }
         
+        
+        
         _context.AttemptQuestions.AddRange(attemptQuestions);
         
         await _context.SaveChangesAsync(cancellationToken);

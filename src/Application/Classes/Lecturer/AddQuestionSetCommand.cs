@@ -38,7 +38,13 @@ public class AddQuestionSetCommandHandler : IRequestHandler<AddQuestionSetComman
     
     public async Task<Guid> Handle(AddQuestionSetCommand rq, CancellationToken cancellationToken)
     {
-        var (isOwner, classExists) = await _classService.GetClassOwnerAccess(rq.ClassId, cancellationToken);
+        var classById = await _context.Classes
+            .Where(x => x.Id == rq.ClassId)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (classById == null)
+            throw new ErrorCodeException(ErrorCodes.CLASS_NOTFOUND, "Không tìm thấy lớp");
+        
+        await _classService.IsLecturerOrOwnerInClass(rq.ClassId);
 
         var questionSet = await _context.QuestionSets.Where(x => x.Id == rq.QuestionSetId)
             .FirstOrDefaultAsync(cancellationToken);
@@ -46,16 +52,16 @@ public class AddQuestionSetCommandHandler : IRequestHandler<AddQuestionSetComman
             throw new ErrorCodeException(ErrorCodes.QUESTION_SET_NOT_FOUND, "Bộ câu hỏi không tồn tại");
 
         var classQuestion = await _context.ClassQuestionSets
-            .Where(x => x.ClassId == classExists.Id && x.QuestionSetId == rq.QuestionSetId)
+            .Where(x => x.ClassId == classById.Id && x.QuestionSetId == rq.QuestionSetId)
             .FirstOrDefaultAsync(cancellationToken);
         if (classQuestion != null)
             throw new ErrorCodeException(ErrorCodes.QUESTION_SET_ALREADY_IN_CLASS, "Bộ câu hỏi đã tồn tại trong lớp học này.");
         
         var classQuestionSet = new ClassQuestionSet
         {
-            ClassId = classExists.Id,
+            ClassId = classById.Id,
             QuestionSetId = questionSet.Id,
-            Class = classExists,
+            Class = classById,
             QuestionSet = questionSet
         };
         
