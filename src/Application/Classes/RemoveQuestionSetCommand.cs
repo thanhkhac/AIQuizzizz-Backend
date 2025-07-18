@@ -4,7 +4,7 @@ using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 
-namespace CleanArchitectureBase.Application.Classes.Lecturer;
+namespace CleanArchitectureBase.Application.Classes;
 
 [Authorize]
 public class RemoveQuestionSetCommand : IRequest<Guid>

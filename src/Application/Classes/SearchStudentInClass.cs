@@ -8,7 +8,7 @@ using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 
-namespace CleanArchitectureBase.Application.Classes.Lecturer;
+namespace CleanArchitectureBase.Application.Classes;
 
 public class StudentSearchResultDto
 {
@@ -56,6 +56,12 @@ public class SearchStudentCommandHandler : IRequestHandler<SearchStudentInClass,
     
     public async Task<PaginatedList<StudentSearchResultDto>> Handle(SearchStudentInClass rq, CancellationToken cancellationToken)
     {
+        var classById = await _context.Classes
+            .Where(x => x.Id == rq.ClassId)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (classById == null)
+            throw new ErrorCodeException(ErrorCodes.CLASS_NOTFOUND, "Không tìm thấy lớp");
+        
         await _classService.IsUserInClass(rq.ClassId);
         
         var listStudent = _context.ClassUsers

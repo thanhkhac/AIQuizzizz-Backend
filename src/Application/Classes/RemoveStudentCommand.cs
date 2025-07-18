@@ -5,7 +5,7 @@ using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Classes.Lecturer;
+namespace CleanArchitectureBase.Application.Classes;
 
 [Authorize]
 public class RemoveStudentCommand : IRequest<Guid>
@@ -38,6 +38,8 @@ public class RemoveStudentHandler : IRequestHandler<RemoveStudentCommand, Guid>
     
     public async Task<Guid> Handle(RemoveStudentCommand rq, CancellationToken cancellationToken)
     {
+        var (isOwner, classExists) = await _classService.GetClassOwnerAccess(rq.ClassId, cancellationToken);
+        
         var user = await _context.DomainUsers
             .Include(u => u.ClassUsers)
             .Where(u => u.ClassUsers.Any(cu => cu.ClassId == rq.ClassId && cu.ShareMode != ClassShareMode.Owner && cu.Class.IsDeleted == false))
@@ -46,8 +48,6 @@ public class RemoveStudentHandler : IRequestHandler<RemoveStudentCommand, Guid>
 
         if (user == null || user.ClassUser == null)
             throw new ErrorCodeException(ErrorCodes.NOT_FOUND_USER_IN_CLASS, "User không tồn tại hoặc không trong lớp");
-        
-        var (isOwner, classExists) = await _classService.GetClassOwnerAccess(rq.ClassId, cancellationToken);
     
         _context.ClassUsers.Remove(user.ClassUser);
         await _context.SaveChangesAsync(cancellationToken);

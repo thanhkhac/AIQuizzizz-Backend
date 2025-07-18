@@ -1,5 +1,4 @@
-﻿using CleanArchitectureBase.Application.Classes.Lecturer;
-using CleanArchitectureBase.Application.Classes.Student;
+﻿using CleanArchitectureBase.Application.Classes;
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Domain.Entities;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -20,6 +19,7 @@ public class Class : EndpointGroupBase
             .MapGet(SearchStudent, "/{ClassId}/Students")
             .MapGet(SearchClass, "")
             .MapGet(SearchTest, "/{ClassId}/Tests")
+            .MapGet(SearchQuestionSet, "/{ClassId}/Questionsets")
             .MapGet(GetTestSchedule, "/{ClassId}/Schedule")
             .MapGet(GetClassById, "/{ClassId}")
             .MapDelete(DeleteClass, "/{ClassId}")
@@ -93,6 +93,26 @@ public class Class : EndpointGroupBase
             ClassId = classId,
             TestName = testName,
             Status = status,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+        };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<PaginatedList<SearchQuestionSetDto>>>> SearchQuestionSet(
+        [FromQuery] string? name,
+        [FromQuery] string? shareMode,
+        [FromRoute] Guid classId,
+        ISender sender,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 5)
+    {
+        var rq = new SearchQuestionSetCommand()
+        {
+            ClassId = classId,
+            Name = name,
+            ShareMode = shareMode,
             PageNumber = pageNumber,
             PageSize = pageSize,
         };

@@ -8,7 +8,7 @@ using CleanArchitectureBase.Application.Tests.Service;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Classes.Lecturer;
+namespace CleanArchitectureBase.Application.Classes;
 
 public class CreateTestCommand : IRequest<Guid>
 {
@@ -83,6 +83,12 @@ public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
 
     public async Task<Guid> Handle(CreateTestCommand rq, CancellationToken cancellationToken)
     {
+        var classById = await _context.Classes
+            .Where(x => x.Id == rq.ClassId)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (classById == null)
+            throw new ErrorCodeException(ErrorCodes.CLASS_NOTFOUND, "Không tìm thấy lớp");
+        
         await _classService.IsLecturerOrOwnerInClass(rq.ClassId);
 
         var test = new Test
