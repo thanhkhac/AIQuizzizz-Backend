@@ -19,6 +19,7 @@ public class Class : EndpointGroupBase
             .MapGet(SearchStudent, "/{ClassId}/Students")
             .MapGet(SearchClass, "")
             .MapGet(SearchTest, "/{ClassId}/Tests")
+            .MapGet(GetInviteStudentCode, "/{ClassId}/Invitation-Code")
             .MapGet(SearchQuestionSet, "/{ClassId}/Questionsets")
             .MapGet(GetTestSchedule, "/{ClassId}/Schedule")
             .MapGet(GetClassById, "/{ClassId}")
@@ -43,6 +44,12 @@ public class Class : EndpointGroupBase
     public async Task<Ok<ApiResponse<ClassDetailDto>>> GetClassById([FromRoute] Guid classId, ISender sender)
     {
         var result = await sender.Send(new GetClassById{ClassId = classId});
+        return result.ToOk();
+    } 
+    
+    public async Task<Ok<ApiResponse<string?>>> GetInviteStudentCode([FromRoute] Guid classId, ISender sender)
+    {
+        var result = await sender.Send(new GetInviteStudentCode{ClassId = classId});
         return result.ToOk();
     } 
     
