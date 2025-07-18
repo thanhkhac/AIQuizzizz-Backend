@@ -15,7 +15,7 @@ public class StudentSearchResultDto
     public required Guid StudentId { get; set; }
     public string? FullName { get; set; }
     public required string Email { get; set; }
-    public ClassShareMode Position { get; set; }
+    public string? Position { get; set; }
 }
 
 [Authorize]
@@ -78,7 +78,7 @@ public class SearchStudentCommandHandler : IRequestHandler<SearchStudentInClass,
                 StudentId = st.UserId,
                 Email = st.User.Email,
                 FullName = st.User.FullName,
-                Position = st.ShareMode
+                Position = st.ShareMode.ToString()
             }).AsQueryable(),
             rq.PageNumber,
             rq.PageSize
