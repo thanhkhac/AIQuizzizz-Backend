@@ -64,6 +64,7 @@ public static class ErrorCodes
     public const string STUDENT_ALREADY_EXISTS_IN_CLASS = nameof(STUDENT_ALREADY_EXISTS_IN_CLASS);
     public const string ONLY_OWNERS_CAN_UPDATE = nameof(ONLY_OWNERS_CAN_UPDATE);
     public const string NOT_FOUND_STUDENT_IN_CLASS = nameof(NOT_FOUND_STUDENT_IN_CLASS);
+    public const string NOT_FOUND_TEACHER_OR_OWNER_IN_CLASS = nameof(NOT_FOUND_TEACHER_OR_OWNER_IN_CLASS);
     public const string NOT_FOUND_USER_IN_CLASS = nameof(NOT_FOUND_USER_IN_CLASS);
     public const string QUESTION_SET_ALREADY_IN_CLASS = nameof(QUESTION_SET_ALREADY_IN_CLASS);
     
@@ -85,6 +86,7 @@ public static class ErrorCodes
     
     //Test
     public const string TEST_TEMPLATE_NOT_FOUND = nameof(TEST_TEMPLATE_NOT_FOUND);
+    public const string MAX_ATTEMPT_IN_THIS_TEST = nameof(MAX_ATTEMPT_IN_THIS_TEST);
     public const string TEST_IS_OVERDUE = nameof(TEST_IS_OVERDUE);
     public const string TEST_NOT_FOUND = nameof(TEST_NOT_FOUND);
     public const string NUMBER_OF_QUESTION_EXCEED_LIMIT = nameof(NUMBER_OF_QUESTION_EXCEED_LIMIT);

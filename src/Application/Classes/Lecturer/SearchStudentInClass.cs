@@ -56,7 +56,7 @@ public class SearchStudentCommandHandler : IRequestHandler<SearchStudentInClass,
     
     public async Task<PaginatedList<StudentSearchResultDto>> Handle(SearchStudentInClass rq, CancellationToken cancellationToken)
     {
-        var (isOwner, classExists) = await _classService.GetClassOwnerAccess(rq.ClassId, cancellationToken);
+        await _classService.IsUserInClass(rq.ClassId);
         
         var listStudent = _context.ClassUsers
             .Include(x => x.User)

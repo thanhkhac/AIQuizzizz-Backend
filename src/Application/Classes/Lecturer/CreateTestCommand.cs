@@ -20,6 +20,8 @@ public class CreateTestCommand : IRequest<Guid>
     public required string GradeAttemptMethod { get; set; }
     public required string GradeQuestionMethod { get; set; }
     public bool IsShowCorrectAnswerInReview { get; set; }
+    public int MaxAttempt { get; set; } = 1;
+    public int PassingScore { get; set; } = 0;
     public List<CreateUpdateQuestionDto> Questions { get; set; } = new ();
 }
 
@@ -81,8 +83,7 @@ public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
 
     public async Task<Guid> Handle(CreateTestCommand rq, CancellationToken cancellationToken)
     {
-        var (isOwner, classExists) =
-            await _classService.GetClassOwnerAccess(rq.ClassId, cancellationToken);
+        await _classService.IsLecturerOrOwnerInClass(rq.ClassId);
 
         var test = new Test
         {

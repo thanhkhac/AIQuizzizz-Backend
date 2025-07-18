@@ -37,10 +37,16 @@ public class RemoveQuestionSetHandler : IRequestHandler<RemoveQuestionSetCommand
     
     public async Task<Guid> Handle(RemoveQuestionSetCommand rq, CancellationToken cancellationToken)
     {
-        var (isOwner, classExists) = await _classService.GetClassOwnerAccess(rq.ClassId, cancellationToken);
+        var classById = await _context.Classes
+            .Where(x => x.Id == rq.ClassId)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (classById == null)
+            throw new ErrorCodeException(ErrorCodes.CLASS_NOTFOUND, "Không tìm thấy lớp");
+        
+        await _classService.IsLecturerOrOwnerInClass(rq.ClassId);
 
         var classQuestionSet = await _context.ClassQuestionSets
-            .Where(x => x.QuestionSetId == rq.QuestionSetId && x.ClassId == classExists.Id)
+            .Where(x => x.QuestionSetId == rq.QuestionSetId && x.ClassId == classById.Id)
             .FirstOrDefaultAsync(cancellationToken);
         if (classQuestionSet == null)
             throw new ErrorCodeException(ErrorCodes.QUESTION_SET_NOT_FOUND_IN_CLASS, "Question set không tồn tại hoặc không trong class");
