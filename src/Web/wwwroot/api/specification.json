@@ -888,6 +888,37 @@
       }
     },
     "/api/Class/{ClassId}": {
+      "get": {
+        "tags": [
+          "Class"
+        ],
+        "operationId": "GetClassById",
+        "parameters": [
+          {
+            "name": "ClassId",
+            "x-originalName": "classId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfClassDetailDto"
+                }
+              }
+            }
+          }
+        }
+      },
       "delete": {
         "tags": [
           "Class"
@@ -1707,7 +1738,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfTestDetailDto"
+                  "$ref": "#/components/schemas/ApiResponseOfAttemptDetailDto"
                 }
               }
             }
@@ -2564,6 +2595,10 @@
             "type": "integer",
             "format": "int32"
           },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
           "hasPreviousPage": {
             "type": "boolean"
           },
@@ -2663,6 +2698,10 @@
             "type": "integer",
             "format": "int32"
           },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
           "hasPreviousPage": {
             "type": "boolean"
           },
@@ -2746,6 +2785,10 @@
             "format": "int32"
           },
           "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
             "type": "integer",
             "format": "int32"
           },
@@ -2860,6 +2903,59 @@
           }
         }
       },
+      "ApiResponseOfClassDetailDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ClassDetailDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ClassDetailDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "classId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "topic": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "ApiResponseOfUpdatePositionDto": {
         "type": "object",
         "additionalProperties": false,
@@ -2965,6 +3061,10 @@
             "type": "integer",
             "format": "int32"
           },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
           "hasPreviousPage": {
             "type": "boolean"
           },
@@ -3045,6 +3145,10 @@
             "format": "int32"
           },
           "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
             "type": "integer",
             "format": "int32"
           },
@@ -3677,7 +3781,7 @@
           }
         }
       },
-      "ApiResponseOfTestDetailDto": {
+      "ApiResponseOfAttemptDetailDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -3703,7 +3807,7 @@
             "nullable": true,
             "oneOf": [
               {
-                "$ref": "#/components/schemas/TestDetailDto"
+                "$ref": "#/components/schemas/AttemptDetailDto"
               }
             ]
           },
@@ -3712,11 +3816,11 @@
           }
         }
       },
-      "TestDetailDto": {
+      "AttemptDetailDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "testId": {
+          "attemptId": {
             "type": "string",
             "format": "guid"
           },
@@ -3874,6 +3978,10 @@
             "format": "int32"
           },
           "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
             "type": "integer",
             "format": "int32"
           },
