@@ -309,6 +309,12 @@ public class TestGrade
     public User? User { get; set; }
 }
 
+public enum AttemptStatus
+{
+    Passed,
+    Failed,
+}
+
 public class Attempt
 {
     public required Guid Id { get; set; }
