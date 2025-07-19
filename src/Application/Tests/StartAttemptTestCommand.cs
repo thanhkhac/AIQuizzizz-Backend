@@ -43,6 +43,12 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
         
         if (test.TimeFinish < DateTime.UtcNow)
             throw new ErrorCodeException(ErrorCodes.TEST_IS_OVERDUE, "Hết hạn làm bài");
+
+        var attemptUser = _context.Attempts
+            .Where(x => x.UserId == _user.UserId && x.TestId == rq.TestId)
+            .ToList();
+        if (attemptUser.Count >= test.MaxAttempt)
+            throw new ErrorCodeException(ErrorCodes.MAX_ATTEMPT_IN_THIS_TEST, "Đã hết lượt làm bài");
         
         await _classService.IsStudentInClass(test.ClassId);
         

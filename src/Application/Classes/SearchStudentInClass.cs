@@ -8,14 +8,14 @@ using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 
-namespace CleanArchitectureBase.Application.Classes.Lecturer;
+namespace CleanArchitectureBase.Application.Classes;
 
 public class StudentSearchResultDto
 {
     public required Guid StudentId { get; set; }
     public string? FullName { get; set; }
     public required string Email { get; set; }
-    public ClassShareMode Position { get; set; }
+    public string? Position { get; set; }
 }
 
 [Authorize]
@@ -56,7 +56,13 @@ public class SearchStudentCommandHandler : IRequestHandler<SearchStudentInClass,
     
     public async Task<PaginatedList<StudentSearchResultDto>> Handle(SearchStudentInClass rq, CancellationToken cancellationToken)
     {
-        var (isOwner, classExists) = await _classService.GetClassOwnerAccess(rq.ClassId, cancellationToken);
+        var classById = await _context.Classes
+            .Where(x => x.Id == rq.ClassId)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (classById == null)
+            throw new ErrorCodeException(ErrorCodes.CLASS_NOTFOUND, "Không tìm thấy lớp");
+        
+        await _classService.IsUserInClass(rq.ClassId);
         
         var listStudent = _context.ClassUsers
             .Include(x => x.User)
@@ -78,7 +84,7 @@ public class SearchStudentCommandHandler : IRequestHandler<SearchStudentInClass,
                 StudentId = st.UserId,
                 Email = st.User.Email,
                 FullName = st.User.FullName,
-                Position = st.ShareMode
+                Position = st.ShareMode.ToString()
             }).AsQueryable(),
             rq.PageNumber,
             rq.PageSize

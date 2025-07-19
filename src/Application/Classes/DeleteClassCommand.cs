@@ -2,7 +2,7 @@
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
 
-namespace CleanArchitectureBase.Application.Classes.Lecturer;
+namespace CleanArchitectureBase.Application.Classes;
 
 [Authorize]
 public class DeleteClassCommand : IRequest<Guid>

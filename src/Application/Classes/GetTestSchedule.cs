@@ -1,9 +1,10 @@
-﻿using System.Data;
-using CleanArchitectureBase.Application.Classes.Service;
+﻿using CleanArchitectureBase.Application.Classes.Service;
+using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
+using CleanArchitectureBase.Domain.Constants;
 
-namespace CleanArchitectureBase.Application.Classes.Student;
+namespace CleanArchitectureBase.Application.Classes;
 
 public class TestScheduleResponse
 {
@@ -46,19 +47,23 @@ public class GetTestScheduleValidator : AbstractValidator<GetTestSchedule>
 public class GetTestScheduleHandler : IRequestHandler<GetTestSchedule, List<TestScheduleResponse>>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IUser _user;
     private readonly IClassService _classService;
     
-    public GetTestScheduleHandler(IApplicationDbContext context, IClassService classService, IUser user)
+    public GetTestScheduleHandler(IApplicationDbContext context, IClassService classService)
     {
         _context = context;
         _classService = classService;
-        _user = user;
     }
     
     public async Task<List<TestScheduleResponse>> Handle(GetTestSchedule rq, CancellationToken cancellationToken)
     {  
-        await _classService.IsStudentInClass(rq.ClassId);
+        var classById = await _context.Classes
+            .Where(x => x.Id == rq.ClassId)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (classById == null)
+            throw new ErrorCodeException(ErrorCodes.CLASS_NOTFOUND, "Không tìm thấy lớp");
+        
+        await _classService.IsUserInClass(rq.ClassId);
 
         var testSchedule = await _context.Tests
             .Where(t => t.ClassId.Equals(rq.ClassId) && t.TimeStart.Month == rq.Month && t.TimeStart.Year == rq.Year)
