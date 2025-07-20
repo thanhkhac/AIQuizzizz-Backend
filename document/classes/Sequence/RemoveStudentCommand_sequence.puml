@@ -1,0 +1,41 @@
+@startuml
+!define ENTITY_Class ' Class entity
+
+actor "User" as User
+participant "Class UI" as UI
+participant ClassEndpoints
+participant RemoveStudentCommandHandler as Handler
+participant IClassService
+participant ApplicationDbContext
+participant Database
+
+User -> UI : Click "Remove Student"
+UI -> ClassEndpoints : DELETE /api/Class/{ClassId}/Members/{UserId}
+ClassEndpoints -> Handler : Handle(RemoveStudentCommand)
+Handler -> IClassService : GetClassOwnerAccess(ClassId)
+IClassService -> ApplicationDbContext : Query Class & Owner
+ApplicationDbContext -> Database : Query Class & Owner
+Database --> ApplicationDbContext : Class, Owner
+ApplicationDbContext --> IClassService : Class, Owner
+
+alt Not found
+    IClassService --> Handler : throw Error: CLASS_NOTFOUND
+    Handler --> ClassEndpoints : Error: CLASS_NOTFOUND
+    ClassEndpoints --> UI : 400 Bad Request (errorCode: CLASS_NOTFOUND)
+    UI -> User : Error: Class not found
+else Not owner
+    IClassService --> Handler : throw Error: ONLY_OWNERS_CAN_UPDATE
+    Handler --> ClassEndpoints : Error: ONLY_OWNERS_CAN_UPDATE
+    ClassEndpoints --> UI : 400 Bad Request (errorCode: ONLY_OWNERS_CAN_UPDATE)
+    UI -> User : Error: Only owner can remove student
+else Found
+    IClassService --> Handler : Class, Owner
+    Handler -> ApplicationDbContext : Remove student from class
+    ApplicationDbContext -> Database : Delete ClassUser
+    Database --> ApplicationDbContext : OK
+    ApplicationDbContext --> Handler : Guid
+    Handler --> ClassEndpoints : Guid
+    ClassEndpoints --> UI : 200 OK (ApiResponse<Guid>)
+    UI -> User : Student removed successfully
+end
+@enduml 

@@ -1,0 +1,41 @@
+@startuml
+'=====================DEFINE========================
+!define ENTITY_Class ' Class entity
+!define ENTITY_QuestionSet ' QuestionSet entity
+'=====================IMPORT========================
+!include ../../GlobalSettings.puml
+!include ../../common/Mediatr.puml
+!include ../../common/EndpointClasses.puml
+!include ../../common/IApplicationDbContext.puml
+!include ../../entities/Class.puml
+!include ../../entities/QuestionSet.puml
+!include service/IClassService.puml
+'=====================COMMAND========================
+class AddQuestionSetCommand {
+    +ClassId: Guid
+    +QuestionSetId: Guid
+}
+
+class AddQuestionSetCommandHandler {
+    - _context: IApplicationDbContext
+    - _classService: IClassService
+    + Handle(command: AddQuestionSetCommand, cancellationToken: CancellationToken): Task<Guid>
+}
+
+'=====================ENDPOINT========================
+class ClassEndpoints  {
+    + <<async>> AddQuestionSet(classId:Guid, questionSetId:Guid, sender:ISender) : Task<Ok<ApiResponse<Guid>>>
+}
+'=====================RELATIONSHIP========================
+!include zCommon.puml
+AddQuestionSetCommand ..|> IRequest : <<implements>>
+AddQuestionSetCommandHandler ..> AddQuestionSetCommand :  <<uses>>
+ClassEndpoints ..> AddQuestionSetCommand : <<uses>>
+AddQuestionSetCommandHandler ..|> IRequestHandler : <<implements>>
+'=====INJECT
+AddQuestionSetCommandHandler ..> IApplicationDbContext : <<inject>>
+AddQuestionSetCommandHandler ..> IClassService : <<inject>>
+'=====INJECT
+
+' Only reference entity via DbContext
+@enduml 

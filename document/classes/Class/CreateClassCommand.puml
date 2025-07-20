@@ -1,0 +1,39 @@
+ @startuml
+ '=====================DEFINE========================
+ !define ENTITY_Class ' Class entity
+ '=====================IMPORT========================
+ !include ../../GlobalSettings.puml
+ !include ../../common/Mediatr.puml
+ !include ../../common/EndpointClasses.puml
+ !include ../../common/IApplicationDbContext.puml
+ !include ../../entities/Class.puml
+ !include ../../common/service/IUser.puml
+ '=====================COMMAND========================
+ class CreateClassCommand {
+     +Name: string
+     +Topic: string
+ }
+
+ class CreateClassCommandHandler {
+     - _context: IApplicationDbContext
+     - _user: IUser
+     + Handle(command: CreateClassCommand, cancellationToken: CancellationToken): Task<Guid>
+ }
+
+ '=====================ENDPOINT========================
+ class ClassEndpoints  {
+     + <<async>> CreateClass(command:CreateClassCommand, sender:ISender) : Task<Ok<ApiResponse<Guid>>>
+ }
+ '=====================RELATIONSHIP========================
+ !include zCommon.puml
+ CreateClassCommand ..|> IRequest : <<implements>>
+ CreateClassCommandHandler ..> CreateClassCommand :  <<uses>>
+ ClassEndpoints ..> CreateClassCommand : <<uses>>
+ CreateClassCommandHandler ..|> IRequestHandler : <<implements>>
+ '=====INJECT
+ CreateClassCommandHandler ..> IApplicationDbContext : <<inject>>
+ CreateClassCommandHandler ..> IUser : <<inject>>
+ '=====INJECT
+
+ ' Only reference entity via DbContext
+ @enduml

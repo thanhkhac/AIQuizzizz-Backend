@@ -1,0 +1,41 @@
+@startuml
+'=====================DEFINE========================
+!define ENTITY_Class ' Class entity
+!define ENTITY_ClassUser ' Class entity
+'=====================IMPORT========================
+!include ../../GlobalSettings.puml
+!include ../../common/Mediatr.puml
+!include ../../common/EndpointClasses.puml
+!include ../../common/IApplicationDbContext.puml
+!include service/IClassService.puml
+!include ../../entities/Class.puml
+'=====================COMMAND========================
+class UpdatePositionCommand {
+    +ClassId: Guid
+    +UserId: Guid
+    +Position: ClassShareMode
+}
+
+class UpdatePositionCommandHandler {
+    - _context: IApplicationDbContext
+    - _classService: IClassService
+    + Handle(command: UpdatePositionCommand, cancellationToken: CancellationToken): Task<UpdatePositionDto>
+}
+
+'=====================ENDPOINT========================
+class ClassEndpoints  {
+    + <<async>> UpdatePosition(classId:Guid, userId:Guid, position:ClassShareMode, sender:ISender) : Task<Ok<ApiResponse<UpdatePositionDto>>>
+}
+'=====================RELATIONSHIP========================
+!include zCommon.puml
+UpdatePositionCommand ..|> IRequest : <<implements>>
+UpdatePositionCommandHandler ..> UpdatePositionCommand :  <<uses>>
+ClassEndpoints ..> UpdatePositionCommand : <<uses>>
+UpdatePositionCommandHandler ..|> IRequestHandler : <<implements>>
+'=====INJECT
+UpdatePositionCommandHandler ..> IApplicationDbContext : <<inject>>
+UpdatePositionCommandHandler ..> IClassService : <<inject>>
+'=====INJECT
+
+' Only reference entity via DbContext
+@enduml 

@@ -1,0 +1,45 @@
+@startuml
+!define ENTITY_Class ' Class entity
+
+actor "User" as User
+participant "Class UI" as UI
+participant ClassEndpoints
+participant GetClassByIdCommandHandler as Handler
+participant IClassService
+participant ApplicationDbContext
+participant Database
+
+User -> UI : View class details
+UI -> ClassEndpoints : GET /api/Class/{ClassId}
+ClassEndpoints -> Handler : Handle(GetClassByIdCommand)
+
+' Step 1: Query Class
+Handler -> ApplicationDbContext : Query Class by Id
+ApplicationDbContext -> Database : SELECT FROM Classes WHERE Id = ...
+Database --> ApplicationDbContext : Class or null
+ApplicationDbContext --> Handler : Class
+
+alt Class not found
+    Handler --> ClassEndpoints : Error: CLASS_NOTFOUND
+    ClassEndpoints --> UI : 400 Bad Request (errorCode: CLASS_NOTFOUND)
+    UI -> User : Error: Class not found
+else Class found
+    Handler -> IClassService : IsUserInClass(ClassId)
+    IClassService -> ApplicationDbContext : Query ClassUser by UserId + ClassId
+    ApplicationDbContext -> Database : Query
+    Database --> ApplicationDbContext : ClassUser
+    ApplicationDbContext --> IClassService : ClassUser
+
+    alt ClassUser not found
+        IClassService --> Handler : throw NOT_FOUND_USER_IN_CLASS
+        Handler --> ClassEndpoints : Error: NOT_FOUND_USER_IN_CLASS
+        ClassEndpoints --> UI : 400 Bad Request (errorCode: NOT_FOUND_USER_IN_CLASS)
+        UI -> User : Error: User not in class
+    else ClassUser found
+        IClassService --> Handler : OK
+        Handler --> ClassEndpoints : ClassDetailDto
+        ClassEndpoints --> UI : 200 OK (ApiResponse<ClassDetailDto>)
+        UI -> User : Show class details
+    end
+end
+@enduml

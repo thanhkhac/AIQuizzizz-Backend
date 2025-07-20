@@ -1,0 +1,41 @@
+ @startuml
+ '=====================DEFINE========================
+ !define ENTITY_Class ' Class entity
+ !define ENTITY_ClassInvitation ' Class entity
+ !define ENTITY_ClassInvitationUser ' Class entity
+ '=====================IMPORT========================
+ !include ../../GlobalSettings.puml
+ !include ../../common/Mediatr.puml
+ !include ../../common/EndpointClasses.puml
+ !include ../../common/IApplicationDbContext.puml
+ !include ../../entities/Class.puml
+ !include ../../entities/ClassInvitation.puml
+ !include ../../common/service/IUser.puml
+ '=====================COMMAND========================
+ class JoinClassByCodeCommand {
+     +Code: string
+ }
+
+ class JoinClassByCodeCommandHandler {
+     - _context: IApplicationDbContext
+     - _user: IUser
+     + Handle(command: JoinClassByCodeCommand, cancellationToken: CancellationToken): Task<Unit>
+ }
+
+ '=====================ENDPOINT========================
+ class ClassEndpoints  {
+     + <<async>> JoinClassByCode(command:JoinClassByCodeCommand, sender:ISender) : Task<Ok<ApiResponse<Unit>>>
+ }
+ '=====================RELATIONSHIP========================
+ !include zCommon.puml
+ JoinClassByCodeCommand ..|> IRequest : <<implements>>
+ JoinClassByCodeCommandHandler ..> JoinClassByCodeCommand :  <<uses>>
+ ClassEndpoints ..> JoinClassByCodeCommand : <<uses>>
+ JoinClassByCodeCommandHandler ..|> IRequestHandler : <<implements>>
+ '=====INJECT
+ JoinClassByCodeCommandHandler ..> IApplicationDbContext : <<inject>>
+ JoinClassByCodeCommandHandler ..> IUser : <<inject>>
+ '=====INJECT
+
+ ' Only reference entity via DbContext
+ @enduml

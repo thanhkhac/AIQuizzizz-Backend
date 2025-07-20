@@ -1,0 +1,38 @@
+@startuml
+'=====================DEFINE========================
+!define ENTITY_Class ' Class entity
+'=====================IMPORT========================
+!include ../../GlobalSettings.puml
+!include ../../common/Mediatr.puml
+!include ../../common/EndpointClasses.puml
+!include ../../common/IApplicationDbContext.puml
+!include service/IClassService.puml
+!include ../../entities/Class.puml
+'=====================COMMAND========================
+class DeleteClassCommand {
+    +ClassId: Guid
+}
+
+class DeleteClassHandler {
+    - _context: IApplicationDbContext
+    - _classService: IClassService
+    + Handle(command: DeleteClassCommand, cancellationToken: CancellationToken): Task<Guid>
+}
+
+'=====================ENDPOINT========================
+class ClassEndpoints  {
+    + <<async>> DeleteClass(classId:Guid, sender:ISender) : Task<Ok<ApiResponse<Guid>>>
+}
+'=====================RELATIONSHIP========================
+!include zCommon.puml
+DeleteClassCommand ..|> IRequest : <<implements>>
+DeleteClassHandler ..> DeleteClassCommand :  <<uses>>
+ClassEndpoints ..> DeleteClassCommand : <<uses>>
+DeleteClassHandler ..|> IRequestHandler : <<implements>>
+'=====INJECT
+DeleteClassHandler ..> IApplicationDbContext : <<inject>>
+DeleteClassHandler ..> IClassService : <<inject>>
+'=====INJECT
+
+' Only reference entity via DbContext
+@enduml 

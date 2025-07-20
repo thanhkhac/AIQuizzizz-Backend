@@ -1,0 +1,39 @@
+@startuml
+'=====================DEFINE========================
+!define ENTITY_Class ' Class entity
+!define ENTITY_ClassUser ' Class entity
+'=====================IMPORT========================
+!include ../../GlobalSettings.puml
+!include ../../common/Mediatr.puml
+!include ../../common/EndpointClasses.puml
+!include ../../common/IApplicationDbContext.puml
+!include service/IClassService.puml
+!include ../../entities/Class.puml
+'=====================COMMAND========================
+class GetClassByIdCommand {
+    +ClassId: Guid
+}
+
+class GetClassByIdCommandHandler {
+    - _context: IApplicationDbContext
+    - _classService: IClassService
+    + Handle(command: GetClassByIdCommand, cancellationToken: CancellationToken): Task<ClassDetailDto>
+}
+
+'=====================ENDPOINT========================
+class ClassEndpoints  {
+    + <<async>> GetClassById(classId:Guid, sender:ISender) : Task<Ok<ApiResponse<ClassDetailDto>>>
+}
+'=====================RELATIONSHIP========================
+!include zCommon.puml
+GetClassByIdCommand ..|> IRequest : <<implements>>
+GetClassByIdCommandHandler ..> GetClassByIdCommand :  <<uses>>
+ClassEndpoints ..> GetClassByIdCommand : <<uses>>
+GetClassByIdCommandHandler ..|> IRequestHandler : <<implements>>
+'=====INJECT
+GetClassByIdCommandHandler ..> IApplicationDbContext : <<inject>>
+GetClassByIdCommandHandler ..> IClassService : <<inject>>
+'=====INJECT
+
+' Only reference entity via DbContext
+@enduml 

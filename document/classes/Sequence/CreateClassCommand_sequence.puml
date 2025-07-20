@@ -1,0 +1,32 @@
+@startuml
+!define ENTITY_Class ' Class entity
+
+actor "User" as User
+participant "Class UI" as UI
+participant ClassEndpoints
+participant CreateClassCommandHandler as Handler
+participant ApplicationDbContext
+participant Database
+
+User -> UI : Click "Create Class"
+UI -> ClassEndpoints : POST /api/Class
+ClassEndpoints -> Handler : Handle(CreateClassCommand)
+Handler -> ApplicationDbContext : Check if class exists
+ApplicationDbContext -> Database : Query Class by Name
+Database --> ApplicationDbContext : Class or null
+ApplicationDbContext --> Handler : Class or null
+
+alt Class already exists
+    Handler --> ClassEndpoints : Error: CLASS_ALREADY_EXISTS
+    ClassEndpoints --> UI : 400 Bad Request (errorCode: CLASS_ALREADY_EXISTS)
+    UI -> User : Error: Class already exists
+else Not exists
+    Handler -> ApplicationDbContext : Add new Class
+    ApplicationDbContext -> Database : Insert new Class
+    Database --> ApplicationDbContext : ClassId
+    ApplicationDbContext --> Handler : Guid
+    Handler --> ClassEndpoints : Guid
+    ClassEndpoints --> UI : 200 OK (ApiResponse<Guid>)
+    UI -> User : Info: Class created successfully
+end
+@enduml 
