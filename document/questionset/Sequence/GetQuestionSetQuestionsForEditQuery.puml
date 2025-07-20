@@ -1,40 +1,52 @@
 @startuml
-actor "User / Guest" as User
-participant "Question Set Detail UI" as UI
+!define ENTITY_Question ' Question
+
+actor User
+participant "QuestionSet Edit UI" as UI
 participant QuestionSetEndpoints
-participant GetQuestionSetDetailQueryHandler as Handler
+participant GetQuestionSetQuestionsForEditQueryHandler as Handler
 participant QuestionSetService
+participant QuestionService
 participant ApplicationDbContext
 participant Database
 
-User -> UI : Open question set detail
-UI -> QuestionSetEndpoints : GET /api/QuestionSet/{id}
-QuestionSetEndpoints -> Handler : Handle(GetQuestionSetDetailQuery)
+User -> UI : Request get questions for edit
+UI -> QuestionSetEndpoints : GET /api/QuestionSet/{id}/QuestionsForEdit
+QuestionSetEndpoints -> Handler : Handle(GetQuestionSetQuestionsForEditQuery)
+
 Handler -> QuestionSetService : GetActiveQuestionSet(questionSetId)
 QuestionSetService -> ApplicationDbContext : Query QuestionSet
 ApplicationDbContext -> Database : Query QuestionSet
 Database --> ApplicationDbContext : QuestionSet
 ApplicationDbContext --> QuestionSetService : QuestionSet
 QuestionSetService --> Handler : QuestionSet
+
 alt Not found
     Handler --> QuestionSetEndpoints : Error: QUESTION_SET_NOT_FOUND
     QuestionSetEndpoints --> UI : 400 Bad Request (errorCode: QUESTION_SET_NOT_FOUND)
     UI -> User : Error: Question set not found
 else Found
-    Handler -> QuestionSetService : CanUserViewQuestionSet(userId, questionSet)
+    Handler -> QuestionSetService : CanUserEditQuestionSet(userId, questionSet)
     QuestionSetService -> ApplicationDbContext : Query Permission
     ApplicationDbContext -> Database : Query Permission
     Database --> ApplicationDbContext : Permission
     ApplicationDbContext --> QuestionSetService : Permission
     QuestionSetService --> Handler : bool
+
     alt No permission
         Handler --> QuestionSetEndpoints : Error: COMMON_FORBIDDEN
         QuestionSetEndpoints --> UI : 400 Bad Request (errorCode: COMMON_FORBIDDEN)
         UI -> User : Error: No permission
     else Allowed
-        Handler --> QuestionSetEndpoints : QuestionSetDetailDto
-        QuestionSetEndpoints --> UI : 200 OK (ApiResponse<QuestionSetDetailDto>)
-        UI -> User : Show question set detail
+        Handler -> QuestionService : GetQuestionsForEdit(questionSetId)
+        QuestionService -> ApplicationDbContext : Query Questions
+        ApplicationDbContext -> Database : Query Questions
+        Database --> ApplicationDbContext : List<Question>
+        ApplicationDbContext --> QuestionService : List<Question>
+        QuestionService --> Handler : List<CreateUpdateQuestionDto>
+        Handler --> QuestionSetEndpoints : List<CreateUpdateQuestionDto>
+        QuestionSetEndpoints --> UI : 200 OK (ApiResponse<List<CreateUpdateQuestionDto>>)
+        UI -> User : Show questions for edit
     end
 end
 @enduml 

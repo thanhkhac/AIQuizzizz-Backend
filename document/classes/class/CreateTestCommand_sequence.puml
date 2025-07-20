@@ -1,0 +1,24 @@
+@startuml
+!define ENTITY_Test ' Test
+!include ../../common/IApplicationDbContext.puml
+!include ../../entities/Test.puml
+
+actor User
+participant "Class UI" as UI
+participant ClassEndpoints
+participant CreateTestCommandHandler as Handler
+participant ApplicationDbContext
+participant Database
+
+User -> UI : Request create test
+UI -> ClassEndpoints : POST /api/Class/Test
+ClassEndpoints -> Handler : Handle(CreateTestCommand)
+
+Handler -> ApplicationDbContext : Add(Test)
+ApplicationDbContext -> Database : Insert Test
+Database --> ApplicationDbContext : TestId
+ApplicationDbContext --> Handler : TestId
+Handler --> ClassEndpoints : Guid (TestId)
+ClassEndpoints --> UI : 200 OK (ApiResponse<Guid>)
+UI -> User : Show created test
+@enduml 

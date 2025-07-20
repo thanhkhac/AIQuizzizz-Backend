@@ -382,4 +382,40 @@ ApplicationDbContext o-- "*" TestVersion
 !ifdef ENTITY_TestVersionQuestion
 ApplicationDbContext o-- "*" TestVersionQuestion
 !endif
+
+!ifdef ENTITY_User
+ApplicationDbContext o-- "*" User
+!endif
+!ifdef ENTITY_Plan
+ApplicationDbContext o-- "*" Plan
+!endif
+!ifdef ENTITY_TokenPackage
+ApplicationDbContext o-- "*" TokenPackage
+!endif
+!ifdef ENTITY_UserTokenPurchase
+ApplicationDbContext o-- "*" UserTokenPurchase
+!endif
+!ifdef ENTITY_UserSubscription
+ApplicationDbContext o-- "*" UserSubscription
+!endif
+!ifdef ENTITY_Class
+ApplicationDbContext o-- "*" Class
+!endif
+!ifdef ENTITY_ClassUser
+ApplicationDbContext o-- "*" ClassUser
+!endif
+!ifdef ENTITY_ClassQuestionSet
+ApplicationDbContext o-- "*" ClassQuestionSet
+!endif
+!ifdef ENTITY_ClassInvitation
+ApplicationDbContext o-- "*" ClassInvitation
+!endif
+!ifdef ENTITY_ClassInvitationUser
+ApplicationDbContext o-- "*" ClassInvitationUser
+!endif
+!ifdef ENTITY_RefreshToken
+ApplicationDbContext o-- "*" RefreshToken
+!endif
+
+
 @enduml

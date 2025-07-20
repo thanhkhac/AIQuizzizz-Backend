@@ -7,7 +7,7 @@ participant QuestionSetService
 participant ApplicationDbContext
 participant Database
 
-User -> UI : View permissions
+User -> UI : Click option button
 UI -> QuestionSetEndpoints : GET /api/QuestionSet/{id}/Permissions
 QuestionSetEndpoints -> Handler : Handle(GetQuestionSetPermissionsQuery)
 Handler -> QuestionSetService : GetPermissions(userId, questionSetId)
@@ -18,5 +18,7 @@ ApplicationDbContext --> QuestionSetService : QuestionSetPermissionsDto
 QuestionSetService --> Handler : QuestionSetPermissionsDto
 Handler --> QuestionSetEndpoints : QuestionSetPermissionsDto
 QuestionSetEndpoints --> UI : 200 OK (ApiResponse<QuestionSetPermissionsDto>)
-UI -> User : Show permissions
+UI -> User : Show button based on permissions
 @enduml 
+
+Tôi muốn nó dùng để hiển thị button của người dùng

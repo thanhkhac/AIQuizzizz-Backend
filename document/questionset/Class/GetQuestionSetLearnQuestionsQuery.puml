@@ -1,8 +1,10 @@
 @startuml
-title Authentication | Register
+title QuestionSet View questions of question set
 '=====================DEFINE========================
 !define QUESTIONSET_SERVICE_CANUSERVIEW
-!define ENTITY_Question 
+!define ENTITY_Question
+!define ENTITY_UserSubscription 
+!define ENTITY_Plan
 '=====================IMPORT========================
 !include ../../GlobalSettings.puml
 !include ../../common/Mediatr.puml

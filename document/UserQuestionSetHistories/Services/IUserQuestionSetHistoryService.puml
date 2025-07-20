@@ -1,13 +1,22 @@
 @startuml
+title UserQuestionSetHistoryService
+
 !define ENTITY_UserQuestionSetHistory ' Lịch sử làm bộ câu hỏi của user
 !include ../../common/IApplicationDbContext.puml
 
+' Interface
 interface IUserQuestionSetHistoryService {
-    ...
+    + DeleteHistoriesByUserAndSetAsync(userId: Guid, questionSetId: Guid, cancellationToken)
 }
+
+' Implementation class
 class UserQuestionSetHistoryService {
     - _context: IApplicationDbContext
-    ...
+    + DeleteHistoriesByUserAndSetAsync(userId: Guid, questionSetId: Guid, cancellationToken)
 }
+
+UserQuestionSetHistoryService ..|> IUserQuestionSetHistoryService
 UserQuestionSetHistoryService ..> IApplicationDbContext : <<inject>>
+
+
 @enduml

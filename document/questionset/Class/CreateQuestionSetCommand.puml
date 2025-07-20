@@ -1,6 +1,7 @@
 @startuml
 '=====================DEFINE========================
 !define ENTITY_QuestionSet 
+!define ENTITY_Question
 '=====================IMPORT========================
 !include ../../GlobalSettings.puml
 !include ../../common/Mediatr.puml
@@ -12,7 +13,7 @@
 class CreateQuestionSetCommand {
     +Name: string
     +Description: string
-    +VisibilityMode: QuestionSetVisibilityMode
+    +Questions : List<CreateUpdateQuestionDto>
 }
 
 
@@ -32,7 +33,7 @@ CreateQuestionSetCommand ..|> IRequest : <<implements>>
 CreateQuestionSetCommandHandler ..> CreateQuestionSetCommand :  <<uses>>
 QuestionSetEndpoints ..> CreateQuestionSetCommand : <<uses>>
 CreateQuestionSetCommandHandler ..|> IRequestHandler : <<implements>>
-CreateQuestionSetCommand --* CreateUpdateQuestionDto : <<uses>>
+CreateQuestionSetCommand --* CreateUpdateQuestionDto 
 '=====INJECT
 CreateQuestionSetCommandHandler ..> IApplicationDbContext : <<inject>>
 '=====INJECT

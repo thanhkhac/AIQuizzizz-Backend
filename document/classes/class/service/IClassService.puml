@@ -1,4 +1,7 @@
 @startuml
+!define ENTITY_Class ' Lớp học
+!define ENTITY_ClassUser ' User trong lớp
+
 interface IClassService {
     GetClassOwnerAccess(classId:Guid, cancellationToken:CancellationToken) : Task<(ClassUser IsOwner, Class ClassExists)>
     IsStudentInClass(classId:Guid) : Task

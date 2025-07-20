@@ -1,0 +1,37 @@
+@startuml
+!define ENTITY_Class ' Class
+!define ENTITY_ClassUser ' ClassUser
+!include ../../common/IApplicationDbContext.puml
+!include ../../entities/Class.puml
+!include ../../entities/ClassUser.puml
+
+actor User
+participant "Class UI" as UI
+participant ClassEndpoints
+participant JoinClassByCodeCommandHandler as Handler
+participant ApplicationDbContext
+participant Database
+
+User -> UI : Request join class by code
+UI -> ClassEndpoints : POST /api/Class/Students
+ClassEndpoints -> Handler : Handle(JoinClassByCodeCommand)
+
+Handler -> ApplicationDbContext : Query Class by code
+ApplicationDbContext -> Database : Query Class
+Database --> ApplicationDbContext : Class
+ApplicationDbContext --> Handler : Class
+
+alt Not found
+    Handler --> ClassEndpoints : Error: CLASS_NOT_FOUND
+    ClassEndpoints --> UI : 400 Bad Request (errorCode: CLASS_NOT_FOUND)
+    UI -> User : Error: Class not found
+else Found
+    Handler -> ApplicationDbContext : Add(ClassUser)
+    ApplicationDbContext -> Database : Insert ClassUser
+    Database --> ApplicationDbContext : ClassUserId
+    ApplicationDbContext --> Handler : ClassUserId
+    Handler --> ClassEndpoints : Success
+    ClassEndpoints --> UI : 200 OK (ApiResponse<Unit>)
+    UI -> User : Join class success
+end
+@enduml 

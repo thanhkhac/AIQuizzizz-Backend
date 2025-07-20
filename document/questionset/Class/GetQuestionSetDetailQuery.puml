@@ -1,5 +1,5 @@
 @startuml
-title QuestionSet | GetQuestionSetDetailQuery
+title QuestionSet |  View question set detail
 '=====================DEFINE========================
 !define QUESTIONSET_SERVICE_CANUSERVIEW
 !define ENTITY_QuestionSet 

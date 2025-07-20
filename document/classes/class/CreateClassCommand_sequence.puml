@@ -1,0 +1,24 @@
+@startuml
+!define ENTITY_Class ' Class
+!include ../../common/IApplicationDbContext.puml
+!include ../../entities/Class.puml
+
+actor User
+participant "Class UI" as UI
+participant ClassEndpoints
+participant CreateClassCommandHandler as Handler
+participant ApplicationDbContext
+participant Database
+
+User -> UI : Request create class
+UI -> ClassEndpoints : POST /api/Class
+ClassEndpoints -> Handler : Handle(CreateClassCommand)
+
+Handler -> ApplicationDbContext : Add(Class)
+ApplicationDbContext -> Database : Insert Class
+Database --> ApplicationDbContext : ClassId
+ApplicationDbContext --> Handler : ClassId
+Handler --> ClassEndpoints : Guid (ClassId)
+ClassEndpoints --> UI : 200 OK (ApiResponse<Guid>)
+UI -> User : Show created class
+@enduml 

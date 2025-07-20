@@ -1,0 +1,28 @@
+@startuml
+!define ENTITY_Class ' Class
+!define ENTITY_QuestionSet ' QuestionSet
+!define ENTITY_ClassQuestionSet ' ClassQuestionSet
+!include ../../common/IApplicationDbContext.puml
+!include ../../entities/Class.puml
+!include ../../entities/QuestionSet.puml
+!include ../../entities/ClassQuestionSet.puml
+
+actor User
+participant "Class UI" as UI
+participant ClassEndpoints
+participant AddQuestionSetCommandHandler as Handler
+participant ApplicationDbContext
+participant Database
+
+User -> UI : Request add question set to class
+UI -> ClassEndpoints : POST /api/Class/{ClassId}/Questionsets/{QuestionSetId}
+ClassEndpoints -> Handler : Handle(AddQuestionSetCommand)
+
+Handler -> ApplicationDbContext : Add(ClassQuestionSet)
+ApplicationDbContext -> Database : Insert ClassQuestionSet
+Database --> ApplicationDbContext : ClassQuestionSetId
+ApplicationDbContext --> Handler : ClassQuestionSetId
+Handler --> ClassEndpoints : Guid (ClassQuestionSetId)
+ClassEndpoints --> UI : 200 OK (ApiResponse<Guid>)
+UI -> User : Show add question set success
+@enduml 

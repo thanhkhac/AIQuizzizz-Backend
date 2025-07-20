@@ -1,12 +1,12 @@
 @startuml
-actor User
+actor "User / Guest" as User
 participant "Create Question Set UI" as UI
 participant QuestionSetEndpoints
 participant CreateQuestionSetCommandHandler as Handler
 participant ApplicationDbContext
-participant Database
+participant Datsabase
 
-User -> UI : Fill in info, click "Create"
+User -> UI : click "Create"
 UI -> QuestionSetEndpoints : POST /api/QuestionSet
 QuestionSetEndpoints -> Handler : Handle(CreateQuestionSetCommand)
 Handler -> ApplicationDbContext : Add new QuestionSet
@@ -15,6 +15,6 @@ Database --> ApplicationDbContext : QuestionSetId
 ApplicationDbContext --> Handler : Guid
 Handler --> QuestionSetEndpoints : Guid
 QuestionSetEndpoints --> UI : 200 OK (ApiResponse<Guid>)
-UI -> User : Info: Question set created successfully
+UI -> User : Info: Question set created successfully, Redirect to question detail
 
 @enduml 

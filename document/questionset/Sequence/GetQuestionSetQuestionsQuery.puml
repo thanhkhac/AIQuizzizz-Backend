@@ -1,5 +1,5 @@
 @startuml
-actor User
+actor "User / Guest" as User
 participant "Question List UI" as UI
 participant QuestionSetEndpoints
 participant GetQuestionSetQuestionsQueryHandler as Handler
