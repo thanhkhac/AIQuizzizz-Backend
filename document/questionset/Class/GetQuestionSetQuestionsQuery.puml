@@ -2,7 +2,7 @@
 title QuestionSet | GetQuestionSetQuestionsQuery
 '=====================DEFINE========================
 !define QUESTIONSET_SERVICE_CANUSERVIEW
-!define ENTITY_Question ' Câu hỏi
+!define ENTITY_Question 
 '=====================IMPORT========================
 !include ../../GlobalSettings.puml
 !include ../../common/Mediatr.puml

@@ -2,7 +2,8 @@
 title Authentication | Register
 '=====================DEFINE========================
 !define QUESTIONSET_SERVICE_CANUSERVIEW
-!define ENTITY_Question ' Câu hỏi
+!define ENTITY_Question 
+'=====================IMPORT========================
 !include ../../GlobalSettings.puml
 !include ../../common/Mediatr.puml
 !include ../../common/EndpointClasses.puml
@@ -13,8 +14,8 @@ title Authentication | Register
 !include ../dtos/QuestionResponseDto.puml
 '=====================COMMAND========================
 class GetQuestionSetLearnQuestionsQuery {
-    + QuestionSetId : Guid <<get>> <<set>>
-    + QuestionCount : int <<get>> <<set>>
+    + QuestionSetId : Guid 
+    + QuestionCount : int 
 }
 
 class GetQuestionSetLearnQuestionsQueryHandler {

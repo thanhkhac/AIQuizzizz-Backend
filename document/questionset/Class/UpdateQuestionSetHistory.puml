@@ -1,6 +1,8 @@
 @startuml
+'=====================DEFINE========================
 !define ENTITY_QuestionSet ' Bộ câu hỏi
-!define ENTITY_UserQuestionSetHistory ' Lịch sử làm bộ câu hỏi của user
+!define ENTITY_UserQuestionSetHistory 
+'=====================IMPORT========================
 !include ../../GlobalSettings.puml
 !include ../../common/Mediatr.puml
 !include ../../common/EndpointClasses.puml
@@ -11,13 +13,13 @@
 !include ../../entities/UserQuestionSetHistory.puml
 '=====================COMMAND========================
 class UpdateQuestionSetHistoryCommand {
-    + QuestionSetId : Guid <<get>> <<set>>
-    + Questions : List<QuestionHistoryUpdate> <<get>> <<set>>
+    + QuestionSetId : Guid 
+    + Questions : List<QuestionHistoryUpdate> 
 }
 
 class QuestionHistoryUpdate {
-    + QuestionId : Guid <<get>> <<set>>
-    + IsCorrect : bool <<get>> <<set>>
+    + QuestionId : Guid 
+    + IsCorrect : bool 
 }
 
 class UpdateQuestionSetHistoryCommandHandler {

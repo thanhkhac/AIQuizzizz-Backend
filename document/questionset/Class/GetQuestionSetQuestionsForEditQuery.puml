@@ -1,6 +1,8 @@
 @startuml
-title Authentication | Register
+
+'=====================DEFINE========================
 !define ENTITY_Question ' Câu hỏi
+'=====================IMPORT========================
 !include ../../GlobalSettings.puml
 !include ../../common/Mediatr.puml
 !include ../../common/EndpointClasses.puml
@@ -11,7 +13,7 @@ title Authentication | Register
 !include ../../entities/Question.puml
 '=====================COMMAND========================
 class GetQuestionSetQuestionsForEditQuery {
-    + QuestionSetId : Guid <<get>> <<set>>
+    + QuestionSetId : Guid 
 }
 class GetQuestionSetQuestionsForEditQueryHandler {
     - <<readonly>> _questionSetService : IQuestionSetService

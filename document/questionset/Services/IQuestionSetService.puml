@@ -37,6 +37,4 @@ class QuestionSetService {
 }
 IQuestionSetService <|-- QuestionSetService : <<implements>>
 QuestionSetService ..> IApplicationDbContext : <<inject>>
-IQuestionSetService ..> QuestionSet : <<uses>>
-QuestionSetService ..> QuestionSet : <<uses>>
 @enduml

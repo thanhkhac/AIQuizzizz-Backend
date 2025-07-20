@@ -1,5 +1,7 @@
 @startuml
-!define ENTITY_QuestionSet ' Bộ câu hỏi
+'=====================DEFINE========================
+!define ENTITY_QuestionSet 
+'=====================IMPORT========================
 !include ../../GlobalSettings.puml
 !include ../../common/Mediatr.puml
 !include ../../common/EndpointClasses.puml

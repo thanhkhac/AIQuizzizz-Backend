@@ -1,7 +1,7 @@
 @startuml
 title QuestionSet | ResetQuestionSetHistoryCommand
-!define ENTITY_QuestionSet ' Bộ câu hỏi
-!define ENTITY_UserQuestionSetHistory ' Lịch sử làm bộ câu hỏi của user
+!define ENTITY_QuestionSet 
+!define ENTITY_UserQuestionSetHistory 
 !include ../../GlobalSettings.puml
 !include ../../common/Mediatr.puml
 !include ../../common/EndpointClasses.puml
@@ -13,7 +13,7 @@ title QuestionSet | ResetQuestionSetHistoryCommand
 !include ../../entities/UserQuestionSetHistory.puml
 '=====================COMMAND========================
 class ResetQuestionSetHistoryCommand {
-    + QuestionSetId : Guid <<get>> <<set>>
+    + QuestionSetId : Guid 
 }
 
 class ResetQuestionSetHistoryCommandHandler {

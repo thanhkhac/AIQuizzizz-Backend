@@ -1,43 +1,43 @@
 @startuml
 class QuestionResponseDto {
-    + Id : Guid <<get>> <<set>>
-    + QuestionSetId : Guid <<get>> <<set>>
-    + Type : string <<get>> <<set>>
-    + TextFormat : TextFormat <<get>> <<set>>
-    + QuestionText : string <<get>> <<set>>
-    + ExplainText : string? <<get>> <<set>>
-    + Score : float <<get>> <<set>>
-    + IsCorrect : bool? <<get>> <<set>>
-    + QuestionData : QuestionDataDto <<get>> <<set>>
+    + Id : Guid 
+    + QuestionSetId : Guid 
+    + Type : string 
+    + TextFormat : TextFormat 
+    + QuestionText : string 
+    + ExplainText : string? 
+    + Score : float 
+    + IsCorrect : bool? 
+    + QuestionData : QuestionDataDto 
 }
 class QuestionDataDto {
-    + MultipleChoice : List<MultipleChoiceItemDto> <<get>> <<set>>
-    + Matching : MatchingDataDto <<get>> <<set>>
-    + Ordering : List<OrderingItemDto> <<get>> <<set>>
-    + ShortText : string? <<get>> <<set>>
+    + MultipleChoice : List<MultipleChoiceItemDto> 
+    + Matching : MatchingDataDto 
+    + Ordering : List<OrderingItemDto> 
+    + ShortText : string? 
 }
 class MultipleChoiceItemDto {
-    + Id : Guid <<get>> <<set>>
-    + Text : string <<get>> <<set>>
-    + IsAnswer : bool <<get>> <<set>>
+    + Id : Guid 
+    + Text : string 
+    + IsAnswer : bool 
 }
 class MatchingDataDto {
-    + LeftItems : List<MatchingItemDto> <<get>> <<set>>
-    + RightItems : List<MatchingItemDto> <<get>> <<set>>
-    + Matches : List<MatchDto> <<get>> <<set>>
+    + LeftItems : List<MatchingItemDto> 
+    + RightItems : List<MatchingItemDto> 
+    + Matches : List<MatchDto> 
 }
 class MatchingItemDto {
-    + Id : Guid <<get>> <<set>>
-    + Text : string <<get>> <<set>>
+    + Id : Guid 
+    + Text : string 
 }
 class MatchDto {
-    + LeftId : Guid <<get>> <<set>>
-    + RightId : Guid <<get>> <<set>>
+    + LeftId : Guid 
+    + RightId : Guid 
 }
 class OrderingItemDto {
-    + Id : Guid <<get>> <<set>>
-    + Text : string <<get>> <<set>>
-    + CorrectOrder : int <<get>> <<set>>
+    + Id : Guid 
+    + Text : string 
+    + CorrectOrder : int 
 }
 QuestionResponseDto *-- QuestionDataDto
 QuestionDataDto *-- MultipleChoiceItemDto
