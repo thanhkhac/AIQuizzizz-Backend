@@ -298,6 +298,7 @@ public class TestVersionQuestion : BaseEntity
     public Question? Question { get; set; }
 }
 
+//TODO: Thêm grademode vào
 public class TestGrade
 {
     public required Guid Id { get; set; }
