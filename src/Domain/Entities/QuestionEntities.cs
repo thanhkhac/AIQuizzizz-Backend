@@ -260,8 +260,8 @@ public class Test : BaseAuditableEntity
     public required Guid Id { get; set; }
     public required string Name { get; set; }
     public required Guid ClassId { get; set; }
-    public required DateTime TimeStart { get; set; }
-    public required DateTime TimeFinish { get; set; }
+    public required DateTimeOffset TimeStart { get; set; }
+    public required DateTimeOffset TimeFinish { get; set; }
     public int MaxAttempt { get; set; } 
     public required int TimeLimit { get; set; }
     public required int QuestionCount { get; set; }
@@ -322,8 +322,8 @@ public class Attempt
     public required Guid TestId { get; set; }
     public required Guid TestVersionId { get; set; }
     public required Guid UserId { get; set; }
-    public required DateTime TimeStart { get; set; }
-    public required DateTime TimeFinish { get; set; }
+    public required DateTimeOffset TimeStart { get; set; }
+    public required DateTimeOffset TimeFinish { get; set; }
     public required float Score { get; set; }
 
     public List<AttemptQuestion> AttemptQuestions { get; set; } = new();

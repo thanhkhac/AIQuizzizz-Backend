@@ -12,8 +12,8 @@ public class UserAnswerDto
 
 public class TestResultDto
 {
-    public DateTime TimeStart;
-    public DateTime TimeEnd;
+    public DateTimeOffset TimeStart;
+    public DateTimeOffset TimeEnd;
     public float Score;
 }
 
