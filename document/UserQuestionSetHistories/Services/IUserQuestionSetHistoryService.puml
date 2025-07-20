@@ -1,7 +1,6 @@
 @startuml
 !define ENTITY_UserQuestionSetHistory ' Lịch sử làm bộ câu hỏi của user
 !include ../../common/IApplicationDbContext.puml
-!include ../../entities/UserQuestionSetHistory.puml
 
 interface IUserQuestionSetHistoryService {
     ...

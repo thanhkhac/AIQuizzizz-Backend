@@ -1,14 +1,14 @@
 @startuml
 title QuestionSet | GetQuestionSetPermissionsQuery
-'=====================DEFINE========================
-!define QUESTIONSET_SERVICE_CANUSERVIEW
-'=====================IMPORT========================
+!define ENTITY_QuestionSet ' Bộ câu hỏi
 !include ../../GlobalSettings.puml
 !include ../../common/Mediatr.puml
 !include ../../common/EndpointClasses.puml
 !include ../../common/service/IUser.puml
 !include ../Services/IQuestionSetService.puml
 !include ../dtos/QuestionSetPermissionsDto.puml
+!include ../../common/IApplicationDbContext.puml
+!include ../../entities/QuestionSet.puml
 '=====================COMMAND========================
 class GetQuestionSetPermissionsQuery <<record>> {
     + QuestionSetId : Guid <<get>> <<init>>

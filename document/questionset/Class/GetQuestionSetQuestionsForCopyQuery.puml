@@ -2,6 +2,7 @@
 title Authentication | Register
 '=====================DEFINE========================
 !define QUESTIONSET_SERVICE_CANUSERVIEW
+!define ENTITY_Question ' Câu hỏi
 '=====================IMPORT========================
 !include ../../GlobalSettings.puml
 !include ../../common/Mediatr.puml
@@ -9,6 +10,8 @@ title Authentication | Register
 !include ../../common/service/IUser.puml
 !include ../Services/IQuestionSetService.puml
 !include ../../Plan/Services/IPlanService.puml
+!include ../../common/IApplicationDbContext.puml
+!include ../../entities/Question.puml
 '=====================COMMAND========================
 class GetQuestionSetQuestionsForCopyQuery {
     + QuestionSetId : Guid <<get>> <<set>>

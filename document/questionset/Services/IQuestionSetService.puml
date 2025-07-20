@@ -1,6 +1,5 @@
 @startuml
 !include ../../common/IApplicationDbContext.puml
-!include ../../entities/QuestionSet.puml
 
 interface IQuestionSetService {
     !ifdef QUESTIONSET_SERVICE_CANUSEREDIT
@@ -40,5 +39,4 @@ IQuestionSetService <|-- QuestionSetService : <<implements>>
 QuestionSetService ..> IApplicationDbContext : <<inject>>
 IQuestionSetService ..> QuestionSet : <<uses>>
 QuestionSetService ..> QuestionSet : <<uses>>
-ApplicationDbContext o-- "*" QuestionSet
 @enduml

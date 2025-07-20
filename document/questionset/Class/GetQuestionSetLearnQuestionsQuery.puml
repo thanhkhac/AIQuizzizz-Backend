@@ -2,7 +2,7 @@
 title Authentication | Register
 '=====================DEFINE========================
 !define QUESTIONSET_SERVICE_CANUSERVIEW
-'=====================IMPORT========================
+!define ENTITY_Question ' Câu hỏi
 !include ../../GlobalSettings.puml
 !include ../../common/Mediatr.puml
 !include ../../common/EndpointClasses.puml

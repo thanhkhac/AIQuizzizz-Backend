@@ -1,15 +1,4 @@
 @startuml
-' Các entity chính liên quan đến QuestionSet
-class QuestionSet {
-    + Id : Guid
-    + Name : string
-    + Description : string
-    + VisibilityMode : QuestionSetVisibilityMode
-    + QuestionCount : int
-    + IsDeleted : bool
-    + Questions : List<Question>
-}
-
 class Question {
     + Id : Guid
     + QuestionSetId : Guid?
@@ -29,31 +18,4 @@ class Question {
     + AttemptQuestions : List<AttemptQuestion>
 }
 
-class QTypeMultipleChoice {
-    + Id : Guid
-    + Text : string
-    + IsAnswer : bool
-    + ShuffleOrder : short
-}
-class QTypeMatching {
-    + Id : Guid
-    + Text : string
-    + AnswerId : string?
-    + ShuffleOrder : short
-}
-class QTypeOrderingItem {
-    + Id : Guid
-    + Text : string
-    + CorrectOrder : int
-    + ShuffleOrder : short
-}
-class QTypeShortAnswer {
-    + Answer : string
-}
-
-QuestionSet "1" --* "*" Question : Questions
-Question --* QTypeMultipleChoice
-Question --* QTypeMatching
-Question --* QTypeOrderingItem
-Question --* QTypeShortAnswer
 @enduml 

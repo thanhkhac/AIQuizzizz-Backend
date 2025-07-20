@@ -23,5 +23,16 @@ class UpdateQuestionSetCommandHandler {
     - _context: IApplicationDbContext
     + Handle(command: UpdateQuestionSetCommand, cancellationToken: CancellationToken): Task
 }
+'=====================RELATIONSHIP========================
+!include zCommon.puml
+UpdateQuestionSetCommand ..|> IRequest : <<implements>>
+UpdateQuestionSetCommandHandler ..> UpdateQuestionSetCommand :  <<uses>>
+QuestionSetEndpoints ..> UpdateQuestionSetCommand : <<uses>>
+UpdateQuestionSetCommandHandler ..|> IRequestHandler : <<implements>>
+'=====INJECT
 UpdateQuestionSetCommandHandler ..> IApplicationDbContext : <<inject>>
+UpdateQuestionSetCommandHandler ..> IQuestionSetService : <<inject>>
+UpdateQuestionSetCommandHandler ..> IUser : <<inject>>
+'=====END INJECT
+UpdateQuestionSetCommand --* CreateUpdateQuestionDto 
 @enduml

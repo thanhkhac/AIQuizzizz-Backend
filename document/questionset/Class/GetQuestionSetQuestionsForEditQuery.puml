@@ -1,15 +1,14 @@
 @startuml
 title Authentication | Register
-'=====================DEFINE========================
-!define QUESTIONSET_SERVICE_CANUSEREDIT
-!define QUESTIONSET_SERVICE_CANUSERVIEW
-'=====================IMPORT========================
+!define ENTITY_Question ' Câu hỏi
 !include ../../GlobalSettings.puml
 !include ../../common/Mediatr.puml
 !include ../../common/EndpointClasses.puml
 !include ../../common/service/IUser.puml
 !include ../Services/IQuestionSetService.puml
 !include ../dtos/CreateUpdateQuestionDto.puml
+!include ../../common/IApplicationDbContext.puml
+!include ../../entities/Question.puml
 '=====================COMMAND========================
 class GetQuestionSetQuestionsForEditQuery {
     + QuestionSetId : Guid <<get>> <<set>>

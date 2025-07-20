@@ -2,8 +2,6 @@
 !define ENTITY_Question ' Câu hỏi
 !define ENTITY_UserQuestionSetHistory ' Lịch sử làm bộ câu hỏi của user
 !include ../../common/IApplicationDbContext.puml
-!include ../../entities/Question.puml
-!include ../../entities/UserQuestionSetHistory.puml
 
 interface IQuestionService {
     + GetQuestionsBySetIdForDetailAsync(questionSetId:Guid, userId:Guid?, cancellationToken:CancellationToken) : Task<List<QuestionResponseDto>>
