@@ -1,0 +1,8 @@
+@startuml
+class QuestionSetTag {
+    + TagId : Guid
+    + QuestionSetId : Guid
+    + Tag : Tag
+    + QuestionSet : QuestionSet
+}
+@enduml 

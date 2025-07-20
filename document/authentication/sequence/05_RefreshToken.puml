@@ -1,0 +1,37 @@
+@startuml
+actor User
+participant UI
+participant AuthenticationEndpoints as Endpoint
+participant RefreshTokenHandler as Handler
+participant IdentityService
+participant UserManager
+Database Database
+
+User -> UI : Continue operation when token expires
+UI -> Endpoint : POST /api/Authentication/RefreshToken
+Endpoint -> Handler : Send RefreshTokenCommand
+Handler -> IdentityService : RefreshTokenAsync(accessToken, refreshToken)
+IdentityService -> Database : Find RefreshToken
+Database --> IdentityService : RefreshToken/null
+alt RefreshToken invalid/expired
+    IdentityService --> Handler : Error: ACCOUNT_INVALID_CREDENTIALS
+    Handler --> Endpoint : Error (ACCOUNT_INVALID_CREDENTIALS)
+    Endpoint --> UI : 400 Bad Request (ACCOUNT_INVALID_CREDENTIALS)
+    UI -> User : Display error: Session expired
+else RefreshToken valid
+    IdentityService -> UserManager : FindByIdAsync(userId)
+    UserManager -> Database : Query UserAccount
+    Database --> UserManager : UserAccount/null
+    alt User invalid/banned
+        IdentityService --> Handler : Error: ACCOUNT_INVALID_CREDENTIALS
+        Handler --> Endpoint : Error (ACCOUNT_INVALID_CREDENTIALS)
+        Endpoint --> UI : 400 Bad Request (ACCOUNT_INVALID_CREDENTIALS)
+        UI -> User : Display error: Session expired
+    else User valid
+        IdentityService --> Handler : TokenDto
+        Handler --> Endpoint : TokenDto
+        Endpoint --> UI : 200 OK + New Tokens
+        UI -> User : Continue using the system
+    end
+end
+@enduml

@@ -1,0 +1,44 @@
+@startuml
+actor User
+participant "Question Set List UI" as UI
+participant QuestionSetEndpoints
+participant DeleteQuestionSetCommandHandler as Handler
+participant QuestionSetService
+participant ApplicationDbContext
+participant Database
+
+User -> UI : Click "Delete"
+UI -> QuestionSetEndpoints : DELETE /api/QuestionSet/{id}
+QuestionSetEndpoints -> Handler : Handle(DeleteQuestionSetCommand)
+Handler -> QuestionSetService : GetActiveQuestionSet(questionSetId)
+QuestionSetService -> ApplicationDbContext : Query QuestionSet
+ApplicationDbContext -> Database : Query QuestionSet
+Database --> ApplicationDbContext : QuestionSet
+ApplicationDbContext --> QuestionSetService : QuestionSet
+QuestionSetService --> Handler : QuestionSet
+alt Not found
+    Handler --> QuestionSetEndpoints : Error: QUESTION_SET_NOT_FOUND
+    QuestionSetEndpoints --> UI : 400 Bad Request (errorCode: QUESTION_SET_NOT_FOUND)
+    UI -> User : Error: Question set not found
+else Found
+    Handler -> QuestionSetService : CanUserDeleteQuestionSet(userId, questionSetId)
+    QuestionSetService -> ApplicationDbContext : Query Permission
+    ApplicationDbContext -> Database : Query Permission
+    Database --> ApplicationDbContext : Permission
+    ApplicationDbContext --> QuestionSetService : Permission
+    QuestionSetService --> Handler : bool
+    alt No permission
+        Handler --> QuestionSetEndpoints : Error: COMMON_FORBIDDEN
+        QuestionSetEndpoints --> UI : 400 Bad Request (errorCode: COMMON_FORBIDDEN)
+        UI -> User : Error: No permission
+    else Allowed
+        Handler -> ApplicationDbContext : Delete QuestionSet
+        ApplicationDbContext -> Database : Delete QuestionSet
+        Database --> ApplicationDbContext : Success
+        ApplicationDbContext --> Handler : Unit
+        Handler --> QuestionSetEndpoints : Unit
+        QuestionSetEndpoints --> UI : 200 OK (ApiResponse<Unit>)
+        UI -> User : Info: Delete successful
+    end
+end
+@enduml 

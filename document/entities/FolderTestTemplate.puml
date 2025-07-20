@@ -1,0 +1,8 @@
+@startuml
+class FolderTestTemplate {
+    + FolderId : Guid
+    + TestTemplateId : Guid
+    + Folder : Folder
+    + TestTemplate : TestTemplate
+}
+@enduml 

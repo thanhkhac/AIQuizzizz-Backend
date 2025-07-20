@@ -1,0 +1,17 @@
+@startuml
+!include ../../common/IApplicationDbContext.puml
+
+
+interface IQuestionService {
+    + GetQuestionsBySetIdForDetailAsync(questionSetId:Guid, userId:Guid?, cancellationToken:CancellationToken) : Task<List<QuestionResponseDto>>
+    + GetQuestionsBySetIdForLearnAsync(questionSetId:Guid, userId:Guid, questionCount:int, cancellationToken:CancellationToken) : Task<List<QuestionResponseDto>>
+}
+class QuestionService {
+    - <<readonly>> _context : IApplicationDbContext
+    + QuestionService(context:IApplicationDbContext)
+    + <<async>> GetQuestionsBySetIdForDetailAsync(questionSetId:Guid, userId:Guid?, cancellationToken:CancellationToken) : Task<List<QuestionResponseDto>>
+    + <<async>> GetQuestionsBySetIdForLearnAsync(questionSetId:Guid, userId:Guid, questionCount:int, cancellationToken:CancellationToken) : Task<List<QuestionResponseDto>>
+}
+IQuestionService <|-- QuestionService : <<implements>>
+QuestionService ..> IApplicationDbContext : <<inject>>
+@enduml

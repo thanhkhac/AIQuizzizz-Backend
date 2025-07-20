@@ -1,0 +1,48 @@
+@startuml
+actor Guest as User
+participant "Verify email UI" as UI
+participant AuthenticationEndpoints
+participant VerifyEmailHandler
+participant IdentityService
+participant UserManager
+Database Database
+
+User -> UI : Enter verification code and click Confirm
+UI -> AuthenticationEndpoints : POST /api/Authentication/VerifyEmail
+AuthenticationEndpoints -> VerifyEmailHandler : Send VerifyEmailCommand
+VerifyEmailHandler -> IdentityService : VerifyEmailAsync(email, code)
+IdentityService -> UserManager : FindByEmailAsync(email)
+UserManager -> Database : Query UserAccount
+Database --> UserManager : UserAccount/null
+
+alt User not found
+    IdentityService --> VerifyEmailHandler : Error: ACCOUNT_NOTFOUND
+    VerifyEmailHandler --> AuthenticationEndpoints : Error (ACCOUNT_NOTFOUND)
+    AuthenticationEndpoints --> UI : 400 Bad Request (ACCOUNT_NOTFOUND)
+    UI -> User : Error message: Account not found
+else User found
+    IdentityService -> IdentityService : Check lockout status
+    alt Too many incorrect attempts
+        IdentityService --> VerifyEmailHandler : Error: EMAIL_VERIFICATION_CODE_FAILED_TOO_MANY
+        VerifyEmailHandler --> AuthenticationEndpoints : Error (EMAIL_VERIFICATION_CODE_FAILED_TOO_MANY)
+        AuthenticationEndpoints --> UI : 400 Bad Request (EMAIL_VERIFICATION_CODE_FAILED_TOO_MANY)
+        UI -> User : Error message: Too many failed verification attempts
+    else Allowed to verify
+        IdentityService -> IdentityService : Validate code and expiry time
+        alt Code is invalid or expired
+            IdentityService --> VerifyEmailHandler : Error: ACCOUNT_INVALID_VERIFICATION_CODE
+            VerifyEmailHandler --> AuthenticationEndpoints : Error (ACCOUNT_INVALID_VERIFICATION_CODE)
+            AuthenticationEndpoints --> UI : 400 Bad Request (ACCOUNT_INVALID_VERIFICATION_CODE)
+            UI -> User : Error message: Verification code is incorrect or expired
+        else Code is valid
+            IdentityService -> UserManager : UpdateAsync(user)
+            UserManager -> Database : Update UserAccount
+            Database --> UserManager : Success
+            IdentityService --> VerifyEmailHandler : Success
+            VerifyEmailHandler --> AuthenticationEndpoints : Success
+            AuthenticationEndpoints --> UI : 200 OK
+            UI -> User : Success message: Email verified successfully
+        end
+    end
+end
+@enduml

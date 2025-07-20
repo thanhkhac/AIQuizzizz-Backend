@@ -1,0 +1,30 @@
+@startuml
+class Question {
+    + Id : Guid 
+    + QuestionSetId : Guid? 
+    + Type : QuestionType 
+    + QuestionText : string? 
+    + TextFormat : TextFormat 
+    + ExplainText : string? 
+    + Score : float 
+    + DataJson : string? 
+    + IsDeleted : bool 
+    + Data : object?
+}
+
+enum TextFormat {
+    MarkDown,
+    PlainText,
+    Html,
+}
+
+enum QuestionType {
+    MultipleChoice,
+    Matching,
+    Ordering,
+    ShortText,
+}
+
+Question --> QuestionType : "has"
+Question --> TextFormat
+@enduml

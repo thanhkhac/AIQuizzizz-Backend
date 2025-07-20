@@ -1,0 +1,21 @@
+@startuml
+class ApplicationDbContext {
+    + SaveChangesAsync(token): Task<int>
+    + DbSet<T> ...
+}
+
+interface IApplicationDbContext {
+    + SaveChangesAsync(token): Task<int>
+    + DbSet<T> ...
+}
+
+class IdentityDbContext {
+}
+
+note bottom of IdentityDbContext
+    ASP.NET Core Identity
+end note
+
+ApplicationDbContext --|> IdentityDbContext : extends
+ApplicationDbContext ..|> IApplicationDbContext: implements
+@enduml

@@ -1,0 +1,46 @@
+@startuml
+actor User
+participant "Login UI" as UI
+participant AuthenticationEndpoints
+participant GoogleLoginHandler
+participant IdentityService
+participant GoogleAuthService
+participant GoogleOAuthServer <<Server>>
+participant UserManager
+Database Database
+
+User -> UI : Nhấn nút Google Login
+UI -> AuthenticationEndpoints : POST /api/Authentication/GoogleLogin
+AuthenticationEndpoints -> GoogleLoginHandler : Send GoogleLoginCommand
+GoogleLoginHandler -> IdentityService : TryGoogleLoginAsync(code, redirectUri)
+IdentityService -> GoogleAuthService : ExchangeCodeForUserInfoAsync(code, redirectUri)
+GoogleAuthService -> GoogleOAuthServer : Exchange code for tokens
+GoogleOAuthServer --> GoogleAuthService : Access token
+GoogleAuthService -> GoogleOAuthServer : Get user info
+GoogleOAuthServer --> GoogleAuthService : User info
+GoogleAuthService --> IdentityService : GoogleUserDto
+IdentityService -> UserManager : FindByEmailAsync(email)
+UserManager -> Database : Query UserAccount
+Database --> UserManager : UserAccount/null
+alt User exists
+    alt User banned
+        IdentityService --> GoogleLoginHandler : Error: ACCOUNT_BANNED
+        GoogleLoginHandler --> AuthenticationEndpoints : Error (ACCOUNT_BANNED)
+        AuthenticationEndpoints --> UI : 400 Bad Request (ACCOUNT_BANNED)
+        UI -> User : Thông báo lỗi: Tài khoản bị khóa
+    else User không bị ban
+        IdentityService --> GoogleLoginHandler : TokenDto
+        GoogleLoginHandler --> AuthenticationEndpoints : TokenDto
+        AuthenticationEndpoints --> UI : 200 OK + TokenDto
+        UI -> User : Redirect to home page
+    end
+else User doesn't exist
+    IdentityService -> UserManager : CreateAsync(userAccount)
+    UserManager -> Database : Insert UserAccount + User
+    Database --> UserManager : Success
+    IdentityService --> GoogleLoginHandler : TokenDto
+    GoogleLoginHandler --> AuthenticationEndpoints : TokenDto
+    AuthenticationEndpoints --> UI : 200 OK + TokenDto
+    UI -> User : Redirect to home page
+end
+@enduml

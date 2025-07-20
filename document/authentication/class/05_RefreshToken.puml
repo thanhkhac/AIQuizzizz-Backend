@@ -1,0 +1,33 @@
+@startuml
+title Authentication | Refresh token
+'=====================DEFINE========================
+!define REFRESH_TOKEN
+!define JWT
+!define TOKEN_DTO
+'=====================IMPORT========================
+!include ../../GlobalSettings.puml
+!include ../../common/Mediatr.puml
+!include ../../common/EndpointClasses.puml
+!include ../../common/service/IIdentityService.puml
+'=====================COMMAND========================
+class RefreshTokenCommand {
+    +AccessToken string
+    +RefreshToken string
+}
+class RefreshTokenCommandHandler {
+    -_identityService : IIdentityService
+    +Handle(command: RefreshTokenCommand, cancellationToken: CancellationToken)
+}
+'=======================ENDPOINT========================
+class AuthenticationEndpoints {
+    +RefreshToken(command: RefreshTokenCommand, sender: ISender, httpContext: HttpContext, jwtSettings: IOptions<JwtSettings>) : Task<Ok<ApiResponse<TokenDto>>>
+}
+'=====================RELATIONSHIP========================
+!include zCommon.puml
+RefreshTokenCommand ..|> IRequest : <<implements>>
+RefreshTokenCommandHandler ..> IIdentityService : <<inject>>
+RefreshTokenCommandHandler ..> RefreshTokenCommand :  <<uses>>
+AuthenticationEndpoints ..> RefreshTokenCommand : <<uses>>
+RefreshTokenCommandHandler ..|> IRequestHandler : <<implements>>
+AuthenticationEndpoints ..> JwtSettings : <<inject>>
+@enduml 

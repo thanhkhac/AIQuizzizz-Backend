@@ -1,0 +1,20 @@
+@startuml
+actor User
+participant "Create Question Set UI" as UI
+participant QuestionSetEndpoints
+participant CreateQuestionSetCommandHandler as Handler
+participant ApplicationDbContext
+participant Database
+
+User -> UI : Fill in info, click "Create"
+UI -> QuestionSetEndpoints : POST /api/QuestionSet
+QuestionSetEndpoints -> Handler : Handle(CreateQuestionSetCommand)
+Handler -> ApplicationDbContext : Add new QuestionSet
+ApplicationDbContext -> Database : Insert new QuestionSet
+Database --> ApplicationDbContext : QuestionSetId
+ApplicationDbContext --> Handler : Guid
+Handler --> QuestionSetEndpoints : Guid
+QuestionSetEndpoints --> UI : 200 OK (ApiResponse<Guid>)
+UI -> User : Info: Question set created successfully
+
+@enduml 

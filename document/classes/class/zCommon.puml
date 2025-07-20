@@ -1,0 +1,6 @@
+@startuml
+EndpointGroupBase <|-- ClassEndpoints : <<extends>>
+ClassEndpoints ..> ApiResponse : <<uses>>
+ClassEndpoints ..> ISender : <<inject>>
+
+@enduml

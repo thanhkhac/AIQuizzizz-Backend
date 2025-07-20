@@ -1,0 +1,33 @@
+@startuml
+title Authentication | Google login
+'=====================DEFINE========================
+!define GOOGLE_LOGIN
+!define GOOGLE_SERVICE
+!define JWT
+!define TOKEN_DTO
+'=====================IMPORT========================
+!include ../../GlobalSettings.puml
+!include ../../common/Mediatr.puml
+!include ../../common/EndpointClasses.puml
+!include ../../common/service/IIdentityService.puml
+'=====================COMMAND========================
+class GoogleLoginCommand {
+    +AuthorizationCode: string
+}
+class GoogleLoginCommandHandler {
+    -_identityService : IIdentityService
+    +Handle(command: GoogleLoginCommand, cancellationToken: CancellationToken)
+}
+'=====================ENDPOINT========================
+class AuthenticationEndpoints {
+    +GoogleLogin(command: GoogleLoginCommand, sender: ISender, httpContext: HttpContext, jwtSettings: IOptions<JwtSettings>) :  Task<Ok<ApiResponse<TokenDto>>>
+}
+'=====================RElATIONSHIP========================
+!include zCommon.puml
+GoogleLoginCommand ..|> IRequest : <<implements>>
+GoogleLoginCommandHandler ..> IIdentityService : <<inject>>
+GoogleLoginCommandHandler ..> GoogleLoginCommand :  <<uses>>
+AuthenticationEndpoints ..> GoogleLoginCommand : <<uses>>
+GoogleLoginCommandHandler ..|> IRequestHandler : <<implements>>
+AuthenticationEndpoints ..> JwtSettings : <<inject>>
+@enduml 

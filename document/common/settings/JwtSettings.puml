@@ -1,0 +1,11 @@
+@startuml
+
+class JwtSettings {
+    + SecretKey: string
+    + Issuer: string
+    + Audience: string
+    + ExpiryMinutes: int
+    + RefreshTokenExpiryDays: int
+}
+
+@enduml

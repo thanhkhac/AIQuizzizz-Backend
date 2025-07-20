@@ -1,0 +1,9 @@
+@startuml
+class FolderUser {
+    + UserId : Guid
+    + FolderId : Guid
+    + ShareMode : FolderShareMode
+    + User : User
+    + Folder : Folder
+}
+@enduml 

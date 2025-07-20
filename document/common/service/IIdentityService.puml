@@ -1,0 +1,161 @@
+@startuml
+!include ../IApplicationDbContext.puml
+!include ../entities/UserAccount.puml
+
+!ifdef JWT
+!include ../settings/JwtSettings.puml
+!endif
+
+!ifdef GOOGLE_SERVICE
+!include IGoogleAuthService.puml
+!endif
+
+!ifdef EMAIL_SERVICE
+!include IEmailService.puml
+!endif
+
+
+class IdentityService {
+    - _userManager : UserManager<UserAccount>
+    - _signInManager : SignInManager<UserAccount>
+    - _dbContext : ApplicationDbContext
+    !ifdef JWT
+    - _jwtSettings : JwtSettings
+    !endif
+    !ifdef GOOGLE_SERVICE
+    - _googleAuthService : IGoogleAuthService
+    !endif
+    !ifdef EMAIL_SERVICE
+    - _emailService : IEmailService
+    !endif
+
+    + GetUserNameAsync(userId : Guid) : Task<string?>
+    + GetUserByIdAsync(userId : Guid) : Task<UserAccount?>
+    !ifdef REGISTER
+    + CreateUserAsync(email : string, password : string) : Task<(Result, Guid)>
+    !endif
+    !ifdef LOGIN
+    + TryLoginAsync(email : string, password : string) : Task<TokenDto>
+    !endif
+    !ifdef GOOGLE_LOGIN
+    + TryGoogleLoginAsync(authorizationCode : string, redirectUri : string) : Task<TokenDto>
+    !endif
+    !ifdef GOOGLE_REGISTER
+    + TryGoogleRegisterAsync(authorizationCode : string, redirectUri : string) : Task<TokenDto>
+    !endif
+    !ifdef REQUEST_EMAIL_VERIFICATION
+    + RequestEmailVerificationAsync(email : string) : Task
+    !endif
+    !ifdef VERIFY_EMAIL
+    + VerifyEmailAsync(email : string, verificationCode: string) : Task
+    !endif
+    !ifdef REQUEST_PASSWORD_RESET
+    + RequestPasswordResetAsync(email : string) : Task
+    !endif
+    !ifdef RESET_PASSWORD
+    + ResetPasswordAsync(email : string, resetCode: string, newPassword: string) : Task
+    !endif
+    !ifdef CHANGE_PASSWORD
+    + ChangePasswordAsync(userId : Guid, currentPassword : string, newPassword : string) : Task
+    !endif
+    !ifdef BAN_USER
+    + BanUser(userId : Guid) : Task
+    !endif
+    !ifdef ACTIVE_USER
+    + ActiveUser(userId : Guid) : Task
+    !endif
+    !ifdef CHECK_ROLE
+    + IsInRoleAsync(userId : Guid, role : string) : Task<bool>
+    + IsInAnyRoleAsync(userId : Guid, roles : string[]) : Task<bool>
+    + GetUserRolesAsync(userId : Guid) : Task<IList<string>>
+    !endif
+    !ifdef DELETE_USER
+    + DeleteUserAsync(userId : Guid) : Task<Result>
+    !endif
+    !ifdef TOKEN_REFRESH
+    + RefreshTokenAsync(accessToken : string, refreshToken : string) : Task<TokenDto>
+    + RevokeRefreshTokenAsync(refreshToken : string, userId : Guid) : Task
+    !endif
+    !ifdef SET_PASSWORD
+    + TrySetPasswordAsync(userId : Guid, password : string) : Task
+    !endif
+}
+
+interface IIdentityService {
+    + GetUserNameAsync(userId : Guid) : Task<string?>
+    + GetUserByIdAsync(userId : Guid) : Task<UserAccount?>
+    !ifdef REGISTER
+    + CreateUserAsync(email : string, password : string) : Task<(Result, Guid)>
+    !endif
+    !ifdef LOGIN
+    + TryLoginAsync(email : string, password : string) : Task<TokenDto>
+    !endif
+    !ifdef GOOGLE_LOGIN
+    + TryGoogleLoginAsync(authorizationCode : string, redirectUri : string) : Task<TokenDto>
+    !endif
+    !ifdef GOOGLE_REGISTER
+    + TryGoogleRegisterAsync(authorizationCode : string, redirectUri : string) : Task<TokenDto>
+    !endif
+    !ifdef REQUEST_EMAIL_VERIFICATION
+    + RequestEmailVerificationAsync(email : string) : Task
+    !endif
+    !ifdef VERIFY_EMAIL
+    + VerifyEmailAsync(email : string, verificationCode: string) : Task
+    !endif
+    !ifdef REQUEST_PASSWORD_RESET
+    + RequestPasswordResetAsync(email : string) : Task
+    !endif
+    !ifdef RESET_PASSWORD
+    + ResetPasswordAsync(email : string, resetCode: string, newPassword: string) : Task
+    !endif
+    !ifdef CHANGE_PASSWORD
+    + ChangePasswordAsync(userId : Guid, currentPassword : string, newPassword : string) : Task
+    !endif
+    !ifdef BAN_USER
+    + BanUser(userId : Guid) : Task
+    !endif
+    !ifdef ACTIVE_USER
+    + ActiveUser(userId : Guid) : Task
+    !endif
+    !ifdef CHECK_ROLE
+    + IsInRoleAsync(userId : Guid, role : string) : Task<bool>
+    + IsInAnyRoleAsync(userId : Guid, roles : string[]) : Task<bool>
+    + GetUserRolesAsync(userId : Guid) : Task<IList<string>>
+    !endif
+    !ifdef DELETE_USER
+    + DeleteUserAsync(userId : Guid) : Task<Result>
+    !endif
+    !ifdef TOKEN_REFRESH
+    + RefreshTokenAsync(accessToken : string, refreshToken : string) : Task<TokenDto>
+    + RevokeRefreshTokenAsync(refreshToken : string, userId : Guid) : Task
+    !endif
+    !ifdef SET_PASSWORD
+    + TrySetPasswordAsync(userId : Guid, password : string) : Task
+    !endif
+}
+
+!ifdef TOKEN_DTO
+class TokenDto {
+    + AccessToken : string
+    + RefreshToken : string
+    + ExpireMin : int
+}
+IdentityService --> TokenDto : <<returns>>
+!endif
+
+IdentityService ..> ApplicationDbContext : <<inject>>
+IdentityService ..|> IIdentityService : <<implements>>
+IdentityService ..> UserAccount : <<uses>>
+
+!ifdef GOOGLE_SERVICE
+IdentityService ..> IGoogleAuthService : <<inject>>
+!endif
+!ifdef EMAIL_SERVICE
+IdentityService ..> IEmailService : <<inject>>
+!endif
+!ifdef JWT
+IdentityService ..> JwtSettings : <<inject>>
+!endif
+
+
+@enduml

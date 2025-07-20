@@ -1,0 +1,10 @@
+@startuml
+class TestTemplate {
+    + Id : Guid
+    + Name : string
+    + IsDeleted : bool
+    + TestTemplateQuestions : List<TestTemplateQuestion>
+    + TestTemplateUsers : List<TestTemplateUser>
+    + FolderTestTemplates : List<FolderTestTemplate>
+}
+@enduml 

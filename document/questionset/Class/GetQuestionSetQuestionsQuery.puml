@@ -1,0 +1,43 @@
+@startuml
+title QuestionSet | GetQuestionSetQuestionsQuery
+'=====================DEFINE========================
+!define QUESTIONSET_SERVICE_CANUSERVIEW
+'=====================IMPORT========================
+!include ../../GlobalSettings.puml
+!include ../../common/Mediatr.puml
+!include ../../common/EndpointClasses.puml
+!include ../../common/service/IUser.puml
+!include ../Services/IQuestionSetService.puml
+!include ../../Question/Services/IQuestionService.puml
+!include ../dtos/QuestionResponseDto.puml
+'=====================COMMAND========================
+class GetQuestionSetQuestionsQuery {
+    + QuestionSetId : Guid <<get>> <<set>>
+}
+
+class GetQuestionSetQuestionsQueryHandler {
+    - _questionSetService : IQuestionSetService
+    - _questionService : IQuestionService
+    - _user : IUser
+    + GetQuestionSetQuestionsQueryHandler(questionSetService:IQuestionSetService, user:IUser, questionService:IQuestionService)
+    + <<async>> Handle(request:GetQuestionSetQuestionsQuery, cancellationToken:CancellationToken) : Task<List<QuestionResponseDto>>
+}
+
+'=====================ENDPOINT========================
+class QuestionSetEndpoints  {
+    + <<async>> GetQuestions(questionSetId:Guid, sender:ISender) : Task<Ok<ApiResponse<List<QuestionResponseDto>>>>
+}
+'=====================RELATIONSHIP========================
+!include zCommon.puml
+GetQuestionSetQuestionsQuery ..|> IRequest : <<implements>>
+GetQuestionSetQuestionsQueryHandler ..> GetQuestionSetQuestionsQuery :  <<uses>>
+QuestionSetEndpoints ..> GetQuestionSetQuestionsQuery : <<uses>>
+GetQuestionSetQuestionsQueryHandler ..|> IRequestHandler : <<implements>>
+GetQuestionSetQuestionsQueryHandler ..> QuestionResponseDto : <<uses>>
+
+'=====INJECT
+GetQuestionSetQuestionsQueryHandler ..> IQuestionSetService : <<inject>>
+GetQuestionSetQuestionsQueryHandler ..> IUser : <<inject>>
+GetQuestionSetQuestionsQueryHandler ..> IQuestionService : <<inject>>
+'=====INJECT
+@enduml

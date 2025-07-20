@@ -1,0 +1,29 @@
+@startuml
+class CreateMultipleChoiceDto {
+    + Text : string? <<get>> <<set>>
+    + IsAnswer : bool <<get>> <<set>>
+}
+class CreateMatchingPairDto {
+    + LeftItem : string? <<get>> <<set>>
+    + RightItem : string? <<get>> <<set>>
+}
+class CreateOrderingItemDto {
+    + Text : string? <<get>> <<set>>
+    + CorrectOrder : int <<get>> <<set>>
+}
+class CreateUpdateQuestionDto {
+    + QuestionId : Guid? <<get>> <<set>>
+    + Type : string? <<get>> <<set>>
+    + QuestionText : string? <<get>> <<set>>
+    + ExplainText : string? <<get>> <<set>>
+    + <<required>> Score : float <<get>> <<set>>
+    + MultipleChoices : List<CreateMultipleChoiceDto>? <<get>> <<set>>
+    + MatchingPairs : List<CreateMatchingPairDto>? <<get>> <<set>>
+    + OrderingItems : List<CreateOrderingItemDto>? <<get>> <<set>>
+    + ShortAnswer : string? <<get>> <<set>>
+}
+
+CreateUpdateQuestionDto *-- CreateMultipleChoiceDto
+CreateUpdateQuestionDto *-- CreateMatchingPairDto
+CreateUpdateQuestionDto *-- CreateOrderingItemDto
+@enduml

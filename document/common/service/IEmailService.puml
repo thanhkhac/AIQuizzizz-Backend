@@ -1,0 +1,23 @@
+@startuml
+
+class EmailService {
+    - _settings: EmailSettings
+    + SendEmailAsync(to: string, subject: string, body: string): Task
+}
+
+interface IEmailService {
+    + SendEmailAsync(to: string, subject: string, body: string): Task
+}
+
+EmailService ..|> IEmailService : <<implements>>
+EmailService ..> EmailSettings : <<inject>>
+
+class EmailSettings {
+    + SmtpHost : string
+    + SmtpPort : int
+    + SmtpUser : string
+    + SmtpPass : string
+    + From     : string
+    + EnableSsl : bool = true
+}
+@enduml

@@ -1,0 +1,38 @@
+@startuml
+top to bottom direction
+
+class GoogleUserDto {
+    + Id : string
+    + Email : string
+    + Name : string
+    + GivenName : string
+    + FamilyName : string
+    + Picture : string
+    + EmailVerified : bool
+}
+
+interface IGoogleAuthService {
+    + ExchangeCodeForUserInfoAsync(authorizationCode: string, redirectUri: string) : Task<GoogleUserDto>
+}
+
+class GoogleAuthService {
+    - _httpClient: HttpClient
+    - _googleSettings: GoogleSettings
+    --
+    + ExchangeCodeForUserInfoAsync(authorizationCode: string, redirectUri: string) : Task<GoogleUserDto>
+}
+
+
+class GoogleSettings {
+    + ClientId : string
+    + ClientSecret : string
+}
+
+GoogleAuthService ..|> IGoogleAuthService : <<implements>>
+GoogleAuthService ..> GoogleSettings : <<inject>>
+GoogleAuthService ..> GoogleUserDto : <<uses>>
+
+
+
+
+@enduml

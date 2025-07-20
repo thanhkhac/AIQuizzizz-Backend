@@ -1,0 +1,64 @@
+@startuml
+actor User
+participant "Learn UI" as UI
+participant QuestionSetEndpoints
+participant GetQuestionSetLearnQuestionsQueryHandler as Handler
+participant PlanService
+participant QuestionSetService
+participant QuestionService
+participant ApplicationDbContext
+participant Database
+
+User -> UI : Request learn questions
+UI -> QuestionSetEndpoints : GET /api/QuestionSet/{id}/LearnQuestions?questionCount=n
+QuestionSetEndpoints -> Handler : Handle(GetQuestionSetLearnQuestionsQuery)
+
+Handler -> PlanService : CanLearn(userId)
+PlanService -> ApplicationDbContext : Query UserSubscription
+ApplicationDbContext -> Database : Query UserSubscription
+Database --> ApplicationDbContext : List<UserSubscription>
+ApplicationDbContext --> PlanService : List<UserSubscription>
+PlanService --> Handler : bool
+
+alt Require plan
+    Handler --> QuestionSetEndpoints : Error: PLAN_REQUIRE_PLAN
+    QuestionSetEndpoints --> UI : 400 Bad Request (errorCode: PLAN_REQUIRE_PLAN)
+    UI -> User : Error: Please buy a plan
+else Continue
+    Handler -> QuestionSetService : GetActiveQuestionSet(questionSetId)
+    QuestionSetService -> ApplicationDbContext : Query QuestionSet
+    ApplicationDbContext -> Database : Query QuestionSet
+    Database --> ApplicationDbContext : QuestionSet
+    ApplicationDbContext --> QuestionSetService : QuestionSet
+    QuestionSetService --> Handler : QuestionSet
+
+    alt Not found
+        Handler --> QuestionSetEndpoints : Error: QUESTION_SET_NOT_FOUND
+        QuestionSetEndpoints --> UI : 400 Bad Request (errorCode: QUESTION_SET_NOT_FOUND)
+        UI -> User : Error: Question set not found
+    else Found
+        Handler -> QuestionSetService : CanUserViewQuestionSet(userId, questionSet)
+        QuestionSetService -> ApplicationDbContext : Query Permission
+        ApplicationDbContext -> Database : Query Permission
+        Database --> ApplicationDbContext : Permission
+        ApplicationDbContext --> QuestionSetService : Permission
+        QuestionSetService --> Handler : bool
+
+        alt No permission
+            Handler --> QuestionSetEndpoints : Error: COMMON_FORBIDDEN
+            QuestionSetEndpoints --> UI : 400 Bad Request (errorCode: COMMON_FORBIDDEN)
+            UI -> User : Error: No permission
+        else Allowed
+            Handler -> QuestionService : GetQuestionsBySetIdForLearnAsync(questionSetId, userId, questionCount)
+            QuestionService -> ApplicationDbContext : Query Questions
+            ApplicationDbContext -> Database : Query Questions
+            Database --> ApplicationDbContext : List<Question>
+            ApplicationDbContext --> QuestionService : List<Question>
+            QuestionService --> Handler : List<QuestionResponseDto>
+            Handler --> QuestionSetEndpoints : List<QuestionResponseDto>
+            QuestionSetEndpoints --> UI : 200 OK (ApiResponse<List<QuestionResponseDto>>)
+            UI -> User : Show learn questions
+        end
+    end
+end
+@enduml 

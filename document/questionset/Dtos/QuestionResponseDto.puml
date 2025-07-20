@@ -1,0 +1,48 @@
+@startuml
+class QuestionResponseDto {
+    + Id : Guid <<get>> <<set>>
+    + QuestionSetId : Guid <<get>> <<set>>
+    + Type : string <<get>> <<set>>
+    + TextFormat : TextFormat <<get>> <<set>>
+    + QuestionText : string <<get>> <<set>>
+    + ExplainText : string? <<get>> <<set>>
+    + Score : float <<get>> <<set>>
+    + IsCorrect : bool? <<get>> <<set>>
+    + QuestionData : QuestionDataDto <<get>> <<set>>
+}
+class QuestionDataDto {
+    + MultipleChoice : List<MultipleChoiceItemDto> <<get>> <<set>>
+    + Matching : MatchingDataDto <<get>> <<set>>
+    + Ordering : List<OrderingItemDto> <<get>> <<set>>
+    + ShortText : string? <<get>> <<set>>
+}
+class MultipleChoiceItemDto {
+    + Id : Guid <<get>> <<set>>
+    + Text : string <<get>> <<set>>
+    + IsAnswer : bool <<get>> <<set>>
+}
+class MatchingDataDto {
+    + LeftItems : List<MatchingItemDto> <<get>> <<set>>
+    + RightItems : List<MatchingItemDto> <<get>> <<set>>
+    + Matches : List<MatchDto> <<get>> <<set>>
+}
+class MatchingItemDto {
+    + Id : Guid <<get>> <<set>>
+    + Text : string <<get>> <<set>>
+}
+class MatchDto {
+    + LeftId : Guid <<get>> <<set>>
+    + RightId : Guid <<get>> <<set>>
+}
+class OrderingItemDto {
+    + Id : Guid <<get>> <<set>>
+    + Text : string <<get>> <<set>>
+    + CorrectOrder : int <<get>> <<set>>
+}
+QuestionResponseDto *-- QuestionDataDto
+QuestionDataDto *-- MultipleChoiceItemDto
+QuestionDataDto *-- MatchingDataDto
+QuestionDataDto *-- OrderingItemDto
+MatchingDataDto *-- MatchingItemDto
+MatchingDataDto *-- MatchDto
+@enduml 

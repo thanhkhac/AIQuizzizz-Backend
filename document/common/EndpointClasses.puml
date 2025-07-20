@@ -1,0 +1,16 @@
+@startuml
+
+abstract class EndpointGroupBase {
+    +Map(app: WebApplication): void
+}
+
+class ApiResponse<T> {
+    +Errors: IDictionary<string, string[]>
+    +ValidationErrors: IDictionary<string, string[]>
+    +Data: T
+    +Success: bool
+    --
+    +SuccessResult(data: T): ApiResponse<T>
+}
+
+@enduml

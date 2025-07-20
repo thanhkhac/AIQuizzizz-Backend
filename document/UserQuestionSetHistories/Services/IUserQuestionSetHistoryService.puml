@@ -1,0 +1,11 @@
+@startuml
+!include ../../common/IApplicationDbContext.puml
+
+class UserQuestionSetHistoryService {
+    - <<readonly>> _context : IApplicationDbContext
+    + UserQuestionSetHistoryService(context:IApplicationDbContext)
+    + <<async>> DeleteHistoriesByUserAndSetAsync(userId:Guid, questionSetId:Guid, cancellationToken:CancellationToken) : Task
+}
+IUserQuestionSetHistoryService <|-- UserQuestionSetHistoryService
+UserQuestionSetHistoryService ..> IApplicationDbContext : <<inject>>
+@enduml

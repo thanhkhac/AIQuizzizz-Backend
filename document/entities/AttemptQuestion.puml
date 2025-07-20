@@ -1,0 +1,13 @@
+@startuml
+class AttemptQuestion {
+    + Id : Guid
+    + AttemptId : Guid
+    + QuestionId : Guid
+    + Order : int
+    + Score : float
+    + DataJson : string
+    + Data : object?
+    + Attempt : Attempt
+    + Question : Question
+}
+@enduml 

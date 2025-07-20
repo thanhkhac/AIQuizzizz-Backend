@@ -1,0 +1,7 @@
+@startuml
+class TokenDto {
+    +AccessToken : string
+    +RefreshToken : string
+    +ExpireMin : int
+}
+@enduml

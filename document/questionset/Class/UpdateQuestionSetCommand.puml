@@ -1,0 +1,46 @@
+@startuml
+title QuestionSet | UpdateQuestionSetCommand
+'=====================DEFINE========================
+!define QUESTIONSET_SERVICE_CANUSEREDIT
+'=====================IMPORT========================
+!include ../../GlobalSettings.puml
+!include ../../common/Mediatr.puml
+!include ../../common/EndpointClasses.puml
+!include ../../common/IApplicationDbContext.puml
+!include ../../common/Service/IUser.puml
+!include ../Services/IQuestionSetService.puml
+!include ../dtos/CreateUpdateQuestionDto.puml
+'=====================COMMAND========================
+class UpdateQuestionSetCommand {
+    + QuestionSetId : Guid <<get>> <<set>>
+    + Name : string? <<get>> <<set>>
+    + Description : string? <<get>> <<set>>
+    + CreateUpdateQuestions : List<CreateUpdateQuestionDto> <<get>> <<set>>
+    + DeleteQuestionIds : List<Guid> <<get>> <<set>>
+}
+
+class UpdateQuestionSetCommandHandler {
+    - <<readonly>> _dbContext : IApplicationDbContext
+    - <<readonly>> _questionSetService : IQuestionSetService
+    - <<readonly>> _currentUser : IUser
+    + UpdateQuestionSetCommandHandler(dbContext:IApplicationDbContext, questionSetService:IQuestionSetService, currentUser:IUser)
+    + <<async>> Handle(request:UpdateQuestionSetCommand, cancellationToken:CancellationToken) : Task<Guid>
+}
+
+'=====================ENDPOINT========================
+class QuestionSetEndpoints  {
+    + <<async>> UpdateQuestionSet(questionSetId:Guid, command:UpdateQuestionSetCommand, sender:ISender) : Task<Ok<ApiResponse<Guid>>>
+}
+'=====================RELATIONSHIP========================
+!include zCommon.puml
+UpdateQuestionSetCommand ..|> IRequest : <<implements>>
+UpdateQuestionSetCommandHandler ..> UpdateQuestionSetCommand :  <<uses>>
+QuestionSetEndpoints ..> UpdateQuestionSetCommand : <<uses>>
+UpdateQuestionSetCommandHandler ..|> IRequestHandler : <<implements>>
+'=====INJECT
+UpdateQuestionSetCommandHandler ..> IApplicationDbContext : <<inject>>
+UpdateQuestionSetCommandHandler ..> IQuestionSetService : <<inject>>
+UpdateQuestionSetCommandHandler ..> IUser : <<inject>>
+'=====END INJECT
+UpdateQuestionSetCommand --* CreateUpdateQuestionDto 
+@enduml

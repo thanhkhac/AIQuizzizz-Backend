@@ -1,0 +1,39 @@
+@startuml
+actor Guest as User
+participant "Register UI" as UI
+participant AuthenticationEndpoints
+participant RegisterUserHandler
+participant IdentityService
+participant UserManager
+Database Database
+
+User -> UI : Enter email, password
+UI -> AuthenticationEndpoints : POST /api/Authentication/Register
+AuthenticationEndpoints -> RegisterUserHandler : Send RegisterUserCommand
+RegisterUserHandler -> IdentityService : CreateUserAsync(email, password)
+IdentityService -> UserManager : FindByEmailAsync(email)
+UserManager -> Database : Query UserAccount
+Database --> UserManager : UserAccount/null
+alt User exists
+    alt User is banned
+        IdentityService --> RegisterUserHandler : Error: ACCOUNT_EMAIL_BANNED
+        RegisterUserHandler --> AuthenticationEndpoints : Error (ACCOUNT_EMAIL_BANNED)
+        AuthenticationEndpoints --> UI : 400 Bad Request (ACCOUNT_EMAIL_BANNED)
+        UI -> User : Error message: Email is banned
+    else User is not banned
+        IdentityService --> RegisterUserHandler : Error: IDENTITY_DUPLICATE_EMAIL
+        RegisterUserHandler --> AuthenticationEndpoints : Error (IDENTITY_DUPLICATE_EMAIL)
+        AuthenticationEndpoints --> UI : 400 Bad Request (IDENTITY_DUPLICATE_EMAIL)
+        UI -> User : Error message: Email already exists
+    end
+else User doesn't exist
+    IdentityService -> UserManager : CreateAsync(userAccount, password)
+    UserManager -> Database : Insert UserAccount + User
+    Database --> UserManager : Success
+    UserManager --> IdentityService : Success
+    IdentityService --> RegisterUserHandler : Return userId
+    RegisterUserHandler --> AuthenticationEndpoints : Return userId
+    AuthenticationEndpoints --> UI : Return 200 + UserId
+    UI -> User : Redirect to login page
+end
+@enduml

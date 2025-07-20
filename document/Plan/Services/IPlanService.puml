@@ -1,0 +1,19 @@
+@startuml
+
+!include ../../common/IApplicationDbContext.puml
+
+interface IPlanService {
+    + CanLearn(userId:Guid) : Task<bool>
+    + CanOpenTest(userId:Guid) : Task<bool>
+    + CanCopyOrImportQuestionSet(userId:Guid) : Task<bool>
+}
+class PlanService {
+    - <<readonly>> _context : IApplicationDbContext
+    + PlanService(context:IApplicationDbContext)
+    + CanLearn(userId:Guid) : Task<bool>
+    + CanOpenTest(userId:Guid) : Task<bool>
+    + CanCopyOrImportQuestionSet(userId:Guid) : Task<bool>
+}
+IPlanService <|-- PlanService : <<implements>>
+PlanService ..> IApplicationDbContext : <<inject>>
+@enduml

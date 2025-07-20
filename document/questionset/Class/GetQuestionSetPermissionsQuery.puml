@@ -1,0 +1,39 @@
+@startuml
+title QuestionSet | GetQuestionSetPermissionsQuery
+'=====================DEFINE========================
+!define QUESTIONSET_SERVICE_CANUSERVIEW
+'=====================IMPORT========================
+!include ../../GlobalSettings.puml
+!include ../../common/Mediatr.puml
+!include ../../common/EndpointClasses.puml
+!include ../../common/service/IUser.puml
+!include ../Services/IQuestionSetService.puml
+!include ../dtos/QuestionSetPermissionsDto.puml
+'=====================COMMAND========================
+class GetQuestionSetPermissionsQuery <<record>> {
+    + QuestionSetId : Guid <<get>> <<init>>
+}
+
+class GetQuestionSetPermissionsQueryHandler {
+    - <<readonly>> _questionSetService : IQuestionSetService
+    - <<readonly>> _currentUser : IUser
+    + GetQuestionSetPermissionsQueryHandler(questionSetService:IQuestionSetService, currentUser:IUser)
+    + <<async>> Handle(request:GetQuestionSetPermissionsQuery, cancellationToken:CancellationToken) : Task<QuestionSetPermissionsDto>
+}
+
+'=====================ENDPOINT========================
+class QuestionSetEndpoints  {
+    + <<async>> GetPermissions(questionSetId:Guid, sender:ISender) : Task<Ok<ApiResponse<QuestionSetPermissionsDto>>>
+}
+'=====================RELATIONSHIP========================
+!include zCommon.puml
+GetQuestionSetPermissionsQuery ..|> IRequest : <<implements>>
+GetQuestionSetPermissionsQueryHandler ..> GetQuestionSetPermissionsQuery :  <<uses>>
+QuestionSetEndpoints ..> GetQuestionSetPermissionsQuery : <<uses>>
+GetQuestionSetPermissionsQueryHandler ..|> IRequestHandler : <<implements>>
+GetQuestionSetPermissionsQueryHandler ..> QuestionSetPermissionsDto : <<uses>>
+'=====INJECT
+GetQuestionSetPermissionsQueryHandler ..> IQuestionSetService : <<inject>>
+GetQuestionSetPermissionsQueryHandler ..> IUser : <<inject>>
+'=====INJECT
+@enduml

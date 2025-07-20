@@ -1,0 +1,14 @@
+@startuml
+class Comment {
+    + Id : Guid
+    + ParentId : Guid
+    + UserId : Guid
+    + QuestionId : Guid
+    + Content : string
+    + IsDeleted : bool
+    + User : User
+    + Question : Question
+    + ParentComment : Comment
+    + ChildComments : List<Comment>
+}
+@enduml 

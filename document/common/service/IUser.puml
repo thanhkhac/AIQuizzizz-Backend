@@ -1,0 +1,12 @@
+@startuml
+interface IUser {
+    UserId : Guid? <<get>>
+}
+
+class CurrentUser {
+    -_httpContextAccessor : IHttpContextAccessor
+    + CurrentUser(httpContextAccessor:IHttpContextAccessor)
+    + UserId : Guid? <<get>>
+}
+IUser <|-- CurrentUser
+@enduml

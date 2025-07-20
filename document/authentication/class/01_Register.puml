@@ -1,0 +1,30 @@
+@startuml
+title Authentication | Register
+'=====================DEFINE========================
+!define REGISTER
+'=====================IMPORT========================
+!include ../../GlobalSettings.puml
+!include ../../common/Mediatr.puml
+!include ../../common/EndpointClasses.puml
+!include ../../common/service/IIdentityService.puml
+'=====================COMMAND========================
+class RegisterUserCommand {
+    +Email: string
+    +Password: string
+}
+class RegisterUserCommandHandler {
+    -_identityService : IIdentityService
+    +Handle(command: RegisterUserCommand, cancellationToken: CancellationToken) : Task<string>
+}
+'=====================ENDPOINT========================
+class AuthenticationEndpoints  {
+    +RegisterUser(command: RegisterUserCommand, sender: ISender) : Task<Ok<ApiResponse<string>>>
+}
+'=====================RELATIONSHIP========================
+!include zCommon.puml
+RegisterUserCommand ..|> IRequest : <<implements>>
+RegisterUserCommandHandler ..> IIdentityService : <<inject>>
+RegisterUserCommandHandler ..> RegisterUserCommand :  <<uses>>
+AuthenticationEndpoints ..> RegisterUserCommand : <<uses>>
+RegisterUserCommandHandler ..|> IRequestHandler : <<implements>>
+@enduml

@@ -1,0 +1,38 @@
+@startuml
+title QuestionSet | DeleteQuestionSetCommand
+'=====================DEFINE========================
+!define QUESTIONSET_SERVICE_CANUSERDELETE
+'=====================IMPORT========================
+!include ../../GlobalSettings.puml
+!include ../../common/Mediatr.puml
+!include ../../common/EndpointClasses.puml
+!include ../../common/IApplicationDbContext.puml
+!include ../../common/service/IUser.puml
+!include ../Services/IQuestionSetService.puml
+'=====================COMMAND========================
+class DeleteQuestionSetCommand {
+    + QuestionSetId : Guid <<get>> <<set>>
+}
+class DeleteQuestionSetCommandHandler {
+    - <<readonly>> _context : IApplicationDbContext
+    - <<readonly>> _user : IUser
+    - <<readonly>> _questionSetService : IQuestionSetService
+    + DeleteQuestionSetCommandHandler(context:IApplicationDbContext, user:IUser, questionSetService:IQuestionSetService)
+    + <<async>> Handle(request:DeleteQuestionSetCommand, cancellationToken:CancellationToken) : Task<Unit>
+}
+'=====================ENDPOINT========================
+class QuestionSetEndpoints  {
+    + <<async>> DeleteQuestionSet(questionSetId:Guid, sender:ISender) : Task<Ok<ApiResponse<Unit>>>
+}
+'=====================RELATIONSHIP========================
+!include zCommon.puml
+DeleteQuestionSetCommand ..|> IRequest : <<implements>>
+DeleteQuestionSetCommandHandler ..> DeleteQuestionSetCommand :  <<uses>>
+QuestionSetEndpoints ..> DeleteQuestionSetCommand : <<uses>>
+DeleteQuestionSetCommandHandler ..|> IRequestHandler : <<implements>>
+'=====INJECT
+DeleteQuestionSetCommandHandler ..> IApplicationDbContext : <<inject>>
+DeleteQuestionSetCommandHandler ..> IQuestionSetService : <<inject>>
+DeleteQuestionSetCommandHandler ..> IUser : <<inject>>
+'=====INJECT
+@enduml

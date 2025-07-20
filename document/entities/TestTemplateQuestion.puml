@@ -1,0 +1,9 @@
+@startuml
+class TestTemplateQuestion {
+    + Id : Guid
+    + TestTemplateId : Guid
+    + QuestionId : Guid
+    + TestTemplate : TestTemplate
+    + Question : Question
+}
+@enduml 

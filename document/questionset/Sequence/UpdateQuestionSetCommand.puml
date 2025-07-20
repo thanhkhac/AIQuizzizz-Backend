@@ -1,0 +1,44 @@
+@startuml
+actor User
+participant "Edit Question Set UI" as UI
+participant QuestionSetEndpoints
+participant UpdateQuestionSetCommandHandler as Handler
+participant QuestionSetService
+participant ApplicationDbContext
+participant Database
+
+User -> UI : Edit info, click "Save"
+UI -> QuestionSetEndpoints : PATCH /api/QuestionSet/{id}
+QuestionSetEndpoints -> Handler : Handle(UpdateQuestionSetCommand)
+Handler -> QuestionSetService : GetActiveQuestionSet(questionSetId)
+QuestionSetService -> ApplicationDbContext : Query QuestionSet
+ApplicationDbContext -> Database : Query QuestionSet
+Database --> ApplicationDbContext : QuestionSet
+ApplicationDbContext --> QuestionSetService : QuestionSet
+QuestionSetService --> Handler : QuestionSet
+alt Not found
+    Handler --> QuestionSetEndpoints : Error: QUESTION_SET_NOT_FOUND
+    QuestionSetEndpoints --> UI : 400 Bad Request (errorCode: QUESTION_SET_NOT_FOUND)
+    UI -> User : Error: Question set not found
+else Found
+    Handler -> QuestionSetService : CanUserEditQuestionSet(userId, questionSetId)
+    QuestionSetService -> ApplicationDbContext : Query Permission
+    ApplicationDbContext -> Database : Query Permission
+    Database --> ApplicationDbContext : Permission
+    ApplicationDbContext --> QuestionSetService : Permission
+    QuestionSetService --> Handler : bool
+    alt No permission
+        Handler --> QuestionSetEndpoints : Error: COMMON_FORBIDDEN
+        QuestionSetEndpoints --> UI : 400 Bad Request (errorCode: COMMON_FORBIDDEN)
+        UI -> User : Error: No permission
+    else Allowed
+        Handler -> ApplicationDbContext : Update QuestionSet
+        ApplicationDbContext -> Database : Update QuestionSet
+        Database --> ApplicationDbContext : Success
+        ApplicationDbContext --> Handler : Guid
+        Handler --> QuestionSetEndpoints : Guid
+        QuestionSetEndpoints --> UI : 200 OK (ApiResponse<Guid>)
+        UI -> User : Info: Update successful
+    end
+end
+@enduml 

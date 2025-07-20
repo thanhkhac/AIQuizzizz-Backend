@@ -1,0 +1,30 @@
+@startuml
+class IdentityUser<T> {
+
+}
+
+
+
+class UserAccount {
+    + IsDeleted : bool
+    + IsBanned : bool
+    + PasswordResetCode : string?
+    + PasswordResetCodeExpiryTime : DateTimeOffset?
+    + FailedPasswordResetAttempts : int
+    + PasswordResetLockoutEnd : DateTimeOffset?
+    + PasswordResetRequestAttempts : int
+    + PasswordResetRequestLockoutEnd : DateTimeOffset?
+    + EmailVerificationCode : string?
+    + EmailVerificationCodeExpiryTime : DateTimeOffset?
+    + FailedEmailVerificationAttempts : int
+    + EmailVerificationLockoutEnd : DateTimeOffset?
+    + EmailVerificationRequestAttempts : int
+    + EmailVerificationRequestLockoutEnd : DateTimeOffset?
+    + EmailRequestLockout : int
+    + EmailRequestLockoutTime : DateTime?
+    + User : User
+}
+
+IdentityUser <|-- UserAccount : extends
+
+@enduml

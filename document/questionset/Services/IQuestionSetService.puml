@@ -1,0 +1,43 @@
+@startuml
+!include ../../common/IApplicationDbContext.puml
+!include ../../entities/QuestionSet.puml
+
+interface IQuestionSetService {
+    !ifdef QUESTIONSET_SERVICE_CANUSEREDIT
+    + CanUserEditQuestionSet(userId:Guid, questionSetId:Guid) : Task<bool>
+    !endif
+    !ifdef QUESTIONSET_SERVICE_CANUSERVIEW
+    + CanUserViewQuestionSet(userId:Guid?, questionSet:QuestionSet) : Task<bool>
+    + CanUserViewQuestionSet(userId:Guid?, questionSetId:Guid) : Task<bool>
+    !endif
+    !ifdef QUESTIONSET_SERVICE_CANUSERDELETE
+    + CanUserDeleteQuestionSet(userId:Guid, questionSetId:Guid) : Task<bool>
+    !endif
+    !ifdef QUESTIONSET_SERVICE_GetPermissions
+    + GetPermissions(userId:Guid, questionSetId:Guid) : Task<QuestionSetPermissionsDto>
+    !endif
+    + GetActiveQuestionSet(questionSetId:Guid, cancellationToken:CancellationToken) : Task<QuestionSet?>
+}
+class QuestionSetService {
+    - <<readonly>> _context : IApplicationDbContext
+    + QuestionSetService(context:IApplicationDbContext)
+    !ifdef QUESTIONSET_SERVICE_CANUSEREDIT
+    + CanUserEditQuestionSet(userId:Guid, questionSetId:Guid) : Task<bool>
+    !endif
+    !ifdef QUESTIONSET_SERVICE_CANUSERVIEW
+    + CanUserViewQuestionSet(userId:Guid?, questionSet:QuestionSet) : Task<bool>
+    + CanUserViewQuestionSet(userId:Guid?, questionSetId:Guid) : Task<bool>
+    !endif
+    !ifdef QUESTIONSET_SERVICE_CANUSERDELETE
+    + CanUserDeleteQuestionSet(userId:Guid, questionSetId:Guid) : Task<bool>
+    !endif
+    !ifdef QUESTIONSET_SERVICE_GetPermissions
+    + GetPermissions(userId:Guid, questionSetId:Guid) : Task<QuestionSetPermissionsDto>
+    !endif
+    + GetActiveQuestionSet(questionSetId:Guid, cancellationToken:CancellationToken) : Task<QuestionSet?>
+}
+IQuestionSetService <|-- QuestionSetService : <<implements>>
+QuestionSetService ..> IApplicationDbContext : <<inject>>
+IQuestionSetService ..> QuestionSet : <<uses>>
+QuestionSetService ..> QuestionSet : <<uses>>
+@enduml

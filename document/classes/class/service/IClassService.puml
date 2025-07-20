@@ -1,0 +1,18 @@
+@startuml
+interface IClassService {
+    GetClassOwnerAccess(classId:Guid, cancellationToken:CancellationToken) : Task<(ClassUser IsOwner, Class ClassExists)>
+    IsStudentInClass(classId:Guid) : Task
+    IsUserInClass(classId:Guid) : Task
+    IsLecturerOrOwnerInClass(classId:Guid) : Task
+}
+class ClassService {
+    - <<readonly>> _context : IApplicationDbContext
+    - <<readonly>> _user : IUser
+    + ClassService(context:IApplicationDbContext, user:IUser)
+    + <<async>> GetClassOwnerAccess(classId:Guid, cancellationToken:CancellationToken) : Task<(ClassUser IsOwner, Class ClassExists)>
+    + <<async>> IsStudentInClass(classId:Guid) : Task
+    + <<async>> IsUserInClass(classId:Guid) : Task
+    + <<async>> IsLecturerOrOwnerInClass(classId:Guid) : Task
+}
+IClassService <|-- ClassService
+@enduml

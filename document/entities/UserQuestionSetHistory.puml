@@ -1,0 +1,10 @@
+@startuml
+class UserQuestionSetHistory {
+    + Id : Guid
+    + UserId : Guid
+    + QuestionId : Guid
+    + IsCorrect : bool
+    + User : User
+    + Question : Question
+}
+@enduml 

@@ -1,0 +1,10 @@
+@startuml
+class TestVersion {
+    + Id : Guid
+    + TestId : Guid
+    + No : int
+    + TestVersionQuestions : List<TestVersionQuestion>
+    + Attempts : List<Attempt>
+    + Test : Test
+}
+@enduml 

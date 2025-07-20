@@ -1,0 +1,30 @@
+@startuml
+title Authentication | Verify email
+'=====================DEFINE========================
+!define VERIFY_EMAIL
+'=====================IMPORT========================
+!include ../../GlobalSettings.puml
+!include ../../common/Mediatr.puml
+!include ../../common/EndpointClasses.puml
+!include ../../common/service/IIdentityService.puml
+'=======================COMMAND========================
+class VerifyEmailCommand {
+    +Email : string
+    +VerificationCode : string
+}
+class VerifyEmailCommandHandler {
+    -_identityService : IIdentityService
+    +Handle(command: VerifyEmailCommand, cancellationToken: CancellationToken)
+}
+'=======================ENDPOINT========================
+class AuthenticationEndpoints {
+    +VerifyEmail(command: VerifyEmailCommand, sender: ISender) :  Task<Ok<ApiResponse<object>>>
+}
+'=====================RELATIONSHIP========================
+!include zCommon.puml
+VerifyEmailCommand ..|> IRequest : <<implements>>
+VerifyEmailCommandHandler ..> IIdentityService : <<inject>>
+VerifyEmailCommandHandler ..> VerifyEmailCommand :  <<uses>>
+AuthenticationEndpoints ..> VerifyEmailCommand : <<uses>>
+VerifyEmailCommandHandler ..|> IRequestHandler : <<implements>>
+@enduml 

@@ -1,0 +1,22 @@
+@startuml
+actor User
+participant "Permissions UI" as UI
+participant QuestionSetEndpoints
+participant GetQuestionSetPermissionsQueryHandler as Handler
+participant QuestionSetService
+participant ApplicationDbContext
+participant Database
+
+User -> UI : View permissions
+UI -> QuestionSetEndpoints : GET /api/QuestionSet/{id}/Permissions
+QuestionSetEndpoints -> Handler : Handle(GetQuestionSetPermissionsQuery)
+Handler -> QuestionSetService : GetPermissions(userId, questionSetId)
+QuestionSetService -> ApplicationDbContext : Query Permissions
+ApplicationDbContext -> Database : Query Permissions
+Database --> ApplicationDbContext : QuestionSetPermissions
+ApplicationDbContext --> QuestionSetService : QuestionSetPermissionsDto
+QuestionSetService --> Handler : QuestionSetPermissionsDto
+Handler --> QuestionSetEndpoints : QuestionSetPermissionsDto
+QuestionSetEndpoints --> UI : 200 OK (ApiResponse<QuestionSetPermissionsDto>)
+UI -> User : Show permissions
+@enduml 

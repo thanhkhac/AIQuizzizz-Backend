@@ -1,0 +1,41 @@
+@startuml
+title Authentication | Register
+'=====================DEFINE========================
+!define QUESTIONSET_SERVICE_CANUSERVIEW
+'=====================IMPORT========================
+!include ../../GlobalSettings.puml
+!include ../../common/Mediatr.puml
+!include ../../common/EndpointClasses.puml
+!include ../../common/service/IUser.puml
+!include ../Services/IQuestionSetService.puml
+!include ../../Plan/Services/IPlanService.puml
+'=====================COMMAND========================
+class GetQuestionSetQuestionsForCopyQuery {
+    + QuestionSetId : Guid <<get>> <<set>>
+}
+
+class GetQuestionSetQuestionsForCopyQueryHandler {
+    - <<readonly>> _questionSetService : IQuestionSetService
+    - <<readonly>> _user : IUser
+    - <<readonly>> _planService : IPlanService
+    + GetQuestionSetQuestionsForCopyQueryHandler(questionSetService:IQuestionSetService, user:IUser, planService:IPlanService)
+    + <<async>> Handle(request:GetQuestionSetQuestionsForCopyQuery, cancellationToken:CancellationToken) : Task<List<CreateUpdateQuestionDto>>
+}
+
+'=====================ENDPOINT========================
+class QuestionSetEndpoints  {
+    + <<async>> GetQuestionsForCopy(questionSetId:Guid, sender:ISender) : Task<Ok<ApiResponse<List<CreateUpdateQuestionDto>>>>
+}
+'=====================RELATIONSHIP========================
+!include zCommon.puml
+GetQuestionSetQuestionsForCopyQuery ..|> IRequest : <<implements>>
+GetQuestionSetQuestionsForCopyQueryHandler ..> GetQuestionSetQuestionsForCopyQuery :  <<uses>>
+QuestionSetEndpoints ..> GetQuestionSetQuestionsForCopyQuery : <<uses>>
+GetQuestionSetQuestionsForCopyQueryHandler ..|> IRequestHandler : <<implements>>
+
+'=====INJECT
+GetQuestionSetQuestionsForCopyQueryHandler ..> IQuestionSetService : <<inject>>
+GetQuestionSetQuestionsForCopyQueryHandler ..> IUser : <<inject>>
+GetQuestionSetQuestionsForCopyQueryHandler ..> IPlanService : <<inject>>
+'=====INJECT
+@enduml

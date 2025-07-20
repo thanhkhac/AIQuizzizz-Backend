@@ -1,0 +1,39 @@
+@startuml
+title QuestionSet | ResetQuestionSetHistoryCommand
+'=====================DEFINE========================
+!define QUESTIONSET_SERVICE_CANUSERVIEW
+'=====================IMPORT========================
+!include ../../GlobalSettings.puml
+!include ../../common/Mediatr.puml
+!include ../../common/EndpointClasses.puml
+!include ../../common/Service/IUser.puml
+!include ../Services/IQuestionSetService.puml
+!include ../../UserQuestionSetHistories/Services/IUserQuestionSetHistoryService.puml
+'=====================COMMAND========================
+class ResetQuestionSetHistoryCommand {
+    + QuestionSetId : Guid <<get>> <<set>>
+}
+
+class ResetQuestionSetHistoryCommandHandler {
+    - <<readonly>> _user : IUser
+    - <<readonly>> _questionSetService : IQuestionSetService
+    - <<readonly>> _userQuestionSetHistoryService : IUserQuestionSetHistoryService
+    + ResetQuestionSetHistoryCommandHandler(user:IUser, questionSetService:IQuestionSetService, userQuestionSetHistoryService:IUserQuestionSetHistoryService)
+    + <<async>> Handle(request:ResetQuestionSetHistoryCommand, cancellationToken:CancellationToken) : Task<Unit>
+}
+'=====================ENDPOINT========================
+class QuestionSetEndpoints  {
+    + <<async>> ResetQuestionSetHistory(questionSetId:Guid, sender:ISender) : Task<Ok<ApiResponse<Unit>>>
+}
+'=====================RELATIONSHIP========================
+!include zCommon.puml
+ResetQuestionSetHistoryCommand ..|> IRequest : <<implements>>
+ResetQuestionSetHistoryCommandHandler ..> ResetQuestionSetHistoryCommand :  <<uses>>
+QuestionSetEndpoints ..> ResetQuestionSetHistoryCommand : <<uses>>
+ResetQuestionSetHistoryCommandHandler ..|> IRequestHandler : <<implements>>
+'=====INJECT
+ResetQuestionSetHistoryCommandHandler ..> IUser : <<inject>>
+ResetQuestionSetHistoryCommandHandler ..> IQuestionSetService : <<inject>>
+ResetQuestionSetHistoryCommandHandler ..> IUserQuestionSetHistoryService : <<inject>>
+'=====END INJECT
+@enduml

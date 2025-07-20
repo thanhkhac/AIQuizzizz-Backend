@@ -1,0 +1,12 @@
+@startuml
+class QuestionSetDetailDto {
+    + Id : Guid <<get>> <<set>>
+    + Name : string? <<get>> <<set>>
+    + Description : string? <<get>> <<set>>
+    + VisibilityMode : string? <<get>> <<set>>
+    + QuestionCount : int <<get>> <<set>>
+    + IsDeleted : bool <<get>> <<set>>
+    + CreatedBy : CreatedByDto? <<get>> <<set>>
+    + CreatedAt : DateTimeOffset <<get>> <<set>>
+}
+@enduml

@@ -1,0 +1,20 @@
+@startuml
+class Test {
+    + Id : Guid
+    + Name : string
+    + ClassId : Guid
+    + TimeStart : DateTime
+    + TimeFinish : DateTime
+    + MaxAttempt : int
+    + TimeLimit : int
+    + QuestionCount : int
+    + PassingScore : float
+    + GradeAttemptMethod : GradeAttemptMethod
+    + GradeQuestionMethod : GradeQuestionMethod
+    + IsShowCorrectAnswerInReview : bool
+    + TestGrades : List<TestGrade>
+    + TestVersions : List<TestVersion>
+    + Attempts : List<Attempt>
+    + Class : Class
+}
+@enduml 

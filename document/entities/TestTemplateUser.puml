@@ -1,0 +1,9 @@
+@startuml
+class TestTemplateUser {
+    + UserId : Guid
+    + TestTemplateId : Guid
+    + ShareMode : TestTemplateUserShareMode
+    + User : User
+    + TestTemplate : TestTemplate
+}
+@enduml 

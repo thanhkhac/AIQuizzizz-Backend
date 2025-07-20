@@ -1,0 +1,34 @@
+@startuml
+title Authentication | Login
+'======================DEFINE========================
+!define JWT
+!define LOGIN
+!define TOKEN_DTO
+'=====================IMPORT========================
+!include ../../GlobalSettings.puml
+!include ../../common/Mediatr.puml
+!include ../../common/EndpointClasses.puml
+!include ../../common/service/IIdentityService.puml
+'=======================COMMAND========================
+class LoginCommand {
+    + Email : string
+    + Password : string
+}
+class LoginCommandHandler {
+    -_identityService : IIdentityService
+    +Handle(command: LoginCommand, cancellationToken: CancellationToken)
+}
+'=======================ENDPOINT========================
+class AuthenticationEndpoints {
+    +Login(command: LoginCommand, sender: ISender, httpContext: HttpContext, jwtSettings: IOptions<JwtSettings>) Task<Ok<ApiResponse<TokenDto>>>
+}
+'=====================RELATIONSHIP========================
+!include zCommon.puml
+LoginCommand ..|> IRequest : <<implements>>
+LoginCommandHandler ..> IIdentityService : <<inject>>
+LoginCommandHandler ..> LoginCommand :  <<uses>>
+AuthenticationEndpoints ..> LoginCommand : <<uses>>
+LoginCommandHandler ..|> IRequestHandler : <<implements>>
+AuthenticationEndpoints ..> JwtSettings : <<inject>>
+
+@enduml 

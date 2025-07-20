@@ -1,0 +1,30 @@
+@startuml
+title Authentication | Request email verification
+'=====================DEFINE========================
+!define REQUEST_EMAIL_VERIFICATION
+!define EMAIL_SERVICE
+'======================IMPORT========================
+!include ../../GlobalSettings.puml
+!include ../../common/Mediatr.puml
+!include ../../common/EndpointClasses.puml
+!include ../../common/service/IIdentityService.puml
+'=======================COMMAND========================
+class RequestEmailVerificationCommand {
+    +Email : string
+}
+class RequestEmailVerificationCommandHandler {
+    -_identityService : IIdentityService
+    +Handle(command: RequestEmailVerificationCommand, cancellationToken: CancellationToken)
+}
+'=======================ENDPOINT========================
+class AuthenticationEndpoints {
+    +RequestEmailVerification(command: RequestEmailVerificationCommand, sender: ISender) : Task<Ok<ApiResponse<object>>>
+}
+'=======================RELATIONSHIP========================
+!include zCommon.puml
+RequestEmailVerificationCommand ..|> IRequest : <<implements>>
+RequestEmailVerificationCommandHandler ..> IIdentityService : <<inject>>
+RequestEmailVerificationCommandHandler ..> RequestEmailVerificationCommand :  <<uses>>
+AuthenticationEndpoints ..> RequestEmailVerificationCommand : <<uses>>
+RequestEmailVerificationCommandHandler ..|> IRequestHandler : <<implements>>
+@enduml 

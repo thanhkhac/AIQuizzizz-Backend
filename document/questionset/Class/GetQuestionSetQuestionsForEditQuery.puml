@@ -1,0 +1,40 @@
+@startuml
+title Authentication | Register
+'=====================DEFINE========================
+!define QUESTIONSET_SERVICE_CANUSEREDIT
+!define QUESTIONSET_SERVICE_CANUSERVIEW
+'=====================IMPORT========================
+!include ../../GlobalSettings.puml
+!include ../../common/Mediatr.puml
+!include ../../common/EndpointClasses.puml
+!include ../../common/service/IUser.puml
+!include ../Services/IQuestionSetService.puml
+!include ../dtos/CreateUpdateQuestionDto.puml
+'=====================COMMAND========================
+class GetQuestionSetQuestionsForEditQuery {
+    + QuestionSetId : Guid <<get>> <<set>>
+}
+class GetQuestionSetQuestionsForEditQueryHandler {
+    - <<readonly>> _questionSetService : IQuestionSetService
+    - <<readonly>> _user : IUser
+    + GetQuestionSetQuestionsForEditQueryHandler(questionSetService:IQuestionSetService, user:IUser, planService:IPlanService)
+    + <<async>> Handle(request:GetQuestionSetQuestionsForEditQuery, cancellationToken:CancellationToken) : Task<List<CreateUpdateQuestionDto>>
+}
+
+'=====================ENDPOINT========================
+class QuestionSetEndpoints  {
+    + <<async>> GetQuestionsForEdit(questionSetId:Guid, sender:ISender) : Task<Ok<ApiResponse<List<CreateUpdateQuestionDto>>>>
+}
+'=====================RELATIONSHIP========================
+!include zCommon.puml
+GetQuestionSetQuestionsForEditQuery ..|> IRequest : <<implements>>
+GetQuestionSetQuestionsForEditQueryHandler ..> GetQuestionSetQuestionsForEditQuery :  <<uses>>
+QuestionSetEndpoints ..> GetQuestionSetQuestionsForEditQuery : <<uses>>
+GetQuestionSetQuestionsForEditQueryHandler ..|> IRequestHandler : <<implements>>
+
+'=====INJECT
+GetQuestionSetQuestionsForEditQueryHandler ..> IQuestionSetService : <<inject>>
+GetQuestionSetQuestionsForEditQueryHandler ..> IUser : <<inject>>
+'=====INJECT
+GetQuestionSetQuestionsForEditQueryHandler --* CreateUpdateQuestionDto
+@enduml

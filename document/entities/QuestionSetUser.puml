@@ -1,0 +1,9 @@
+@startuml
+class QuestionSetUser {
+    + UserId : Guid
+    + QuestionSetId : Guid
+    + ShareMode : QuestionSetUserShareMode
+    + User : User
+    + QuestionSet : QuestionSet
+}
+@enduml 

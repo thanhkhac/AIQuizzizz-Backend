@@ -1,0 +1,46 @@
+@startuml
+title QuestionSet | UpdateQuestionSetHistoryCommand
+'=====================DEFINE========================
+
+'=====================IMPORT========================
+!include ../../GlobalSettings.puml
+!include ../../common/Mediatr.puml
+!include ../../common/EndpointClasses.puml
+!include ../../common/IApplicationDbContext.puml
+!include ../../common/Service/IUser.puml
+!include ../Services/IQuestionSetService.puml
+'=====================COMMAND========================
+class UpdateQuestionSetHistoryCommand {
+    + QuestionSetId : Guid <<get>> <<set>>
+    + Questions : List<QuestionHistoryUpdate> <<get>> <<set>>
+}
+
+class QuestionHistoryUpdate {
+    + QuestionId : Guid <<get>> <<set>>
+    + IsCorrect : bool <<get>> <<set>>
+}
+
+class UpdateQuestionSetHistoryCommandHandler {
+    - <<readonly>> _context : IApplicationDbContext
+    - <<readonly>> _user : IUser
+    - <<readonly>> _questionSetService : IQuestionSetService
+    + UpdateQuestionSetHistoryCommandHandler(context:IApplicationDbContext, user:IUser, questionSetService:IQuestionSetService)
+    + <<async>> Handle(request:UpdateQuestionSetHistoryCommand, cancellationToken:CancellationToken) : Task<Unit>
+}
+'=====================ENDPOINT========================
+class QuestionSetEndpoints  {
+    + <<async>> UpdateQuestionSetHistory(questionSetId:Guid, questions:List<QuestionHistoryUpdate>, sender:ISender) : Task<Ok<ApiResponse<Unit>>>
+}
+'=====================RELATIONSHIP========================
+!include zCommon.puml
+UpdateQuestionSetHistoryCommand ..|> IRequest : <<implements>>
+UpdateQuestionSetHistoryCommandHandler ..> UpdateQuestionSetHistoryCommand :  <<uses>>
+QuestionSetEndpoints ..> UpdateQuestionSetHistoryCommand : <<uses>>
+UpdateQuestionSetHistoryCommandHandler ..|> IRequestHandler : <<implements>>
+UpdateQuestionSetHistoryCommand --* QuestionHistoryUpdate : <<uses>>
+'=====INJECT
+UpdateQuestionSetHistoryCommandHandler ..> IQuestionSetService : <<inject>>
+UpdateQuestionSetHistoryCommandHandler ..> IUser : <<inject>>
+UpdateQuestionSetHistoryCommandHandler ..> IApplicationDbContext : <<inject>>
+'=====INJECT
+@enduml

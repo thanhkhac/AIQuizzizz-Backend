@@ -1,0 +1,47 @@
+@startuml
+actor User
+participant "Learn UI" as UI
+participant QuestionSetEndpoints
+participant ResetQuestionSetHistoryCommandHandler as Handler
+participant QuestionSetService
+participant UserQuestionSetHistoryService
+participant ApplicationDbContext
+participant Database
+
+User -> UI : Click "Reset history"
+UI -> QuestionSetEndpoints : DELETE /api/QuestionSet/{id}/LearnHistory
+QuestionSetEndpoints -> Handler : Handle(ResetQuestionSetHistoryCommand)
+Handler -> QuestionSetService : GetActiveQuestionSet(questionSetId)
+QuestionSetService -> ApplicationDbContext : Query QuestionSet
+ApplicationDbContext -> Database : Query QuestionSet
+Database --> ApplicationDbContext : QuestionSet
+ApplicationDbContext --> QuestionSetService : QuestionSet
+QuestionSetService --> Handler : QuestionSet
+alt Not found
+    Handler --> QuestionSetEndpoints : Error: QUESTION_SET_NOT_FOUND
+    QuestionSetEndpoints --> UI : 400 Bad Request (errorCode: QUESTION_SET_NOT_FOUND)
+    UI -> User : Error: Question set not found
+else Found
+    Handler -> QuestionSetService : CanUserViewQuestionSet(userId, questionSet)
+    QuestionSetService -> ApplicationDbContext : Query Permission
+    ApplicationDbContext -> Database : Query Permission
+    Database --> ApplicationDbContext : Permission
+    ApplicationDbContext --> QuestionSetService : Permission
+    QuestionSetService --> Handler : bool
+    alt No permission
+        Handler --> QuestionSetEndpoints : Error: COMMON_FORBIDDEN
+        QuestionSetEndpoints --> UI : 400 Bad Request (errorCode: COMMON_FORBIDDEN)
+        UI -> User : Error: No permission
+    else Allowed
+        Handler -> UserQuestionSetHistoryService : DeleteHistoriesByUserAndSetAsync(userId, questionSetId)
+        UserQuestionSetHistoryService -> ApplicationDbContext : Delete UserQuestionSetHistories
+        ApplicationDbContext -> Database : Delete UserQuestionSetHistories
+        Database --> ApplicationDbContext : Success
+        ApplicationDbContext --> UserQuestionSetHistoryService : Success
+        UserQuestionSetHistoryService --> Handler : Unit
+        Handler --> QuestionSetEndpoints : Unit
+        QuestionSetEndpoints --> UI : 200 OK (ApiResponse<Unit>)
+        UI -> User : Info: History reset
+    end
+end
+@enduml 

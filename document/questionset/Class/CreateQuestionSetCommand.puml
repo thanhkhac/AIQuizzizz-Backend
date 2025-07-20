@@ -1,0 +1,40 @@
+@startuml
+title QuestionSet | CreateQuestionSetCommand
+'=====================DEFINE========================
+
+'=====================IMPORT========================
+!include ../../GlobalSettings.puml
+!include ../../common/Mediatr.puml
+!include ../../common/EndpointClasses.puml
+!include ../../common/IApplicationDbContext.puml
+!include ../dtos/CreateUpdateQuestionDto.puml
+'=====================COMMAND========================
+class CreateQuestionSetCommand {
+    + Name : string? <<get>> <<set>>
+    + Description : string? <<get>> <<set>>
+    + Questions : List<CreateUpdateQuestionDto> <<get>> <<set>>
+}
+
+
+
+class CreateQuestionSetCommandHandler {
+    - <<readonly>> _dbContext : IApplicationDbContext
+    + CreateQuestionSetCommandHandler(dbContext:IApplicationDbContext)
+    + <<async>> Handle(request:CreateQuestionSetCommand, cancellationToken:CancellationToken) : Task<Guid>
+}
+
+'=====================ENDPOINT========================
+class QuestionSetEndpoints  {
+    + <<async>> CreateQuestionSet(command:CreateQuestionSetCommand, sender:ISender) : Task<Ok<ApiResponse<Guid>>>
+}
+'=====================RELATIONSHIP========================
+!include zCommon.puml
+CreateQuestionSetCommand ..|> IRequest : <<implements>>
+CreateQuestionSetCommandHandler ..> CreateQuestionSetCommand :  <<uses>>
+QuestionSetEndpoints ..> CreateQuestionSetCommand : <<uses>>
+CreateQuestionSetCommandHandler ..|> IRequestHandler : <<implements>>
+CreateQuestionSetCommand --* CreateUpdateQuestionDto : <<uses>>
+'=====INJECT
+CreateQuestionSetCommandHandler ..> IApplicationDbContext : <<inject>>
+'=====INJECT
+@enduml

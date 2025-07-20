@@ -1,0 +1,14 @@
+@startuml
+class QuestionSet {
+    + Id : Guid
+    + Name : string
+    + Description : string
+    + VisibilityMode : QuestionSetVisibilityMode
+    + QuestionCount : int
+    + IsDeleted : bool
+    + Questions : List<Question>
+    + QuestionSetUsers : List<QuestionSetUser>
+    + QuestionSetTags : List<QuestionSetTag>
+    + ClassQuestionSets : List<ClassQuestionSet>
+}
+@enduml 

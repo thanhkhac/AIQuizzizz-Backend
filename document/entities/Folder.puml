@@ -1,0 +1,9 @@
+@startuml
+class Folder {
+    + Id : Guid
+    + Name : string
+    + IsDeleted : bool
+    + FolderUsers : List<FolderUser>
+    + FolderTestTemplates : List<FolderTestTemplate>
+}
+@enduml 

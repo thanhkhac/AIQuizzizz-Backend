@@ -1,0 +1,6 @@
+@startuml
+class QuestionSetPermissionsDto {
+    + CanEdit : bool <<get>> <<set>>
+    + CanDelete : bool <<get>> <<set>>
+}
+@enduml

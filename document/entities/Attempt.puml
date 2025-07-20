@@ -1,0 +1,15 @@
+@startuml
+class Attempt {
+    + Id : Guid
+    + TestId : Guid
+    + TestVersionId : Guid
+    + UserId : Guid
+    + TimeStart : DateTime
+    + TimeFinish : DateTime
+    + Score : float
+    + AttemptQuestions : List<AttemptQuestion>
+    + Test : Test
+    + TestVersion : TestVersion
+    + User : User
+}
+@enduml 
