@@ -21,7 +21,7 @@ public class TestSearchResultDto
 }   
 
 [Authorize]
-public class SearchTestInClass : IRequest<PaginatedList<TestSearchResultDto>>
+public class SearchTestInClassCommand : IRequest<PaginatedList<TestSearchResultDto>>
 {
     public required Guid ClassId { get; set; }
     public string? TestName { get; set; }
@@ -30,9 +30,9 @@ public class SearchTestInClass : IRequest<PaginatedList<TestSearchResultDto>>
     public int PageSize { get; set; } = 5;
 }
 
-public class SearchTestValidator : AbstractValidator<SearchTestInClass>
+public class SearchTestInClassCommandValidator : AbstractValidator<SearchTestInClassCommand>
 {
-    public SearchTestValidator()
+    public SearchTestInClassCommandValidator()
     {
         RuleFor(v => v.ClassId)
             .NotEmpty().WithMessage("ClassId không được để trống");
@@ -48,12 +48,12 @@ public class SearchTestValidator : AbstractValidator<SearchTestInClass>
     }
 }
 
-public class SearchTestHandler : IRequestHandler<SearchTestInClass, PaginatedList<TestSearchResultDto>>
+public class SearchTestInClassCommandHandler : IRequestHandler<SearchTestInClassCommand, PaginatedList<TestSearchResultDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
     
-    public SearchTestHandler(
+    public SearchTestInClassCommandHandler(
         IApplicationDbContext context,
         IClassService classService)
     {
@@ -61,7 +61,7 @@ public class SearchTestHandler : IRequestHandler<SearchTestInClass, PaginatedLis
         _classService = classService;
     }
     
-    public async Task<PaginatedList<TestSearchResultDto>> Handle(SearchTestInClass rq, CancellationToken cancellationToken)
+    public async Task<PaginatedList<TestSearchResultDto>> Handle(SearchTestInClassCommand rq, CancellationToken cancellationToken)
     {
         var classById = await _context.Classes
             .Where(x => x.Id == rq.ClassId)

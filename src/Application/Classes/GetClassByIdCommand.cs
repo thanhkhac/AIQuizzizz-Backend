@@ -9,32 +9,32 @@ public class ClassDetailDto
     public string? Name { get; set; }
     public string? Topic { get; set; }
 }
-public class GetClassById : IRequest<ClassDetailDto>
+public class GetClassByIdCommand : IRequest<ClassDetailDto>
 {
     public required Guid ClassId { get; set; }   
 }
 
-public class GetClassByIdValidator : AbstractValidator<GetClassById>
+public class GetClassByIdCommandValidator : AbstractValidator<GetClassByIdCommand>
 {
-    public GetClassByIdValidator()
+    public GetClassByIdCommandValidator()
     {
         RuleFor(x => x.ClassId)
             .NotEmpty().WithMessage("ClassId ko đc rỗng");
     }
 }
 
-public class GetClassByIdHandler : IRequestHandler<GetClassById, ClassDetailDto>
+public class GetClassByIdCommandHandler : IRequestHandler<GetClassByIdCommand, ClassDetailDto>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
     
-    public GetClassByIdHandler(IApplicationDbContext context, IClassService classService)
+    public GetClassByIdCommandHandler(IApplicationDbContext context, IClassService classService)
     {
         _context = context;
         _classService = classService;
     }
     
-    public async Task<ClassDetailDto> Handle(GetClassById rq, CancellationToken cancellationToken)
+    public async Task<ClassDetailDto> Handle(GetClassByIdCommand rq, CancellationToken cancellationToken)
     {
         var classById = await _context.Classes
             .Where(x => x.Id == rq.ClassId && x.IsDeleted == false)

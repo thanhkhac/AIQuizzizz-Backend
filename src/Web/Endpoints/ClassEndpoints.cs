@@ -43,13 +43,13 @@ public class Class : EndpointGroupBase
     
     public async Task<Ok<ApiResponse<ClassDetailDto>>> GetClassById([FromRoute] Guid classId, ISender sender)
     {
-        var result = await sender.Send(new GetClassById{ClassId = classId});
+        var result = await sender.Send(new GetClassByIdCommand{ClassId = classId});
         return result.ToOk();
     } 
     
     public async Task<Ok<ApiResponse<string?>>> GetInviteStudentCode([FromRoute] Guid classId, ISender sender)
     {
-        var result = await sender.Send(new GetInviteStudentCode{ClassId = classId});
+        var result = await sender.Send(new GetInviteStudentCodeCommand{ClassId = classId});
         return result.ToOk();
     } 
     
@@ -58,7 +58,7 @@ public class Class : EndpointGroupBase
         [FromQuery] double expiredTime,
         ISender sender)
     {
-        var rq = new InviteStudentCommand
+        var rq = new CreateInviteCodeCommand
         {
             ClassId = classId,
             ExpiredTime = expiredTime,
@@ -75,7 +75,7 @@ public class Class : EndpointGroupBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
-        var rq = new SearchStudentInClass
+        var rq = new SearchStudentInClassCommand
         {
             ClassId = classId,
             Keyword = keyword,
@@ -95,7 +95,7 @@ public class Class : EndpointGroupBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
-        var rq = new SearchTestInClass()
+        var rq = new SearchTestInClassCommand()
         {
             ClassId = classId,
             TestName = testName,
@@ -134,7 +134,7 @@ public class Class : EndpointGroupBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
-        var rq = new SearchClass()
+        var rq = new SearchClassCommand()
         {
            ShareMode = shareMode,
            Name = name,
@@ -151,7 +151,7 @@ public class Class : EndpointGroupBase
         [FromQuery] int? year,
         ISender sender)
     {
-        var rq = new GetTestSchedule { ClassId = classId, Month = month, Year = year };
+        var rq = new GetTestScheduleCommand { ClassId = classId, Month = month, Year = year };
         var result = await sender.Send(rq);
         return result.ToOk();
         
@@ -218,7 +218,7 @@ public class Class : EndpointGroupBase
         [FromRoute] Guid questionSetId,
         ISender sender)
     {
-        var rq = new RemoveQuestionSetCommand()
+        var rq = new RemoveQuestionSetFromClassCommand()
         {
             ClassId = classId,
             QuestionSetId = questionSetId

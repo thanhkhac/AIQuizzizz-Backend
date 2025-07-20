@@ -20,16 +20,16 @@ public class TestScheduleDto
 }
 
 [Authorize]
-public class GetTestSchedule : IRequest<List<TestScheduleResponse>>
+public class GetTestScheduleCommand : IRequest<List<TestScheduleResponse>>
 {
     public required Guid ClassId { get; set; }
     public int? Month { get; set; }
     public int? Year { get; set; }
 }
 
-public class GetTestScheduleValidator : AbstractValidator<GetTestSchedule>
+public class GetTestScheduleCommandValidator : AbstractValidator<GetTestScheduleCommand>
 {
-    public  GetTestScheduleValidator()
+    public  GetTestScheduleCommandValidator()
     {
         RuleFor(x => x.ClassId)
             .NotEmpty().WithMessage("ClassId không được trống");
@@ -44,18 +44,18 @@ public class GetTestScheduleValidator : AbstractValidator<GetTestSchedule>
     }
 }
 
-public class GetTestScheduleHandler : IRequestHandler<GetTestSchedule, List<TestScheduleResponse>>
+public class GetTestScheduleCommandHandler : IRequestHandler<GetTestScheduleCommand, List<TestScheduleResponse>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
     
-    public GetTestScheduleHandler(IApplicationDbContext context, IClassService classService)
+    public GetTestScheduleCommandHandler(IApplicationDbContext context, IClassService classService)
     {
         _context = context;
         _classService = classService;
     }
     
-    public async Task<List<TestScheduleResponse>> Handle(GetTestSchedule rq, CancellationToken cancellationToken)
+    public async Task<List<TestScheduleResponse>> Handle(GetTestScheduleCommand rq, CancellationToken cancellationToken)
     {  
         var classById = await _context.Classes
             .Where(x => x.Id == rq.ClassId)
