@@ -1,5 +1,4 @@
-﻿using CleanArchitectureBase.Application.Classes.Lecturer;
-using CleanArchitectureBase.Application.Common.Exceptions;
+﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Common.Security;
@@ -71,7 +70,7 @@ public class SearchTestTemplateInFolderHandler : IRequestHandler<SearchTestTempl
             .ThenInclude(t => t!.TestTemplateQuestions)
             .Include(t => t.TestTemplate!.CreatedByUser)
             .Where(ft => ft.FolderId == rq.FolderId
-            && (string.IsNullOrEmpty(rq.TestTemplateName) || ft.TestTemplate!.Name.Contains(rq.TestTemplateName))
+            && (string.IsNullOrEmpty(rq.TestTemplateName) || ft.TestTemplate!.Name.ToLower().Contains(rq.TestTemplateName.ToLower()))
             && (sharedMode == null || ft.TestTemplate!.TestTemplateUsers.Any(t => t.ShareMode == sharedMode)))
             .Select(ft => new TestTemplateDto
             {

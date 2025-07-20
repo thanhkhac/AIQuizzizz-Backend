@@ -1,4 +1,5 @@
-﻿using CleanArchitectureBase.Application.Common.Models;
+﻿using CleanArchitectureBase.Application.Classes;
+using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.FolderTest;
 using CleanArchitectureBase.Application.Tests;
 using CleanArchitectureBase.Application.Tests.Dto;
@@ -16,6 +17,7 @@ public class Test : EndpointGroupBase
             .MapGet(SearchTestTemplate, "/Templates")
             .MapGet(GetTestTemplatePermissions, "/{testTemplateId}/Permissions")
             .MapGet(GetTestTemplateDetail, "/Template/{testTemplateId}")
+            .MapGet(GetHistoryTest, "/{TestId}/History")
             .MapPost(SubmitTestAttempt, "/Submit")
             .MapPost(StartAttemptTestTestAttempt, "/{TestId}/Attempt")
             .MapPost(CreateTestTemplate, "/Templates");
@@ -56,6 +58,26 @@ public class Test : EndpointGroupBase
         return result.ToOk();
     }
     
+    public async Task<Ok<ApiResponse<PaginatedList<HistoryTestDto>>>> GetHistoryTest(
+        [FromRoute] Guid testId,
+        [FromQuery] string? studentName,
+        [FromQuery] bool? isPassed,
+        ISender sender,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 5)
+    {
+        var query = new GetHistoryTest
+        {
+            TestId = testId,
+            StudentName = studentName,
+            IsPassed = isPassed,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+        var result = await sender.Send(query);
+        return result.ToOk();
+    }
+    
     public async Task<Ok<ApiResponse<TestTemplateDetailDto>>> GetTestTemplateDetail([FromRoute] Guid testTemplateId, ISender sender)
     {
         var query = new GetTestTemplateDetail
@@ -66,7 +88,7 @@ public class Test : EndpointGroupBase
         return result.ToOk();
     }
     
-    public async Task<Ok<ApiResponse<TestDetailDto>>> StartAttemptTestTestAttempt(
+    public async Task<Ok<ApiResponse<AttemptDetailDto>>> StartAttemptTestTestAttempt(
         [FromRoute] Guid testId,
         ISender sender)
     {

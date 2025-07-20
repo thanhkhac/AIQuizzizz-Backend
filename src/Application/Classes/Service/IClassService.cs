@@ -11,6 +11,7 @@ public interface IClassService
         CancellationToken cancellationToken);
     Task IsStudentInClass(Guid classId);
     Task IsUserInClass(Guid classId);
+    Task IsLecturerOrOwnerInClass(Guid classId);
 }
 
 public class ClassService : IClassService{
@@ -58,7 +59,7 @@ public class ClassService : IClassService{
             .FirstOrDefaultAsync();
 
         if (student == null)
-            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Student không có trong lớp");
+            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Chỉ student trong lớp mới có quyền");
     }
 
     public async Task IsUserInClass(Guid classId)
@@ -68,6 +69,17 @@ public class ClassService : IClassService{
             .FirstOrDefaultAsync();
 
         if (user == null)
-            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Student không có trong lớp");
+            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_USER_IN_CLASS, "User không có trong lớp");
+    }
+
+    public async Task IsLecturerOrOwnerInClass(Guid classId)
+    {
+        var user = await _context.ClassUsers
+            .Where(u => u.UserId == _user.UserId && u.ClassId == classId &&
+                        (ClassShareMode.Owner.Equals(u.ShareMode) || ClassShareMode.Teacher.Equals(u.ShareMode)))
+            .FirstOrDefaultAsync();
+
+        if (user == null)
+            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_TEACHER_OR_OWNER_IN_CLASS, "Không phải lecturer hoặc owner của class");
     }
 }

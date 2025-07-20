@@ -69,7 +69,7 @@ public class SearchFolderTestCommandHandler : IRequestHandler<SearchFolderTest, 
         var folders = _context.FolderUsers
             .Include(fu => fu.Folder)
             .Where(fu => fu.UserId == _user.UserId
-            && (string.IsNullOrEmpty(rq.FolderName) || fu.Folder!.Name.Contains(rq.FolderName))
+            && (string.IsNullOrEmpty(rq.FolderName) || fu.Folder!.Name.ToLower().Contains(rq.FolderName.ToLower()))
             && (shareMode == null || fu.ShareMode == shareMode))
             .Select(fu => new { Folder = fu.Folder, FolderUser = fu })
             .Distinct();

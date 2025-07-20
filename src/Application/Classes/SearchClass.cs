@@ -5,7 +5,7 @@ using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Classes.Lecturer;
+namespace CleanArchitectureBase.Application.Classes;
 
 public class ClassSearchResultDto
 {
@@ -21,7 +21,7 @@ public class SearchClass : IRequest<PaginatedList<ClassSearchResultDto>>
     public string? ShareMode { get; set; }
     public string? Name { get; set; }
     public int PageNumber { get; set; } = 1;
-    public int PageSize { get; set; } = 15;
+    public int PageSize { get; set; } = 10;
 }
 
 public class SearchClassValidator : AbstractValidator<SearchClass>
@@ -64,7 +64,7 @@ public class SearchClassHandler : IRequestHandler<SearchClass, PaginatedList<Cla
                 ClassUser = cu,
                 CreatedByUser = c.CreatedByUser
             })
-            .Where(x => (string.IsNullOrEmpty(rq.Name) || x.Class.Name.Contains(rq.Name)) &&
+            .Where(x => (string.IsNullOrEmpty(rq.Name) || x.Class.Name.ToLower().Contains(rq.Name.ToLower())) &&
                         x.ClassUser.UserId.Equals(_user.UserId))
             .OrderByDescending(x => x.Class.LastModified)
             .AsQueryable();

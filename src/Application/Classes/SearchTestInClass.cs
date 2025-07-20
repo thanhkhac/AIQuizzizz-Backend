@@ -6,7 +6,7 @@ using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Classes.Lecturer;
+namespace CleanArchitectureBase.Application.Classes;
 
 public class TestSearchResultDto
 {
@@ -63,11 +63,17 @@ public class SearchTestHandler : IRequestHandler<SearchTestInClass, PaginatedLis
     
     public async Task<PaginatedList<TestSearchResultDto>> Handle(SearchTestInClass rq, CancellationToken cancellationToken)
     {
+        var classById = await _context.Classes
+            .Where(x => x.Id == rq.ClassId)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (classById == null)
+            throw new ErrorCodeException(ErrorCodes.CLASS_NOTFOUND, "Không tìm thấy lớp");
+        
         await _classService.IsUserInClass(rq.ClassId);
         
         var tests = await _context.Tests
             .Where(x => x.ClassId.Equals(rq.ClassId)
-            && (string.IsNullOrEmpty(rq.TestName) || x.Name.Contains(rq.TestName)))
+            && (string.IsNullOrEmpty(rq.TestName) || x.Name.ToLower().Contains(rq.TestName.ToLower())))
             .ToListAsync(cancellationToken);
         
         switch (rq.Status)
