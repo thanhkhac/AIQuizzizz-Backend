@@ -1,0 +1,11 @@
+@startuml
+' Entity: UserSubscription
+class UserSubscription {
+    +Id: Guid
+    +UserId: Guid
+    +PlanId: Guid
+    +DateStart: DateTimeOffset
+    +DateFinish: DateTimeOffset
+    +IsActive: bool
+}
+@enduml 

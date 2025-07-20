@@ -1,0 +1,7 @@
+@startuml
+' Entity: ClassQuestionSet
+class ClassQuestionSet {
+    +ClassId: Guid
+    +QuestionSetId: Guid
+}
+@enduml 

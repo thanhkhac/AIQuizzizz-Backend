@@ -1,0 +1,10 @@
+@startuml
+' Entity: TokenPackage
+class TokenPackage {
+    +Id: Guid
+    +Name: string
+    +Price: decimal
+    +TokenCount: int
+    +IsDeleted: bool
+}
+@enduml 

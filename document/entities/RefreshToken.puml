@@ -1,0 +1,10 @@
+@startuml
+' Entity: RefreshToken (Identity)
+class RefreshToken {
+    +Id: string
+    +UserAccountId: Guid
+    +Token: string
+    +ExpireAt: DateTime
+}
+RefreshToken --> UserAccount : UserAccount
+@enduml 

@@ -2,6 +2,7 @@
 title QuestionSet | GetQuestionSetDetailQuery
 '=====================DEFINE========================
 !define QUESTIONSET_SERVICE_CANUSERVIEW
+!define ENTITY_QuestionSet 
 '=====================IMPORT========================
 !include ../../GlobalSettings.puml
 !include ../../common/Mediatr.puml
@@ -9,16 +10,16 @@ title QuestionSet | GetQuestionSetDetailQuery
 !include ../../common/service/IUser.puml
 !include ../Services/IQuestionSetService.puml
 !include ../dtos/QuestionSetDetailDto.puml
+!include ../../common/IApplicationDbContext.puml
+!include ../../entities/QuestionSet.puml
 '=====================COMMAND========================
 class GetQuestionSetDetailQuery {
-    + QuestionSetId : Guid <<get>> <<set>>
+    +Id: Guid
 }
 
 class GetQuestionSetDetailQueryHandler {
-    - _questionSetService : IQuestionSetService
-    - _user : IUser
-    + GetQuestionSetDetailQueryHandler(questionSetService:IQuestionSetService, user:IUser)
-    + <<async>> Handle(request:GetQuestionSetDetailQuery, cancellationToken:CancellationToken) : Task<QuestionSetDetailDto>
+    - _context: IApplicationDbContext
+    + Handle(query: GetQuestionSetDetailQuery, cancellationToken: CancellationToken): Task<QuestionSetDetailDto>
 }
 '=====================ENDPOINT========================
 class QuestionSetEndpoints  {
@@ -35,4 +36,6 @@ GetQuestionSetDetailQueryHandler ..> QuestionSetDetailDto : <<uses>>
 GetQuestionSetDetailQueryHandler ..> IQuestionSetService : <<inject>>
 GetQuestionSetDetailQueryHandler ..> IUser : <<inject>>
 '=====INJECT
+' Chỉ reference entity qua DbContext
+GetQuestionSetDetailQueryHandler ..> IApplicationDbContext : <<inject>>
 @enduml

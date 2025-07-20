@@ -40,4 +40,5 @@ IQuestionSetService <|-- QuestionSetService : <<implements>>
 QuestionSetService ..> IApplicationDbContext : <<inject>>
 IQuestionSetService ..> QuestionSet : <<uses>>
 QuestionSetService ..> QuestionSet : <<uses>>
+ApplicationDbContext o-- "*" QuestionSet
 @enduml

@@ -1,0 +1,13 @@
+@startuml
+' Entity: Plan
+class Plan {
+    +Id: Guid
+    +Name: string
+    +Price: decimal
+    +DayDuration: int
+    +CanLearn: bool
+    +CanOpenTest: bool
+    +CanCopyOrImportQuestionSet: bool
+    +IsDeleted: bool
+}
+@enduml 

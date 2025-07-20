@@ -1,0 +1,12 @@
+@startuml
+' Entity: User
+class User {
+    +Id: Guid
+    +FullName: string
+    +Email: string
+    +IsDeleted: bool
+    +IsBanned: bool
+    +TokenCount: long
+    +Balance: long
+}
+@enduml 

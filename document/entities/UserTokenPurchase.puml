@@ -1,0 +1,8 @@
+@startuml
+' Entity: UserTokenPurchase
+class UserTokenPurchase {
+    +Id: Guid
+    +TokenPackageId: Guid
+    +UserId: Guid
+}
+@enduml 

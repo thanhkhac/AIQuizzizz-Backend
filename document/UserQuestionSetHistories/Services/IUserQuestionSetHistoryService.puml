@@ -1,11 +1,14 @@
 @startuml
+!define ENTITY_UserQuestionSetHistory ' Lịch sử làm bộ câu hỏi của user
 !include ../../common/IApplicationDbContext.puml
+!include ../../entities/UserQuestionSetHistory.puml
 
-class UserQuestionSetHistoryService {
-    - <<readonly>> _context : IApplicationDbContext
-    + UserQuestionSetHistoryService(context:IApplicationDbContext)
-    + <<async>> DeleteHistoriesByUserAndSetAsync(userId:Guid, questionSetId:Guid, cancellationToken:CancellationToken) : Task
+interface IUserQuestionSetHistoryService {
+    ...
 }
-IUserQuestionSetHistoryService <|-- UserQuestionSetHistoryService
+class UserQuestionSetHistoryService {
+    - _context: IApplicationDbContext
+    ...
+}
 UserQuestionSetHistoryService ..> IApplicationDbContext : <<inject>>
 @enduml

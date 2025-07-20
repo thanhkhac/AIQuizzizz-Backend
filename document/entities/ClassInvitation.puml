@@ -1,0 +1,11 @@
+@startuml
+' Entity: ClassInvitation
+class ClassInvitation {
+    +Id: Guid
+    +ClassId: Guid
+    +Code: string
+    +TimeStart: DateTime
+    +TimeEnd: DateTime
+    +IsDeleted: bool
+}
+@enduml 

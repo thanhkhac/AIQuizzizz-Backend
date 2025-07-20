@@ -1,0 +1,37 @@
+@startuml
+' Entity: UserAccount (Identity)
+class UserAccount {
+    +Id: Guid
+    +UserName: string
+    +NormalizedUserName: string
+    +Email: string
+    +NormalizedEmail: string
+    +EmailConfirmed: bool
+    +PasswordHash: string
+    +SecurityStamp: string
+    +ConcurrencyStamp: string
+    +PhoneNumber: string
+    +PhoneNumberConfirmed: bool
+    +TwoFactorEnabled: bool
+    +LockoutEnd: DateTimeOffset
+    +LockoutEnabled: bool
+    +AccessFailedCount: int
+    +IsDeleted: bool
+    +IsBanned: bool
+    +PasswordResetCode: string
+    +PasswordResetCodeExpiryTime: DateTimeOffset
+    +FailedPasswordResetAttempts: int
+    +PasswordResetLockoutEnd: DateTimeOffset
+    +PasswordResetRequestAttempts: int
+    +PasswordResetRequestLockoutEnd: DateTimeOffset
+    +EmailVerificationCode: string
+    +EmailVerificationCodeExpiryTime: DateTimeOffset
+    +FailedEmailVerificationAttempts: int
+    +EmailVerificationLockoutEnd: DateTimeOffset
+    +EmailVerificationRequestAttempts: int
+    +EmailVerificationRequestLockoutEnd: DateTimeOffset
+    +EmailRequestLockout: int
+    +EmailRequestLockoutTime: DateTime
+}
+UserAccount --> User : User
+@enduml 

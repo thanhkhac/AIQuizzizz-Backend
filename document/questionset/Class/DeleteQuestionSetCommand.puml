@@ -2,23 +2,22 @@
 title QuestionSet | DeleteQuestionSetCommand
 '=====================DEFINE========================
 !define QUESTIONSET_SERVICE_CANUSERDELETE
+!define ENTITY_QuestionSet ' Bộ câu hỏi
 '=====================IMPORT========================
 !include ../../GlobalSettings.puml
 !include ../../common/Mediatr.puml
 !include ../../common/EndpointClasses.puml
 !include ../../common/IApplicationDbContext.puml
+!include ../../entities/QuestionSet.puml
 !include ../../common/service/IUser.puml
 !include ../Services/IQuestionSetService.puml
 '=====================COMMAND========================
 class DeleteQuestionSetCommand {
-    + QuestionSetId : Guid <<get>> <<set>>
+    +Id: Guid
 }
 class DeleteQuestionSetCommandHandler {
-    - <<readonly>> _context : IApplicationDbContext
-    - <<readonly>> _user : IUser
-    - <<readonly>> _questionSetService : IQuestionSetService
-    + DeleteQuestionSetCommandHandler(context:IApplicationDbContext, user:IUser, questionSetService:IQuestionSetService)
-    + <<async>> Handle(request:DeleteQuestionSetCommand, cancellationToken:CancellationToken) : Task<Unit>
+    - _context: IApplicationDbContext
+    + Handle(command: DeleteQuestionSetCommand, cancellationToken: CancellationToken): Task
 }
 '=====================ENDPOINT========================
 class QuestionSetEndpoints  {
@@ -35,4 +34,6 @@ DeleteQuestionSetCommandHandler ..> IApplicationDbContext : <<inject>>
 DeleteQuestionSetCommandHandler ..> IQuestionSetService : <<inject>>
 DeleteQuestionSetCommandHandler ..> IUser : <<inject>>
 '=====INJECT
+
+' Chỉ reference entity qua DbContext
 @enduml

@@ -1,26 +1,23 @@
 @startuml
-title QuestionSet | CreateQuestionSetCommand
-'=====================DEFINE========================
-
-'=====================IMPORT========================
+!define ENTITY_QuestionSet ' Bộ câu hỏi
 !include ../../GlobalSettings.puml
 !include ../../common/Mediatr.puml
 !include ../../common/EndpointClasses.puml
 !include ../../common/IApplicationDbContext.puml
+!include ../../entities/QuestionSet.puml
 !include ../dtos/CreateUpdateQuestionDto.puml
 '=====================COMMAND========================
 class CreateQuestionSetCommand {
-    + Name : string? <<get>> <<set>>
-    + Description : string? <<get>> <<set>>
-    + Questions : List<CreateUpdateQuestionDto> <<get>> <<set>>
+    +Name: string
+    +Description: string
+    +VisibilityMode: QuestionSetVisibilityMode
 }
 
 
 
 class CreateQuestionSetCommandHandler {
-    - <<readonly>> _dbContext : IApplicationDbContext
-    + CreateQuestionSetCommandHandler(dbContext:IApplicationDbContext)
-    + <<async>> Handle(request:CreateQuestionSetCommand, cancellationToken:CancellationToken) : Task<Guid>
+    - _context: IApplicationDbContext
+    + Handle(command: CreateQuestionSetCommand, cancellationToken: CancellationToken): Task<Guid>
 }
 
 '=====================ENDPOINT========================
@@ -37,4 +34,6 @@ CreateQuestionSetCommand --* CreateUpdateQuestionDto : <<uses>>
 '=====INJECT
 CreateQuestionSetCommandHandler ..> IApplicationDbContext : <<inject>>
 '=====INJECT
+
+' Chỉ reference entity qua DbContext
 @enduml

@@ -1,12 +1,318 @@
 @startuml
+' Định nghĩa macro ENTITY_<Entity> cho từng entity, chỉ cần define ở file ngoài để sử dụng
+
+'!define ENTITY_QuestionSet ' Bộ câu hỏi
+'!define ENTITY_Question ' Câu hỏi
+'!define ENTITY_UserQuestionSetHistory ' Lịch sử làm bộ câu hỏi của user
+'!define ENTITY_Comment ' Bình luận
+'!define ENTITY_Tag ' Thẻ
+'!define ENTITY_QuestionSetTag ' Gắn thẻ cho bộ câu hỏi
+'!define ENTITY_QuestionSetUser ' User sở hữu bộ câu hỏi
+'!define ENTITY_Test ' Bài kiểm tra
+'!define ENTITY_TestGrade ' Điểm kiểm tra
+'!define ENTITY_TestTemplate ' Mẫu đề
+'!define ENTITY_TestTemplateUser ' User sở hữu mẫu đề
+'!define ENTITY_TestTemplateQuestion ' Câu hỏi trong mẫu đề
+'!define ENTITY_Folder ' Thư mục
+'!define ENTITY_FolderUser ' User sở hữu thư mục
+'!define ENTITY_FolderTestTemplate ' Mẫu đề trong thư mục
+'!define ENTITY_Attempt ' Lượt làm bài
+'!define ENTITY_AttemptQuestion ' Câu hỏi trong lượt làm bài
+'!define ENTITY_TestVersion ' Phiên bản đề
+'!define ENTITY_TestVersionQuestion ' Câu hỏi trong phiên bản đề
+'!define ENTITY_User ' Người dùng
+'!define ENTITY_Plan ' Gói dịch vụ
+'!define ENTITY_TokenPackage ' Gói token
+'!define ENTITY_UserTokenPurchase ' Lịch sử mua token
+'!define ENTITY_UserSubscription ' Lịch sử đăng ký gói
+'!define ENTITY_Class ' Lớp học
+'!define ENTITY_ClassUser ' User trong lớp
+'!define ENTITY_ClassQuestionSet ' Bộ câu hỏi trong lớp
+'!define ENTITY_ClassInvitation ' Lời mời vào lớp
+'!define ENTITY_ClassInvitationUser ' User nhận lời mời
+'!define ENTITY_RefreshToken ' Refresh Token
+
+' Phần dưới giữ nguyên như cũ
+
+!ifdef ENTITY_QuestionSet
+!include ../entities/QuestionSet.puml
+!endif
+!ifdef ENTITY_Question
+!include ../entities/Question.puml
+!endif
+!ifdef ENTITY_UserQuestionSetHistory
+!include ../entities/UserQuestionSetHistory.puml
+!endif
+!ifdef ENTITY_Comment
+!include ../entities/Comment.puml
+!endif
+!ifdef ENTITY_Tag
+!include ../entities/Tag.puml
+!endif
+!ifdef ENTITY_QuestionSetTag
+!include ../entities/QuestionSetTag.puml
+!endif
+!ifdef ENTITY_QuestionSetUser
+!include ../entities/QuestionSetUser.puml
+!endif
+!ifdef ENTITY_Test
+!include ../entities/Test.puml
+!endif
+!ifdef ENTITY_TestGrade
+!include ../entities/TestGrade.puml
+!endif
+!ifdef ENTITY_TestTemplate
+!include ../entities/TestTemplate.puml
+!endif
+!ifdef ENTITY_TestTemplateUser
+!include ../entities/TestTemplateUser.puml
+!endif
+!ifdef ENTITY_TestTemplateQuestion
+!include ../entities/TestTemplateQuestion.puml
+!endif
+!ifdef ENTITY_Folder
+!include ../entities/Folder.puml
+!endif
+!ifdef ENTITY_FolderUser
+!include ../entities/FolderUser.puml
+!endif
+!ifdef ENTITY_FolderTestTemplate
+!include ../entities/FolderTestTemplate.puml
+!endif
+!ifdef ENTITY_Attempt
+!include ../entities/Attempt.puml
+!endif
+!ifdef ENTITY_AttemptQuestion
+!include ../entities/AttemptQuestion.puml
+!endif
+!ifdef ENTITY_TestVersion
+!include ../entities/TestVersion.puml
+!endif
+!ifdef ENTITY_TestVersionQuestion
+!include ../entities/TestVersionQuestion.puml
+!endif
+!ifdef ENTITY_User
+!include ../entities/User.puml
+!endif
+!ifdef ENTITY_Plan
+!include ../entities/Plan.puml
+!endif
+!ifdef ENTITY_TokenPackage
+!include ../entities/TokenPackage.puml
+!endif
+!ifdef ENTITY_UserTokenPurchase
+!include ../entities/UserTokenPurchase.puml
+!endif
+!ifdef ENTITY_UserSubscription
+!include ../entities/UserSubscription.puml
+!endif
+!ifdef ENTITY_Class
+!include ../entities/Class.puml
+!endif
+!ifdef ENTITY_ClassUser
+!include ../entities/ClassUser.puml
+!endif
+!ifdef ENTITY_ClassQuestionSet
+!include ../entities/ClassQuestionSet.puml
+!endif
+!ifdef ENTITY_ClassInvitation
+!include ../entities/ClassInvitation.puml
+!endif
+!ifdef ENTITY_ClassInvitationUser
+!include ../entities/ClassInvitationUser.puml
+!endif
+!ifdef ENTITY_RefreshToken
+!include ../entities/RefreshToken.puml
+!endif
+
 class ApplicationDbContext {
     + SaveChangesAsync(token): Task<int>
     + DbSet<T> ...
+!ifdef ENTITY_User
+    + DomainUsers: DbSet<User>
+!endif
+!ifdef ENTITY_Plan
+    + Plans: DbSet<Plan>
+!endif
+!ifdef ENTITY_TokenPackage
+    + TokenPackages: DbSet<TokenPackage>
+!endif
+!ifdef ENTITY_UserTokenPurchase
+    + UserTokenPurchases: DbSet<UserTokenPurchase>
+!endif
+!ifdef ENTITY_UserSubscription
+    + UserSubscriptions: DbSet<UserSubscription>
+!endif
+!ifdef ENTITY_Question
+    + Questions: DbSet<Question>
+!endif
+!ifdef ENTITY_QuestionSet
+    + QuestionSets: DbSet<QuestionSet>
+!endif
+!ifdef ENTITY_Comment
+    + Comments: DbSet<Comment>
+!endif
+!ifdef ENTITY_UserQuestionSetHistory
+    + UserQuestionSetHistories: DbSet<UserQuestionSetHistory>
+!endif
+!ifdef ENTITY_TestTemplate
+    + TestTemplates: DbSet<TestTemplate>
+!endif
+!ifdef ENTITY_TestTemplateQuestion
+    + TestTemplateQuestions: DbSet<TestTemplateQuestion>
+!endif
+!ifdef ENTITY_TestTemplateUser
+    + TestTemplateUsers: DbSet<TestTemplateUser>
+!endif
+!ifdef ENTITY_Folder
+    + Folders: DbSet<Folder>
+!endif
+!ifdef ENTITY_FolderTestTemplate
+    + FolderTestTemplates: DbSet<FolderTestTemplate>
+!endif
+!ifdef ENTITY_FolderUser
+    + FolderUsers: DbSet<FolderUser>
+!endif
+!ifdef ENTITY_Test
+    + Tests: DbSet<Test>
+!endif
+!ifdef ENTITY_TestVersion
+    + TestVersions: DbSet<TestVersion>
+!endif
+!ifdef ENTITY_TestVersionQuestion
+    + TestVersionQuestions: DbSet<TestVersionQuestion>
+!endif
+!ifdef ENTITY_Attempt
+    + Attempts: DbSet<Attempt>
+!endif
+!ifdef ENTITY_AttemptQuestion
+    + AttemptQuestions: DbSet<AttemptQuestion>
+!endif
+!ifdef ENTITY_Class
+    + Classes: DbSet<Class>
+!endif
+!ifdef ENTITY_ClassUser
+    + ClassUsers: DbSet<ClassUser>
+!endif
+!ifdef ENTITY_ClassQuestionSet
+    + ClassQuestionSets: DbSet<ClassQuestionSet>
+!endif
+!ifdef ENTITY_ClassInvitation
+    + ClassInvitations: DbSet<ClassInvitation>
+!endif
+!ifdef ENTITY_ClassInvitationUser
+    + ClassInvitationUsers: DbSet<ClassInvitationUser>
+!endif
+!ifdef ENTITY_TestGrade
+    + TestGrades: DbSet<TestGrade>
+!endif
+!ifdef ENTITY_QuestionSetUser
+    + QuestionSetUsers: DbSet<QuestionSetUser>
+!endif
+!ifdef ENTITY_Tag
+    + Tags: DbSet<Tag>
+!endif
+!ifdef ENTITY_QuestionSetTag
+    + QuestionSetTags: DbSet<QuestionSetTag>
+!endif
+!ifdef ENTITY_RefreshToken
+    + RefreshTokens: DbSet<RefreshToken>
+!endif
 }
 
 interface IApplicationDbContext {
     + SaveChangesAsync(token): Task<int>
     + DbSet<T> ...
+!ifdef ENTITY_User
+    + DomainUsers: DbSet<User>
+!endif
+!ifdef ENTITY_Plan
+    + Plans: DbSet<Plan>
+!endif
+!ifdef ENTITY_TokenPackage
+    + TokenPackages: DbSet<TokenPackage>
+!endif
+!ifdef ENTITY_UserTokenPurchase
+    + UserTokenPurchases: DbSet<UserTokenPurchase>
+!endif
+!ifdef ENTITY_UserSubscription
+    + UserSubscriptions: DbSet<UserSubscription>
+!endif
+!ifdef ENTITY_Question
+    + Questions: DbSet<Question>
+!endif
+!ifdef ENTITY_QuestionSet
+    + QuestionSets: DbSet<QuestionSet>
+!endif
+!ifdef ENTITY_Comment
+    + Comments: DbSet<Comment>
+!endif
+!ifdef ENTITY_UserQuestionSetHistory
+    + UserQuestionSetHistories: DbSet<UserQuestionSetHistory>
+!endif
+!ifdef ENTITY_TestTemplate
+    + TestTemplates: DbSet<TestTemplate>
+!endif
+!ifdef ENTITY_TestTemplateQuestion
+    + TestTemplateQuestions: DbSet<TestTemplateQuestion>
+!endif
+!ifdef ENTITY_TestTemplateUser
+    + TestTemplateUsers: DbSet<TestTemplateUser>
+!endif
+!ifdef ENTITY_Folder
+    + Folders: DbSet<Folder>
+!endif
+!ifdef ENTITY_FolderTestTemplate
+    + FolderTestTemplates: DbSet<FolderTestTemplate>
+!endif
+!ifdef ENTITY_FolderUser
+    + FolderUsers: DbSet<FolderUser>
+!endif
+!ifdef ENTITY_Test
+    + Tests: DbSet<Test>
+!endif
+!ifdef ENTITY_TestVersion
+    + TestVersions: DbSet<TestVersion>
+!endif
+!ifdef ENTITY_TestVersionQuestion
+    + TestVersionQuestions: DbSet<TestVersionQuestion>
+!endif
+!ifdef ENTITY_Attempt
+    + Attempts: DbSet<Attempt>
+!endif
+!ifdef ENTITY_AttemptQuestion
+    + AttemptQuestions: DbSet<AttemptQuestion>
+!endif
+!ifdef ENTITY_Class
+    + Classes: DbSet<Class>
+!endif
+!ifdef ENTITY_ClassUser
+    + ClassUsers: DbSet<ClassUser>
+!endif
+!ifdef ENTITY_ClassQuestionSet
+    + ClassQuestionSets: DbSet<ClassQuestionSet>
+!endif
+!ifdef ENTITY_ClassInvitation
+    + ClassInvitations: DbSet<ClassInvitation>
+!endif
+!ifdef ENTITY_ClassInvitationUser
+    + ClassInvitationUsers: DbSet<ClassInvitationUser>
+!endif
+!ifdef ENTITY_TestGrade
+    + TestGrades: DbSet<TestGrade>
+!endif
+!ifdef ENTITY_QuestionSetUser
+    + QuestionSetUsers: DbSet<QuestionSetUser>
+!endif
+!ifdef ENTITY_Tag
+    + Tags: DbSet<Tag>
+!endif
+!ifdef ENTITY_QuestionSetTag
+    + QuestionSetTags: DbSet<QuestionSetTag>
+!endif
+!ifdef ENTITY_RefreshToken
+    + RefreshTokens: DbSet<RefreshToken>
+!endif
 }
 
 class IdentityDbContext {
@@ -18,4 +324,62 @@ end note
 
 ApplicationDbContext --|> IdentityDbContext : extends
 ApplicationDbContext ..|> IApplicationDbContext: implements
+
+!ifdef ENTITY_QuestionSet
+ApplicationDbContext o-- "*" QuestionSet
+!endif
+!ifdef ENTITY_Question
+ApplicationDbContext o-- "*" Question
+!endif
+!ifdef ENTITY_UserQuestionSetHistory
+ApplicationDbContext o-- "*" UserQuestionSetHistory
+!endif
+!ifdef ENTITY_Comment
+ApplicationDbContext o-- "*" Comment
+!endif
+!ifdef ENTITY_Tag
+ApplicationDbContext o-- "*" Tag
+!endif
+!ifdef ENTITY_QuestionSetTag
+ApplicationDbContext o-- "*" QuestionSetTag
+!endif
+!ifdef ENTITY_QuestionSetUser
+ApplicationDbContext o-- "*" QuestionSetUser
+!endif
+!ifdef ENTITY_Test
+ApplicationDbContext o-- "*" Test
+!endif
+!ifdef ENTITY_TestGrade
+ApplicationDbContext o-- "*" TestGrade
+!endif
+!ifdef ENTITY_TestTemplate
+ApplicationDbContext o-- "*" TestTemplate
+!endif
+!ifdef ENTITY_TestTemplateUser
+ApplicationDbContext o-- "*" TestTemplateUser
+!endif
+!ifdef ENTITY_TestTemplateQuestion
+ApplicationDbContext o-- "*" TestTemplateQuestion
+!endif
+!ifdef ENTITY_Folder
+ApplicationDbContext o-- "*" Folder
+!endif
+!ifdef ENTITY_FolderUser
+ApplicationDbContext o-- "*" FolderUser
+!endif
+!ifdef ENTITY_FolderTestTemplate
+ApplicationDbContext o-- "*" FolderTestTemplate
+!endif
+!ifdef ENTITY_Attempt
+ApplicationDbContext o-- "*" Attempt
+!endif
+!ifdef ENTITY_AttemptQuestion
+ApplicationDbContext o-- "*" AttemptQuestion
+!endif
+!ifdef ENTITY_TestVersion
+ApplicationDbContext o-- "*" TestVersion
+!endif
+!ifdef ENTITY_TestVersionQuestion
+ApplicationDbContext o-- "*" TestVersionQuestion
+!endif
 @enduml

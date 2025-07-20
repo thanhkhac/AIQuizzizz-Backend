@@ -1,0 +1,8 @@
+@startuml
+' Entity: ClassUser
+class ClassUser {
+    +ClassId: Guid
+    +UserId: Guid
+    +ShareMode: ClassShareMode
+}
+@enduml 

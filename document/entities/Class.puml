@@ -1,0 +1,9 @@
+@startuml
+' Entity: Class
+class Class {
+    +Id: Guid
+    +Name: string
+    +Topic: string
+    +IsDeleted: bool
+}
+@enduml 

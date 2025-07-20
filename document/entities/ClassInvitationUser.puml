@@ -1,0 +1,9 @@
+@startuml
+' Entity: ClassInvitationUser
+class ClassInvitationUser {
+    +Id: Guid
+    +UserId: Guid
+    +ClassInvitationId: Guid
+    +TimeJoin: DateTime
+}
+@enduml 
