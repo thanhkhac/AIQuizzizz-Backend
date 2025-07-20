@@ -13,7 +13,7 @@ public class SearchFolderTestDto
 }
 
 [Authorize]
-public class SearchFolderTest : IRequest<PaginatedList<SearchFolderTestDto>>
+public class SearchFolderTestCommand : IRequest<PaginatedList<SearchFolderTestDto>>
 {
     public string? FolderName { get; set; }
     public string? SharedMode { get; set; }
@@ -21,9 +21,9 @@ public class SearchFolderTest : IRequest<PaginatedList<SearchFolderTestDto>>
     public int PageSize { get; set; } = 5;
 }
 
-public class SearchFolderTestValidator : AbstractValidator<SearchFolderTest>
+public class SearchFolderTestCommandValidator : AbstractValidator<SearchFolderTestCommand>
 {
-    public SearchFolderTestValidator()
+    public SearchFolderTestCommandValidator()
     {
         RuleFor(x => x.SharedMode)
             .Must(mode => new[] {"Owner", "Editable", "ViewOnly"}.Contains(mode) || string.IsNullOrEmpty(mode))
@@ -36,7 +36,7 @@ public class SearchFolderTestValidator : AbstractValidator<SearchFolderTest>
     }
 }
 
-public class SearchFolderTestCommandHandler : IRequestHandler<SearchFolderTest, PaginatedList<SearchFolderTestDto>>
+public class SearchFolderTestCommandHandler : IRequestHandler<SearchFolderTestCommand, PaginatedList<SearchFolderTestDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
@@ -47,7 +47,7 @@ public class SearchFolderTestCommandHandler : IRequestHandler<SearchFolderTest, 
         _user = user;
     }
 
-    public async Task<PaginatedList<SearchFolderTestDto>> Handle(SearchFolderTest rq, CancellationToken cancellationToken)
+    public async Task<PaginatedList<SearchFolderTestDto>> Handle(SearchFolderTestCommand rq, CancellationToken cancellationToken)
     {
         var authors = await _context.FolderUsers
             .Include(fu => fu.Folder)

@@ -24,9 +24,9 @@ public class SearchQuestionSetCommand : IRequest<PaginatedList<SearchQuestionSet
     public int PageSize { get; set; } = 5;
 }
 
-public class SearchQuestionSetValidator : AbstractValidator<SearchQuestionSetCommand>
+public class SearchQuestionSetCommandValidator : AbstractValidator<SearchQuestionSetCommand>
 {
-    public SearchQuestionSetValidator()
+    public SearchQuestionSetCommandValidator()
     {
         RuleFor(x => x.ClassId)
             .NotEmpty().WithMessage("ClassId không được null");

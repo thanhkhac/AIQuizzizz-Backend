@@ -19,7 +19,7 @@ public class StudentSearchResultDto
 }
 
 [Authorize]
-public class SearchStudentInClass : IRequest<PaginatedList<StudentSearchResultDto>>
+public class SearchStudentInClassCommand : IRequest<PaginatedList<StudentSearchResultDto>>
 {
     public required Guid ClassId { get; set; }
     public string? Keyword { get; set; }
@@ -28,9 +28,9 @@ public class SearchStudentInClass : IRequest<PaginatedList<StudentSearchResultDt
     public int PageSize { get; set; } = 5;
 }
 
-public class SearchStudentInClassValidator : AbstractValidator<SearchStudentInClass>
+public class SearchStudentInClassCommandValidator : AbstractValidator<SearchStudentInClassCommand>
 {
-    public SearchStudentInClassValidator()
+    public SearchStudentInClassCommandValidator()
     {
         RuleFor(x => x.ClassId)
             .NotEmpty().WithMessage("ClassId không được để trống");
@@ -42,7 +42,7 @@ public class SearchStudentInClassValidator : AbstractValidator<SearchStudentInCl
     }
 }
 
-public class SearchStudentCommandHandler : IRequestHandler<SearchStudentInClass, PaginatedList<StudentSearchResultDto>>
+public class SearchStudentCommandHandler : IRequestHandler<SearchStudentInClassCommand, PaginatedList<StudentSearchResultDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
@@ -54,7 +54,7 @@ public class SearchStudentCommandHandler : IRequestHandler<SearchStudentInClass,
         _classService = classService;
     }
     
-    public async Task<PaginatedList<StudentSearchResultDto>> Handle(SearchStudentInClass rq, CancellationToken cancellationToken)
+    public async Task<PaginatedList<StudentSearchResultDto>> Handle(SearchStudentInClassCommand rq, CancellationToken cancellationToken)
     {
         var classById = await _context.Classes
             .Where(x => x.Id == rq.ClassId)

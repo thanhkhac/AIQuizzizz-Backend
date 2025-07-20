@@ -2,7 +2,7 @@
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Tests;
+namespace CleanArchitectureBase.Application.TestTemplates;
 
 public class TestTemplatePermissionsDto
 {
@@ -11,27 +11,27 @@ public class TestTemplatePermissionsDto
 }
 
 [Authorize]
-public class GetTestTemplatePermissions : IRequest<TestTemplatePermissionsDto>
+public class GetTestTemplatePermissionsCommand : IRequest<TestTemplatePermissionsDto>
 {
     public required Guid TestTemplateId { get; set; }
 }
 
-public class GetTestTemplatePermissionsValidator : AbstractValidator<GetTestTemplatePermissions>
+public class GetTestTemplatePermissionsCommandValidator : AbstractValidator<GetTestTemplatePermissionsCommand>
 {
-    public GetTestTemplatePermissionsValidator()
+    public GetTestTemplatePermissionsCommandValidator()
     {
         RuleFor(x => x.TestTemplateId)
             .NotEmpty().WithMessage("TestTemplateId không được trống");
     }
 }
 
-public class GetTestTemplatePermissionsHandler : IRequestHandler<GetTestTemplatePermissions, TestTemplatePermissionsDto>
+public class GetTestTemplatePermissionsCommandHandler : IRequestHandler<GetTestTemplatePermissionsCommand, TestTemplatePermissionsDto>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     private readonly IIdentityService _identityService;
     
-    public GetTestTemplatePermissionsHandler(IApplicationDbContext context, IUser user, IIdentityService identityService)
+    public GetTestTemplatePermissionsCommandHandler(IApplicationDbContext context, IUser user, IIdentityService identityService)
     {
         _context = context;
         _user = user;
@@ -39,7 +39,7 @@ public class GetTestTemplatePermissionsHandler : IRequestHandler<GetTestTemplate
     }
     
     
-    public async Task<TestTemplatePermissionsDto> Handle(GetTestTemplatePermissions rq, CancellationToken cancellationToken)
+    public async Task<TestTemplatePermissionsDto> Handle(GetTestTemplatePermissionsCommand rq, CancellationToken cancellationToken)
     {
         if (_user.UserId == null)
             return new TestTemplatePermissionsDto

@@ -1693,160 +1693,6 @@
         }
       }
     },
-    "/api/Test/Templates": {
-      "get": {
-        "tags": [
-          "Test"
-        ],
-        "operationId": "SearchTestTemplate",
-        "parameters": [
-          {
-            "name": "folderName",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 1
-          },
-          {
-            "name": "sharedMode",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 2
-          },
-          {
-            "name": "pageNumber",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 1
-            },
-            "x-position": 3
-          },
-          {
-            "name": "pageSize",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 5
-            },
-            "x-position": 4
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfTestTemplateDto"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Test"
-        ],
-        "operationId": "CreateTestTemplate",
-        "requestBody": {
-          "x-name": "rq",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateTestTemplateCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfGuid"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Test/{testTemplateId}/Permissions": {
-      "get": {
-        "tags": [
-          "Test"
-        ],
-        "operationId": "GetTestTemplatePermissions",
-        "parameters": [
-          {
-            "name": "testTemplateId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "guid"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfTestTemplatePermissionsDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Test/Template/{testTemplateId}": {
-      "get": {
-        "tags": [
-          "Test"
-        ],
-        "operationId": "GetTestTemplateDetail",
-        "parameters": [
-          {
-            "name": "testTemplateId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "guid"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfTestTemplateDetailDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/Test/{TestId}/History": {
       "get": {
         "tags": [
@@ -1983,10 +1829,164 @@
         }
       }
     },
-    "/api/Test/Templates/ImportFile": {
+    "/api/TestTemplate/Templates": {
+      "get": {
+        "tags": [
+          "TestTemplate"
+        ],
+        "operationId": "SearchTestTemplate",
+        "parameters": [
+          {
+            "name": "folderName",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "sharedMode",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "x-position": 3
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 5
+            },
+            "x-position": 4
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfTestTemplateDto"
+                }
+              }
+            }
+          }
+        }
+      },
       "post": {
         "tags": [
-          "Test"
+          "TestTemplate"
+        ],
+        "operationId": "CreateTestTemplate",
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTestTemplateCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/TestTemplate/{testTemplateId}/Permissions": {
+      "get": {
+        "tags": [
+          "TestTemplate"
+        ],
+        "operationId": "GetTestTemplatePermissions",
+        "parameters": [
+          {
+            "name": "testTemplateId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfTestTemplatePermissionsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/TestTemplate/Template/{testTemplateId}": {
+      "get": {
+        "tags": [
+          "TestTemplate"
+        ],
+        "operationId": "GetTestTemplateDetail",
+        "parameters": [
+          {
+            "name": "testTemplateId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfTestTemplateDetailDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/TestTemplate/Templates/ImportFile": {
+      "post": {
+        "tags": [
+          "TestTemplate"
         ],
         "operationId": "ImportFileTestTemplate",
         "requestBody": {
@@ -3974,112 +3974,6 @@
           }
         }
       },
-      "ApiResponseOfTestTemplatePermissionsDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "errors": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "validationErrors": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "data": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/TestTemplatePermissionsDto"
-              }
-            ]
-          },
-          "success": {
-            "type": "boolean"
-          }
-        }
-      },
-      "TestTemplatePermissionsDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "canEdit": {
-            "type": "boolean"
-          },
-          "canDelete": {
-            "type": "boolean"
-          }
-        }
-      },
-      "ApiResponseOfTestTemplateDetailDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "errors": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "validationErrors": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "data": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/TestTemplateDetailDto"
-              }
-            ]
-          },
-          "success": {
-            "type": "boolean"
-          }
-        }
-      },
-      "TestTemplateDetailDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "testTemplateId": {
-            "type": "string",
-            "format": "guid"
-          },
-          "name": {
-            "type": "string",
-            "nullable": true
-          },
-          "questionCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "questions": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/QuestionResponseDto"
-            }
-          }
-        }
-      },
       "ApiResponseOfPaginatedListOfHistoryTestDto": {
         "type": "object",
         "additionalProperties": false,
@@ -4489,6 +4383,112 @@
           },
           "text": {
             "type": "string"
+          }
+        }
+      },
+      "ApiResponseOfTestTemplatePermissionsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TestTemplatePermissionsDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TestTemplatePermissionsDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "canEdit": {
+            "type": "boolean"
+          },
+          "canDelete": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ApiResponseOfTestTemplateDetailDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TestTemplateDetailDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TestTemplateDetailDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "testTemplateId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "questionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuestionResponseDto"
+            }
           }
         }
       },

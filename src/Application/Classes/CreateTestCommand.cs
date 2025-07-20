@@ -101,6 +101,9 @@ public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
             TimeFinish = rq.EndTime,
             TimeStart = rq.StartTime,
             TimeLimit = rq.TimeLimit,
+            MaxAttempt = rq.MaxAttempt,
+            PassingScore = rq.PassingScore,
+            IsShowCorrectAnswerInReview = rq.IsShowCorrectAnswerInReview,
             QuestionCount = 0
         };
 

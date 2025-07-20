@@ -1,39 +1,39 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Questions.Dtos;
-using CleanArchitectureBase.Application.Tests.Dto;
+using CleanArchitectureBase.Application.TestTemplates.Dto;
 using CleanArchitectureBase.Domain.Constants;
 
-namespace CleanArchitectureBase.Application.Tests;
+namespace CleanArchitectureBase.Application.TestTemplates;
 
-public class GetTestTemplateDetail : IRequest<TestTemplateDetailDto>
+public class GetTestTemplateDetailCommand : IRequest<TestTemplateDetailDto>
 {
     public required Guid TestTemplateId { get; set; }
 }
 
-public class GetTestTemplateDetailValidator : AbstractValidator<GetTestTemplateDetail>
+public class GetTestTemplateDetailCommandValidator : AbstractValidator<GetTestTemplateDetailCommand>
 {
-    public GetTestTemplateDetailValidator()
+    public GetTestTemplateDetailCommandValidator()
     {
         RuleFor(x => x.TestTemplateId)
             .NotEmpty().WithMessage("TestTemplateId không được trống");
     }
 }
 
-public class GetTestTemplateDetailHandler : IRequestHandler<GetTestTemplateDetail, TestTemplateDetailDto>
+public class GetTestTemplateDetailCommandHandler : IRequestHandler<GetTestTemplateDetailCommand, TestTemplateDetailDto>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     private readonly IIdentityService _identityService;
 
-    public GetTestTemplateDetailHandler(IApplicationDbContext context, IUser user, IIdentityService identityService)
+    public GetTestTemplateDetailCommandHandler(IApplicationDbContext context, IUser user, IIdentityService identityService)
     {
         _context = context;
         _user = user;
         _identityService = identityService;
     }
     
-    public async Task<TestTemplateDetailDto> Handle(GetTestTemplateDetail rq, CancellationToken cancellationToken)
+    public async Task<TestTemplateDetailDto> Handle(GetTestTemplateDetailCommand rq, CancellationToken cancellationToken)
     {
         var testTemplate = await _context.TestTemplates.Where(t => t.Id == rq.TestTemplateId && t.IsDeleted == false)
             .FirstOrDefaultAsync(cancellationToken);
