@@ -14,7 +14,7 @@ public class TestSearchResultDto
     public required string Name { get; set; }
     public int? NumberOfQuestions { get; set; }
     public required int TimeLimit { get; set; }
-    public DateTime TimeStart { get; set; }
+    public DateTimeOffset TimeStart { get; set; }
     public double RelativeTime { get; set; }
     public int? NumberOfCompletion { get; set; }
     public string? Status { get; set; }
