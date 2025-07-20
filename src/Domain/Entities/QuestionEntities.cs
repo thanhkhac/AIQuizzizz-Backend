@@ -262,8 +262,10 @@ public class Test : BaseAuditableEntity
     public required Guid ClassId { get; set; }
     public required DateTime TimeStart { get; set; }
     public required DateTime TimeFinish { get; set; }
+    public int MaxAttempt { get; set; } 
     public required int TimeLimit { get; set; }
     public required int QuestionCount { get; set; }
+    public float PassingScore{ get; set; }
     public required GradeAttemptMethod GradeAttemptMethod { get; set; }
     public required GradeQuestionMethod GradeQuestionMethod { get; set; }
     public bool IsShowCorrectAnswerInReview { get; set; }
@@ -296,6 +298,7 @@ public class TestVersionQuestion : BaseEntity
     public Question? Question { get; set; }
 }
 
+//TODO: Thêm grademode vào
 public class TestGrade
 {
     public required Guid Id { get; set; }
@@ -305,6 +308,12 @@ public class TestGrade
 
     public Test? Test { get; set; }
     public User? User { get; set; }
+}
+
+public enum AttemptStatus
+{
+    Passed,
+    Failed,
 }
 
 public class Attempt

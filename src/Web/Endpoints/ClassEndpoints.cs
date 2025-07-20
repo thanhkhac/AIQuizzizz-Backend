@@ -1,5 +1,4 @@
-﻿using CleanArchitectureBase.Application.Classes.Lecturer;
-using CleanArchitectureBase.Application.Classes.Student;
+﻿using CleanArchitectureBase.Application.Classes;
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Domain.Entities;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -18,8 +17,12 @@ public class Class : EndpointGroupBase
             .MapPost(AddQuestionSet, "/{ClassId}/Questionsets/{QuestionSetId}")
             .MapPost(CreateTest, "/Test")
             .MapGet(SearchStudent, "/{ClassId}/Students")
-            .MapGet(SearchClass, "/Classes")
+            .MapGet(SearchClass, "")
             .MapGet(SearchTest, "/{ClassId}/Tests")
+            .MapGet(GetInviteStudentCode, "/{ClassId}/Invitation-Code")
+            .MapGet(SearchQuestionSet, "/{ClassId}/Questionsets")
+            .MapGet(GetTestSchedule, "/{ClassId}/Schedule")
+            .MapGet(GetClassById, "/{ClassId}")
             .MapDelete(DeleteClass, "/{ClassId}")
             .MapDelete(RemoveStudent, "/{ClassId}/Members/{UserId}")
             .MapDelete(RemoveQuestionSet, "/{ClassId}/Questionsets/{QuestionSetId}")
@@ -37,6 +40,18 @@ public class Class : EndpointGroupBase
         var result = await sender.Send(rq);
         return result.ToOk();
     }
+    
+    public async Task<Ok<ApiResponse<ClassDetailDto>>> GetClassById([FromRoute] Guid classId, ISender sender)
+    {
+        var result = await sender.Send(new GetClassById{ClassId = classId});
+        return result.ToOk();
+    } 
+    
+    public async Task<Ok<ApiResponse<string?>>> GetInviteStudentCode([FromRoute] Guid classId, ISender sender)
+    {
+        var result = await sender.Send(new GetInviteStudentCode{ClassId = classId});
+        return result.ToOk();
+    } 
     
     public async Task<Ok<ApiResponse<ClassCodeDto>>> InviteStudent(
         [FromRoute] Guid classId,
@@ -92,8 +107,28 @@ public class Class : EndpointGroupBase
         return result.ToOk();
     }
     
+    public async Task<Ok<ApiResponse<PaginatedList<SearchQuestionSetDto>>>> SearchQuestionSet(
+        [FromQuery] string? name,
+        [FromQuery] string? shareMode,
+        [FromRoute] Guid classId,
+        ISender sender,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 5)
+    {
+        var rq = new SearchQuestionSetCommand()
+        {
+            ClassId = classId,
+            Name = name,
+            ShareMode = shareMode,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+        };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
     public async Task<Ok<ApiResponse<PaginatedList<ClassSearchResultDto>>>> SearchClass(
-        [FromQuery] ClassShareMode? shareMode,
+        [FromQuery] string? shareMode,
         [FromQuery] string? name,
         ISender sender,
         [FromQuery] int pageNumber = 1,
@@ -108,6 +143,18 @@ public class Class : EndpointGroupBase
         };
         var result = await sender.Send(rq);
         return result.ToOk();
+    }
+
+    public async Task<Ok<ApiResponse<List<TestScheduleResponse>>>> GetTestSchedule(
+        [FromRoute] Guid classId,
+        [FromQuery] int? month,
+        [FromQuery] int? year,
+        ISender sender)
+    {
+        var rq = new GetTestSchedule { ClassId = classId, Month = month, Year = year };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+        
     }
 
     public async Task<Ok<ApiResponse<UpdatePositionDto>>> UpdatePosition(

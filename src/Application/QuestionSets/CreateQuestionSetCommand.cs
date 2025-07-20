@@ -44,11 +44,9 @@ public class CreateQuestionSetCommandHandler : IRequestHandler<CreateQuestionSet
 {
 
     private readonly IApplicationDbContext _dbContext;
-    private readonly IMapper _mapper;
-    public CreateQuestionSetCommandHandler(IApplicationDbContext dbContext, IMapper mapper)
+    public CreateQuestionSetCommandHandler(IApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
-        _mapper = mapper;
     }
 
     public async Task<Guid> Handle(CreateQuestionSetCommand request, CancellationToken cancellationToken)

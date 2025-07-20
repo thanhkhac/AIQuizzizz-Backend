@@ -16,7 +16,6 @@ public class GetQuestionSetQuestionsQuery : IRequest<List<QuestionResponseDto>>
 public class GetQuestionSetQuestionsQueryHandler : IRequestHandler<GetQuestionSetQuestionsQuery, List<QuestionResponseDto>>
 {
 
-    private IApplicationDbContext _context;
     private IQuestionSetService _questionSetService;
     private IQuestionService _questionService;
     private IUser _user;
@@ -24,7 +23,6 @@ public class GetQuestionSetQuestionsQueryHandler : IRequestHandler<GetQuestionSe
     public GetQuestionSetQuestionsQueryHandler(IApplicationDbContext context, IQuestionSetService questionSetService, IUser user,
         IQuestionService questionService)
     {
-        _context = context;
         _questionSetService = questionSetService;
         _user = user;
         _questionService = questionService;

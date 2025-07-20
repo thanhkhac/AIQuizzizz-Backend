@@ -14,13 +14,11 @@ public class GetQuestionSetDetailQuery : IRequest<QuestionSetDetailDto>
 
 public class GetQuestionSetDetailQueryHandler : IRequestHandler<GetQuestionSetDetailQuery, QuestionSetDetailDto>
 {
-    private IApplicationDbContext _context;
     private IQuestionSetService _questionSetService;
     private IUser _user;
 
-    public GetQuestionSetDetailQueryHandler(IApplicationDbContext context, IQuestionSetService questionSetService, IUser user)
+    public GetQuestionSetDetailQueryHandler(IQuestionSetService questionSetService, IUser user)
     {
-        _context = context;
         _questionSetService = questionSetService;
         _user = user;
     }

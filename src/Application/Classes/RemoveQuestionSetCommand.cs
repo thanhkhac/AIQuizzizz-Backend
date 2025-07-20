@@ -1,11 +1,10 @@
-﻿using CleanArchitectureBase.Application.Classes.Common;
+﻿using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
-using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Classes.Lecturer;
+namespace CleanArchitectureBase.Application.Classes;
 
 [Authorize]
 public class RemoveQuestionSetCommand : IRequest<Guid>
@@ -28,20 +27,26 @@ public class RemoveQuestionSetValidator : AbstractValidator<RemoveQuestionSetCom
 public class RemoveQuestionSetHandler : IRequestHandler<RemoveQuestionSetCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
-    private readonly ClassValidationService _classValidationService;
+    private readonly IClassService _classService;
     
-    public RemoveQuestionSetHandler(IApplicationDbContext context, ClassValidationService classValidationService)
+    public RemoveQuestionSetHandler(IApplicationDbContext context, IClassService classService)
     {
         _context = context;
-        _classValidationService = classValidationService;
+        _classService = classService;
     }
     
     public async Task<Guid> Handle(RemoveQuestionSetCommand rq, CancellationToken cancellationToken)
     {
-        var (isOwner, classExists) = await _classValidationService.ValidateClassAccessAsync(rq.ClassId, cancellationToken);
+        var classById = await _context.Classes
+            .Where(x => x.Id == rq.ClassId)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (classById == null)
+            throw new ErrorCodeException(ErrorCodes.CLASS_NOTFOUND, "Không tìm thấy lớp");
+        
+        await _classService.IsLecturerOrOwnerInClass(rq.ClassId);
 
         var classQuestionSet = await _context.ClassQuestionSets
-            .Where(x => x.QuestionSetId == rq.QuestionSetId && x.ClassId == classExists.Id)
+            .Where(x => x.QuestionSetId == rq.QuestionSetId && x.ClassId == classById.Id)
             .FirstOrDefaultAsync(cancellationToken);
         if (classQuestionSet == null)
             throw new ErrorCodeException(ErrorCodes.QUESTION_SET_NOT_FOUND_IN_CLASS, "Question set không tồn tại hoặc không trong class");

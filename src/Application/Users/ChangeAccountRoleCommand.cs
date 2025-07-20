@@ -1,8 +1,5 @@
-﻿using CleanArchitectureBase.Application.Common.Exceptions;
-using CleanArchitectureBase.Application.Common.Interfaces;
+﻿using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
-using CleanArchitectureBase.Domain.Constants;
-using StackExchange.Redis;
 
 namespace CleanArchitectureBase.Application.Users;
 

@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 
 namespace CleanArchitectureBase.Web.Endpoints;
 
-public class Authentication : EndpointGroupBase
+public class AuthenticationEndpoints : EndpointGroupBase
 {
     public override void Map(WebApplication app)
     {
@@ -16,7 +16,6 @@ public class Authentication : EndpointGroupBase
             .MapPost(RegisterUser, "Register")
             .MapPost(Login, "Login")
             .MapPost(GoogleLogin, "GoogleLogin")
-            .MapPost(GoogleRegister, "GoogleRegister")
             .MapPost(RefreshToken, "RefreshToken")
             .MapPost(RevokeToken, "RevokeToken")
             .MapPost(LogOut, "LogOut")
@@ -25,6 +24,7 @@ public class Authentication : EndpointGroupBase
             .MapPost(RequestPasswordReset, "RequestPasswordReset")
             .MapPost(ResetPassword, "ResetPassword")
             .MapPost(ChangePassword, "ChangePassword")
+            .MapPost(SetPassword, "SetPassword")
             ;
     }
 
@@ -53,16 +53,6 @@ public class Authentication : EndpointGroupBase
 
         return result.ToOk();
     }
-
-    public async Task<Ok<ApiResponse<TokenDto>>> GoogleRegister([FromBody] GoogleRegisterCommand command, ISender sender,
-        HttpContext httpContext,
-        IOptions<JwtSettings> jwtSettings)
-    {
-        var result = await sender.Send(command);
-        SetTokenCookies(httpContext, result.AccessToken, result.RefreshToken, jwtSettings.Value);
-        return result.ToOk();
-    }
-
 
     public async Task<Ok<ApiResponse<TokenDto>>> RefreshToken([FromBody] RefreshTokenCommand command,
         ISender sender,
@@ -134,36 +124,37 @@ public class Authentication : EndpointGroupBase
         httpContext.Response.Cookies.Append("refresh_token", "", expiredOptions);
     }
 
-    //TODO: Loại bỏ DTO, thay trực tiếp bằng command
-    public async Task<Ok<ApiResponse>> RequestEmailVerification([FromBody] EmailVerificationRequestDto dto, ISender sender)
+    public async Task<Ok<ApiResponse>> RequestEmailVerification([FromBody] RequestEmailVerificationCommand command, ISender sender)
     {
-        await sender.Send(new RequestEmailVerificationCommand { Email = dto.Email });
+        await sender.Send(command);
         return ApiResponse.SuccessResult().ToOk();
     }
     
-    //TODO: Loại bỏ DTO, thay trực tiếp bằng command
-    public async Task<Ok<ApiResponse>> VerifyEmail([FromBody] EmailVerificationConfirmDto dto, ISender sender)
+    public async Task<Ok<ApiResponse>> VerifyEmail([FromBody] VerifyEmailCommand command, ISender sender)
     {
-        await sender.Send(new VerifyEmailCommand { Email = dto.Email, VerificationCode = dto.VerificationCode });
+        await sender.Send(command);
         return ApiResponse.SuccessResult().ToOk();
     }
 
-    //TODO: Loại bỏ DTO, thay trực tiếp bằng command
-    public async Task<Ok<ApiResponse>> RequestPasswordReset([FromBody] ForgotPasswordDto dto, ISender sender)
+    public async Task<Ok<ApiResponse>> RequestPasswordReset([FromBody] RequestPasswordResetCommand command, ISender sender)
     {
-        await sender.Send(new RequestPasswordResetCommand { Email = dto.Email });
+        await sender.Send(command);
         return ApiResponse.SuccessResult().ToOk();
     }
 
-    //TODO: Loại bỏ DTO, thay trực tiếp bằng command
-    public async Task<Ok<ApiResponse>> ResetPassword([FromBody] ResetPasswordDto dto, ISender sender)
+    public async Task<Ok<ApiResponse>> ResetPassword([FromBody] ResetPasswordCommand command, ISender sender)
     {
-        await sender.Send(new ResetPasswordCommand { Email = dto.Email, ResetCode = dto.ResetCode, NewPassword = dto.NewPassword });
+        await sender.Send(command);
         return ApiResponse.SuccessResult().ToOk();
     }
 
-    //TODO: Loại bỏ DTO, thay trực tiếp bằng command
     public async Task<Ok<ApiResponse>> ChangePassword([FromBody] ChangePasswordCommand command, ISender sender)
+    {
+        await sender.Send(command);
+        return ApiResponse.SuccessResult().ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse>> SetPassword([FromBody] SetPasswordCommand command, ISender sender)
     {
         await sender.Send(command);
         return ApiResponse.SuccessResult().ToOk();

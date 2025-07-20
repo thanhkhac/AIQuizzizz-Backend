@@ -175,7 +175,11 @@ public class QuestionSetTagConfiguration : IEntityTypeConfiguration<QuestionSetT
     public void Configure(EntityTypeBuilder<QuestionSetTag> builder)
     {
         //composite key
-        builder.HasKey(qst => new { qst.TagId, qst.QuestionSetId });
+        builder.HasKey(qst => new
+        {
+            qst.TagId,
+            qst.QuestionSetId
+        });
 
         builder.HasOne(qst => qst.Tag)
             .WithMany(t => t.QuestionSetTags)
@@ -206,7 +210,11 @@ public class QuestionSetUserConfiguration : IEntityTypeConfiguration<QuestionSet
 
     public void Configure(EntityTypeBuilder<QuestionSetUser> builder)
     {
-        builder.HasKey(qsu => new { qsu.UserId, qsu.QuestionSetId });
+        builder.HasKey(qsu => new
+        {
+            qsu.UserId,
+            qsu.QuestionSetId
+        });
 
         builder.Property(qsu => qsu.ShareMode)
             .IsRequired()
@@ -326,7 +334,11 @@ public class FolderTestTemplateConfiguration : IEntityTypeConfiguration<FolderTe
 {
     public void Configure(EntityTypeBuilder<FolderTestTemplate> builder)
     {
-        builder.HasKey(ftt => new { ftt.FolderId, ftt.TestTemplateId });
+        builder.HasKey(ftt => new
+        {
+            ftt.FolderId,
+            ftt.TestTemplateId
+        });
 
         builder.HasOne(ftt => ftt.Folder)
             .WithMany(f => f.FolderTestTemplates)
@@ -344,7 +356,11 @@ public class TestTemplateUserConfiguration : IEntityTypeConfiguration<TestTempla
 {
     public void Configure(EntityTypeBuilder<TestTemplateUser> builder)
     {
-        builder.HasKey(ttu => new { ttu.UserId, ttu.TestTemplateId });
+        builder.HasKey(ttu => new
+        {
+            ttu.UserId,
+            ttu.TestTemplateId
+        });
 
         builder.Property(ttu => ttu.ShareMode)
             .IsRequired()
@@ -368,7 +384,11 @@ public class FolderUserConfiguration : IEntityTypeConfiguration<FolderUser>
 {
     public void Configure(EntityTypeBuilder<FolderUser> builder)
     {
-        builder.HasKey(fu => new { fu.UserId, fu.FolderId });
+        builder.HasKey(fu => new
+        {
+            fu.UserId,
+            fu.FolderId
+        });
 
         builder.Property(fu => fu.ShareMode)
             .IsRequired()
@@ -406,6 +426,10 @@ public class TestConfiguration : IEntityTypeConfiguration<Test>
             .IsRequired();
         builder.Property(t => t.QuestionCount)
             .IsRequired();
+
+        builder.Property(t => t.PassingScore)
+            .IsRequired()
+            .HasColumnType("numeric(5,2)");
 
         builder.Property(t => t.GradeAttemptMethod)
             .IsRequired()
@@ -549,7 +573,11 @@ public class ClassUserConfiguration : IEntityTypeConfiguration<ClassUser>
 {
     public void Configure(EntityTypeBuilder<ClassUser> builder)
     {
-        builder.HasKey(cu => new { cu.ClassId, cu.UserId });
+        builder.HasKey(cu => new
+        {
+            cu.ClassId,
+            cu.UserId
+        });
 
         builder.Property(cu => cu.ShareMode)
             .IsRequired()
@@ -573,7 +601,11 @@ public class ClassQuestionSetConfiguration : IEntityTypeConfiguration<ClassQuest
 {
     public void Configure(EntityTypeBuilder<ClassQuestionSet> builder)
     {
-        builder.HasKey(cqs => new { cqs.ClassId, cqs.QuestionSetId });
+        builder.HasKey(cqs => new
+        {
+            cqs.ClassId,
+            cqs.QuestionSetId
+        });
 
         builder.HasOne(cqs => cqs.Class)
             .WithMany(c => c.ClassQuestionSets)
@@ -654,4 +686,3 @@ public class TestGradeConfiguration : IEntityTypeConfiguration<TestGrade>
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
-

@@ -4,12 +4,13 @@ using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Classes.Lecturer;
+namespace CleanArchitectureBase.Application.Classes;
 
 [Authorize]
 public class CreateClassCommand : IRequest<Guid>
 {
     public required string Name { get; set; }
+    public string? Topic { get; set; }
 }
 
 public class CreateClassCommandValidator : AbstractValidator<CreateClassCommand>
@@ -40,7 +41,7 @@ public class CreateClassCommandHandler : IRequestHandler<CreateClassCommand, Gui
         if (classExists != null)
             throw new ErrorCodeException(ErrorCodes.CLASS_ALREADY_EXISTS, "Class đã tồn tại");
 
-        var newClass = new Class { Id = Guid.NewGuid(), Name = rq.Name };
+        var newClass = new Class { Id = Guid.NewGuid(), Name = rq.Name, Topic = rq.Topic};
         
         var classUser = new ClassUser
         {

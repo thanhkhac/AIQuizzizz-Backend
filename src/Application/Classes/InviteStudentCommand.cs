@@ -1,11 +1,11 @@
-﻿using CleanArchitectureBase.Application.Classes.Common;
+﻿using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Classes.Lecturer;
+namespace CleanArchitectureBase.Application.Classes;
 
 public class ClassCodeDto
 {
@@ -34,22 +34,28 @@ public class InviteStudentValidator : AbstractValidator<InviteStudentCommand>
 public class InviteStudentCommandHandler : IRequestHandler<InviteStudentCommand, ClassCodeDto>
 {
     private readonly IApplicationDbContext _context;
-    private readonly ClassValidationService _classValidationService;
+    private readonly IClassService _classService;
     
-    public InviteStudentCommandHandler(IApplicationDbContext context, ClassValidationService classValidationService)
+    public InviteStudentCommandHandler(IApplicationDbContext context, IClassService classService)
     {
         _context = context;
-        _classValidationService = classValidationService;
+        _classService = classService;
     }
     
     public async Task<ClassCodeDto> Handle(InviteStudentCommand rq, CancellationToken cancellationToken)
     {
-        var (isOwner, classExists) = await _classValidationService.ValidateClassAccessAsync(rq.ClassId, cancellationToken);
+        var classById = await _context.Classes
+            .Where(x => x.Id == rq.ClassId)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (classById == null)
+            throw new ErrorCodeException(ErrorCodes.CLASS_NOTFOUND, "Không tìm thấy lớp");
+        
+        await _classService.IsLecturerOrOwnerInClass(rq.ClassId);
         
         var classInvitation = new ClassInvitation()
         {
             Id = Guid.NewGuid(),
-            ClassId = classExists.Id,
+            ClassId = classById.Id,
             TimeStart = DateTime.UtcNow,
             TimeEnd = DateTime.UtcNow.AddDays(rq.ExpiredTime),
             Code = Convert.ToBase64String(Guid.NewGuid().ToByteArray())[..12],

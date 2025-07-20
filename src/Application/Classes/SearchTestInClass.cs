@@ -1,4 +1,4 @@
-﻿using CleanArchitectureBase.Application.Classes.Common;
+﻿using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
@@ -6,7 +6,7 @@ using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Classes.Lecturer;
+namespace CleanArchitectureBase.Application.Classes;
 
 public class TestSearchResultDto
 {
@@ -14,6 +14,7 @@ public class TestSearchResultDto
     public required string Name { get; set; }
     public int? NumberOfQuestions { get; set; }
     public required int TimeLimit { get; set; }
+    public DateTime TimeStart { get; set; }
     public double RelativeTime { get; set; }
     public int? NumberOfCompletion { get; set; }
     public string? Status { get; set; }
@@ -50,33 +51,29 @@ public class SearchTestValidator : AbstractValidator<SearchTestInClass>
 public class SearchTestHandler : IRequestHandler<SearchTestInClass, PaginatedList<TestSearchResultDto>>
 {
     private readonly IApplicationDbContext _context;
-    private readonly ClassValidationService _classValidationService;
-    private readonly IUser _user;
+    private readonly IClassService _classService;
     
     public SearchTestHandler(
         IApplicationDbContext context,
-        ClassValidationService classValidationService,
-        IUser user)
+        IClassService classService)
     {
         _context = context;
-        _classValidationService = classValidationService;
-        _user = user;
+        _classService = classService;
     }
     
     public async Task<PaginatedList<TestSearchResultDto>> Handle(SearchTestInClass rq, CancellationToken cancellationToken)
     {
-        var user = await _context.ClassUsers
-            .Include(cu => cu.User)
-            .Where(cu => cu.UserId.Equals(_user.UserId) && cu.ClassId.Equals(rq.ClassId))
-            .Select(cu => new { User = cu.User, ClassUser = cu })
+        var classById = await _context.Classes
+            .Where(x => x.Id == rq.ClassId)
             .FirstOrDefaultAsync(cancellationToken);
+        if (classById == null)
+            throw new ErrorCodeException(ErrorCodes.CLASS_NOTFOUND, "Không tìm thấy lớp");
         
-        if (user == null)
-            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, $"User with id {_user.UserId} not found in class");
+        await _classService.IsUserInClass(rq.ClassId);
         
         var tests = await _context.Tests
             .Where(x => x.ClassId.Equals(rq.ClassId)
-            && (string.IsNullOrEmpty(rq.TestName) || x.Name.Contains(rq.TestName)))
+            && (string.IsNullOrEmpty(rq.TestName) || x.Name.ToLower().Contains(rq.TestName.ToLower())))
             .ToListAsync(cancellationToken);
         
         switch (rq.Status)
@@ -133,6 +130,7 @@ public class SearchTestHandler : IRequestHandler<SearchTestInClass, PaginatedLis
                     : TestStatus.Active.ToString(),
                 TimeLimit = test.TimeLimit,
                 RelativeTime = Math.Floor((DateTime.UtcNow - test.TimeStart).TotalHours),
+                TimeStart = test.TimeStart,
             };
         });
 
