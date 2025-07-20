@@ -1,36 +1,38 @@
 ﻿using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.Classes;
 
-public class GetInviteStudentCode : IRequest<string?>
+[Authorize]
+public class GetInviteStudentCodeCommand : IRequest<string?>
 {
     public required Guid ClassId { get; set; }   
 }
 
-public class GetInviteStudentCodeValidator : AbstractValidator<GetInviteStudentCode>
+public class GetInviteStudentCodeCommandValidator : AbstractValidator<GetInviteStudentCodeCommand>
 {
-    public GetInviteStudentCodeValidator()
+    public GetInviteStudentCodeCommandValidator()
     {
         RuleFor(x => x.ClassId)
             .NotEmpty().WithMessage("ClassId không được để trống");
     }
 }
 
-public class GetInviteStudentCodeHandler : IRequestHandler<GetInviteStudentCode, string?>
+public class GetInviteStudentCodeCommandHandler : IRequestHandler<GetInviteStudentCodeCommand, string?>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService; 
     
-    public GetInviteStudentCodeHandler(IApplicationDbContext context, IClassService classService)
+    public GetInviteStudentCodeCommandHandler(IApplicationDbContext context, IClassService classService)
     {
         _context = context;
         _classService = classService;
     }
     
-    public async Task<string?> Handle(GetInviteStudentCode rq, CancellationToken cancellationToken)
+    public async Task<string?> Handle(GetInviteStudentCodeCommand rq, CancellationToken cancellationToken)
     {
         var classById = await _context.Classes
             .Where(x => x.Id == rq.ClassId && x.IsDeleted == false)
@@ -42,7 +44,6 @@ public class GetInviteStudentCodeHandler : IRequestHandler<GetInviteStudentCode,
         
         var code = await _context.ClassInvitations
             .Where(x => x.ClassId == rq.ClassId && x.IsDeleted == false)
-            .OrderByDescending(x => x.TimeEnd)
             .FirstOrDefaultAsync(cancellationToken);
         
         return code != null ? code.Code : null;

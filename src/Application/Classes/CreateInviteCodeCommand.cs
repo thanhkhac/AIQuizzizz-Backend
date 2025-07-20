@@ -13,15 +13,15 @@ public class ClassCodeDto
 }
 
 [Authorize]
-public class InviteStudentCommand : IRequest<ClassCodeDto>
+public class CreateInviteCodeCommand : IRequest<ClassCodeDto>
 {
     public required Guid ClassId { get; set; }
     public required double ExpiredTime { get; set; }
 }
 
-public class InviteStudentValidator : AbstractValidator<InviteStudentCommand>
+public class CreateInviteCodeCommandValidator : AbstractValidator<CreateInviteCodeCommand>
 {
-    public InviteStudentValidator()
+    public CreateInviteCodeCommandValidator()
     {
         RuleFor(x => x.ClassId)
             .NotEmpty().WithMessage("ClassId không được để trống");
@@ -31,18 +31,18 @@ public class InviteStudentValidator : AbstractValidator<InviteStudentCommand>
     }
 }
 
-public class InviteStudentCommandHandler : IRequestHandler<InviteStudentCommand, ClassCodeDto>
+public class CreateInviteCodeCommandHandler : IRequestHandler<CreateInviteCodeCommand, ClassCodeDto>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
     
-    public InviteStudentCommandHandler(IApplicationDbContext context, IClassService classService)
+    public CreateInviteCodeCommandHandler(IApplicationDbContext context, IClassService classService)
     {
         _context = context;
         _classService = classService;
     }
     
-    public async Task<ClassCodeDto> Handle(InviteStudentCommand rq, CancellationToken cancellationToken)
+    public async Task<ClassCodeDto> Handle(CreateInviteCodeCommand rq, CancellationToken cancellationToken)
     {
         var classById = await _context.Classes
             .Where(x => x.Id == rq.ClassId)
@@ -51,6 +51,10 @@ public class InviteStudentCommandHandler : IRequestHandler<InviteStudentCommand,
             throw new ErrorCodeException(ErrorCodes.CLASS_NOTFOUND, "Không tìm thấy lớp");
         
         await _classService.IsLecturerOrOwnerInClass(rq.ClassId);
+
+        var inviteCode = await _context.ClassInvitations
+            .Where(x => x.ClassId == rq.ClassId && x.IsDeleted == false)
+            .ToListAsync(cancellationToken);
         
         var classInvitation = new ClassInvitation()
         {
@@ -62,7 +66,10 @@ public class InviteStudentCommandHandler : IRequestHandler<InviteStudentCommand,
             IsDeleted = false
         };
         
+        _context.ClassInvitations.RemoveRange(inviteCode);
+        
         _context.ClassInvitations.Add(classInvitation);
+        
         await _context.SaveChangesAsync(CancellationToken.None);
         
         return new ClassCodeDto { Code = classInvitation.Code };
