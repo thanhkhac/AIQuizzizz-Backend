@@ -7,15 +7,15 @@ using CleanArchitectureBase.Domain.Constants;
 namespace CleanArchitectureBase.Application.Classes;
 
 [Authorize]
-public class RemoveQuestionSetCommand : IRequest<Guid>
+public class RemoveQuestionSetFromClassCommand : IRequest<Guid>
 {
     public required Guid ClassId { get; set; } 
     public required Guid QuestionSetId { get; set; }  
 }
 
-public class RemoveQuestionSetValidator : AbstractValidator<RemoveQuestionSetCommand>
+public class RemoveQuestionSetFromClassCommandValidator : AbstractValidator<RemoveQuestionSetFromClassCommand>
 {
-    public RemoveQuestionSetValidator()
+    public RemoveQuestionSetFromClassCommandValidator()
     {
         RuleFor(x => x.ClassId)
             .NotEmpty().WithMessage("ClassId không thể trống");
@@ -24,18 +24,18 @@ public class RemoveQuestionSetValidator : AbstractValidator<RemoveQuestionSetCom
     }
 }
 
-public class RemoveQuestionSetHandler : IRequestHandler<RemoveQuestionSetCommand, Guid>
+public class RemoveQuestionSetFromClassCommandHandler : IRequestHandler<RemoveQuestionSetFromClassCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
     
-    public RemoveQuestionSetHandler(IApplicationDbContext context, IClassService classService)
+    public RemoveQuestionSetFromClassCommandHandler(IApplicationDbContext context, IClassService classService)
     {
         _context = context;
         _classService = classService;
     }
     
-    public async Task<Guid> Handle(RemoveQuestionSetCommand rq, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(RemoveQuestionSetFromClassCommand rq, CancellationToken cancellationToken)
     {
         var classById = await _context.Classes
             .Where(x => x.Id == rq.ClassId)

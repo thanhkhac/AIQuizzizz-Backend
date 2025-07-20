@@ -3,9 +3,9 @@ using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.FolderTest;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Tests;
+namespace CleanArchitectureBase.Application.TestTemplates;
 
-public class SearchTestTemplate : IRequest<PaginatedList<TestTemplateDto>>
+public class SearchTestTemplateCommand : IRequest<PaginatedList<TestTemplateDto>>
 {
     public required string? TestTemplateName { get; set; }
     public string? SharedMode { get; set; }
@@ -13,9 +13,9 @@ public class SearchTestTemplate : IRequest<PaginatedList<TestTemplateDto>>
     public int PageSize { get; set; } = 5;
 }
 
-public class SearchTestTemplateValidator : AbstractValidator<SearchTestTemplate>
+public class SearchTestTemplateCommandValidator : AbstractValidator<SearchTestTemplateCommand>
 {
-    public SearchTestTemplateValidator()
+    public SearchTestTemplateCommandValidator()
     {
         RuleFor(x => x.SharedMode)
             .Must(mode => new[] {"Owner", "Editable", "ViewOnly"}.Contains(mode) || string.IsNullOrEmpty(mode))
@@ -23,18 +23,18 @@ public class SearchTestTemplateValidator : AbstractValidator<SearchTestTemplate>
     }
 }
 
-public class SearchTestTemplateHandler : IRequestHandler<SearchTestTemplate, PaginatedList<TestTemplateDto>>
+public class SearchTestTemplateCommandHandler : IRequestHandler<SearchTestTemplateCommand, PaginatedList<TestTemplateDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     
-    public SearchTestTemplateHandler(IApplicationDbContext context, IUser user)
+    public SearchTestTemplateCommandHandler(IApplicationDbContext context, IUser user)
     {
         _context = context;
         _user = user;
     }
     
-    public async Task<PaginatedList<TestTemplateDto>> Handle(SearchTestTemplate rq, CancellationToken cancellationToken)
+    public async Task<PaginatedList<TestTemplateDto>> Handle(SearchTestTemplateCommand rq, CancellationToken cancellationToken)
     {
         TestTemplateUserShareMode? sharedMode = null;
         if (!string.IsNullOrEmpty(rq.SharedMode) &&

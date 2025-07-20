@@ -16,7 +16,7 @@ public class ClassSearchResultDto
 }
 
 [Authorize]
-public class SearchClass : IRequest<PaginatedList<ClassSearchResultDto>>
+public class SearchClassCommand : IRequest<PaginatedList<ClassSearchResultDto>>
 {
     public string? ShareMode { get; set; }
     public string? Name { get; set; }
@@ -24,9 +24,9 @@ public class SearchClass : IRequest<PaginatedList<ClassSearchResultDto>>
     public int PageSize { get; set; } = 10;
 }
 
-public class SearchClassValidator : AbstractValidator<SearchClass>
+public class SearchClassCommandValidator : AbstractValidator<SearchClassCommand>
 {
-        public SearchClassValidator()
+        public SearchClassCommandValidator()
         {
             RuleFor(x => x.PageNumber)
                 .GreaterThanOrEqualTo(1).WithMessage("Số trang phải lớn hơn hoặc bằng 1");
@@ -40,18 +40,18 @@ public class SearchClassValidator : AbstractValidator<SearchClass>
         }
 }
 
-public class SearchClassHandler : IRequestHandler<SearchClass, PaginatedList<ClassSearchResultDto>>
+public class SearchClassCommandHandler : IRequestHandler<SearchClassCommand, PaginatedList<ClassSearchResultDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     
-    public SearchClassHandler(IApplicationDbContext context, IUser user)
+    public SearchClassCommandHandler(IApplicationDbContext context, IUser user)
     {
         _context = context;
         _user = user;
     }
 
-    public async Task<PaginatedList<ClassSearchResultDto>> Handle(SearchClass rq, CancellationToken cancellationToken)
+    public async Task<PaginatedList<ClassSearchResultDto>> Handle(SearchClassCommand rq, CancellationToken cancellationToken)
     {
 
         var classes = _context.Classes

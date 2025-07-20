@@ -14,9 +14,9 @@ public class RemoveStudentCommand : IRequest<Guid>
     public required Guid UserId { get; set; }
 }
 
-public class RemoveStudentValidator : AbstractValidator<RemoveStudentCommand>
+public class RemoveStudentCommandValidator : AbstractValidator<RemoveStudentCommand>
 {
-    public RemoveStudentValidator()
+    public RemoveStudentCommandValidator()
     {
         RuleFor(x => x.ClassId)
             .NotEmpty().WithMessage("ClassId không thể trống");
@@ -25,12 +25,12 @@ public class RemoveStudentValidator : AbstractValidator<RemoveStudentCommand>
     }
 }
 
-public class RemoveStudentHandler : IRequestHandler<RemoveStudentCommand, Guid>
+public class RemoveStudentCommandHandler : IRequestHandler<RemoveStudentCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
     
-    public RemoveStudentHandler(IApplicationDbContext context, IClassService classService)
+    public RemoveStudentCommandHandler(IApplicationDbContext context, IClassService classService)
     {
         _context = context;
         _classService = classService;

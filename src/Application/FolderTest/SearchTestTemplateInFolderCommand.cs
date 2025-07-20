@@ -17,7 +17,7 @@ public class TestTemplateDto
 }
 
 [Authorize]
-public class SearchTestTemplateInFolder : IRequest<PaginatedList<TestTemplateDto>>
+public class SearchTestTemplateInFolderCommand : IRequest<PaginatedList<TestTemplateDto>>
 {
     public required Guid FolderId { get; set; }
     public required string? TestTemplateName { get; set; }
@@ -26,9 +26,9 @@ public class SearchTestTemplateInFolder : IRequest<PaginatedList<TestTemplateDto
     public int PageSize { get; set; } = 5;
 }
 
-public class SearchTestTemplateInFolderValidator : AbstractValidator<SearchTestTemplateInFolder>
+public class SearchTestTemplateInFolderCommandValidator : AbstractValidator<SearchTestTemplateInFolderCommand>
 {
-    public SearchTestTemplateInFolderValidator()
+    public SearchTestTemplateInFolderCommandValidator()
     {
         RuleFor(x => x.FolderId)
             .NotEmpty().WithMessage("FolderId không được null");
@@ -39,18 +39,18 @@ public class SearchTestTemplateInFolderValidator : AbstractValidator<SearchTestT
     }
 }
 
-public class SearchTestTemplateInFolderHandler : IRequestHandler<SearchTestTemplateInFolder, PaginatedList<TestTemplateDto>>
+public class SearchTestTemplateInFolderCommandHandler : IRequestHandler<SearchTestTemplateInFolderCommand, PaginatedList<TestTemplateDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     
-    public SearchTestTemplateInFolderHandler(IApplicationDbContext context, IUser user)
+    public SearchTestTemplateInFolderCommandHandler(IApplicationDbContext context, IUser user)
     {
         _context = context;
         _user = user;
     }
     
-    public async Task<PaginatedList<TestTemplateDto>> Handle(SearchTestTemplateInFolder rq, CancellationToken cancellationToken)
+    public async Task<PaginatedList<TestTemplateDto>> Handle(SearchTestTemplateInFolderCommand rq, CancellationToken cancellationToken)
     {
         var accessUser = await _context.FolderUsers
             .Where(x => x.FolderId == rq.FolderId && x.UserId == _user.UserId)

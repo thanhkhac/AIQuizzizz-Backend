@@ -1,6 +1,6 @@
 ﻿using CleanArchitectureBase.Application.Questions.Dtos;
 
-namespace CleanArchitectureBase.Application.Tests.Dto;
+namespace CleanArchitectureBase.Application.TestTemplates.Dto;
 
 public class TestTemplateDetailDto
 {
