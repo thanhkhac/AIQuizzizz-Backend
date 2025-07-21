@@ -1,11 +1,13 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.Questions.Dtos;
 using CleanArchitectureBase.Application.TestTemplates.Dto;
 using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.TestTemplates;
 
+[Authorize]
 public class GetTestTemplateDetailCommand : IRequest<TestTemplateDetailDto>
 {
     public required Guid TestTemplateId { get; set; }

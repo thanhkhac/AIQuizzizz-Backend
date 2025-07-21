@@ -8,13 +8,13 @@ namespace CleanArchitectureBase.Application.Classes;
 
 public class TestScheduleResponse
 {
-    public DateTime Date { get; set; }
+    public DateTimeOffset Date { get; set; }
     public List<TestScheduleDto> TestSchedules { get; set; } = new();
 }
 
 public class TestScheduleDto
 {
-    public DateTime Date;
+    public DateTimeOffset Date;
     public Guid TestId { get; set; }
     public string? TestName { get; set; }
 }
@@ -70,7 +70,8 @@ public class GetTestScheduleCommandHandler : IRequestHandler<GetTestScheduleComm
             .Select(x => new TestScheduleDto { TestId = x.Id, TestName = x.Name, Date = x.TimeStart.Date, })
             .ToListAsync(cancellationToken);
         
-        var testScheduleResponse = testSchedule.GroupBy(x => x.Date)
+        var testScheduleResponse = testSchedule
+            .GroupBy(x => x.Date)
             .Select(x => new TestScheduleResponse { Date = x.Key, TestSchedules = x.ToList() })
             .OrderBy(x => x.Date)
             .ToList();

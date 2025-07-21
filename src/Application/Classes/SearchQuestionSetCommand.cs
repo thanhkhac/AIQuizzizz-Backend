@@ -2,6 +2,7 @@
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
@@ -15,6 +16,7 @@ public class SearchQuestionSetDto
     public string? CreateBy { get; set; }
 }
 
+[Authorize]
 public class SearchQuestionSetCommand : IRequest<PaginatedList<SearchQuestionSetDto>>
 {
     public required Guid ClassId { get; set; }

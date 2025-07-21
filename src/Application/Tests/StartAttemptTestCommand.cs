@@ -1,7 +1,7 @@
 ﻿using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
-using CleanArchitectureBase.Application.Questions.Dtos;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.Tests.Dto;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
@@ -16,6 +16,7 @@ public class StartAttemptTestCommand : IRequest<AttemptDetailDto>
     public Guid TestId { get; set; }
 }
 
+[Authorize]
 public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCommand, AttemptDetailDto>
 {
     private readonly IApplicationDbContext _context;
