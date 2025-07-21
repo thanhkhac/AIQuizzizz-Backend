@@ -40,10 +40,10 @@ public class RemoveStudentCommandHandler : IRequestHandler<RemoveStudentCommand,
     {
         var (isOwner, classExists) = await _classService.GetClassOwnerAccess(rq.ClassId, cancellationToken);
         
-        var user = await _context.DomainUsers
-            .Include(u => u.ClassUsers)
-            .Where(u => u.ClassUsers.Any(cu => cu.ClassId == rq.ClassId && cu.ShareMode != ClassShareMode.Owner && cu.Class.IsDeleted == false))
-            .Select(u => new { User = u, ClassUser = u.ClassUsers.FirstOrDefault(cu => cu.ClassId == rq.ClassId) })
+        var user = await _context.ClassUsers
+            .Include(u => u.User)
+            .Where(cu => cu.ClassId == rq.ClassId && cu.ShareMode != ClassShareMode.Owner && cu.Class.IsDeleted == false && cu.User.Id == rq.UserId)
+            .Select(u => new { User = u.User, ClassUser = u})
             .FirstOrDefaultAsync(cancellationToken);
 
         if (user == null || user.ClassUser == null)
