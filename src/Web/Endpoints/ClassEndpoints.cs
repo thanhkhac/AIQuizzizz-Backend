@@ -1,4 +1,5 @@
 ﻿using CleanArchitectureBase.Application.Classes;
+using CleanArchitectureBase.Application.Classes.Dto;
 using CleanArchitectureBase.Application.Common.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +21,7 @@ public class Class : EndpointGroupBase
             .MapGet(GetInviteStudentCode, "/{ClassId}/Invitation-Code")
             .MapGet(SearchQuestionSet, "/{ClassId}/Questionsets")
             .MapGet(GetClassById, "/{ClassId}")
+            .MapGet(GetTestSchedule, "/{ClassId}/Schedule")
             .MapDelete(DeleteClass, "/{ClassId}")
             .MapDelete(RemoveStudent, "/{ClassId}/Members/{UserId}")
             .MapDelete(RemoveQuestionSet, "/{ClassId}/Questionsets/{QuestionSetId}")
@@ -43,6 +45,18 @@ public class Class : EndpointGroupBase
         var result = await sender.Send(new GetClassByIdQuery{ClassId = classId});
         return result.ToOk();
     } 
+    
+    public async Task<Ok<ApiResponse<List<TestScheduleResponse>>>> GetTestSchedule(
+        [FromRoute] Guid classId,
+        [FromQuery] int? month,
+        [FromQuery] int? year,
+        ISender sender)
+    {
+        var rq = new GetTestScheduleQuery() { ClassId = classId, Month = month, Year = year };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+        
+    }
     
     public async Task<Ok<ApiResponse<string?>>> GetInviteStudentCode([FromRoute] Guid classId, ISender sender)
     {

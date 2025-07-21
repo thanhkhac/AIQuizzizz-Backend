@@ -5,7 +5,7 @@ using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 
-namespace CleanArchitectureBase.Application.Tests;
+namespace CleanArchitectureBase.Application.Classes;
 
 [Authorize]
 public class GetTestScheduleQuery : IRequest<List<TestScheduleResponse>>
