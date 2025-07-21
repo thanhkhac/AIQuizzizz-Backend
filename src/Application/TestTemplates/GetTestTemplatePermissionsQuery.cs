@@ -13,12 +13,12 @@ public class TestTemplatePermissionsDto
 }
 
 [Authorize]
-public class GetTestTemplatePermissionsCommand : IRequest<TestTemplatePermissionsDto>
+public class GetTestTemplatePermissionsQuery : IRequest<TestTemplatePermissionsDto>
 {
     public required Guid TestTemplateId { get; set; }
 }
 
-public class GetTestTemplatePermissionsCommandValidator : AbstractValidator<GetTestTemplatePermissionsCommand>
+public class GetTestTemplatePermissionsCommandValidator : AbstractValidator<GetTestTemplatePermissionsQuery>
 {
     public GetTestTemplatePermissionsCommandValidator()
     {
@@ -27,7 +27,7 @@ public class GetTestTemplatePermissionsCommandValidator : AbstractValidator<GetT
     }
 }
 
-public class GetTestTemplatePermissionsCommandHandler : IRequestHandler<GetTestTemplatePermissionsCommand, TestTemplatePermissionsDto>
+public class GetTestTemplatePermissionsCommandHandler : IRequestHandler<GetTestTemplatePermissionsQuery, TestTemplatePermissionsDto>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
@@ -45,7 +45,7 @@ public class GetTestTemplatePermissionsCommandHandler : IRequestHandler<GetTestT
     /// </summary>
     /// <param name="rq">Request contains TestTemplateId information</param>
     /// <param name="cancellationToken">Token to cancel the task</param>
-    public async Task<TestTemplatePermissionsDto> Handle(GetTestTemplatePermissionsCommand rq, CancellationToken cancellationToken)
+    public async Task<TestTemplatePermissionsDto> Handle(GetTestTemplatePermissionsQuery rq, CancellationToken cancellationToken)
     {
         var testTemplate = await _context.TestTemplates
             .Where(t => t.Id == rq.TestTemplateId && t.IsDeleted == false)

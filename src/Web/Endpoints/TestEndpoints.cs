@@ -33,7 +33,7 @@ public class Test : EndpointGroupBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
-        var query = new GetUserTestHistoryCommand
+        var query = new GetUserTestHistoryQuery
         {
             TestId = testId,
             IsPassed = isPassed,
@@ -66,7 +66,7 @@ public class Test : EndpointGroupBase
         [FromQuery] int? year,
         ISender sender)
     {
-        var rq = new GetTestScheduleCommand { ClassId = classId, Month = month, Year = year };
+        var rq = new GetTestScheduleQuery() { ClassId = classId, Month = month, Year = year };
         var result = await sender.Send(rq);
         return result.ToOk();
         

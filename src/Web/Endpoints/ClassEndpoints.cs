@@ -40,13 +40,13 @@ public class Class : EndpointGroupBase
     
     public async Task<Ok<ApiResponse<ClassDetailDto>>> GetClassById([FromRoute] Guid classId, ISender sender)
     {
-        var result = await sender.Send(new GetClassByIdCommand{ClassId = classId});
+        var result = await sender.Send(new GetClassByIdQuery{ClassId = classId});
         return result.ToOk();
     } 
     
     public async Task<Ok<ApiResponse<string?>>> GetInviteStudentCode([FromRoute] Guid classId, ISender sender)
     {
-        var result = await sender.Send(new GetInviteStudentCodeCommand{ClassId = classId});
+        var result = await sender.Send(new GetInviteStudentCodeQuery{ClassId = classId});
         return result.ToOk();
     } 
     
@@ -72,7 +72,7 @@ public class Class : EndpointGroupBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
-        var rq = new SearchStudentInClassCommand
+        var rq = new SearchStudentInClassQuery
         {
             ClassId = classId,
             Keyword = keyword,
@@ -92,7 +92,7 @@ public class Class : EndpointGroupBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
-        var rq = new SearchTestInClassCommand()
+        var rq = new SearchTestInClassQuery()
         {
             ClassId = classId,
             TestName = testName,
@@ -112,7 +112,7 @@ public class Class : EndpointGroupBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
-        var rq = new SearchQuestionSetCommand()
+        var rq = new SearchQuestionSetQuery()
         {
             ClassId = classId,
             Name = name,
@@ -131,7 +131,7 @@ public class Class : EndpointGroupBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
-        var rq = new SearchClassCommand()
+        var rq = new SearchClassQuery()
         {
            ShareMode = shareMode,
            Name = name,

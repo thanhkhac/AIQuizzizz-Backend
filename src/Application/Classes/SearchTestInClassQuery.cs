@@ -21,7 +21,7 @@ public class SearchTestResultDto
 }   
 
 [Authorize]
-public class SearchTestInClassCommand : IRequest<PaginatedList<SearchTestResultDto>>
+public class SearchTestInClassQuery : IRequest<PaginatedList<SearchTestResultDto>>
 {
     /// <summary>
     /// Id of the class want to retrieve tests
@@ -33,9 +33,9 @@ public class SearchTestInClassCommand : IRequest<PaginatedList<SearchTestResultD
     public int PageSize { get; set; } = 5;
 }
 
-public class SearchTestInClassCommandValidator : AbstractValidator<SearchTestInClassCommand>
+public class SearchTestInClassQueryValidator : AbstractValidator<SearchTestInClassQuery>
 {
-    public SearchTestInClassCommandValidator()
+    public SearchTestInClassQueryValidator()
     {
         RuleFor(v => v.ClassId)
             .NotEmpty().WithMessage("ClassId không được để trống");
@@ -51,12 +51,12 @@ public class SearchTestInClassCommandValidator : AbstractValidator<SearchTestInC
     }
 }
 
-public class SearchTestInClassCommandHandler : IRequestHandler<SearchTestInClassCommand, PaginatedList<SearchTestResultDto>>
+public class SearchTestInClassQueryHandler : IRequestHandler<SearchTestInClassQuery, PaginatedList<SearchTestResultDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
     
-    public SearchTestInClassCommandHandler(
+    public SearchTestInClassQueryHandler(
         IApplicationDbContext context,
         IClassService classService)
     {
@@ -69,7 +69,7 @@ public class SearchTestInClassCommandHandler : IRequestHandler<SearchTestInClass
     /// </summary>
     /// <param name="rq">Request contains ClassId, TestName, Status, PageNumber, and PageSize information</param>
     /// <param name="cancellationToken">Token to cancel the task</param>
-    public async Task<PaginatedList<SearchTestResultDto>> Handle(SearchTestInClassCommand rq, CancellationToken cancellationToken)
+    public async Task<PaginatedList<SearchTestResultDto>> Handle(SearchTestInClassQuery rq, CancellationToken cancellationToken)
     {
         var classById = await _context.Classes
             .Where(x => x.Id == rq.ClassId)

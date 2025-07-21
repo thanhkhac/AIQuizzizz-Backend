@@ -7,7 +7,7 @@ using CleanArchitectureBase.Domain.Entities;
 namespace CleanArchitectureBase.Application.TestTemplates;
 
 [Authorize]
-public class SearchTestTemplateCommand : IRequest<PaginatedList<TestTemplateDto>>
+public class SearchTestTemplateQuery : IRequest<PaginatedList<TestTemplateDto>>
 {
     public required string? TestTemplateName { get; set; }
     public string? SharedMode { get; set; }
@@ -15,9 +15,9 @@ public class SearchTestTemplateCommand : IRequest<PaginatedList<TestTemplateDto>
     public int PageSize { get; set; } = 5;
 }
 
-public class SearchTestTemplateCommandValidator : AbstractValidator<SearchTestTemplateCommand>
+public class SearchTestTemplateQueryValidator : AbstractValidator<SearchTestTemplateQuery>
 {
-    public SearchTestTemplateCommandValidator()
+    public SearchTestTemplateQueryValidator()
     {
         RuleFor(x => x.SharedMode)
             .Must(mode => new[] {"Owner", "Editable", "ViewOnly"}.Contains(mode) || string.IsNullOrEmpty(mode))
@@ -25,12 +25,12 @@ public class SearchTestTemplateCommandValidator : AbstractValidator<SearchTestTe
     }
 }
 
-public class SearchTestTemplateCommandHandler : IRequestHandler<SearchTestTemplateCommand, PaginatedList<TestTemplateDto>>
+public class SearchTestTemplateQueryHandler : IRequestHandler<SearchTestTemplateQuery, PaginatedList<TestTemplateDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     
-    public SearchTestTemplateCommandHandler(IApplicationDbContext context, IUser user)
+    public SearchTestTemplateQueryHandler(IApplicationDbContext context, IUser user)
     {
         _context = context;
         _user = user;
@@ -41,7 +41,7 @@ public class SearchTestTemplateCommandHandler : IRequestHandler<SearchTestTempla
     /// </summary>
     /// <param name="rq">Request contains TestTemplateName, SharedMode, PageNumber, and PageSize information</param>
     /// <param name="cancellationToken">Token to cancel the task</param>
-    public async Task<PaginatedList<TestTemplateDto>> Handle(SearchTestTemplateCommand rq, CancellationToken cancellationToken)
+    public async Task<PaginatedList<TestTemplateDto>> Handle(SearchTestTemplateQuery rq, CancellationToken cancellationToken)
     {
         TestTemplateUserShareMode? sharedMode = null;
         if (!string.IsNullOrEmpty(rq.SharedMode) &&
