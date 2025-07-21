@@ -28,7 +28,7 @@ public class Class : EndpointGroupBase
             .MapPatch("/{ClassId}/Members/{UserId}", UpdatePosition);
         
         app.MapGroup(this)
-            .MapPatch("/{ClassId}", UpdatePosition);
+            .MapPatch("/{ClassId}", UpdateClass);
     }
 
     /// <summary>
@@ -261,9 +261,17 @@ public class Class : EndpointGroupBase
         return result.ToOk();
     }
     
+    /// <summary>
+    /// Class onwer - Update class
+    /// </summary>
+    /// <param name="classId"></param>
+    /// <param name="name"></param>
+    /// <param name="topic"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<Guid>>> UpdateClass(
         [FromRoute] Guid classId,
-        [FromQuery] string? name,
+        [FromQuery] string name,
         [FromQuery] string? topic,
         ISender sender)
     {
