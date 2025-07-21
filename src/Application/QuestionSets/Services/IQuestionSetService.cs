@@ -116,6 +116,7 @@ public class QuestionSetService : IQuestionSetService
             CanDelete = canDelete
         };
     }
+    
     public async Task<QuestionSet?> GetActiveQuestionSet(Guid questionSetId, CancellationToken cancellationToken)
     {
         var questionSet = await _context.QuestionSets

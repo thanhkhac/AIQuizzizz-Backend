@@ -19,16 +19,14 @@ public class GetQuestionSetLearnQuestionsQuery : IRequest<List<QuestionResponseD
 public class GetQuestionSetLearnQuestionsQueryHandler : IRequestHandler<GetQuestionSetLearnQuestionsQuery, List<QuestionResponseDto>>
 {
 
-    private IApplicationDbContext _context;
     private IQuestionSetService _questionSetService;
     private IQuestionService _questionService;
     private IPlanService _planService;
     private IUser _user;
 
-    public GetQuestionSetLearnQuestionsQueryHandler(IApplicationDbContext context, IQuestionSetService questionSetService, IUser user,
+    public GetQuestionSetLearnQuestionsQueryHandler(IQuestionSetService questionSetService, IUser user,
         IQuestionService questionService, IPlanService planService)
     {
-        _context = context;
         _questionSetService = questionSetService;
         _user = user;
         _questionService = questionService;
@@ -41,16 +39,9 @@ public class GetQuestionSetLearnQuestionsQueryHandler : IRequestHandler<GetQuest
         if (!await _planService.CanLearn(_user.UserId!.Value))
             throw new ErrorCodeException(ErrorCodes.PLAN_REQUIRE_PLAN, "You are not allowed to learn");
 
-        var questionSet = await _context.QuestionSets
-            .Include(x => x.CreatedByUser)
-            .FirstOrDefaultAsync(x =>
-                x.Id == request.QuestionSetId
-                && x.IsDeleted == false
-                && x.CreatedByUser != null
-                && x.CreatedByUser.IsDeleted == false
-                && x.CreatedByUser.IsBanned == false, cancellationToken: cancellationToken);
-
+        var questionSet = await _questionSetService.GetActiveQuestionSet(request.QuestionSetId, cancellationToken);
         if (questionSet == null) throw new ErrorCodeException(ErrorCodes.QUESTION_SET_NOT_FOUND);
+        
         var canView = await _questionSetService.CanUserViewQuestionSet(_user.UserId, questionSet);
         if (canView == false) throw new ErrorCodeException(ErrorCodes.COMMON_FORBIDDEN, "You are not allowed to view this question set");
 
