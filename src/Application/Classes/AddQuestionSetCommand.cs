@@ -29,11 +29,16 @@ public class AddQuestionSetCommandHandler : IRequestHandler<AddQuestionSetComman
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
+    private readonly IUser _user;
     
-    public AddQuestionSetCommandHandler(IApplicationDbContext context, IClassService classService)
+    public AddQuestionSetCommandHandler(
+        IApplicationDbContext context,
+        IClassService classService,
+        IUser user)
     {
         _context = context;
         _classService = classService;
+        _user = user;
     } 
     
     public async Task<Guid> Handle(AddQuestionSetCommand rq, CancellationToken cancellationToken)
@@ -47,9 +52,16 @@ public class AddQuestionSetCommandHandler : IRequestHandler<AddQuestionSetComman
         await _classService.IsLecturerOrOwnerInClass(rq.ClassId);
 
         var questionSet = await _context.QuestionSets.Where(x => x.Id == rq.QuestionSetId)
-            .FirstOrDefaultAsync(cancellationToken);
+            .FirstOrDefaultAsync(cancellationToken);    
         if (questionSet == null)
             throw new ErrorCodeException(ErrorCodes.QUESTION_SET_NOT_FOUND, "Bộ câu hỏi không tồn tại");
+
+        if (QuestionSetVisibilityMode.Public != questionSet.VisibilityMode &&
+            !_user.UserId!.Value.Equals(questionSet.CreatedBy))
+        {
+            throw new ErrorCodeException(ErrorCodes.NOT_HAVE_PERMISSION_TO_ADD_QUESTION_SET,
+                "Không có quyền add question set");
+        }
 
         var classQuestion = await _context.ClassQuestionSets
             .Where(x => x.ClassId == classById.Id && x.QuestionSetId == rq.QuestionSetId)

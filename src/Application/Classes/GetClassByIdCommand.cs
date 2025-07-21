@@ -1,5 +1,7 @@
 ﻿using CleanArchitectureBase.Application.Classes.Service;
+using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.Classes;
 
@@ -39,9 +41,11 @@ public class GetClassByIdCommandHandler : IRequestHandler<GetClassByIdCommand, C
         var classById = await _context.Classes
             .Where(x => x.Id == rq.ClassId && x.IsDeleted == false)
             .FirstOrDefaultAsync(cancellationToken);
+        if (classById == null)
+            throw new ErrorCodeException(ErrorCodes.CLASS_NOTFOUND, "Không tìm thấy class");
 
         await _classService.IsUserInClass(rq.ClassId);
         
-        return new ClassDetailDto { ClassId = classById!.Id, Name = classById.Name, Topic = classById.Topic };
+        return new ClassDetailDto { ClassId = classById.Id, Name = classById.Name, Topic = classById.Topic };
     }
 }
