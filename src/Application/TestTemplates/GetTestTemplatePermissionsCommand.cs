@@ -1,5 +1,7 @@
-﻿using CleanArchitectureBase.Application.Common.Interfaces;
+﻿using CleanArchitectureBase.Application.Common.Exceptions;
+using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
+using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.TestTemplates;
@@ -38,9 +40,19 @@ public class GetTestTemplatePermissionsCommandHandler : IRequestHandler<GetTestT
         _identityService = identityService;
     }
     
-    
+    /// <summary>
+    /// The function retrieves the permissions for a test template for the current user, indicating if they can edit or delete it
+    /// </summary>
+    /// <param name="rq">Request contains TestTemplateId information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<TestTemplatePermissionsDto> Handle(GetTestTemplatePermissionsCommand rq, CancellationToken cancellationToken)
     {
+        var testTemplate = await _context.TestTemplates
+            .Where(t => t.Id == rq.TestTemplateId && t.IsDeleted == false)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (testTemplate == null)
+            throw new ErrorCodeException(ErrorCodes.TEST_TEMPLATE_NOT_FOUND, "Không tìm thất test template");
+        
         if (_user.UserId == null)
             return new TestTemplatePermissionsDto
             {

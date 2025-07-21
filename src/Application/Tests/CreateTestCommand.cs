@@ -3,13 +3,12 @@ using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
-using CleanArchitectureBase.Application.Questions.Utils;
 using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using CleanArchitectureBase.Application.Tests.Service;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Classes;
+namespace CleanArchitectureBase.Application.Tests;
 
 [Authorize]
 public class CreateTestCommand : IRequest<Guid>
@@ -83,6 +82,11 @@ public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
         _classService = classService;
     }
 
+    /// <summary>
+    /// The function creates a new test for a class, including its questions and version, and returns the test ID
+    /// </summary>
+    /// <param name="rq">Request contains ClassId, Name, GradeAttemptMethod, GradeQuestionMethod, EndTime, StartTime, TimeLimit, MaxAttempt, PassingScore, IsShowCorrectAnswerInReview, and Questions information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<Guid> Handle(CreateTestCommand rq, CancellationToken cancellationToken)
     {
         var classById = await _context.Classes
@@ -115,7 +119,7 @@ public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
             throw new ErrorCodeException(ErrorCodes.NUMBER_OF_QUESTION_EXCEED_LIMIT,
                 "Số lượng câu hỏi không được vượt quá 100");
 
-        await _testService.QuestionAccess(rq.Questions, cancellationToken);
+        await _testService.QuestionAccessForTest(rq.Questions, cancellationToken);
 
         var listQuestions = new List<Question>();
 

@@ -47,6 +47,11 @@ public class SearchFolderTestCommandHandler : IRequestHandler<SearchFolderTestCo
         _user = user;
     }
 
+    /// <summary>
+    /// The function searches for folders based on folder name and share mode, returning a paginated list of folder details
+    /// </summary>
+    /// <param name="rq">Request contains FolderName, SharedMode, PageNumber, and PageSize information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<PaginatedList<SearchFolderTestDto>> Handle(SearchFolderTestCommand rq, CancellationToken cancellationToken)
     {
         var authors = await _context.FolderUsers

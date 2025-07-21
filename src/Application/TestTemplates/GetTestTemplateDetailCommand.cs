@@ -42,6 +42,11 @@ public class GetTestTemplateDetailCommandHandler : IRequestHandler<GetTestTempla
         _testTemplateService = testTemplateService;
     }
     
+    /// <summary>
+    /// The function retrieves details of a test template, including its questions, and returns the test template details
+    /// </summary>
+    /// <param name="rq">Request contains TestTemplateId information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<TestTemplateDetailDto> Handle(GetTestTemplateDetailCommand rq, CancellationToken cancellationToken)
     {
         var testTemplate = await _context.TestTemplates.Where(t => t.Id == rq.TestTemplateId && t.IsDeleted == false)

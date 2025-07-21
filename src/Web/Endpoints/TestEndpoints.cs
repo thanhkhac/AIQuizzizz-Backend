@@ -1,4 +1,5 @@
-﻿using CleanArchitectureBase.Application.Common.Models;
+﻿using CleanArchitectureBase.Application.Classes;
+using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Tests;
 using CleanArchitectureBase.Application.Tests.Dto;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -12,8 +13,15 @@ public class Test : EndpointGroupBase
     {
         app.MapGroup(this)
             .MapGet(GetHistoryTest, "/{TestId}/History")
+            .MapPost(CreateTest, "")
             .MapPost(SubmitTestAttempt, "/Submit")
             .MapPost(StartAttemptTestTestAttempt, "/{TestId}/Attempt");
+    }
+    
+    public async Task<Ok<ApiResponse<Guid>>> CreateTest([FromBody] CreateTestCommand rq, ISender sender)
+    {
+        var result = await sender.Send(rq);
+        return result.ToOk();
     }
     
     public async Task<Ok<ApiResponse<PaginatedList<HistoryTestDto>>>> GetHistoryTest(

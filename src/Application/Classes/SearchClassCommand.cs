@@ -1,8 +1,6 @@
-﻿using CleanArchitectureBase.Application.Common.Exceptions;
-using CleanArchitectureBase.Application.Common.Interfaces;
+﻿using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Common.Security;
-using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Classes;
@@ -52,6 +50,11 @@ public class SearchClassCommandHandler : IRequestHandler<SearchClassCommand, Pag
         _user = user;
     }
 
+    /// <summary>
+    /// The function searches for classes based on name and share mode, returning a paginated list of class details
+    /// </summary>
+    /// <param name="rq">Request contains Name, ShareMode, PageNumber, and PageSize information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<PaginatedList<ClassSearchResultDto>> Handle(SearchClassCommand rq, CancellationToken cancellationToken)
     {
 
@@ -71,9 +74,16 @@ public class SearchClassCommandHandler : IRequestHandler<SearchClassCommand, Pag
             .AsQueryable();
         
         var classOwnerMap = await classes
-            .Select(x => new {FullName = x.CreatedByUser != null ? x.CreatedByUser.FullName : null, x.Class.Id })
-            .GroupBy(x => new {x.Id, x.FullName })
-            .ToDictionaryAsync(x => x.Key.Id, x => x.Key.FullName, cancellationToken);
+            .Select(x => new
+            {
+                FullName = x.CreatedByUser != null ? x.CreatedByUser.FullName : null, x.Class.Id, OwnerId = x.CreatedByUser!.Id
+            })
+            .GroupBy(x => new {x.Id, x.FullName, x.OwnerId })
+            .ToDictionaryAsync(
+                x => x.Key.Id,
+                x => new { FullName = x.Key.FullName, OwnerId = x.Key.OwnerId },
+                cancellationToken
+            );
 
         if (!string.IsNullOrEmpty(rq.ShareMode) && Enum.TryParse<ClassShareMode>(rq.ShareMode, out var shareMode))
         {
@@ -89,8 +99,9 @@ public class SearchClassCommandHandler : IRequestHandler<SearchClassCommand, Pag
                 {
                     ClassId = cl.Key.Id,
                     Name = cl.Key.Name,
-                    Owner = classOwnerMap.ContainsKey(cl.Key.Id) ? classOwnerMap[cl.Key.Id] : null,
+                    Owner = classOwnerMap.ContainsKey(cl.Key.Id) ? classOwnerMap[cl.Key.Id].FullName : null,
                     Topic = cl.Key.Topic,
+                    OwnerId = classOwnerMap.ContainsKey(cl.Key.Id) ? classOwnerMap[cl.Key.Id].OwnerId : null,
                 })
                 .AsQueryable(),
             rq.PageNumber,

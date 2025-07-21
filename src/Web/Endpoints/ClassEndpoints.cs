@@ -1,6 +1,6 @@
 ﻿using CleanArchitectureBase.Application.Classes;
+using CleanArchitectureBase.Application.Classes.Dto;
 using CleanArchitectureBase.Application.Common.Models;
-using CleanArchitectureBase.Domain.Entities;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,9 +13,8 @@ public class Class : EndpointGroupBase
         app.MapGroup(this)
             .MapPost(CreateClass, "")
             .MapPost(JoinClassByCode, "Students")
-            .MapPost(InviteStudent, "/{ClassId}/Invitations")
+            .MapPost(CreateInviteCode, "/{ClassId}/Invitations")
             .MapPost(AddQuestionSet, "/{ClassId}/Questionsets/{QuestionSetId}")
-            .MapPost(CreateTest, "/Test")
             .MapGet(SearchStudent, "/{ClassId}/Students")
             .MapGet(SearchClass, "")
             .MapGet(SearchTest, "/{ClassId}/Tests")
@@ -53,7 +52,7 @@ public class Class : EndpointGroupBase
         return result.ToOk();
     } 
     
-    public async Task<Ok<ApiResponse<ClassCodeDto>>> InviteStudent(
+    public async Task<Ok<ApiResponse<ClassCodeDto>>> CreateInviteCode(
         [FromRoute] Guid classId,
         [FromQuery] double expiredTime,
         ISender sender)
@@ -87,7 +86,7 @@ public class Class : EndpointGroupBase
         return result.ToOk();
     }
     
-    public async Task<Ok<ApiResponse<PaginatedList<TestSearchResultDto>>>> SearchTest(
+    public async Task<Ok<ApiResponse<PaginatedList<SearchTestResultDto>>>> SearchTest(
         [FromQuery] string? status,
         [FromQuery] string? testName,
         [FromRoute] Guid classId,
@@ -223,12 +222,6 @@ public class Class : EndpointGroupBase
             ClassId = classId,
             QuestionSetId = questionSetId
         };
-        var result = await sender.Send(rq);
-        return result.ToOk();
-    }
-    
-    public async Task<Ok<ApiResponse<Guid>>> CreateTest([FromBody] CreateTestCommand rq, ISender sender)
-    {
         var result = await sender.Send(rq);
         return result.ToOk();
     }

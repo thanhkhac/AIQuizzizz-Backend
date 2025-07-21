@@ -1,4 +1,5 @@
-﻿using CleanArchitectureBase.Application.Classes.Service;
+﻿using CleanArchitectureBase.Application.Classes.Dto;
+using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
@@ -6,22 +7,12 @@ using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.Classes;
 
-public class TestScheduleResponse
-{
-    public DateTimeOffset Date { get; set; }
-    public List<TestScheduleDto> TestSchedules { get; set; } = new();
-}
-
-public class TestScheduleDto
-{
-    public DateTimeOffset Date;
-    public Guid TestId { get; set; }
-    public string? TestName { get; set; }
-}
-
 [Authorize]
 public class GetTestScheduleCommand : IRequest<List<TestScheduleResponse>>
 {
+    /// <summary>
+    /// Id of the class want to retrieve the test schedule
+    /// </summary>
     public required Guid ClassId { get; set; }
     public int? Month { get; set; }
     public int? Year { get; set; }
@@ -55,6 +46,11 @@ public class GetTestScheduleCommandHandler : IRequestHandler<GetTestScheduleComm
         _classService = classService;
     }
     
+    /// <summary>
+    /// The function retrieves the test schedule for a class in a specified month and year, grouped by date
+    /// </summary>
+    /// <param name="rq">Request contains ClassId, Month, and Year information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<List<TestScheduleResponse>> Handle(GetTestScheduleCommand rq, CancellationToken cancellationToken)
     {  
         var classById = await _context.Classes

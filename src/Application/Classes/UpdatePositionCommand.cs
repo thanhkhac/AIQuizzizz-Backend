@@ -15,7 +15,13 @@ public class UpdatePositionDto
 [Authorize]
 public class UpdatePositionCommand : IRequest<UpdatePositionDto>
 {
+    /// <summary>
+    /// Id of the class want to update position
+    /// </summary>
     public required Guid ClassId { get; set; }
+    /// <summary>
+    /// If UserId is not provided, the position of the user who sent the request will be updated
+    /// </summary>
     public required Guid UserId { get; set; }
     public required string? Position { get; set; }
 }
@@ -45,6 +51,11 @@ public class UpdatePositionCommandHandler : IRequestHandler<UpdatePositionComman
         _user = user;
     }
     
+    /// <summary>
+    /// The function updates the position of a user in a class and returns the updated position details
+    /// </summary>
+    /// <param name="rq">Request contains ClassId, UserId, and Position information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<UpdatePositionDto> Handle(UpdatePositionCommand rq, CancellationToken cancellationToken)
     {
         var classUserData = await _context.ClassUsers

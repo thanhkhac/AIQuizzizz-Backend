@@ -9,6 +9,9 @@ namespace CleanArchitectureBase.Application.Classes;
 [Authorize]
 public class GetInviteStudentCodeCommand : IRequest<string?>
 {
+    /// <summary>
+    /// Id of the class want to retrieve the active invitation code
+    /// </summary>
     public required Guid ClassId { get; set; }   
 }
 
@@ -32,6 +35,11 @@ public class GetInviteStudentCodeCommandHandler : IRequestHandler<GetInviteStude
         _classService = classService;
     }
     
+    /// <summary>
+    /// The function retrieves the active invitation code for a class, if it exists, and returns the code
+    /// </summary>
+    /// <param name="rq">Request contains ClassId information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<string?> Handle(GetInviteStudentCodeCommand rq, CancellationToken cancellationToken)
     {
         var classById = await _context.Classes

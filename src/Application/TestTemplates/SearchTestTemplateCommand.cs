@@ -36,6 +36,11 @@ public class SearchTestTemplateCommandHandler : IRequestHandler<SearchTestTempla
         _user = user;
     }
     
+    /// <summary>
+    /// The function searches for test templates based on name and share mode for the current user, returning a paginated list of test template details
+    /// </summary>
+    /// <param name="rq">Request contains TestTemplateName, SharedMode, PageNumber, and PageSize information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<PaginatedList<TestTemplateDto>> Handle(SearchTestTemplateCommand rq, CancellationToken cancellationToken)
     {
         TestTemplateUserShareMode? sharedMode = null;
