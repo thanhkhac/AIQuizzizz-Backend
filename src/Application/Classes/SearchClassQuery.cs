@@ -15,7 +15,7 @@ public class ClassSearchResultDto
 }
 
 [Authorize]
-public class SearchClassCommand : IRequest<PaginatedList<ClassSearchResultDto>>
+public class SearchClassQuery : IRequest<PaginatedList<ClassSearchResultDto>>
 {
     public string? ShareMode { get; set; }
     public string? Name { get; set; }
@@ -23,9 +23,9 @@ public class SearchClassCommand : IRequest<PaginatedList<ClassSearchResultDto>>
     public int PageSize { get; set; } = 10;
 }
 
-public class SearchClassCommandValidator : AbstractValidator<SearchClassCommand>
+public class SearchClassQueryValidator : AbstractValidator<SearchClassQuery>
 {
-        public SearchClassCommandValidator()
+        public SearchClassQueryValidator()
         {
             RuleFor(x => x.PageNumber)
                 .GreaterThanOrEqualTo(1).WithMessage("Số trang phải lớn hơn hoặc bằng 1");
@@ -39,12 +39,12 @@ public class SearchClassCommandValidator : AbstractValidator<SearchClassCommand>
         }
 }
 
-public class SearchClassCommandHandler : IRequestHandler<SearchClassCommand, PaginatedList<ClassSearchResultDto>>
+public class SearchClassQueryHandler : IRequestHandler<SearchClassQuery, PaginatedList<ClassSearchResultDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     
-    public SearchClassCommandHandler(IApplicationDbContext context, IUser user)
+    public SearchClassQueryHandler(IApplicationDbContext context, IUser user)
     {
         _context = context;
         _user = user;
@@ -55,7 +55,7 @@ public class SearchClassCommandHandler : IRequestHandler<SearchClassCommand, Pag
     /// </summary>
     /// <param name="rq">Request contains Name, ShareMode, PageNumber, and PageSize information</param>
     /// <param name="cancellationToken">Token to cancel the task</param>
-    public async Task<PaginatedList<ClassSearchResultDto>> Handle(SearchClassCommand rq, CancellationToken cancellationToken)
+    public async Task<PaginatedList<ClassSearchResultDto>> Handle(SearchClassQuery rq, CancellationToken cancellationToken)
     {
 
         var classes = _context.Classes

@@ -17,7 +17,7 @@ public class TestTemplateDto
 }
 
 [Authorize]
-public class SearchTestTemplateInFolderCommand : IRequest<PaginatedList<TestTemplateDto>>
+public class SearchTestTemplateInFolderQuery : IRequest<PaginatedList<TestTemplateDto>>
 {
     /// <summary>
     /// Id of the folder want to retrieve test templates
@@ -29,9 +29,9 @@ public class SearchTestTemplateInFolderCommand : IRequest<PaginatedList<TestTemp
     public int PageSize { get; set; } = 5;
 }
 
-public class SearchTestTemplateInFolderCommandValidator : AbstractValidator<SearchTestTemplateInFolderCommand>
+public class SearchTestTemplateInFolderQueryValidator : AbstractValidator<SearchTestTemplateInFolderQuery>
 {
-    public SearchTestTemplateInFolderCommandValidator()
+    public SearchTestTemplateInFolderQueryValidator()
     {
         RuleFor(x => x.FolderId)
             .NotEmpty().WithMessage("FolderId không được null");
@@ -42,12 +42,12 @@ public class SearchTestTemplateInFolderCommandValidator : AbstractValidator<Sear
     }
 }
 
-public class SearchTestTemplateInFolderCommandHandler : IRequestHandler<SearchTestTemplateInFolderCommand, PaginatedList<TestTemplateDto>>
+public class SearchTestTemplateInFolderQueryHandler : IRequestHandler<SearchTestTemplateInFolderQuery, PaginatedList<TestTemplateDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     
-    public SearchTestTemplateInFolderCommandHandler(IApplicationDbContext context, IUser user)
+    public SearchTestTemplateInFolderQueryHandler(IApplicationDbContext context, IUser user)
     {
         _context = context;
         _user = user;
@@ -58,7 +58,7 @@ public class SearchTestTemplateInFolderCommandHandler : IRequestHandler<SearchTe
     /// </summary>
     /// <param name="rq">Request contains FolderId, TestTemplateName, SharedMode, PageNumber, and PageSize information</param>
     /// <param name="cancellationToken">Token to cancel the task</param>
-    public async Task<PaginatedList<TestTemplateDto>> Handle(SearchTestTemplateInFolderCommand rq, CancellationToken cancellationToken)
+    public async Task<PaginatedList<TestTemplateDto>> Handle(SearchTestTemplateInFolderQuery rq, CancellationToken cancellationToken)
     {
         var accessUser = await _context.FolderUsers
             .Where(x => x.FolderId == rq.FolderId && x.UserId == _user.UserId)

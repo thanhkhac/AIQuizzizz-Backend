@@ -1,4 +1,4 @@
-﻿using CleanArchitectureBase.Application.Classes;
+﻿using CleanArchitectureBase.Application.Classes.Dto;
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Tests;
 using CleanArchitectureBase.Application.Tests.Dto;
@@ -13,6 +13,7 @@ public class Test : EndpointGroupBase
     {
         app.MapGroup(this)
             .MapGet(GetHistoryTest, "/{TestId}/History")
+            .MapGet(GetTestSchedule, "/Class/{ClassId}/Schedule")
             .MapPost(CreateTest, "")
             .MapPost(SubmitTestAttempt, "/Submit")
             .MapPost(StartAttemptTestTestAttempt, "/{TestId}/Attempt");
@@ -32,7 +33,7 @@ public class Test : EndpointGroupBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
-        var query = new GetUserTestHistoryCommand
+        var query = new GetUserTestHistoryQuery
         {
             TestId = testId,
             IsPassed = isPassed,
@@ -57,5 +58,17 @@ public class Test : EndpointGroupBase
     {
         var result = await sender.Send(userAnswer);
         return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<List<TestScheduleResponse>>>> GetTestSchedule(
+        [FromRoute] Guid classId,
+        [FromQuery] int? month,
+        [FromQuery] int? year,
+        ISender sender)
+    {
+        var rq = new GetTestScheduleQuery() { ClassId = classId, Month = month, Year = year };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+        
     }
 }

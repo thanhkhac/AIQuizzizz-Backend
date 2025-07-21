@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using CleanArchitectureBase.Application.Classes.Service;
+﻿using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;

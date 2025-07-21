@@ -21,7 +21,7 @@ public class HistoryTestDto
 }
 
 [Authorize]
-public class GetUserTestHistoryCommand : IRequest<PaginatedList<HistoryTestDto>>
+public class GetUserTestHistoryQuery : IRequest<PaginatedList<HistoryTestDto>>
 {
     public required Guid TestId { get; set; }
     public bool? IsPassed { get; set; }
@@ -29,9 +29,9 @@ public class GetUserTestHistoryCommand : IRequest<PaginatedList<HistoryTestDto>>
     public int PageSize { get; set; } = 10;
 }
 
-public class GetUserTestHistoryCommandValidator : AbstractValidator<GetUserTestHistoryCommand>
+public class GetUserTestHistoryQueryValidator : AbstractValidator<GetUserTestHistoryQuery>
 {
-    public GetUserTestHistoryCommandValidator()
+    public GetUserTestHistoryQueryValidator()
     {
         RuleFor(x => x.TestId)
             .NotEmpty().WithMessage("ClassId ko đc rỗng");
@@ -44,13 +44,13 @@ public class GetUserTestHistoryCommandValidator : AbstractValidator<GetUserTestH
     }
 }
 
-public class GetUserTestHistoryCommandHandler : IRequestHandler<GetUserTestHistoryCommand, PaginatedList<HistoryTestDto>>
+public class GetUserTestHistoryQueryHandler : IRequestHandler<GetUserTestHistoryQuery, PaginatedList<HistoryTestDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
     private readonly IUser _user;
     
-    public GetUserTestHistoryCommandHandler(
+    public GetUserTestHistoryQueryHandler(
         IApplicationDbContext context,
         IClassService classService,
         IUser user)
@@ -65,7 +65,7 @@ public class GetUserTestHistoryCommandHandler : IRequestHandler<GetUserTestHisto
     /// </summary>
     /// <param name="rq">Request contains TestId, IsPassed, PageNumber, and PageSize information</param>
     /// <param name="cancellationToken">Token to cancel the task</param>
-    public async Task<PaginatedList<HistoryTestDto>> Handle(GetUserTestHistoryCommand rq, CancellationToken cancellationToken)
+    public async Task<PaginatedList<HistoryTestDto>> Handle(GetUserTestHistoryQuery rq, CancellationToken cancellationToken)
     {
         var test = await _context.Tests.Where(x => x.Id.Equals(rq.TestId)).FirstOrDefaultAsync(cancellationToken);
         if (test == null)

@@ -17,7 +17,7 @@ public class SearchQuestionSetDto
 }
 
 [Authorize]
-public class SearchQuestionSetCommand : IRequest<PaginatedList<SearchQuestionSetDto>>
+public class SearchQuestionSetQuery : IRequest<PaginatedList<SearchQuestionSetDto>>
 {
     /// <summary>
     /// Id of the class want to retrieve question sets
@@ -29,9 +29,9 @@ public class SearchQuestionSetCommand : IRequest<PaginatedList<SearchQuestionSet
     public int PageSize { get; set; } = 5;
 }
 
-public class SearchQuestionSetCommandValidator : AbstractValidator<SearchQuestionSetCommand>
+public class SearchQuestionSetQueryValidator : AbstractValidator<SearchQuestionSetQuery>
 {
-    public SearchQuestionSetCommandValidator()
+    public SearchQuestionSetQueryValidator()
     {
         RuleFor(x => x.ClassId)
             .NotEmpty().WithMessage("ClassId không được null");
@@ -42,12 +42,12 @@ public class SearchQuestionSetCommandValidator : AbstractValidator<SearchQuestio
     }
 }
 
-public class SearchQuestionSetCommandHandler : IRequestHandler<SearchQuestionSetCommand, PaginatedList<SearchQuestionSetDto>>
+public class SearchQuestionSetQueryHandler : IRequestHandler<SearchQuestionSetQuery, PaginatedList<SearchQuestionSetDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
     
-    public SearchQuestionSetCommandHandler(IApplicationDbContext context, IClassService classService)
+    public SearchQuestionSetQueryHandler(IApplicationDbContext context, IClassService classService)
     {
         _context = context;
         _classService = classService;
@@ -58,7 +58,7 @@ public class SearchQuestionSetCommandHandler : IRequestHandler<SearchQuestionSet
     /// </summary>
     /// <param name="rq">Request contains ClassId, Name, ShareMode, PageNumber, and PageSize information</param>
     /// <param name="cancellationToken">Token to cancel the task</param>
-    public async Task<PaginatedList<SearchQuestionSetDto>> Handle(SearchQuestionSetCommand rq,
+    public async Task<PaginatedList<SearchQuestionSetDto>> Handle(SearchQuestionSetQuery rq,
         CancellationToken cancellationToken)
     {
         var classById = await _context.Classes

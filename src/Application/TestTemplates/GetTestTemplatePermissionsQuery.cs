@@ -13,27 +13,27 @@ public class TestTemplatePermissionsDto
 }
 
 [Authorize]
-public class GetTestTemplatePermissionsCommand : IRequest<TestTemplatePermissionsDto>
+public class GetTestTemplatePermissionsQuery : IRequest<TestTemplatePermissionsDto>
 {
     public required Guid TestTemplateId { get; set; }
 }
 
-public class GetTestTemplatePermissionsCommandValidator : AbstractValidator<GetTestTemplatePermissionsCommand>
+public class GetTestTemplatePermissionsQueryValidator : AbstractValidator<GetTestTemplatePermissionsQuery>
 {
-    public GetTestTemplatePermissionsCommandValidator()
+    public GetTestTemplatePermissionsQueryValidator()
     {
         RuleFor(x => x.TestTemplateId)
             .NotEmpty().WithMessage("TestTemplateId không được trống");
     }
 }
 
-public class GetTestTemplatePermissionsCommandHandler : IRequestHandler<GetTestTemplatePermissionsCommand, TestTemplatePermissionsDto>
+public class GetTestTemplatePermissionsQueryHandler : IRequestHandler<GetTestTemplatePermissionsQuery, TestTemplatePermissionsDto>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     private readonly IIdentityService _identityService;
     
-    public GetTestTemplatePermissionsCommandHandler(IApplicationDbContext context, IUser user, IIdentityService identityService)
+    public GetTestTemplatePermissionsQueryHandler(IApplicationDbContext context, IUser user, IIdentityService identityService)
     {
         _context = context;
         _user = user;
@@ -45,7 +45,7 @@ public class GetTestTemplatePermissionsCommandHandler : IRequestHandler<GetTestT
     /// </summary>
     /// <param name="rq">Request contains TestTemplateId information</param>
     /// <param name="cancellationToken">Token to cancel the task</param>
-    public async Task<TestTemplatePermissionsDto> Handle(GetTestTemplatePermissionsCommand rq, CancellationToken cancellationToken)
+    public async Task<TestTemplatePermissionsDto> Handle(GetTestTemplatePermissionsQuery rq, CancellationToken cancellationToken)
     {
         var testTemplate = await _context.TestTemplates
             .Where(t => t.Id == rq.TestTemplateId && t.IsDeleted == false)
