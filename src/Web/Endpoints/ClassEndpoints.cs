@@ -26,6 +26,12 @@ public class Class : EndpointGroupBase
             .MapPatch("/{ClassId}/Members/{UserId}", UpdatePosition);
     }
 
+    /// <summary>
+    /// Mô tả của API này
+    /// </summary>
+    /// <param name="rq"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<Guid>>> CreateClass([FromBody] CreateClassCommand rq, ISender sender)
     {
         var result = await sender.Send(rq);
