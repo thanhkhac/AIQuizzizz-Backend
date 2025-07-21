@@ -160,7 +160,7 @@ public class Class : EndpointGroupBase
     public async Task<Ok<ApiResponse<UpdatePositionDto>>> UpdatePosition(
         [FromRoute] Guid classId,
         [FromRoute] Guid userId,
-        [FromQuery] ClassShareMode position,
+        [FromQuery] string position,
         ISender sender)
     {
         var rq = new UpdatePositionCommand()

@@ -17,7 +17,7 @@ public class UpdatePositionCommand : IRequest<UpdatePositionDto>
 {
     public required Guid ClassId { get; set; }
     public required Guid UserId { get; set; }
-    public required ClassShareMode Position { get; set; }
+    public required string? Position { get; set; }
 }
 
 public class UpdatePositionCommandValidator : AbstractValidator<UpdatePositionCommand>
@@ -29,7 +29,8 @@ public class UpdatePositionCommandValidator : AbstractValidator<UpdatePositionCo
         RuleFor(x => x.UserId)
             .NotEmpty().WithMessage("UserId không thể trống");
         RuleFor(x => x.Position)
-            .NotEmpty().WithMessage("Position không thể trống");
+            .Must(mode => new[] {"Student", "Teacher"}.Contains(mode) || string.IsNullOrEmpty(mode))
+            .WithMessage($"SharedMode phải là Student, Teacher");
     }
 }
 
@@ -64,7 +65,8 @@ public class UpdatePositionCommandHandler : IRequestHandler<UpdatePositionComman
         if (classUser == null)
             throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Không tìm thấy student hoặc không phải student của lớp");
         
-        classUser.ClassUser.ShareMode = rq.Position;
+        classUser.ClassUser.ShareMode = Enum.Parse<ClassShareMode>(rq.Position
+                                                                   ?? throw new ErrorCodeException(ErrorCodes.PERMISSION_NOT_FOUND, "không tìm thầy role"));
         
         await _context.SaveChangesAsync(cancellationToken);
         
