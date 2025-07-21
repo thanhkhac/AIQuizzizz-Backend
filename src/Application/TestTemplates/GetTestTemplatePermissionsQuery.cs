@@ -18,22 +18,22 @@ public class GetTestTemplatePermissionsQuery : IRequest<TestTemplatePermissionsD
     public required Guid TestTemplateId { get; set; }
 }
 
-public class GetTestTemplatePermissionsCommandValidator : AbstractValidator<GetTestTemplatePermissionsQuery>
+public class GetTestTemplatePermissionsQueryValidator : AbstractValidator<GetTestTemplatePermissionsQuery>
 {
-    public GetTestTemplatePermissionsCommandValidator()
+    public GetTestTemplatePermissionsQueryValidator()
     {
         RuleFor(x => x.TestTemplateId)
             .NotEmpty().WithMessage("TestTemplateId không được trống");
     }
 }
 
-public class GetTestTemplatePermissionsCommandHandler : IRequestHandler<GetTestTemplatePermissionsQuery, TestTemplatePermissionsDto>
+public class GetTestTemplatePermissionsQueryHandler : IRequestHandler<GetTestTemplatePermissionsQuery, TestTemplatePermissionsDto>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     private readonly IIdentityService _identityService;
     
-    public GetTestTemplatePermissionsCommandHandler(IApplicationDbContext context, IUser user, IIdentityService identityService)
+    public GetTestTemplatePermissionsQueryHandler(IApplicationDbContext context, IUser user, IIdentityService identityService)
     {
         _context = context;
         _user = user;

@@ -21,9 +21,9 @@ public class SearchFolderTestQuery : IRequest<PaginatedList<SearchFolderTestDto>
     public int PageSize { get; set; } = 5;
 }
 
-public class SearchFolderTestCommandValidator : AbstractValidator<SearchFolderTestQuery>
+public class SearchFolderTestQueryValidator : AbstractValidator<SearchFolderTestQuery>
 {
-    public SearchFolderTestCommandValidator()
+    public SearchFolderTestQueryValidator()
     {
         RuleFor(x => x.SharedMode)
             .Must(mode => new[] {"Owner", "Editable", "ViewOnly"}.Contains(mode) || string.IsNullOrEmpty(mode))
@@ -36,12 +36,12 @@ public class SearchFolderTestCommandValidator : AbstractValidator<SearchFolderTe
     }
 }
 
-public class SearchFolderTestCommandHandler : IRequestHandler<SearchFolderTestQuery, PaginatedList<SearchFolderTestDto>>
+public class SearchFolderTestQueryHandler : IRequestHandler<SearchFolderTestQuery, PaginatedList<SearchFolderTestDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
 
-    public SearchFolderTestCommandHandler(IApplicationDbContext context, IUser user)
+    public SearchFolderTestQueryHandler(IApplicationDbContext context, IUser user)
     {
         _context = context;
         _user = user;

@@ -31,9 +31,9 @@ public class SearchStudentInClassQuery : IRequest<PaginatedList<StudentSearchRes
     public int PageSize { get; set; } = 5;
 }
 
-public class SearchStudentInClassCommandValidator : AbstractValidator<SearchStudentInClassQuery>
+public class SearchStudentInClassQueryValidator : AbstractValidator<SearchStudentInClassQuery>
 {
-    public SearchStudentInClassCommandValidator()
+    public SearchStudentInClassQueryValidator()
     {
         RuleFor(x => x.ClassId)
             .NotEmpty().WithMessage("ClassId không được để trống");
@@ -45,13 +45,13 @@ public class SearchStudentInClassCommandValidator : AbstractValidator<SearchStud
     }
 }
 
-public class SearchStudentCommandHandler : IRequestHandler<SearchStudentInClassQuery, PaginatedList<StudentSearchResultDto>>
+public class SearchStudentInClassQueryHandler : IRequestHandler<SearchStudentInClassQuery, PaginatedList<StudentSearchResultDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
 
 
-    public SearchStudentCommandHandler(IApplicationDbContext context, IClassService classService)
+    public SearchStudentInClassQueryHandler(IApplicationDbContext context, IClassService classService)
     {
         _context = context;
         _classService = classService;
