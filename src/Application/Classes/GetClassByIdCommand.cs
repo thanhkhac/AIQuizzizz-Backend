@@ -16,6 +16,9 @@ public class ClassDetailDto
 [Authorize]
 public class GetClassByIdCommand : IRequest<ClassDetailDto>
 {
+    /// <summary>
+    /// Id of the class want to retrieve details
+    /// </summary>
     public required Guid ClassId { get; set; }   
 }
 
@@ -39,6 +42,11 @@ public class GetClassByIdCommandHandler : IRequestHandler<GetClassByIdCommand, C
         _classService = classService;
     }
     
+    /// <summary>
+    /// The function retrieves details of a class by its ID and returns the class details
+    /// </summary>
+    /// <param name="rq">Request contains ClassId information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<ClassDetailDto> Handle(GetClassByIdCommand rq, CancellationToken cancellationToken)
     {
         var classById = await _context.Classes

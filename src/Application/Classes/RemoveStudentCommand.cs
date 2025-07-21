@@ -10,7 +10,13 @@ namespace CleanArchitectureBase.Application.Classes;
 [Authorize]
 public class RemoveStudentCommand : IRequest<Guid>
 {
+    /// <summary>
+    /// Id of the class want to remove student
+    /// </summary>
     public required Guid ClassId { get; set; }   
+    /// <summary>
+    /// Id of the student want to remove from class
+    /// </summary>
     public required Guid UserId { get; set; }
 }
 
@@ -36,13 +42,18 @@ public class RemoveStudentCommandHandler : IRequestHandler<RemoveStudentCommand,
         _classService = classService;
     }
     
+    /// <summary>
+    /// The function removes a student from a class and returns the student's user ID
+    /// </summary>
+    /// <param name="rq">Request contains ClassId and UserId information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<Guid> Handle(RemoveStudentCommand rq, CancellationToken cancellationToken)
     {
         var (isOwner, classExists) = await _classService.GetClassOwnerAccess(rq.ClassId, cancellationToken);
         
         var user = await _context.ClassUsers
             .Include(u => u.User)
-            .Where(cu => cu.ClassId == rq.ClassId && cu.ShareMode != ClassShareMode.Owner && cu.Class.IsDeleted == false && cu.User.Id == rq.UserId)
+            .Where(cu => cu.ClassId == rq.ClassId && cu.ShareMode != ClassShareMode.Owner && cu.Class.IsDeleted == false && cu.UserId== rq.UserId)
             .Select(u => new { User = u.User, ClassUser = u})
             .FirstOrDefaultAsync(cancellationToken);
 

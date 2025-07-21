@@ -15,6 +15,9 @@ public class ClassCodeDto
 [Authorize]
 public class CreateInviteCodeCommand : IRequest<ClassCodeDto>
 {
+    /// <summary>
+    /// Id of the class want to create invite code
+    /// </summary>
     public required Guid ClassId { get; set; }
     public required double ExpiredTime { get; set; }
 }
@@ -42,18 +45,23 @@ public class CreateInviteCodeCommandHandler : IRequestHandler<CreateInviteCodeCo
         _classService = classService;
     }
     
+    /// <summary>
+    /// The function creates an invitation code for a class and returns the code
+    /// </summary>
+    /// <param name="rq">Request contains ClassId and ExpiredTime information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<ClassCodeDto> Handle(CreateInviteCodeCommand rq, CancellationToken cancellationToken)
     {
         var classById = await _context.Classes
             .Where(x => x.Id == rq.ClassId)
             .FirstOrDefaultAsync(cancellationToken);
         if (classById == null)
-            throw new ErrorCodeException(ErrorCodes.CLASS_NOTFOUND, "Không tìm thấy lớp");
+            throw new ErrorCodeException(ErrorCodes.CLASS_NOTFOUND, "Không tìm thấy class");
         
         await _classService.IsLecturerOrOwnerInClass(rq.ClassId);
 
         var inviteCode = await _context.ClassInvitations
-            .Where(x => x.ClassId == rq.ClassId && x.IsDeleted == false)
+            .Where(x => x.ClassId == rq.ClassId)
             .ToListAsync(cancellationToken);
         
         var classInvitation = new ClassInvitation()
@@ -70,7 +78,7 @@ public class CreateInviteCodeCommandHandler : IRequestHandler<CreateInviteCodeCo
         
         _context.ClassInvitations.Add(classInvitation);
         
-        await _context.SaveChangesAsync(CancellationToken.None);
+        await _context.SaveChangesAsync(cancellationToken);
         
         return new ClassCodeDto { Code = classInvitation.Code };
     }

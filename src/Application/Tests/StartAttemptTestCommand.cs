@@ -8,15 +8,15 @@ using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Tests;
 
+[Authorize]
 public class StartAttemptTestCommand : IRequest<AttemptDetailDto>
 {
     /// <summary>
-    /// Id của bài test học sinh chọn làm
+    /// Id of the test the student chose to take
     /// </summary>
     public Guid TestId { get; set; }
 }
 
-[Authorize]
 public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCommand, AttemptDetailDto>
 {
     private readonly IApplicationDbContext _context;
@@ -31,10 +31,10 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
     }
     
     /// <summary>
-    /// Hàm tạo ra attempt của bài test cho học sinh và trả về các câu hỏi của bài test
+    /// The function creates test attempts for students and returns the test questions
     /// </summary>
-    /// <param name="rq">Request chứa thông tin TestId</param>
-    /// <param name="cancellationToken">Token để hủy tác vụ</param>
+    /// <param name="rq">Request contains TestId information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<AttemptDetailDto> Handle(StartAttemptTestCommand rq, CancellationToken cancellationToken)
     {
         var test = await _context.Tests.Where(x => x.Id == rq.TestId)

@@ -21,6 +21,9 @@ public class StudentSearchResultDto
 [Authorize]
 public class SearchStudentInClassCommand : IRequest<PaginatedList<StudentSearchResultDto>>
 {
+    /// <summary>
+    /// Id of the class want to retrieve students
+    /// </summary>
     public required Guid ClassId { get; set; }
     public string? Keyword { get; set; }
     public string? FieldName { get; set; }
@@ -54,6 +57,11 @@ public class SearchStudentCommandHandler : IRequestHandler<SearchStudentInClassC
         _classService = classService;
     }
     
+    /// <summary>
+    /// The function searches for students in a class based on a keyword and field name, returning a paginated list of student details
+    /// </summary>
+    /// <param name="rq">Request contains ClassId, Keyword, FieldName, PageNumber, and PageSize information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<PaginatedList<StudentSearchResultDto>> Handle(SearchStudentInClassCommand rq, CancellationToken cancellationToken)
     {
         var classById = await _context.Classes

@@ -19,6 +19,9 @@ public class TestTemplateDto
 [Authorize]
 public class SearchTestTemplateInFolderCommand : IRequest<PaginatedList<TestTemplateDto>>
 {
+    /// <summary>
+    /// Id of the folder want to retrieve test templates
+    /// </summary>
     public required Guid FolderId { get; set; }
     public required string? TestTemplateName { get; set; }
     public required string? SharedMode { get; set; }
@@ -50,6 +53,11 @@ public class SearchTestTemplateInFolderCommandHandler : IRequestHandler<SearchTe
         _user = user;
     }
     
+    /// <summary>
+    /// The function searches for test templates in a folder based on name and share mode, returning a paginated list of test template details
+    /// </summary>
+    /// <param name="rq">Request contains FolderId, TestTemplateName, SharedMode, PageNumber, and PageSize information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<PaginatedList<TestTemplateDto>> Handle(SearchTestTemplateInFolderCommand rq, CancellationToken cancellationToken)
     {
         var accessUser = await _context.FolderUsers

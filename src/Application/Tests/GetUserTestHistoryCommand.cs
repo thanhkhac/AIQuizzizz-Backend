@@ -60,6 +60,11 @@ public class GetUserTestHistoryCommandHandler : IRequestHandler<GetUserTestHisto
         _user = user;
     }
     
+    /// <summary>
+    /// The function retrieves a user's test attempt history for a specific test, filtered by pass/fail status, and returns a paginated list of attempt details
+    /// </summary>
+    /// <param name="rq">Request contains TestId, IsPassed, PageNumber, and PageSize information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<PaginatedList<HistoryTestDto>> Handle(GetUserTestHistoryCommand rq, CancellationToken cancellationToken)
     {
         var test = await _context.Tests.Where(x => x.Id.Equals(rq.TestId)).FirstOrDefaultAsync(cancellationToken);

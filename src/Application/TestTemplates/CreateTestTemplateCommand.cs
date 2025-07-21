@@ -65,9 +65,14 @@ public class CreateTestTemplateCommandHandler : IRequestHandler<CreateTestTempla
         _testService = testService;
     }
     
+    /// <summary>
+    /// The function creates a new test template with associated questions and assigns the creator as the owner, returning the test template ID
+    /// </summary>
+    /// <param name="rq">Request contains Name and Questions information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<Guid> Handle(CreateTestTemplateCommand rq, CancellationToken cancellationToken)
     {
-        await _testService.QuestionAccess(rq.Questions, cancellationToken);
+        await _testService.QuestionAccessForTestTemplate(rq.Questions, cancellationToken);
 
         var testTemplate = new TestTemplate { Id = Guid.NewGuid(), Name = rq.Name, IsDeleted = false, };
 

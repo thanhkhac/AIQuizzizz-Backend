@@ -41,6 +41,11 @@ public class ImportFileTestTemplateCommandHandler : IRequestHandler<ImportFileTe
         _file = file;
     }
     
+    /// <summary>
+    /// The function imports questions from an Excel file for a test template and returns the imported questions
+    /// </summary>
+    /// <param name="rq">Request contains FileData information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public Task<ImportedQuestionDto> Handle(ImportFileTestTemplateCommand rq, CancellationToken cancellationToken)
     {
         var file = rq.FileData;

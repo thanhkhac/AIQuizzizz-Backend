@@ -10,7 +10,13 @@ namespace CleanArchitectureBase.Application.Classes;
 [Authorize]
 public class AddQuestionSetCommand : IRequest<Guid>
 {
+    /// <summary>
+    /// Id of the class want to add question set
+    /// </summary>
     public required Guid ClassId { get; set; } 
+    /// <summary>
+    /// Id of the question set want to add to class
+    /// </summary>
     public required Guid QuestionSetId { get; set; } 
 }
 
@@ -41,6 +47,11 @@ public class AddQuestionSetCommandHandler : IRequestHandler<AddQuestionSetComman
         _user = user;
     } 
     
+    /// <summary>
+    /// The function adds a question set to a class and returns the question set ID
+    /// </summary>
+    /// <param name="rq">Request contains ClassId and QuestionSetId information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<Guid> Handle(AddQuestionSetCommand rq, CancellationToken cancellationToken)
     {
         var classById = await _context.Classes

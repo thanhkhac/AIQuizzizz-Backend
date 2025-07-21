@@ -19,6 +19,9 @@ public class SearchQuestionSetDto
 [Authorize]
 public class SearchQuestionSetCommand : IRequest<PaginatedList<SearchQuestionSetDto>>
 {
+    /// <summary>
+    /// Id of the class want to retrieve question sets
+    /// </summary>
     public required Guid ClassId { get; set; }
     public string? Name { get; set; }
     public string? ShareMode { get; set; }
@@ -50,6 +53,11 @@ public class SearchQuestionSetCommandHandler : IRequestHandler<SearchQuestionSet
         _classService = classService;
     }
 
+    /// <summary>
+    /// The function searches for question sets within a class based on name and share mode, returning a paginated list of question set details
+    /// </summary>
+    /// <param name="rq">Request contains ClassId, Name, ShareMode, PageNumber, and PageSize information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<PaginatedList<SearchQuestionSetDto>> Handle(SearchQuestionSetCommand rq,
         CancellationToken cancellationToken)
     {

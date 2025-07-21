@@ -8,6 +8,9 @@ namespace CleanArchitectureBase.Application.Users;
 [Authorize (Roles = Domain.Constants.Roles.Administrator)]
 public class BanAccountCommand : IRequest<Guid>
 {
+    /// <summary>
+    /// Id of the user want to ban
+    /// </summary>   
     public required Guid UserId { get; set; }
 }
 
@@ -33,6 +36,11 @@ public class BanAccountCommandHandler : IRequestHandler<BanAccountCommand, Guid>
         _identityService = identityService;
     }
     
+    /// <summary>
+    /// The function bans a user account by setting the ban status, returning the user ID
+    /// </summary>
+    /// <param name="rq">Request contains UserId information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<Guid> Handle(BanAccountCommand rq, CancellationToken cancellationToken)
     {
         var admins = await _identityService.GetUsersInRoleAsync();
