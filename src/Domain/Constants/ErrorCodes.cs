@@ -67,6 +67,7 @@ public static class ErrorCodes
     public const string NOT_FOUND_TEACHER_OR_OWNER_IN_CLASS = nameof(NOT_FOUND_TEACHER_OR_OWNER_IN_CLASS);
     public const string NOT_FOUND_USER_IN_CLASS = nameof(NOT_FOUND_USER_IN_CLASS);
     public const string QUESTION_SET_ALREADY_IN_CLASS = nameof(QUESTION_SET_ALREADY_IN_CLASS);
+    public const string NOT_HAVE_PERMISSION_TO_ADD_QUESTION_SET = nameof(NOT_HAVE_PERMISSION_TO_ADD_QUESTION_SET);
     
     //Question
     public const string INVALID_QUESTION_TYPE = nameof(INVALID_QUESTION_TYPE);
