@@ -29,12 +29,25 @@ public class QuestionSetEndpoints : EndpointGroupBase
             ;
     }
 
+    /// <summary>
+    /// Create new question set
+    /// </summary>
+    /// <param name="command"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<Guid>>> CreateQuestionSet([FromBody] CreateQuestionSetCommand command, ISender sender)
     {
         var result = await sender.Send(command);
         return result.ToOk();
     }
-
+    
+    /// <summary>
+    /// User (Owner or sharedmode is editable) Update question set
+    /// </summary>
+    /// <param name="questionSetId"></param>
+    /// <param name="command"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<Guid>>> UpdateQuestionSet(
         [FromRoute] Guid questionSetId,
         [FromBody] UpdateQuestionSetCommand command,
@@ -43,7 +56,13 @@ public class QuestionSetEndpoints : EndpointGroupBase
         var result = await sender.Send(command);
         return result.ToOk();
     }
-
+    
+    /// <summary>
+    /// User - Get permission to show delete and update button
+    /// </summary>
+    /// <param name="questionSetId"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<QuestionSetPermissionsDto>>> GetPermissions([FromRoute] Guid questionSetId, ISender sender)
     {
         var query = new GetQuestionSetPermissionsQuery
@@ -53,7 +72,13 @@ public class QuestionSetEndpoints : EndpointGroupBase
         var result = await sender.Send(query);
         return result.ToOk();
     }
-
+    
+    /// <summary>
+    /// User - Get questions of the question set
+    /// </summary>
+    /// <param name="questionSetId"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<List<QuestionResponseDto>>>> GetQuestions([FromRoute] Guid questionSetId, ISender sender)
     {
         var query = new GetQuestionSetQuestionsQuery
@@ -64,6 +89,12 @@ public class QuestionSetEndpoints : EndpointGroupBase
         return result.ToOk();
     }
 
+    /// <summary>
+    /// Get questions data of the question set for editing
+    /// </summary>
+    /// <param name="questionSetId"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<List<CreateUpdateQuestionDto>>>> GetQuestionsForEdit([FromRoute] Guid questionSetId, ISender sender)
     {
         var query = new GetQuestionSetQuestionsForEditQuery
@@ -74,6 +105,12 @@ public class QuestionSetEndpoints : EndpointGroupBase
         return result.ToOk();
     }
     
+    /// <summary>
+    /// Get questions data of the question set for copy/import 
+    /// </summary>
+    /// <param name="questionSetId"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<List<CreateUpdateQuestionDto>>>> GetQuestionsForCopy([FromRoute] Guid questionSetId, ISender sender)
     {
         var query = new GetQuestionSetQuestionsForCopyQuery
@@ -84,6 +121,12 @@ public class QuestionSetEndpoints : EndpointGroupBase
         return result.ToOk();
     }
     
+    /// <summary>
+    /// Get question detail data (No questions)
+    /// </summary>
+    /// <param name="questionSetId"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<QuestionSetDetailDto>>> GetQuestionSetDetail([FromRoute] Guid questionSetId, ISender sender)
     {
         var query = new GetQuestionSetDetailQuery
@@ -94,6 +137,13 @@ public class QuestionSetEndpoints : EndpointGroupBase
         return result.ToOk();
     }
 
+    /// <summary>
+    /// User - mark questions that correct or fail in learn mode
+    /// </summary>
+    /// <param name="questionSetId"></param>
+    /// <param name="questions"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<Unit>>> UpdateQuestionSetHistory(
         [FromRoute] Guid questionSetId,
         [FromBody] List<QuestionHistoryUpdate> questions,
@@ -108,7 +158,13 @@ public class QuestionSetEndpoints : EndpointGroupBase
         var result = await sender.Send(command);
         return result.ToOk();
     }
-
+    
+    /// <summary>
+    /// User - Reset learn mode
+    /// </summary>
+    /// <param name="questionSetId"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<Unit>>> ResetQuestionSetHistory(
         [FromRoute] Guid questionSetId,
         ISender sender)
@@ -122,7 +178,13 @@ public class QuestionSetEndpoints : EndpointGroupBase
         return result.ToOk();
     }
 
-
+    /// <summary>
+    /// Get question for learn
+    /// </summary>
+    /// <param name="questionSetId"></param>
+    /// <param name="questionCount"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<List<QuestionResponseDto>>>> GetLearnQuestions(
         [FromRoute] Guid questionSetId,
         [FromQuery] int questionCount,

@@ -414,7 +414,7 @@
         "tags": [
           "Class"
         ],
-        "summary": "Mô tả của API này",
+        "summary": "User - create new class",
         "operationId": "CreateClass",
         "requestBody": {
           "x-name": "rq",
@@ -445,6 +445,7 @@
         "tags": [
           "Class"
         ],
+        "summary": "User - Search class the current user has joined",
         "operationId": "SearchClass",
         "parameters": [
           {
@@ -505,6 +506,7 @@
         "tags": [
           "Class"
         ],
+        "summary": "User - join class by code",
         "operationId": "JoinClassByCode",
         "requestBody": {
           "x-name": "rq",
@@ -537,6 +539,7 @@
         "tags": [
           "Class"
         ],
+        "summary": "Lecturer - Create new invitation code",
         "operationId": "CreateInviteCode",
         "parameters": [
           {
@@ -666,6 +669,7 @@
         "tags": [
           "Class"
         ],
+        "summary": "Lecturer/Student search student in class",
         "operationId": "SearchStudent",
         "parameters": [
           {
@@ -737,6 +741,7 @@
         "tags": [
           "Class"
         ],
+        "summary": "Search test in class",
         "operationId": "SearchTest",
         "parameters": [
           {
@@ -808,6 +813,7 @@
         "tags": [
           "Class"
         ],
+        "summary": "Lecturer - Get class invitation code for view",
         "operationId": "GetInviteStudentCode",
         "parameters": [
           {
@@ -841,6 +847,7 @@
         "tags": [
           "Class"
         ],
+        "summary": "Lecturer - Search added question sets in class",
         "operationId": "SearchQuestionSet",
         "parameters": [
           {
@@ -912,6 +919,7 @@
         "tags": [
           "Class"
         ],
+        "summary": "Lecture/Student - Get class detail data",
         "operationId": "GetClassById",
         "parameters": [
           {
@@ -943,6 +951,7 @@
         "tags": [
           "Class"
         ],
+        "summary": "Class owner - Delete class",
         "operationId": "DeleteClass",
         "parameters": [
           {
@@ -1018,6 +1027,7 @@
         "tags": [
           "Class"
         ],
+        "summary": "Class onwer - Update position of members in class",
         "operationId": "PatchApiClassMembers",
         "parameters": [
           {
@@ -1231,6 +1241,7 @@
         "tags": [
           "QuestionSet"
         ],
+        "summary": "Create new question set",
         "operationId": "CreateQuestionSet",
         "requestBody": {
           "x-name": "command",
@@ -1263,6 +1274,7 @@
         "tags": [
           "QuestionSet"
         ],
+        "summary": "Get question detail data (No questions)",
         "operationId": "GetQuestionSetDetail",
         "parameters": [
           {
@@ -1293,6 +1305,7 @@
         "tags": [
           "QuestionSet"
         ],
+        "summary": "User (Owner or sharedmode is editable) Update question set",
         "operationId": "UpdateQuestionSet",
         "parameters": [
           {
@@ -1367,6 +1380,7 @@
         "tags": [
           "QuestionSet"
         ],
+        "summary": "User - Get questions of the question set",
         "operationId": "GetQuestions",
         "parameters": [
           {
@@ -1399,6 +1413,7 @@
         "tags": [
           "QuestionSet"
         ],
+        "summary": "Get question for learn",
         "operationId": "GetLearnQuestions",
         "parameters": [
           {
@@ -1441,6 +1456,7 @@
         "tags": [
           "QuestionSet"
         ],
+        "summary": "User - mark questions that correct or fail in learn mode",
         "operationId": "UpdateQuestionSetHistory",
         "parameters": [
           {
@@ -1486,6 +1502,7 @@
         "tags": [
           "QuestionSet"
         ],
+        "summary": "User - Reset learn mode",
         "operationId": "ResetQuestionSetHistory",
         "parameters": [
           {
@@ -1518,6 +1535,7 @@
         "tags": [
           "QuestionSet"
         ],
+        "summary": "User - Get permission to show delete and update button",
         "operationId": "GetPermissions",
         "parameters": [
           {
@@ -1550,6 +1568,7 @@
         "tags": [
           "QuestionSet"
         ],
+        "summary": "Get questions data of the question set for editing",
         "operationId": "GetQuestionsForEdit",
         "parameters": [
           {
@@ -1582,6 +1601,7 @@
         "tags": [
           "QuestionSet"
         ],
+        "summary": "Get questions data of the question set for copy/import",
         "operationId": "GetQuestionsForCopy",
         "parameters": [
           {
