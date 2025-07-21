@@ -2,6 +2,7 @@
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
@@ -15,8 +16,12 @@ public class SearchQuestionSetDto
     public string? CreateBy { get; set; }
 }
 
-public class SearchQuestionSetCommand : IRequest<PaginatedList<SearchQuestionSetDto>>
+[Authorize]
+public class SearchQuestionSetQuery : IRequest<PaginatedList<SearchQuestionSetDto>>
 {
+    /// <summary>
+    /// Id of the class want to retrieve question sets
+    /// </summary>
     public required Guid ClassId { get; set; }
     public string? Name { get; set; }
     public string? ShareMode { get; set; }
@@ -24,9 +29,9 @@ public class SearchQuestionSetCommand : IRequest<PaginatedList<SearchQuestionSet
     public int PageSize { get; set; } = 5;
 }
 
-public class SearchQuestionSetValidator : AbstractValidator<SearchQuestionSetCommand>
+public class SearchQuestionSetQueryValidator : AbstractValidator<SearchQuestionSetQuery>
 {
-    public SearchQuestionSetValidator()
+    public SearchQuestionSetQueryValidator()
     {
         RuleFor(x => x.ClassId)
             .NotEmpty().WithMessage("ClassId không được null");
@@ -37,18 +42,23 @@ public class SearchQuestionSetValidator : AbstractValidator<SearchQuestionSetCom
     }
 }
 
-public class SearchQuestionSetCommandHandler : IRequestHandler<SearchQuestionSetCommand, PaginatedList<SearchQuestionSetDto>>
+public class SearchQuestionSetQueryHandler : IRequestHandler<SearchQuestionSetQuery, PaginatedList<SearchQuestionSetDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
     
-    public SearchQuestionSetCommandHandler(IApplicationDbContext context, IClassService classService)
+    public SearchQuestionSetQueryHandler(IApplicationDbContext context, IClassService classService)
     {
         _context = context;
         _classService = classService;
     }
 
-    public async Task<PaginatedList<SearchQuestionSetDto>> Handle(SearchQuestionSetCommand rq,
+    /// <summary>
+    /// The function searches for question sets within a class based on name and share mode, returning a paginated list of question set details
+    /// </summary>
+    /// <param name="rq">Request contains ClassId, Name, ShareMode, PageNumber, and PageSize information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
+    public async Task<PaginatedList<SearchQuestionSetDto>> Handle(SearchQuestionSetQuery rq,
         CancellationToken cancellationToken)
     {
         var classById = await _context.Classes

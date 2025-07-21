@@ -1,11 +1,13 @@
 ﻿using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.FolderTest;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Tests;
+namespace CleanArchitectureBase.Application.TestTemplates;
 
-public class SearchTestTemplate : IRequest<PaginatedList<TestTemplateDto>>
+[Authorize]
+public class SearchTestTemplateQuery : IRequest<PaginatedList<TestTemplateDto>>
 {
     public required string? TestTemplateName { get; set; }
     public string? SharedMode { get; set; }
@@ -13,9 +15,9 @@ public class SearchTestTemplate : IRequest<PaginatedList<TestTemplateDto>>
     public int PageSize { get; set; } = 5;
 }
 
-public class SearchTestTemplateValidator : AbstractValidator<SearchTestTemplate>
+public class SearchTestTemplateQueryValidator : AbstractValidator<SearchTestTemplateQuery>
 {
-    public SearchTestTemplateValidator()
+    public SearchTestTemplateQueryValidator()
     {
         RuleFor(x => x.SharedMode)
             .Must(mode => new[] {"Owner", "Editable", "ViewOnly"}.Contains(mode) || string.IsNullOrEmpty(mode))
@@ -23,18 +25,23 @@ public class SearchTestTemplateValidator : AbstractValidator<SearchTestTemplate>
     }
 }
 
-public class SearchTestTemplateHandler : IRequestHandler<SearchTestTemplate, PaginatedList<TestTemplateDto>>
+public class SearchTestTemplateQueryHandler : IRequestHandler<SearchTestTemplateQuery, PaginatedList<TestTemplateDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     
-    public SearchTestTemplateHandler(IApplicationDbContext context, IUser user)
+    public SearchTestTemplateQueryHandler(IApplicationDbContext context, IUser user)
     {
         _context = context;
         _user = user;
     }
     
-    public async Task<PaginatedList<TestTemplateDto>> Handle(SearchTestTemplate rq, CancellationToken cancellationToken)
+    /// <summary>
+    /// The function searches for test templates based on name and share mode for the current user, returning a paginated list of test template details
+    /// </summary>
+    /// <param name="rq">Request contains TestTemplateName, SharedMode, PageNumber, and PageSize information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
+    public async Task<PaginatedList<TestTemplateDto>> Handle(SearchTestTemplateQuery rq, CancellationToken cancellationToken)
     {
         TestTemplateUserShareMode? sharedMode = null;
         if (!string.IsNullOrEmpty(rq.SharedMode) &&

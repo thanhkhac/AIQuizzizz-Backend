@@ -95,7 +95,8 @@ public class ApplicationDbContextInitialiser
             UserName = "77777777-7777-7777-7777-777777777777",
             Email = "sa@gmail.com",
             IsDeleted = false,
-            User = user
+            User = user,
+            EmailConfirmed = true
         };
 
         if (_userManager.Users.All(u => u.UserName != administrator.UserName))
@@ -123,6 +124,94 @@ public class ApplicationDbContextInitialiser
                 }
             });
 
+            await _context.SaveChangesAsync();
+        }
+
+        // Seed Plan
+        if (!_context.Set<Plan>().Any())
+        {
+            var plan1 = new Plan
+            {
+                Id = Guid.NewGuid(),
+                Name = "Gói Cơ Bản",
+                Price = 0,
+                DayDuration = 30,
+                CanLearn = true,
+                CanOpenTest = false,
+                CanCopyOrImportQuestionSet = false,
+                IsDeleted = false
+            };
+            var plan2 = new Plan
+            {
+                Id = Guid.NewGuid(),
+                Name = "Gói Nâng Cao",
+                Price = 199000,
+                DayDuration = 90,
+                CanLearn = true,
+                CanOpenTest = true,
+                CanCopyOrImportQuestionSet = true,
+                IsDeleted = false
+            };
+            _context.Set<Plan>().AddRange(plan1, plan2);
+            await _context.SaveChangesAsync();
+        }
+
+        // Seed TokenPackage
+        if (!_context.Set<TokenPackage>().Any())
+        {
+            var package1 = new TokenPackage
+            {
+                Id = Guid.NewGuid(),
+                Name = "Gói 10 Token",
+                Price = 10000,
+                TokenCount = 10,
+                IsDeleted = false
+            };
+            var package2 = new TokenPackage
+            {
+                Id = Guid.NewGuid(),
+                Name = "Gói 50 Token",
+                Price = 45000,
+                TokenCount = 50,
+                IsDeleted = false
+            };
+            _context.Set<TokenPackage>().AddRange(package1, package2);
+            await _context.SaveChangesAsync();
+        }
+
+        // Seed UserTokenPurchase (ví dụ cho admin)
+        var adminUser = await _userManager.FindByEmailAsync("sa@gmail.com");
+        var tokenPackage = _context.Set<TokenPackage>().FirstOrDefault();
+        if (adminUser != null && tokenPackage != null && !_context.Set<UserTokenPurchase>().Any())
+        {
+            var purchase = new UserTokenPurchase
+            {
+                Id = Guid.NewGuid(),
+                UserId = adminUser.Id,
+                TokenPackageId = tokenPackage.Id,
+                TokenPackage = tokenPackage,
+                User = adminUser.User
+            };
+            _context.Set<UserTokenPurchase>().Add(purchase);
+            await _context.SaveChangesAsync();
+        }
+
+        // Seed UserSubscription (ví dụ cho admin)
+        var plan = _context.Set<Plan>().FirstOrDefault();
+        if (adminUser != null && plan != null && !_context.Set<UserSubscription>().Any())
+        {
+            var subscription = new UserSubscription
+            {
+                Id = Guid.NewGuid(),
+                UserId = adminUser.Id,
+                PlanId = plan.Id,
+                DateStart = DateTimeOffset.UtcNow,
+                DateFinish = DateTimeOffset.UtcNow.AddDays(plan.DayDuration),
+                IsActive = true,
+                User = adminUser.User,
+                Plan = plan
+            };
+            _context.Set<UserSubscription>().Add(subscription);
             await _context.SaveChangesAsync();
         }
     }

@@ -2,7 +2,7 @@
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.QuestionSets.Dtos;
-using CleanArchitectureBase.Application.Tests;
+using CleanArchitectureBase.Application.TestTemplates;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 using ExcelDataReader;

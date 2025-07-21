@@ -13,7 +13,7 @@ public class SearchFolderTestDto
 }
 
 [Authorize]
-public class SearchFolderTest : IRequest<PaginatedList<SearchFolderTestDto>>
+public class SearchFolderTestQuery : IRequest<PaginatedList<SearchFolderTestDto>>
 {
     public string? FolderName { get; set; }
     public string? SharedMode { get; set; }
@@ -21,9 +21,9 @@ public class SearchFolderTest : IRequest<PaginatedList<SearchFolderTestDto>>
     public int PageSize { get; set; } = 5;
 }
 
-public class SearchFolderTestValidator : AbstractValidator<SearchFolderTest>
+public class SearchFolderTestQueryValidator : AbstractValidator<SearchFolderTestQuery>
 {
-    public SearchFolderTestValidator()
+    public SearchFolderTestQueryValidator()
     {
         RuleFor(x => x.SharedMode)
             .Must(mode => new[] {"Owner", "Editable", "ViewOnly"}.Contains(mode) || string.IsNullOrEmpty(mode))
@@ -36,18 +36,23 @@ public class SearchFolderTestValidator : AbstractValidator<SearchFolderTest>
     }
 }
 
-public class SearchFolderTestCommandHandler : IRequestHandler<SearchFolderTest, PaginatedList<SearchFolderTestDto>>
+public class SearchFolderTestQueryHandler : IRequestHandler<SearchFolderTestQuery, PaginatedList<SearchFolderTestDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
 
-    public SearchFolderTestCommandHandler(IApplicationDbContext context, IUser user)
+    public SearchFolderTestQueryHandler(IApplicationDbContext context, IUser user)
     {
         _context = context;
         _user = user;
     }
 
-    public async Task<PaginatedList<SearchFolderTestDto>> Handle(SearchFolderTest rq, CancellationToken cancellationToken)
+    /// <summary>
+    /// The function searches for folders based on folder name and share mode, returning a paginated list of folder details
+    /// </summary>
+    /// <param name="rq">Request contains FolderName, SharedMode, PageNumber, and PageSize information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
+    public async Task<PaginatedList<SearchFolderTestDto>> Handle(SearchFolderTestQuery rq, CancellationToken cancellationToken)
     {
         var authors = await _context.FolderUsers
             .Include(fu => fu.Folder)

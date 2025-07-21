@@ -7,15 +7,21 @@ using CleanArchitectureBase.Domain.Constants;
 namespace CleanArchitectureBase.Application.Classes;
 
 [Authorize]
-public class RemoveQuestionSetCommand : IRequest<Guid>
+public class RemoveQuestionSetFromClassCommand : IRequest<Guid>
 {
+    /// <summary>
+    /// Id of the class want to remove question set
+    /// </summary>
     public required Guid ClassId { get; set; } 
+    /// <summary>
+    /// Id of the question set want to remove from class
+    /// </summary>
     public required Guid QuestionSetId { get; set; }  
 }
 
-public class RemoveQuestionSetValidator : AbstractValidator<RemoveQuestionSetCommand>
+public class RemoveQuestionSetFromClassCommandValidator : AbstractValidator<RemoveQuestionSetFromClassCommand>
 {
-    public RemoveQuestionSetValidator()
+    public RemoveQuestionSetFromClassCommandValidator()
     {
         RuleFor(x => x.ClassId)
             .NotEmpty().WithMessage("ClassId không thể trống");
@@ -24,18 +30,23 @@ public class RemoveQuestionSetValidator : AbstractValidator<RemoveQuestionSetCom
     }
 }
 
-public class RemoveQuestionSetHandler : IRequestHandler<RemoveQuestionSetCommand, Guid>
+public class RemoveQuestionSetFromClassCommandHandler : IRequestHandler<RemoveQuestionSetFromClassCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
     
-    public RemoveQuestionSetHandler(IApplicationDbContext context, IClassService classService)
+    public RemoveQuestionSetFromClassCommandHandler(IApplicationDbContext context, IClassService classService)
     {
         _context = context;
         _classService = classService;
     }
     
-    public async Task<Guid> Handle(RemoveQuestionSetCommand rq, CancellationToken cancellationToken)
+    /// <summary>
+    /// The function removes a question set from a class and returns the question set ID
+    /// </summary>
+    /// <param name="rq">Request contains ClassId and QuestionSetId information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
+    public async Task<Guid> Handle(RemoveQuestionSetFromClassCommand rq, CancellationToken cancellationToken)
     {
         var classById = await _context.Classes
             .Where(x => x.Id == rq.ClassId)

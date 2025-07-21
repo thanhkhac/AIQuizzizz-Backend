@@ -1,17 +1,18 @@
 ﻿using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
-using CleanArchitectureBase.Application.Questions.Dtos;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.Tests.Dto;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Tests;
 
+[Authorize]
 public class StartAttemptTestCommand : IRequest<AttemptDetailDto>
 {
     /// <summary>
-    /// Id của bài test học sinh chọn làm
+    /// Id of the test the student chose to take
     /// </summary>
     public Guid TestId { get; set; }
 }
@@ -30,16 +31,18 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
     }
     
     /// <summary>
-    /// Hàm tạo ra attempt của bài test cho học sinh và trả về các câu hỏi của bài test
+    /// The function creates test attempts for students and returns the test questions
     /// </summary>
-    /// <param name="rq">Request chứa thông tin TestId</param>
-    /// <param name="cancellationToken">Token để hủy tác vụ</param>
+    /// <param name="rq">Request contains TestId information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<AttemptDetailDto> Handle(StartAttemptTestCommand rq, CancellationToken cancellationToken)
     {
         var test = await _context.Tests.Where(x => x.Id == rq.TestId)
             .FirstOrDefaultAsync(cancellationToken);
         if (test == null)
             throw new ErrorCodeException(ErrorCodes.TEST_NOT_FOUND, "Bài test không tồn tại");
+        
+        await _classService.IsStudentInClass(test.ClassId);
         
         if (test.TimeFinish < DateTime.UtcNow)
             throw new ErrorCodeException(ErrorCodes.TEST_IS_OVERDUE, "Hết hạn làm bài");
@@ -49,8 +52,6 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
             .ToList();
         if (attemptUser.Count >= test.MaxAttempt)
             throw new ErrorCodeException(ErrorCodes.MAX_ATTEMPT_IN_THIS_TEST, "Đã hết lượt làm bài");
-        
-        await _classService.IsStudentInClass(test.ClassId);
         
         var testVersionId = await _context.TestVersions
             .Where(x => x.Test!.Id == test.Id)

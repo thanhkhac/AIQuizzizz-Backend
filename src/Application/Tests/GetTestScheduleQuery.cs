@@ -1,35 +1,26 @@
-﻿using CleanArchitectureBase.Application.Classes.Service;
+﻿using CleanArchitectureBase.Application.Classes.Dto;
+using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 
-namespace CleanArchitectureBase.Application.Classes;
-
-public class TestScheduleResponse
-{
-    public DateTime Date { get; set; }
-    public List<TestScheduleDto> TestSchedules { get; set; } = new();
-}
-
-public class TestScheduleDto
-{
-    public DateTime Date;
-    public Guid TestId { get; set; }
-    public string? TestName { get; set; }
-}
+namespace CleanArchitectureBase.Application.Tests;
 
 [Authorize]
-public class GetTestSchedule : IRequest<List<TestScheduleResponse>>
+public class GetTestScheduleQuery : IRequest<List<TestScheduleResponse>>
 {
+    /// <summary>
+    /// Id of the class want to retrieve the test schedule
+    /// </summary>
     public required Guid ClassId { get; set; }
     public int? Month { get; set; }
     public int? Year { get; set; }
 }
 
-public class GetTestScheduleValidator : AbstractValidator<GetTestSchedule>
+public class GetTestScheduleQueryValidator : AbstractValidator<GetTestScheduleQuery>
 {
-    public  GetTestScheduleValidator()
+    public  GetTestScheduleQueryValidator()
     {
         RuleFor(x => x.ClassId)
             .NotEmpty().WithMessage("ClassId không được trống");
@@ -44,18 +35,23 @@ public class GetTestScheduleValidator : AbstractValidator<GetTestSchedule>
     }
 }
 
-public class GetTestScheduleHandler : IRequestHandler<GetTestSchedule, List<TestScheduleResponse>>
+public class GetTestScheduleQueryHandler : IRequestHandler<GetTestScheduleQuery, List<TestScheduleResponse>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
     
-    public GetTestScheduleHandler(IApplicationDbContext context, IClassService classService)
+    public GetTestScheduleQueryHandler(IApplicationDbContext context, IClassService classService)
     {
         _context = context;
         _classService = classService;
     }
     
-    public async Task<List<TestScheduleResponse>> Handle(GetTestSchedule rq, CancellationToken cancellationToken)
+    /// <summary>
+    /// The function retrieves the test schedule for a class in a specified month and year, grouped by date
+    /// </summary>
+    /// <param name="rq">Request contains ClassId, Month, and Year information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
+    public async Task<List<TestScheduleResponse>> Handle(GetTestScheduleQuery rq, CancellationToken cancellationToken)
     {  
         var classById = await _context.Classes
             .Where(x => x.Id == rq.ClassId)
@@ -70,7 +66,8 @@ public class GetTestScheduleHandler : IRequestHandler<GetTestSchedule, List<Test
             .Select(x => new TestScheduleDto { TestId = x.Id, TestName = x.Name, Date = x.TimeStart.Date, })
             .ToListAsync(cancellationToken);
         
-        var testScheduleResponse = testSchedule.GroupBy(x => x.Date)
+        var testScheduleResponse = testSchedule
+            .GroupBy(x => x.Date)
             .Select(x => new TestScheduleResponse { Date = x.Key, TestSchedules = x.ToList() })
             .OrderBy(x => x.Date)
             .ToList();

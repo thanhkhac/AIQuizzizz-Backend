@@ -10,13 +10,19 @@ namespace CleanArchitectureBase.Application.Classes;
 [Authorize]
 public class RemoveStudentCommand : IRequest<Guid>
 {
+    /// <summary>
+    /// Id of the class want to remove student
+    /// </summary>
     public required Guid ClassId { get; set; }   
+    /// <summary>
+    /// Id of the student want to remove from class
+    /// </summary>
     public required Guid UserId { get; set; }
 }
 
-public class RemoveStudentValidator : AbstractValidator<RemoveStudentCommand>
+public class RemoveStudentCommandValidator : AbstractValidator<RemoveStudentCommand>
 {
-    public RemoveStudentValidator()
+    public RemoveStudentCommandValidator()
     {
         RuleFor(x => x.ClassId)
             .NotEmpty().WithMessage("ClassId không thể trống");
@@ -25,25 +31,30 @@ public class RemoveStudentValidator : AbstractValidator<RemoveStudentCommand>
     }
 }
 
-public class RemoveStudentHandler : IRequestHandler<RemoveStudentCommand, Guid>
+public class RemoveStudentCommandHandler : IRequestHandler<RemoveStudentCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
     
-    public RemoveStudentHandler(IApplicationDbContext context, IClassService classService)
+    public RemoveStudentCommandHandler(IApplicationDbContext context, IClassService classService)
     {
         _context = context;
         _classService = classService;
     }
     
+    /// <summary>
+    /// The function removes a student from a class and returns the student's user ID
+    /// </summary>
+    /// <param name="rq">Request contains ClassId and UserId information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<Guid> Handle(RemoveStudentCommand rq, CancellationToken cancellationToken)
     {
         var (isOwner, classExists) = await _classService.GetClassOwnerAccess(rq.ClassId, cancellationToken);
         
-        var user = await _context.DomainUsers
-            .Include(u => u.ClassUsers)
-            .Where(u => u.ClassUsers.Any(cu => cu.ClassId == rq.ClassId && cu.ShareMode != ClassShareMode.Owner && cu.Class.IsDeleted == false))
-            .Select(u => new { User = u, ClassUser = u.ClassUsers.FirstOrDefault(cu => cu.ClassId == rq.ClassId) })
+        var user = await _context.ClassUsers
+            .Include(u => u.User)
+            .Where(cu => cu.ClassId == rq.ClassId && cu.ShareMode != ClassShareMode.Owner && cu.Class.IsDeleted == false && cu.UserId== rq.UserId)
+            .Select(u => new { User = u.User, ClassUser = u})
             .FirstOrDefaultAsync(cancellationToken);
 
         if (user == null || user.ClassUser == null)

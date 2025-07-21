@@ -3,34 +3,35 @@ using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Classes;
+namespace CleanArchitectureBase.Application.Tests;
 
 public class HistoryTestDto
 {
     public Guid AttemptId { get; set; }
     public string? StudentName { get; set; }
     public string? StudentEmail { get; set; }
-    public DateTime? TimeStart { get; set; }
-    public DateTime? TimeSubmit { get; set; }
+    public DateTimeOffset? TimeStart { get; set; }
+    public DateTimeOffset? TimeSubmit { get; set; }
     public float Score { get; set; }
     public string? Status { get; set; }
 }
 
-public class GetHistoryTest : IRequest<PaginatedList<HistoryTestDto>>
+[Authorize]
+public class GetUserTestHistoryQuery : IRequest<PaginatedList<HistoryTestDto>>
 {
     public required Guid TestId { get; set; }
-    public string? StudentName { get; set; }
     public bool? IsPassed { get; set; }
     public int PageNumber { get; set; } = 1;
     public int PageSize { get; set; } = 10;
 }
 
-public class GetHistoryTestValidator : AbstractValidator<GetHistoryTest>
+public class GetUserTestHistoryQueryValidator : AbstractValidator<GetUserTestHistoryQuery>
 {
-    public GetHistoryTestValidator()
+    public GetUserTestHistoryQueryValidator()
     {
         RuleFor(x => x.TestId)
             .NotEmpty().WithMessage("ClassId ko đc rỗng");
@@ -43,31 +44,39 @@ public class GetHistoryTestValidator : AbstractValidator<GetHistoryTest>
     }
 }
 
-public class GetHistoryTestHandler : IRequestHandler<GetHistoryTest, PaginatedList<HistoryTestDto>>
+public class GetUserTestHistoryQueryHandler : IRequestHandler<GetUserTestHistoryQuery, PaginatedList<HistoryTestDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
+    private readonly IUser _user;
     
-    public GetHistoryTestHandler(IApplicationDbContext context, IClassService classService)
+    public GetUserTestHistoryQueryHandler(
+        IApplicationDbContext context,
+        IClassService classService,
+        IUser user)
     {
         _context = context;
         _classService = classService;
+        _user = user;
     }
     
-    public async Task<PaginatedList<HistoryTestDto>> Handle(GetHistoryTest rq, CancellationToken cancellationToken)
+    /// <summary>
+    /// The function retrieves a user's test attempt history for a specific test, filtered by pass/fail status, and returns a paginated list of attempt details
+    /// </summary>
+    /// <param name="rq">Request contains TestId, IsPassed, PageNumber, and PageSize information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
+    public async Task<PaginatedList<HistoryTestDto>> Handle(GetUserTestHistoryQuery rq, CancellationToken cancellationToken)
     {
         var test = await _context.Tests.Where(x => x.Id.Equals(rq.TestId)).FirstOrDefaultAsync(cancellationToken);
         if (test == null)
             throw new ErrorCodeException(ErrorCodes.TEST_NOT_FOUND, "Không tìm thấy bài test");
         
-        await _classService.IsLecturerOrOwnerInClass(test.ClassId);
+        await _classService.IsStudentInClass(test.ClassId);
 
         var attempts = _context.Attempts
             .Include(x => x.User)
             .Include(x => x.Test)
-            .Where(x => x.TestId == rq.TestId && 
-                        (string.IsNullOrEmpty(rq.StudentName) || 
-                         (x.User != null && x.User.FullName!.ToLower().Contains(rq.StudentName.ToLower()))))
+            .Where(x => x.TestId == rq.TestId && x.UserId == _user.UserId)
             .OrderByDescending(x => x.TimeFinish)
             .Select(x => new HistoryTestDto
             {

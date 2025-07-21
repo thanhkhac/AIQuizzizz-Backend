@@ -24,17 +24,14 @@ public class ResetQuestionSetHistoryCommandValidator : AbstractValidator<ResetQu
 
 public class ResetQuestionSetHistoryCommandHandler : IRequestHandler<ResetQuestionSetHistoryCommand, Unit>
 {
-    private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     private readonly IQuestionSetService _questionSetService;
     private readonly IUserQuestionSetHistoryService _userQuestionSetHistoryService;
 
     public ResetQuestionSetHistoryCommandHandler(
-        IApplicationDbContext context,
         IUser user,
         IQuestionSetService questionSetService, IUserQuestionSetHistoryService userQuestionSetHistoryService)
     {
-        _context = context;
         _user = user;
         _questionSetService = questionSetService;
         _userQuestionSetHistoryService = userQuestionSetHistoryService;

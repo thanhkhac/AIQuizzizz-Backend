@@ -1,6 +1,5 @@
 ﻿using CleanArchitectureBase.Application.Classes;
 using CleanArchitectureBase.Application.Common.Models;
-using CleanArchitectureBase.Domain.Entities;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,15 +12,13 @@ public class Class : EndpointGroupBase
         app.MapGroup(this)
             .MapPost(CreateClass, "")
             .MapPost(JoinClassByCode, "Students")
-            .MapPost(InviteStudent, "/{ClassId}/Invitations")
+            .MapPost(CreateInviteCode, "/{ClassId}/Invitations")
             .MapPost(AddQuestionSet, "/{ClassId}/Questionsets/{QuestionSetId}")
-            .MapPost(CreateTest, "/Test")
             .MapGet(SearchStudent, "/{ClassId}/Students")
             .MapGet(SearchClass, "")
             .MapGet(SearchTest, "/{ClassId}/Tests")
             .MapGet(GetInviteStudentCode, "/{ClassId}/Invitation-Code")
             .MapGet(SearchQuestionSet, "/{ClassId}/Questionsets")
-            .MapGet(GetTestSchedule, "/{ClassId}/Schedule")
             .MapGet(GetClassById, "/{ClassId}")
             .MapDelete(DeleteClass, "/{ClassId}")
             .MapDelete(RemoveStudent, "/{ClassId}/Members/{UserId}")
@@ -29,36 +26,67 @@ public class Class : EndpointGroupBase
             .MapPatch("/{ClassId}/Members/{UserId}", UpdatePosition);
     }
 
+    /// <summary>
+    /// User - create new class
+    /// </summary>
+    /// <param name="rq"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<Guid>>> CreateClass([FromBody] CreateClassCommand rq, ISender sender)
     {
         var result = await sender.Send(rq);
         return result.ToOk();
     }
     
+    /// <summary>
+    /// User - join class by code
+    /// </summary>
+    /// <param name="rq"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<Unit>>> JoinClassByCode([FromBody] JoinClassByCodeCommand rq, ISender sender)
     {
         var result = await sender.Send(rq);
         return result.ToOk();
     }
     
+    /// <summary>
+    /// Lecture/Student - Get class detail data
+    /// </summary>
+    /// <param name="classId"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<ClassDetailDto>>> GetClassById([FromRoute] Guid classId, ISender sender)
     {
-        var result = await sender.Send(new GetClassById{ClassId = classId});
+        var result = await sender.Send(new GetClassByIdQuery{ClassId = classId});
         return result.ToOk();
     } 
     
+    /// <summary>
+    /// Lecturer - Get class invitation code for view
+    /// </summary>
+    /// <param name="classId"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<string?>>> GetInviteStudentCode([FromRoute] Guid classId, ISender sender)
     {
-        var result = await sender.Send(new GetInviteStudentCode{ClassId = classId});
+        var result = await sender.Send(new GetInviteStudentCodeQuery{ClassId = classId});
         return result.ToOk();
     } 
     
-    public async Task<Ok<ApiResponse<ClassCodeDto>>> InviteStudent(
+    /// <summary>
+    /// Lecturer - Create new invitation code
+    /// </summary>
+    /// <param name="classId"></param>
+    /// <param name="expiredTime"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
+    public async Task<Ok<ApiResponse<ClassCodeDto>>> CreateInviteCode(
         [FromRoute] Guid classId,
         [FromQuery] double expiredTime,
         ISender sender)
     {
-        var rq = new InviteStudentCommand
+        var rq = new CreateInviteCodeCommand
         {
             ClassId = classId,
             ExpiredTime = expiredTime,
@@ -67,6 +95,16 @@ public class Class : EndpointGroupBase
         return result.ToOk();
     }
     
+    /// <summary>
+    /// Lecturer/Student search student in class
+    /// </summary>
+    /// <param name="classId"></param>
+    /// <param name="keyword"></param>
+    /// <param name="fieldName"></param>
+    /// <param name="sender"></param>
+    /// <param name="pageNumber"></param>
+    /// <param name="pageSize"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<PaginatedList<StudentSearchResultDto>>>> SearchStudent(
         [FromRoute] Guid classId,
         [FromQuery] string? keyword,
@@ -75,7 +113,7 @@ public class Class : EndpointGroupBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
-        var rq = new SearchStudentInClass
+        var rq = new SearchStudentInClassQuery
         {
             ClassId = classId,
             Keyword = keyword,
@@ -87,7 +125,17 @@ public class Class : EndpointGroupBase
         return result.ToOk();
     }
     
-    public async Task<Ok<ApiResponse<PaginatedList<TestSearchResultDto>>>> SearchTest(
+    /// <summary>
+    /// Search test in class
+    /// </summary>
+    /// <param name="status"></param>
+    /// <param name="testName"></param>
+    /// <param name="classId"></param>
+    /// <param name="sender"></param>
+    /// <param name="pageNumber"></param>
+    /// <param name="pageSize"></param>
+    /// <returns></returns>
+    public async Task<Ok<ApiResponse<PaginatedList<SearchTestResultDto>>>> SearchTest(
         [FromQuery] string? status,
         [FromQuery] string? testName,
         [FromRoute] Guid classId,
@@ -95,7 +143,7 @@ public class Class : EndpointGroupBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
-        var rq = new SearchTestInClass()
+        var rq = new SearchTestInClassQuery()
         {
             ClassId = classId,
             TestName = testName,
@@ -107,6 +155,16 @@ public class Class : EndpointGroupBase
         return result.ToOk();
     }
     
+    /// <summary>
+    /// Lecturer - Search added question sets in class
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="shareMode"></param>
+    /// <param name="classId"></param>
+    /// <param name="sender"></param>
+    /// <param name="pageNumber"></param>
+    /// <param name="pageSize"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<PaginatedList<SearchQuestionSetDto>>>> SearchQuestionSet(
         [FromQuery] string? name,
         [FromQuery] string? shareMode,
@@ -115,7 +173,7 @@ public class Class : EndpointGroupBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
-        var rq = new SearchQuestionSetCommand()
+        var rq = new SearchQuestionSetQuery()
         {
             ClassId = classId,
             Name = name,
@@ -127,6 +185,15 @@ public class Class : EndpointGroupBase
         return result.ToOk();
     }
     
+    /// <summary>
+    /// User - Search class the current user has joined
+    /// </summary>
+    /// <param name="shareMode"></param>
+    /// <param name="name"></param>
+    /// <param name="sender"></param>
+    /// <param name="pageNumber"></param>
+    /// <param name="pageSize"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<PaginatedList<ClassSearchResultDto>>>> SearchClass(
         [FromQuery] string? shareMode,
         [FromQuery] string? name,
@@ -134,7 +201,7 @@ public class Class : EndpointGroupBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
-        var rq = new SearchClass()
+        var rq = new SearchClassQuery()
         {
            ShareMode = shareMode,
            Name = name,
@@ -144,23 +211,19 @@ public class Class : EndpointGroupBase
         var result = await sender.Send(rq);
         return result.ToOk();
     }
-
-    public async Task<Ok<ApiResponse<List<TestScheduleResponse>>>> GetTestSchedule(
-        [FromRoute] Guid classId,
-        [FromQuery] int? month,
-        [FromQuery] int? year,
-        ISender sender)
-    {
-        var rq = new GetTestSchedule { ClassId = classId, Month = month, Year = year };
-        var result = await sender.Send(rq);
-        return result.ToOk();
-        
-    }
-
+    
+    /// <summary>
+    /// Class onwer - Update position of members in class
+    /// </summary>
+    /// <param name="classId"></param>
+    /// <param name="userId"></param>
+    /// <param name="position"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<UpdatePositionDto>>> UpdatePosition(
         [FromRoute] Guid classId,
         [FromRoute] Guid userId,
-        [FromQuery] ClassShareMode position,
+        [FromQuery] string position,
         ISender sender)
     {
         var rq = new UpdatePositionCommand()
@@ -173,6 +236,12 @@ public class Class : EndpointGroupBase
         return result.ToOk();
     }
     
+    /// <summary>
+    /// Class owner - Delete class
+    /// </summary>
+    /// <param name="classId"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<Guid>>> DeleteClass(
         [FromRoute] Guid classId,
         ISender sender)
@@ -185,6 +254,7 @@ public class Class : EndpointGroupBase
         return result.ToOk();
     }
 
+    
     public async Task<Ok<ApiResponse<Guid>>> RemoveStudent(
         [FromRoute] Guid classId,
         [FromRoute] Guid userId,
@@ -218,17 +288,11 @@ public class Class : EndpointGroupBase
         [FromRoute] Guid questionSetId,
         ISender sender)
     {
-        var rq = new RemoveQuestionSetCommand()
+        var rq = new RemoveQuestionSetFromClassCommand()
         {
             ClassId = classId,
             QuestionSetId = questionSetId
         };
-        var result = await sender.Send(rq);
-        return result.ToOk();
-    }
-    
-    public async Task<Ok<ApiResponse<Guid>>> CreateTest([FromBody] CreateTestCommand rq, ISender sender)
-    {
         var result = await sender.Send(rq);
         return result.ToOk();
     }

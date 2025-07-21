@@ -1,8 +1,10 @@
-﻿using CleanArchitectureBase.Application.Common.Interfaces;
+﻿using CleanArchitectureBase.Application.Common.Exceptions;
+using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
+using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Tests;
+namespace CleanArchitectureBase.Application.TestTemplates;
 
 public class TestTemplatePermissionsDto
 {
@@ -11,36 +13,46 @@ public class TestTemplatePermissionsDto
 }
 
 [Authorize]
-public class GetTestTemplatePermissions : IRequest<TestTemplatePermissionsDto>
+public class GetTestTemplatePermissionsQuery : IRequest<TestTemplatePermissionsDto>
 {
     public required Guid TestTemplateId { get; set; }
 }
 
-public class GetTestTemplatePermissionsValidator : AbstractValidator<GetTestTemplatePermissions>
+public class GetTestTemplatePermissionsQueryValidator : AbstractValidator<GetTestTemplatePermissionsQuery>
 {
-    public GetTestTemplatePermissionsValidator()
+    public GetTestTemplatePermissionsQueryValidator()
     {
         RuleFor(x => x.TestTemplateId)
             .NotEmpty().WithMessage("TestTemplateId không được trống");
     }
 }
 
-public class GetTestTemplatePermissionsHandler : IRequestHandler<GetTestTemplatePermissions, TestTemplatePermissionsDto>
+public class GetTestTemplatePermissionsQueryHandler : IRequestHandler<GetTestTemplatePermissionsQuery, TestTemplatePermissionsDto>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     private readonly IIdentityService _identityService;
     
-    public GetTestTemplatePermissionsHandler(IApplicationDbContext context, IUser user, IIdentityService identityService)
+    public GetTestTemplatePermissionsQueryHandler(IApplicationDbContext context, IUser user, IIdentityService identityService)
     {
         _context = context;
         _user = user;
         _identityService = identityService;
     }
     
-    
-    public async Task<TestTemplatePermissionsDto> Handle(GetTestTemplatePermissions rq, CancellationToken cancellationToken)
+    /// <summary>
+    /// The function retrieves the permissions for a test template for the current user, indicating if they can edit or delete it
+    /// </summary>
+    /// <param name="rq">Request contains TestTemplateId information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
+    public async Task<TestTemplatePermissionsDto> Handle(GetTestTemplatePermissionsQuery rq, CancellationToken cancellationToken)
     {
+        var testTemplate = await _context.TestTemplates
+            .Where(t => t.Id == rq.TestTemplateId && t.IsDeleted == false)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (testTemplate == null)
+            throw new ErrorCodeException(ErrorCodes.TEST_TEMPLATE_NOT_FOUND, "Không tìm thất test template");
+        
         if (_user.UserId == null)
             return new TestTemplatePermissionsDto
             {
