@@ -26,6 +26,9 @@ public class Class : EndpointGroupBase
             .MapDelete(RemoveStudent, "/{ClassId}/Members/{UserId}")
             .MapDelete(RemoveQuestionSet, "/{ClassId}/Questionsets/{QuestionSetId}")
             .MapPatch("/{ClassId}/Members/{UserId}", UpdatePosition);
+        
+        app.MapGroup(this)
+            .MapPatch("/{ClassId}", UpdatePosition);
     }
 
     /// <summary>
@@ -64,6 +67,14 @@ public class Class : EndpointGroupBase
         return result.ToOk();
     } 
     
+    /// <summary>
+    /// Retrieves the test schedule for a specified class, optionally filtered by month and year
+    /// </summary>
+    /// <param name="classId"></param>
+    /// <param name="month"></param>
+    /// <param name="year"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<List<TestScheduleResponse>>>> GetTestSchedule(
         [FromRoute] Guid classId,
         [FromQuery] int? month,
@@ -245,6 +256,22 @@ public class Class : EndpointGroupBase
             ClassId = classId,
             Position = position,
             UserId = userId
+        };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<Guid>>> UpdateClass(
+        [FromRoute] Guid classId,
+        [FromQuery] string? name,
+        [FromQuery] string? topic,
+        ISender sender)
+    {
+        var rq = new UpdateClassCommand()
+        {
+            ClassId = classId,
+            Name = name,
+            Topic = topic,
         };
         var result = await sender.Send(rq);
         return result.ToOk();
