@@ -214,5 +214,73 @@ public class ApplicationDbContextInitialiser
             _context.Set<UserSubscription>().Add(subscription);
             await _context.SaveChangesAsync();
         }
+
+        // Seed thêm các tài khoản Lecturer, Student, Moderator
+        var lecturerUser = new User
+        {
+            Id = Guid.NewGuid(),
+            FullName = "Lecturer",
+            Email = "lecturer@gmail.com",
+            IsBanned = false
+        };
+        var lecturerAccount = new UserAccount
+        {
+            Id = lecturerUser.Id,
+            UserName = lecturerUser.Id.ToString(),
+            Email = "lecturer@gmail.com",
+            IsDeleted = false,
+            User = lecturerUser,
+            EmailConfirmed = true
+        };
+
+        if (_userManager.Users.All(u => u.UserName != lecturerAccount.UserName))
+        {
+            await _userManager.CreateAsync(lecturerAccount, "123456");
+        }
+
+        var studentUser = new User
+        {
+            Id = Guid.NewGuid(),
+            FullName = "Student",
+            Email = "student@gmail.com",
+            IsBanned = false
+        };
+        var studentAccount = new UserAccount
+        {
+            Id = studentUser.Id,
+            UserName = studentUser.Id.ToString(),
+            Email = "student@gmail.com",
+            IsDeleted = false,
+            User = studentUser,
+            EmailConfirmed = true
+        };
+
+        if (_userManager.Users.All(u => u.UserName != studentAccount.UserName))
+        {
+            await _userManager.CreateAsync(studentAccount, "123456");
+        }
+
+        var moderatorUser = new User
+        {
+            Id = Guid.NewGuid(),
+            FullName = "Moderator",
+            Email = "moderator@gmail.com",
+            IsBanned = false
+        };
+        var moderatorAccount = new UserAccount
+        {
+            Id = moderatorUser.Id,
+            UserName = moderatorUser.Id.ToString(),
+            Email = "moderator@gmail.com",
+            IsDeleted = false,
+            User = moderatorUser,
+            EmailConfirmed = true
+        };
+
+        if (_userManager.Users.All(u => u.UserName != moderatorAccount.UserName))
+        {
+            await _userManager.CreateAsync(moderatorAccount, "123456");
+            await _userManager.AddToRoleAsync(moderatorAccount, Roles.Moderator); // Nếu có Roles.Moderator
+        }
     }
 }
