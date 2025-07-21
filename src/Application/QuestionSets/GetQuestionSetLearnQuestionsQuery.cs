@@ -16,6 +16,20 @@ public class GetQuestionSetLearnQuestionsQuery : IRequest<List<QuestionResponseD
     public int QuestionCount { get; set; }
 }
 
+public class GetQuestionSetLearnQuestionsQueryValidator : AbstractValidator<GetQuestionSetLearnQuestionsQuery>
+{
+    public GetQuestionSetLearnQuestionsQueryValidator()
+    {
+        RuleFor(x => x.QuestionCount)
+            .GreaterThan(0).WithMessage("Số lượng câu hỏi phải lớn hơn 0")
+            .LessThanOrEqualTo(10).WithMessage("Số lượng câu hỏi tối đa là 10");
+
+        RuleFor(x => x.QuestionSetId)
+            .NotEmpty().WithMessage("QuestionSetId không được để trống");
+    }
+
+}
+
 public class GetQuestionSetLearnQuestionsQueryHandler : IRequestHandler<GetQuestionSetLearnQuestionsQuery, List<QuestionResponseDto>>
 {
 
