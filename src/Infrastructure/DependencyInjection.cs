@@ -5,6 +5,7 @@ using CleanArchitectureBase.Application.Plans;
 using CleanArchitectureBase.Application.Questions.Services;
 using CleanArchitectureBase.Application.QuestionSets.Services;
 using CleanArchitectureBase.Application.Tests.Service;
+using CleanArchitectureBase.Application.TestTemplates.Service;
 using CleanArchitectureBase.Application.UserQuestionSetHistories.Services;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Infrastructure.Data;
@@ -172,6 +173,7 @@ public static class DependencyInjection
         services.AddTransient<IPlanService, PlanService>();
         services.AddTransient<IClassService, ClassService>();
         services.AddTransient<ITestService, TestService>();
+        services.AddTransient<ITestTemplateService, TestTemplateService>();
         services.AddSingleton<IRedisService, RedisService>();
         services.AddSingleton<IFileService, FileService>();
 

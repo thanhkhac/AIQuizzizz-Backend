@@ -15,9 +15,15 @@ public class UpdatePositionDto
 [Authorize]
 public class UpdatePositionCommand : IRequest<UpdatePositionDto>
 {
+    /// <summary>
+    /// Id of the class want to update position
+    /// </summary>
     public required Guid ClassId { get; set; }
+    /// <summary>
+    /// If UserId is not provided, the position of the user who sent the request will be updated
+    /// </summary>
     public required Guid UserId { get; set; }
-    public required ClassShareMode Position { get; set; }
+    public required string? Position { get; set; }
 }
 
 public class UpdatePositionCommandValidator : AbstractValidator<UpdatePositionCommand>
@@ -29,7 +35,8 @@ public class UpdatePositionCommandValidator : AbstractValidator<UpdatePositionCo
         RuleFor(x => x.UserId)
             .NotEmpty().WithMessage("UserId không thể trống");
         RuleFor(x => x.Position)
-            .NotEmpty().WithMessage("Position không thể trống");
+            .Must(mode => new[] {"Student", "Teacher"}.Contains(mode) || string.IsNullOrEmpty(mode))
+            .WithMessage($"SharedMode phải là Student, Teacher");
     }
 }
 
@@ -44,6 +51,11 @@ public class UpdatePositionCommandHandler : IRequestHandler<UpdatePositionComman
         _user = user;
     }
     
+    /// <summary>
+    /// The function updates the position of a user in a class and returns the updated position details
+    /// </summary>
+    /// <param name="rq">Request contains ClassId, UserId, and Position information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<UpdatePositionDto> Handle(UpdatePositionCommand rq, CancellationToken cancellationToken)
     {
         var classUserData = await _context.ClassUsers
@@ -64,7 +76,8 @@ public class UpdatePositionCommandHandler : IRequestHandler<UpdatePositionComman
         if (classUser == null)
             throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Không tìm thấy student hoặc không phải student của lớp");
         
-        classUser.ClassUser.ShareMode = rq.Position;
+        classUser.ClassUser.ShareMode = Enum.Parse<ClassShareMode>(rq.Position
+                                                                   ?? throw new ErrorCodeException(ErrorCodes.PERMISSION_NOT_FOUND, "không tìm thầy role"));
         
         await _context.SaveChangesAsync(cancellationToken);
         

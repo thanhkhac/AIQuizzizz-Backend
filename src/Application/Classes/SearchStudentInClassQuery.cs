@@ -19,8 +19,11 @@ public class StudentSearchResultDto
 }
 
 [Authorize]
-public class SearchStudentInClassCommand : IRequest<PaginatedList<StudentSearchResultDto>>
+public class SearchStudentInClassQuery : IRequest<PaginatedList<StudentSearchResultDto>>
 {
+    /// <summary>
+    /// Id of the class want to retrieve students
+    /// </summary>
     public required Guid ClassId { get; set; }
     public string? Keyword { get; set; }
     public string? FieldName { get; set; }
@@ -28,9 +31,9 @@ public class SearchStudentInClassCommand : IRequest<PaginatedList<StudentSearchR
     public int PageSize { get; set; } = 5;
 }
 
-public class SearchStudentInClassCommandValidator : AbstractValidator<SearchStudentInClassCommand>
+public class SearchStudentInClassQueryValidator : AbstractValidator<SearchStudentInClassQuery>
 {
-    public SearchStudentInClassCommandValidator()
+    public SearchStudentInClassQueryValidator()
     {
         RuleFor(x => x.ClassId)
             .NotEmpty().WithMessage("ClassId không được để trống");
@@ -42,19 +45,24 @@ public class SearchStudentInClassCommandValidator : AbstractValidator<SearchStud
     }
 }
 
-public class SearchStudentCommandHandler : IRequestHandler<SearchStudentInClassCommand, PaginatedList<StudentSearchResultDto>>
+public class SearchStudentInClassQueryHandler : IRequestHandler<SearchStudentInClassQuery, PaginatedList<StudentSearchResultDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
 
 
-    public SearchStudentCommandHandler(IApplicationDbContext context, IClassService classService)
+    public SearchStudentInClassQueryHandler(IApplicationDbContext context, IClassService classService)
     {
         _context = context;
         _classService = classService;
     }
     
-    public async Task<PaginatedList<StudentSearchResultDto>> Handle(SearchStudentInClassCommand rq, CancellationToken cancellationToken)
+    /// <summary>
+    /// The function searches for students in a class based on a keyword and field name, returning a paginated list of student details
+    /// </summary>
+    /// <param name="rq">Request contains ClassId, Keyword, FieldName, PageNumber, and PageSize information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
+    public async Task<PaginatedList<StudentSearchResultDto>> Handle(SearchStudentInClassQuery rq, CancellationToken cancellationToken)
     {
         var classById = await _context.Classes
             .Where(x => x.Id == rq.ClassId)

@@ -9,7 +9,13 @@ namespace CleanArchitectureBase.Application.Classes;
 [Authorize]
 public class RemoveQuestionSetFromClassCommand : IRequest<Guid>
 {
+    /// <summary>
+    /// Id of the class want to remove question set
+    /// </summary>
     public required Guid ClassId { get; set; } 
+    /// <summary>
+    /// Id of the question set want to remove from class
+    /// </summary>
     public required Guid QuestionSetId { get; set; }  
 }
 
@@ -35,6 +41,11 @@ public class RemoveQuestionSetFromClassCommandHandler : IRequestHandler<RemoveQu
         _classService = classService;
     }
     
+    /// <summary>
+    /// The function removes a question set from a class and returns the question set ID
+    /// </summary>
+    /// <param name="rq">Request contains ClassId and QuestionSetId information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<Guid> Handle(RemoveQuestionSetFromClassCommand rq, CancellationToken cancellationToken)
     {
         var classById = await _context.Classes

@@ -9,6 +9,9 @@ namespace CleanArchitectureBase.Application.Classes;
 [Authorize]
 public class CreateClassCommand : IRequest<Guid>
 {
+    /// <summary>
+    /// Name of the class to be created
+    /// </summary>
     public required string Name { get; set; }
     public string? Topic { get; set; }
 }
@@ -33,6 +36,11 @@ public class CreateClassCommandHandler : IRequestHandler<CreateClassCommand, Gui
         _user = user;
     }
     
+    /// <summary>
+    /// The function creates a new class and assigns the creator as the owner, returning the class ID
+    /// </summary>
+    /// <param name="rq">Request contains class Name and Topic information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<Guid> Handle(CreateClassCommand rq, CancellationToken cancellationToken)
     {
         var classExists = await _context.Classes

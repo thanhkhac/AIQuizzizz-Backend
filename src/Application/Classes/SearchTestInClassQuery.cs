@@ -8,7 +8,7 @@ using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Classes;
 
-public class TestSearchResultDto
+public class SearchTestResultDto
 {
     public required Guid TestId { get; set; }
     public required string Name { get; set; }
@@ -21,8 +21,11 @@ public class TestSearchResultDto
 }   
 
 [Authorize]
-public class SearchTestInClassCommand : IRequest<PaginatedList<TestSearchResultDto>>
+public class SearchTestInClassQuery : IRequest<PaginatedList<SearchTestResultDto>>
 {
+    /// <summary>
+    /// Id of the class want to retrieve tests
+    /// </summary>
     public required Guid ClassId { get; set; }
     public string? TestName { get; set; }
     public string? Status { get; set; }
@@ -30,9 +33,9 @@ public class SearchTestInClassCommand : IRequest<PaginatedList<TestSearchResultD
     public int PageSize { get; set; } = 5;
 }
 
-public class SearchTestInClassCommandValidator : AbstractValidator<SearchTestInClassCommand>
+public class SearchTestInClassQueryValidator : AbstractValidator<SearchTestInClassQuery>
 {
-    public SearchTestInClassCommandValidator()
+    public SearchTestInClassQueryValidator()
     {
         RuleFor(v => v.ClassId)
             .NotEmpty().WithMessage("ClassId không được để trống");
@@ -48,12 +51,12 @@ public class SearchTestInClassCommandValidator : AbstractValidator<SearchTestInC
     }
 }
 
-public class SearchTestInClassCommandHandler : IRequestHandler<SearchTestInClassCommand, PaginatedList<TestSearchResultDto>>
+public class SearchTestInClassQueryHandler : IRequestHandler<SearchTestInClassQuery, PaginatedList<SearchTestResultDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
     
-    public SearchTestInClassCommandHandler(
+    public SearchTestInClassQueryHandler(
         IApplicationDbContext context,
         IClassService classService)
     {
@@ -61,7 +64,12 @@ public class SearchTestInClassCommandHandler : IRequestHandler<SearchTestInClass
         _classService = classService;
     }
     
-    public async Task<PaginatedList<TestSearchResultDto>> Handle(SearchTestInClassCommand rq, CancellationToken cancellationToken)
+    /// <summary>
+    /// The function searches for tests in a class based on test name and status, returning a paginated list of test details
+    /// </summary>
+    /// <param name="rq">Request contains ClassId, TestName, Status, PageNumber, and PageSize information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
+    public async Task<PaginatedList<SearchTestResultDto>> Handle(SearchTestInClassQuery rq, CancellationToken cancellationToken)
     {
         var classById = await _context.Classes
             .Where(x => x.Id == rq.ClassId)
@@ -119,7 +127,7 @@ public class SearchTestInClassCommandHandler : IRequestHandler<SearchTestInClass
 
             var completionCount = attemptCounts.ContainsKey(test.Id) ? attemptCounts[test.Id] : 0;
 
-            return new TestSearchResultDto
+            return new SearchTestResultDto
             {
                 TestId = test.Id,
                 Name = test.Name,
@@ -134,12 +142,10 @@ public class SearchTestInClassCommandHandler : IRequestHandler<SearchTestInClass
             };
         });
 
-        return PaginatedList<TestSearchResultDto>.Create(
+        return PaginatedList<SearchTestResultDto>.Create(
             results.ToList(),
             rq.PageNumber,
             rq.PageSize
         );
     }
-
-    
 }

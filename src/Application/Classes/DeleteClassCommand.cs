@@ -7,6 +7,9 @@ namespace CleanArchitectureBase.Application.Classes;
 [Authorize]
 public class DeleteClassCommand : IRequest<Guid>
 {
+    /// <summary>
+    /// Id of the class want to delete
+    /// </summary>
     public required Guid ClassId { get; set; }   
 }
 
@@ -30,6 +33,11 @@ public class DeleteClassHandler : IRequestHandler<DeleteClassCommand, Guid>
         _classService = classService;
     }
     
+    /// <summary>
+    /// The function soft-deletes a class and returns the class ID
+    /// </summary>
+    /// <param name="rq">Request contains ClassId information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<Guid> Handle(DeleteClassCommand rq, CancellationToken cancellationToken)
     {
         var (isOwner, classExists) = await _classService

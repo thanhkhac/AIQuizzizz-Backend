@@ -1,6 +1,7 @@
 ﻿using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.Questions.Dtos;
 using CleanArchitectureBase.Application.Tests.Dto;
 using CleanArchitectureBase.Domain.Constants;
@@ -8,15 +9,13 @@ using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Tests;
 
+[Authorize]
 public class SubmitTestAttemptCommand : IRequest<TestResultDto>
 {
     /// <summary>
-    /// AttemptId của bài test học sinh chọn làm
+    /// AttemptId of the test the student chose to take
     /// </summary>
     public Guid AttemptId { get; set; }
-    /// <summary>
-    /// Các câu trả lời của học sinh
-    /// </summary>
     public List<UserAnswerDto> UserAnswers { get; set; } = new();
 }
 
@@ -43,10 +42,10 @@ public class AttemptTestCommandHandler : IRequestHandler<SubmitTestAttemptComman
     }
 
     /// <summary>
-    /// Hàm kiểm tra các câu hỏi của học sinh và trả về điểm bài làm
+    /// The function checks the student's questions and returns the test score
     /// </summary>
-    /// <param name="rq">Request chứa thông tin AttemptId và các câu trả lời của học sinh</param>
-    /// <param name="cancellationToken">Token để hủy tác vụ</param>
+    /// <param name="rq">Request contains AttemptId information and student responses</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<TestResultDto> Handle(SubmitTestAttemptCommand rq, CancellationToken cancellationToken)
     {
         var attempt = await _context.Attempts

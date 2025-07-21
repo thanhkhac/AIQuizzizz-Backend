@@ -12,13 +12,13 @@ public class TestTemplate : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
-            .MapGet(SearchTestTemplate, "/Templates")
+            .MapGet(SearchTestTemplate, "")
             .MapGet(GetTestTemplatePermissions, "/{testTemplateId}/Permissions")
-            .MapGet(GetTestTemplateDetail, "/Template/{testTemplateId}")
-            .MapPost(CreateTestTemplate, "/Templates");
+            .MapGet(GetTestTemplateDetail, "/{testTemplateId}")
+            .MapPost(CreateTestTemplate, "");
 
         app.MapGroup(this).DisableAntiforgery()
-            .MapPost(ImportFileTestTemplate, "/Templates/ImportFile");
+            .MapPost(ImportFileTestTemplate, "/ImportFile");
     }
 
     public async Task<Ok<ApiResponse<PaginatedList<TestTemplateDto>>>> SearchTestTemplate(
@@ -28,7 +28,7 @@ public class TestTemplate : EndpointGroupBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
-        var rq = new SearchTestTemplateCommand
+        var rq = new SearchTestTemplateQuery
         {
             TestTemplateName = folderName, SharedMode = sharedMode, PageNumber = pageNumber, PageSize = pageSize,
         };
@@ -45,7 +45,7 @@ public class TestTemplate : EndpointGroupBase
     
     public async Task<Ok<ApiResponse<TestTemplatePermissionsDto>>> GetTestTemplatePermissions([FromRoute] Guid testTemplateId, ISender sender)
     {
-        var query = new GetTestTemplatePermissionsCommand
+        var query = new GetTestTemplatePermissionsQuery
         {
             TestTemplateId = testTemplateId
         };
@@ -55,7 +55,7 @@ public class TestTemplate : EndpointGroupBase
     
     public async Task<Ok<ApiResponse<TestTemplateDetailDto>>> GetTestTemplateDetail([FromRoute] Guid testTemplateId, ISender sender)
     {
-        var query = new GetTestTemplateDetailCommand
+        var query = new GetTestTemplateDetailQuery
         {
             TestTemplateId = testTemplateId
         };
