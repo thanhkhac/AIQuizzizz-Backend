@@ -81,10 +81,16 @@ public class ApplicationDbContextInitialiser
     {
         // Default roles
         var administratorRole = new ApplicationRole(Roles.Administrator);
+        var moderatorRole = new ApplicationRole(Roles.Moderator);
 
         if (_roleManager.Roles.All(r => r.Name != administratorRole.Name))
         {
             await _roleManager.CreateAsync(administratorRole);
+        }
+        
+        if (_roleManager.Roles.All(r => r.Name != moderatorRole.Name))
+        {
+            await _roleManager.CreateAsync(moderatorRole);
         }
 
         // Default users

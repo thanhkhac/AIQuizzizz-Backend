@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <RootNamespace>CleanArchitectureBase.Application.FunctionalTests</RootNamespace>
-        <AssemblyName>CleanArchitectureBase.Application.FunctionalTests</AssemblyName>
+        <RootNamespace>CleanArchitectureBase.Application.Command.UnitTests</RootNamespace>
+        <AssemblyName>CleanArchitectureBase.Application.Command.UnitTests</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>

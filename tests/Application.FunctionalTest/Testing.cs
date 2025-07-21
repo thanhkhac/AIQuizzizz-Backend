@@ -59,7 +59,7 @@ public partial class Testing
     {
         return await RunAsUserAsync("administrator@local", "Administrator1234!", new[] { Domain.Constants.Roles.Administrator });
     }
-
+     
     public static async Task<Guid> RunAsUserAsync(string email, string password, string[] roles)
     {
         using var scope = _scopeFactory.CreateScope();
