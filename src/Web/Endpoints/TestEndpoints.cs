@@ -1,6 +1,7 @@
-﻿using CleanArchitectureBase.Application.Common.Models;
-using CleanArchitectureBase.Application.FolderTest;
+﻿using CleanArchitectureBase.Application.Classes.Dto;
+using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Tests;
+using CleanArchitectureBase.Application.Tests.Dto;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,55 +12,63 @@ public class Test : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
-            .MapGet(SearchTestTemplate, "/Templates")
-            .MapGet(GetTestTemplatePermissions, "/{testTemplateId}/Permissions")
-            .MapPost(CreateTestTemplate, "/Templates");
-
-        app.MapGroup(this).DisableAntiforgery()
-            .MapPost(ImportFileTestTemplate, "/Templates/ImportFile");
+            .MapGet(GetHistoryTest, "/{TestId}/History")
+            .MapGet(GetTestSchedule, "/Class/{ClassId}/Schedule")
+            .MapPost(CreateTest, "")
+            .MapPost(SubmitTestAttempt, "/Submit")
+            .MapPost(StartAttemptTestTestAttempt, "/{TestId}/Attempt");
     }
-
-    public async Task<Ok<ApiResponse<PaginatedList<TestTemplateDto>>>> SearchTestTemplate(
-        [FromQuery] string? folderName,
-        [FromQuery] string? sharedMode,
-        ISender sender,
-        [FromQuery] int pageNumber = 1,
-        [FromQuery] int pageSize = 5)
-    {
-        var rq = new SearchTestTemplate
-        {
-            TestTemplateName = folderName, SharedMode = sharedMode, PageNumber = pageNumber, PageSize = pageSize,
-        };
-        
-        var result = await sender.Send(rq);
-        return result.ToOk();
-    }
-
-    public async Task<Ok<ApiResponse<Guid>>> CreateTestTemplate([FromBody] CreateTestTemplateCommand rq, ISender sender)
+    
+    public async Task<Ok<ApiResponse<Guid>>> CreateTest([FromBody] CreateTestCommand rq, ISender sender)
     {
         var result = await sender.Send(rq);
         return result.ToOk();
     }
     
-    public async Task<Ok<ApiResponse<TestTemplatePermissionsDto>>> GetTestTemplatePermissions([FromRoute] Guid testTemplateId, ISender sender)
+    public async Task<Ok<ApiResponse<PaginatedList<HistoryTestDto>>>> GetHistoryTest(
+        [FromRoute] Guid testId,
+        [FromQuery] string? studentName,
+        [FromQuery] bool? isPassed,
+        ISender sender,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 5)
     {
-        var query = new GetTestTemplatePermissions
+        var query = new GetUserTestHistoryQuery
         {
-            TestTemplateId = testTemplateId
+            TestId = testId,
+            IsPassed = isPassed,
+            PageNumber = pageNumber,
+            PageSize = pageSize
         };
         var result = await sender.Send(query);
         return result.ToOk();
     }
-
-    public async Task<Ok<ApiResponse<ImportedQuestionDto>>> ImportFileTestTemplate(
-        [FromForm] IFormFile fileData,
+    
+    public async Task<Ok<ApiResponse<AttemptDetailDto>>> StartAttemptTestTestAttempt(
+        [FromRoute] Guid testId,
         ISender sender)
     {
-        var rq = new ImportFileTestTemplateCommand
-        {
-            FileData = fileData
-        };
+        var result = await sender.Send(new StartAttemptTestCommand{TestId = testId});
+        return result.ToOk();
+    } 
+
+    public async Task<Ok<ApiResponse<TestResultDto>>> SubmitTestAttempt(
+        [FromBody] SubmitTestAttemptCommand userAnswer,
+        ISender sender)
+    {
+        var result = await sender.Send(userAnswer);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<List<TestScheduleResponse>>>> GetTestSchedule(
+        [FromRoute] Guid classId,
+        [FromQuery] int? month,
+        [FromQuery] int? year,
+        ISender sender)
+    {
+        var rq = new GetTestScheduleQuery() { ClassId = classId, Month = month, Year = year };
         var result = await sender.Send(rq);
         return result.ToOk();
+        
     }
 }

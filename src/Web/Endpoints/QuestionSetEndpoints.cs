@@ -16,6 +16,7 @@ public class QuestionSetEndpoints : EndpointGroupBase
     {
         app.MapGroup(this)
             .MapPost(CreateQuestionSet)
+            .MapGet(GetQuestionSetDetail,("{questionSetId}"))
             .MapGet(GetQuestions, "{questionSetId}/Questions")
             .MapPatch(UpdateQuestionSet, "{questionSetId}")
             .MapDelete(DeleteQuestionSet, "{questionSetId}")
@@ -24,6 +25,7 @@ public class QuestionSetEndpoints : EndpointGroupBase
             .MapDelete(ResetQuestionSetHistory, "{questionSetId}/LearnHistory")
             .MapGet(GetPermissions, "{questionSetId}/Permissions")
             .MapGet(GetQuestionsForEdit, "{questionSetId}/QuestionsForEdit")
+            .MapGet(GetQuestionsForCopy, "{questionSetId}/GetQuestionsForCopy")
             ;
     }
 
@@ -65,6 +67,26 @@ public class QuestionSetEndpoints : EndpointGroupBase
     public async Task<Ok<ApiResponse<List<CreateUpdateQuestionDto>>>> GetQuestionsForEdit([FromRoute] Guid questionSetId, ISender sender)
     {
         var query = new GetQuestionSetQuestionsForEditQuery
+        {
+            QuestionSetId = questionSetId
+        };
+        var result = await sender.Send(query);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<List<CreateUpdateQuestionDto>>>> GetQuestionsForCopy([FromRoute] Guid questionSetId, ISender sender)
+    {
+        var query = new GetQuestionSetQuestionsForCopyQuery
+        {
+            QuestionSetId = questionSetId
+        };
+        var result = await sender.Send(query);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<QuestionSetDetailDto>>> GetQuestionSetDetail([FromRoute] Guid questionSetId, ISender sender)
+    {
+        var query = new GetQuestionSetDetailQuery
         {
             QuestionSetId = questionSetId
         };

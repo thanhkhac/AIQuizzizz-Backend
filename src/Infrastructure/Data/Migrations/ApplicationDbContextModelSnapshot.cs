@@ -116,6 +116,9 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("Topic")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedBy");
@@ -653,10 +656,16 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.Property<Guid?>("LastModifiedBy")
                         .HasColumnType("uuid");
 
+                    b.Property<int>("MaxAttempt")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<float>("PassingScore")
+                        .HasColumnType("numeric(5,2)");
 
                     b.Property<int>("QuestionCount")
                         .HasColumnType("integer");
@@ -1055,10 +1064,10 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("DateFinish")
+                    b.Property<DateTimeOffset>("DateFinish")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("DateStart")
+                    b.Property<DateTimeOffset>("DateStart")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsActive")

@@ -8,6 +8,9 @@ namespace CleanArchitectureBase.Application.Users;
 [Authorize (Roles = Domain.Constants.Roles.Administrator)]
 public class ActiveAccountCommand : IRequest<Guid>
 {
+    /// <summary>
+    /// Id of the user want to activate
+    /// </summary>
     public required Guid UserId { get; set; }
 }
 
@@ -33,6 +36,11 @@ public class ActiveAccountCommandHandler : IRequestHandler<ActiveAccountCommand,
         _identityService = identityService;
     }
     
+    /// <summary>
+    /// The function activates a banned user account by removing the ban, returning the user ID
+    /// </summary>
+    /// <param name="rq">Request contains UserId information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<Guid> Handle(ActiveAccountCommand rq, CancellationToken cancellationToken)
     {
         var admins = await _identityService.GetUsersInRoleAsync();

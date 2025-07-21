@@ -33,6 +33,11 @@ public class CreateFolderCommandHandler : IRequestHandler<CreateFolderCommand, G
         _user = user;
     }
     
+    /// <summary>
+    /// The function creates a new folder and assigns the creator as the owner, returning the folder ID
+    /// </summary>
+    /// <param name="rq">Request contains FolderName information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<Guid> Handle(CreateFolderCommand rq, CancellationToken cancellationToken)
     {
         var folder = await _context.Folders

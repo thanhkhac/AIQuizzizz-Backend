@@ -1,14 +1,17 @@
 ﻿using System.Text;
+using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Plans;
 using CleanArchitectureBase.Application.Questions.Services;
 using CleanArchitectureBase.Application.QuestionSets.Services;
+using CleanArchitectureBase.Application.Tests.Service;
+using CleanArchitectureBase.Application.TestTemplates.Service;
 using CleanArchitectureBase.Application.UserQuestionSetHistories.Services;
 using CleanArchitectureBase.Domain.Constants;
-using CleanArchitectureBase.Domain.Entities;
 using CleanArchitectureBase.Infrastructure.Data;
 using CleanArchitectureBase.Infrastructure.Data.Interceptors;
 using CleanArchitectureBase.Infrastructure.DomainServices;
+using CleanArchitectureBase.Infrastructure.File;
 using CleanArchitectureBase.Infrastructure.Identity;
 using CleanArchitectureBase.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -168,7 +171,11 @@ public static class DependencyInjection
         services.AddTransient<IQuestionSetService, QuestionSetService>();
         services.AddTransient<IUserQuestionSetHistoryService, UserQuestionSetHistoryService>();
         services.AddTransient<IPlanService, PlanService>();
+        services.AddTransient<IClassService, ClassService>();
+        services.AddTransient<ITestService, TestService>();
+        services.AddTransient<ITestTemplateService, TestTemplateService>();
         services.AddSingleton<IRedisService, RedisService>();
+        services.AddSingleton<IFileService, FileService>();
 
         // Register Google Auth Service
         services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();
