@@ -67,7 +67,7 @@ public class AddQuestionSetCommandHandler : IRequestHandler<AddQuestionSetComman
             .Where(x => x.ClassId == classById.Id && x.QuestionSetId == rq.QuestionSetId)
             .FirstOrDefaultAsync(cancellationToken);
         if (classQuestion != null)
-            throw new ErrorCodeException(ErrorCodes.QUESTION_SET_ALREADY_IN_CLASS, "Bộ câu hỏi đã tồn tại trong lớp học này.");
+            throw new ErrorCodeException(ErrorCodes.QUESTION_SET_ALREADY_IN_CLASS, "Bộ câu hỏi đã tồn tại trong lớp học này");
         
         var classQuestionSet = new ClassQuestionSet
         {

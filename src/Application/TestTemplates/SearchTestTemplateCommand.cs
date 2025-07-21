@@ -1,10 +1,12 @@
 ﻿using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.FolderTest;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.TestTemplates;
 
+[Authorize]
 public class SearchTestTemplateCommand : IRequest<PaginatedList<TestTemplateDto>>
 {
     public required string? TestTemplateName { get; set; }

@@ -11,6 +11,7 @@ public class ClassSearchResultDto
 {
     public required Guid ClassId { get; set; }
     public required string Name { get; set; }
+    public Guid? OwnerId { get; set; }
     public string? Owner { get; set; }
     public string? Topic { get; set; }
 }

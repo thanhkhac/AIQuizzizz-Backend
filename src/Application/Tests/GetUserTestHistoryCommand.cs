@@ -3,6 +3,7 @@ using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
@@ -19,6 +20,7 @@ public class HistoryTestDto
     public string? Status { get; set; }
 }
 
+[Authorize]
 public class GetUserTestHistoryCommand : IRequest<PaginatedList<HistoryTestDto>>
 {
     public required Guid TestId { get; set; }

@@ -1,6 +1,7 @@
 ﻿using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.Questions.Dtos;
 using CleanArchitectureBase.Application.Tests.Dto;
 using CleanArchitectureBase.Domain.Constants;
@@ -29,6 +30,7 @@ public class AttemptTestCommandValidator : AbstractValidator<SubmitTestAttemptCo
     }
 }
 
+[Authorize]
 public class AttemptTestCommandHandler : IRequestHandler<SubmitTestAttemptCommand, TestResultDto>
 {
     private readonly IApplicationDbContext _context;

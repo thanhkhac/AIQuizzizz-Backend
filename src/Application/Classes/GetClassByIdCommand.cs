@@ -1,6 +1,7 @@
 ﻿using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.Classes;
@@ -11,6 +12,8 @@ public class ClassDetailDto
     public string? Name { get; set; }
     public string? Topic { get; set; }
 }
+
+[Authorize]
 public class GetClassByIdCommand : IRequest<ClassDetailDto>
 {
     public required Guid ClassId { get; set; }   
