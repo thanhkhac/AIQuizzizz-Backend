@@ -27,7 +27,7 @@ public class Folder : EndpointGroupBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
-        var rq = new SearchFolderTestCommand
+        var rq = new SearchFolderTestQuery
         {
             SharedMode = sharedMode,
             FolderName = folderName,
@@ -48,7 +48,7 @@ public class Folder : EndpointGroupBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
-        var rq = new SearchTestTemplateInFolderCommand
+        var rq = new SearchTestTemplateInFolderQuery
         {
             FolderId = FolderId,
             TestTemplateName = TestTemplateName,

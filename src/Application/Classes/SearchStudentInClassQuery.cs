@@ -19,7 +19,7 @@ public class StudentSearchResultDto
 }
 
 [Authorize]
-public class SearchStudentInClassCommand : IRequest<PaginatedList<StudentSearchResultDto>>
+public class SearchStudentInClassQuery : IRequest<PaginatedList<StudentSearchResultDto>>
 {
     /// <summary>
     /// Id of the class want to retrieve students
@@ -31,7 +31,7 @@ public class SearchStudentInClassCommand : IRequest<PaginatedList<StudentSearchR
     public int PageSize { get; set; } = 5;
 }
 
-public class SearchStudentInClassCommandValidator : AbstractValidator<SearchStudentInClassCommand>
+public class SearchStudentInClassCommandValidator : AbstractValidator<SearchStudentInClassQuery>
 {
     public SearchStudentInClassCommandValidator()
     {
@@ -45,7 +45,7 @@ public class SearchStudentInClassCommandValidator : AbstractValidator<SearchStud
     }
 }
 
-public class SearchStudentCommandHandler : IRequestHandler<SearchStudentInClassCommand, PaginatedList<StudentSearchResultDto>>
+public class SearchStudentCommandHandler : IRequestHandler<SearchStudentInClassQuery, PaginatedList<StudentSearchResultDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
@@ -62,7 +62,7 @@ public class SearchStudentCommandHandler : IRequestHandler<SearchStudentInClassC
     /// </summary>
     /// <param name="rq">Request contains ClassId, Keyword, FieldName, PageNumber, and PageSize information</param>
     /// <param name="cancellationToken">Token to cancel the task</param>
-    public async Task<PaginatedList<StudentSearchResultDto>> Handle(SearchStudentInClassCommand rq, CancellationToken cancellationToken)
+    public async Task<PaginatedList<StudentSearchResultDto>> Handle(SearchStudentInClassQuery rq, CancellationToken cancellationToken)
     {
         var classById = await _context.Classes
             .Where(x => x.Id == rq.ClassId)

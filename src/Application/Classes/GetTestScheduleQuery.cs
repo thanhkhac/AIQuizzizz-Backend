@@ -8,7 +8,7 @@ using CleanArchitectureBase.Domain.Constants;
 namespace CleanArchitectureBase.Application.Classes;
 
 [Authorize]
-public class GetTestScheduleCommand : IRequest<List<TestScheduleResponse>>
+public class GetTestScheduleQuery : IRequest<List<TestScheduleResponse>>
 {
     /// <summary>
     /// Id of the class want to retrieve the test schedule
@@ -18,9 +18,9 @@ public class GetTestScheduleCommand : IRequest<List<TestScheduleResponse>>
     public int? Year { get; set; }
 }
 
-public class GetTestScheduleCommandValidator : AbstractValidator<GetTestScheduleCommand>
+public class GetTestScheduleQueryValidator : AbstractValidator<GetTestScheduleQuery>
 {
-    public  GetTestScheduleCommandValidator()
+    public  GetTestScheduleQueryValidator()
     {
         RuleFor(x => x.ClassId)
             .NotEmpty().WithMessage("ClassId không được trống");
@@ -35,12 +35,12 @@ public class GetTestScheduleCommandValidator : AbstractValidator<GetTestSchedule
     }
 }
 
-public class GetTestScheduleCommandHandler : IRequestHandler<GetTestScheduleCommand, List<TestScheduleResponse>>
+public class GetTestScheduleQueryHandler : IRequestHandler<GetTestScheduleQuery, List<TestScheduleResponse>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
     
-    public GetTestScheduleCommandHandler(IApplicationDbContext context, IClassService classService)
+    public GetTestScheduleQueryHandler(IApplicationDbContext context, IClassService classService)
     {
         _context = context;
         _classService = classService;
@@ -51,7 +51,7 @@ public class GetTestScheduleCommandHandler : IRequestHandler<GetTestScheduleComm
     /// </summary>
     /// <param name="rq">Request contains ClassId, Month, and Year information</param>
     /// <param name="cancellationToken">Token to cancel the task</param>
-    public async Task<List<TestScheduleResponse>> Handle(GetTestScheduleCommand rq, CancellationToken cancellationToken)
+    public async Task<List<TestScheduleResponse>> Handle(GetTestScheduleQuery rq, CancellationToken cancellationToken)
     {  
         var classById = await _context.Classes
             .Where(x => x.Id == rq.ClassId)

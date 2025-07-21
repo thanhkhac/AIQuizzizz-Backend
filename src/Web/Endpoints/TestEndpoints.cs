@@ -32,7 +32,7 @@ public class Test : EndpointGroupBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
-        var query = new GetUserTestHistoryCommand
+        var query = new GetUserTestHistoryQuery
         {
             TestId = testId,
             IsPassed = isPassed,

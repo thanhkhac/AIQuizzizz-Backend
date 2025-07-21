@@ -13,7 +13,7 @@ public class SearchFolderTestDto
 }
 
 [Authorize]
-public class SearchFolderTestCommand : IRequest<PaginatedList<SearchFolderTestDto>>
+public class SearchFolderTestQuery : IRequest<PaginatedList<SearchFolderTestDto>>
 {
     public string? FolderName { get; set; }
     public string? SharedMode { get; set; }
@@ -21,7 +21,7 @@ public class SearchFolderTestCommand : IRequest<PaginatedList<SearchFolderTestDt
     public int PageSize { get; set; } = 5;
 }
 
-public class SearchFolderTestCommandValidator : AbstractValidator<SearchFolderTestCommand>
+public class SearchFolderTestCommandValidator : AbstractValidator<SearchFolderTestQuery>
 {
     public SearchFolderTestCommandValidator()
     {
@@ -36,7 +36,7 @@ public class SearchFolderTestCommandValidator : AbstractValidator<SearchFolderTe
     }
 }
 
-public class SearchFolderTestCommandHandler : IRequestHandler<SearchFolderTestCommand, PaginatedList<SearchFolderTestDto>>
+public class SearchFolderTestCommandHandler : IRequestHandler<SearchFolderTestQuery, PaginatedList<SearchFolderTestDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
@@ -52,7 +52,7 @@ public class SearchFolderTestCommandHandler : IRequestHandler<SearchFolderTestCo
     /// </summary>
     /// <param name="rq">Request contains FolderName, SharedMode, PageNumber, and PageSize information</param>
     /// <param name="cancellationToken">Token to cancel the task</param>
-    public async Task<PaginatedList<SearchFolderTestDto>> Handle(SearchFolderTestCommand rq, CancellationToken cancellationToken)
+    public async Task<PaginatedList<SearchFolderTestDto>> Handle(SearchFolderTestQuery rq, CancellationToken cancellationToken)
     {
         var authors = await _context.FolderUsers
             .Include(fu => fu.Folder)

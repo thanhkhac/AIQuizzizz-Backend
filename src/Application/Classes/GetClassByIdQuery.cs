@@ -14,7 +14,7 @@ public class ClassDetailDto
 }
 
 [Authorize]
-public class GetClassByIdCommand : IRequest<ClassDetailDto>
+public class GetClassByIdQuery : IRequest<ClassDetailDto>
 {
     /// <summary>
     /// Id of the class want to retrieve details
@@ -22,21 +22,21 @@ public class GetClassByIdCommand : IRequest<ClassDetailDto>
     public required Guid ClassId { get; set; }   
 }
 
-public class GetClassByIdCommandValidator : AbstractValidator<GetClassByIdCommand>
+public class GetClassByIdQueryValidator : AbstractValidator<GetClassByIdQuery>
 {
-    public GetClassByIdCommandValidator()
+    public GetClassByIdQueryValidator()
     {
         RuleFor(x => x.ClassId)
             .NotEmpty().WithMessage("ClassId ko đc rỗng");
     }
 }
 
-public class GetClassByIdCommandHandler : IRequestHandler<GetClassByIdCommand, ClassDetailDto>
+public class GetClassByIdQueryHandler : IRequestHandler<GetClassByIdQuery, ClassDetailDto>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
     
-    public GetClassByIdCommandHandler(IApplicationDbContext context, IClassService classService)
+    public GetClassByIdQueryHandler(IApplicationDbContext context, IClassService classService)
     {
         _context = context;
         _classService = classService;
@@ -47,7 +47,7 @@ public class GetClassByIdCommandHandler : IRequestHandler<GetClassByIdCommand, C
     /// </summary>
     /// <param name="rq">Request contains ClassId information</param>
     /// <param name="cancellationToken">Token to cancel the task</param>
-    public async Task<ClassDetailDto> Handle(GetClassByIdCommand rq, CancellationToken cancellationToken)
+    public async Task<ClassDetailDto> Handle(GetClassByIdQuery rq, CancellationToken cancellationToken)
     {
         var classById = await _context.Classes
             .Where(x => x.Id == rq.ClassId && x.IsDeleted == false)
