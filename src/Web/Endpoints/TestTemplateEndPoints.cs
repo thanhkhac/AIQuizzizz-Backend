@@ -12,13 +12,13 @@ public class TestTemplate : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
-            .MapGet(SearchTestTemplate, "/Templates")
+            .MapGet(SearchTestTemplate, "")
             .MapGet(GetTestTemplatePermissions, "/{testTemplateId}/Permissions")
-            .MapGet(GetTestTemplateDetail, "/Template/{testTemplateId}")
-            .MapPost(CreateTestTemplate, "/Templates");
+            .MapGet(GetTestTemplateDetail, "/{testTemplateId}")
+            .MapPost(CreateTestTemplate, "");
 
         app.MapGroup(this).DisableAntiforgery()
-            .MapPost(ImportFileTestTemplate, "/Templates/ImportFile");
+            .MapPost(ImportFileTestTemplate, "/ImportFile");
     }
 
     public async Task<Ok<ApiResponse<PaginatedList<TestTemplateDto>>>> SearchTestTemplate(

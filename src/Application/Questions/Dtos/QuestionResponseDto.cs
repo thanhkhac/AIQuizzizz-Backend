@@ -6,7 +6,7 @@ namespace CleanArchitectureBase.Application.Questions.Dtos;
 public class QuestionResponseDto
 {
     public Guid Id { get; set; }
-    public Guid QuestionSetId { get; set; }
+    public Guid QuestionSetId { get; set; } = Guid.Empty;
     public string Type { get; set; } = null!;
     public TextFormat TextFormat { get; set; }
     public string QuestionText { get; set; } = null!;

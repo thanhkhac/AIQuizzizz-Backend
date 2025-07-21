@@ -24,7 +24,7 @@ public class TestService : ITestService
     public async Task QuestionAccess(List<CreateUpdateQuestionDto> question, CancellationToken cancellationToken)
     {
         var questionSetPairs = question
-            .Where(q => q.QuestionId.HasValue)
+            .Where(q => q.QuestionId.HasValue && q.QuestionId!=Guid.Empty)
             .Select(q => q.QuestionId)
             .ToList();
 

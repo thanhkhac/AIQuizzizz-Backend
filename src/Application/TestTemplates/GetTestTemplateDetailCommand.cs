@@ -3,6 +3,7 @@ using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.Questions.Dtos;
 using CleanArchitectureBase.Application.TestTemplates.Dto;
+using CleanArchitectureBase.Application.TestTemplates.Service;
 using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.TestTemplates;
@@ -27,12 +28,18 @@ public class GetTestTemplateDetailCommandHandler : IRequestHandler<GetTestTempla
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     private readonly IIdentityService _identityService;
+    private readonly ITestTemplateService _testTemplateService;
 
-    public GetTestTemplateDetailCommandHandler(IApplicationDbContext context, IUser user, IIdentityService identityService)
+    public GetTestTemplateDetailCommandHandler(
+        IApplicationDbContext context,
+        IUser user,
+        IIdentityService identityService,
+        ITestTemplateService testTemplateService)
     {
         _context = context;
         _user = user;
         _identityService = identityService;
+        _testTemplateService = testTemplateService;
     }
     
     public async Task<TestTemplateDetailDto> Handle(GetTestTemplateDetailCommand rq, CancellationToken cancellationToken)
@@ -43,12 +50,8 @@ public class GetTestTemplateDetailCommandHandler : IRequestHandler<GetTestTempla
             throw new ErrorCodeException(ErrorCodes.TEST_TEMPLATE_NOT_FOUND, "TestTemplate không tồn tại");
         
         var isAdmin = await _identityService.IsInAnyRoleAsync(_user.UserId!.Value, Domain.Constants.Roles.Administrator, Domain.Constants.Roles.Moderator);
-        
-        var accessToView = await _context.TestTemplateUsers
-            .Where(t => t.UserId == _user.UserId && t.TestTemplateId == rq.TestTemplateId)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (accessToView == null && !isAdmin)
-            throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE, "User không có quyền xem test template này");
+
+        if(!isAdmin) await _testTemplateService.CanViewTesTemplate(rq.TestTemplateId);
 
         var result = await _context.TestTemplates
             .Include(t => t.TestTemplateQuestions)
