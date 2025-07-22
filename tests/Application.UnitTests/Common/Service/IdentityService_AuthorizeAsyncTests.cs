@@ -1,18 +1,8 @@
-using NUnit.Framework;
-using Moq;
-using System;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 using CleanArchitectureBase.Infrastructure.Identity;
-using CleanArchitectureBase.Domain.Entities;
-using CleanArchitectureBase.Infrastructure.Settings;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using CleanArchitectureBase.Application.UnitTests.Common.Service; // import helper
+
+// import helper
 
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.

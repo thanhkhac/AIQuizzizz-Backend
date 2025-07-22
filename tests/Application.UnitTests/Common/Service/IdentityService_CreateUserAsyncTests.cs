@@ -1,10 +1,5 @@
-using NUnit.Framework;
-using Moq;
-using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using CleanArchitectureBase.Infrastructure.Identity;
-using CleanArchitectureBase.Domain.Entities;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Application.Common.Exceptions;
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.

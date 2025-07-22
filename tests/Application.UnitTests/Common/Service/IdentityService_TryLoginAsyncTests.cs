@@ -1,25 +1,8 @@
-﻿
-using NUnit.Framework;
-using Moq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Identity;
 using CleanArchitectureBase.Infrastructure.Identity;
-using CleanArchitectureBase.Domain.Entities;
-using CleanArchitectureBase.Infrastructure.Settings;
-using CleanArchitectureBase.Application.Common.Interfaces;
-using CleanArchitectureBase.Application.Common.Models;
-using System;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Domain.Constants;
-using CleanArchitectureBase.Infrastructure.Data;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
-using System.Linq;
+
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
 
 namespace CleanArchitectureBase.Application.UnitTests.Common.Service;

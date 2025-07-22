@@ -1,7 +1,5 @@
-using Microsoft.AspNetCore.Identity;
 using CleanArchitectureBase.Infrastructure.Identity;
-using CleanArchitectureBase.Infrastructure.Settings;
-using Microsoft.Extensions.Options;
+
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
 namespace CleanArchitectureBase.Application.UnitTests.Common.Service;
