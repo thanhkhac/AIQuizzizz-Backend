@@ -3,6 +3,7 @@
     <PropertyGroup>
         <RootNamespace>CleanArchitectureBase.Application.Command.UnitTests</RootNamespace>
         <AssemblyName>CleanArchitectureBase.Application.Command.UnitTests</AssemblyName>
+        <NoWarn>CS8600</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>

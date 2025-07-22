@@ -6,10 +6,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Moq;
-using NUnit.Framework;
 
-namespace CleanArchitectureBase.Application.UnitTests.Common.Service;
+namespace CleanArchitectureBase.Application.Command.UnitTests.Service;
 
 public abstract class IdentityServiceTestBase
 {

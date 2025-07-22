@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace CleanArchitectureBase.Application.UnitTests.Common.Service;
+namespace CleanArchitectureBase.Application.Command.UnitTests.Service;
 
 public static class IdentityTestHelpers
 {
