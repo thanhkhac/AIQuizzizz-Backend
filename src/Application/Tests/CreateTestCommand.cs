@@ -20,6 +20,7 @@ public class CreateTestCommand : IRequest<Guid>
     public required string GradeAttemptMethod { get; set; }
     public required string GradeQuestionMethod { get; set; }
     public bool IsShowCorrectAnswerInReview { get; set; }
+    public bool IsAllowReviewAfterSubmit { get; set; }
     public int MaxAttempt { get; set; } = 1;
     public int PassingScore { get; set; } = 0;
     public List<CreateUpdateQuestionDto> Questions { get; set; } = new ();
@@ -94,7 +95,9 @@ public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
         if (classById == null)
             throw new ErrorCodeException(ErrorCodes.CLASS_NOTFOUND, "Không tìm thấy lớp");
         
-        await _classService.IsLecturerOrOwnerInClass(rq.ClassId);
+        var isLecturerOrOwnerInClass = await _classService.IsLecturerOrOwnerInClass(rq.ClassId);
+        if (!isLecturerOrOwnerInClass)
+            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_TEACHER_OR_OWNER_IN_CLASS, "Không phải lecturer hoặc owner của class");
 
         var test = new Test
         {
@@ -109,6 +112,7 @@ public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
             MaxAttempt = rq.MaxAttempt,
             PassingScore = rq.PassingScore,
             IsShowCorrectAnswerInReview = rq.IsShowCorrectAnswerInReview,
+            IsAllowReviewAfterSubmit = rq.IsAllowReviewAfterSubmit,
             QuestionCount = 0
         };
 
@@ -161,6 +165,8 @@ public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
 
             listTestVersionQuestions.Add(testVersionQuestion);
         }
+        
+        test.QuestionCount = listTestVersionQuestions.Count;
         
         _context.Tests.Add(test);
         

@@ -1,7 +1,9 @@
-﻿using CleanArchitectureBase.Application.Common.Exceptions;
+﻿using CleanArchitectureBase.Application.Classes.Service;
+using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using CleanArchitectureBase.Domain.Constants;
+using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Tests.Service;
 
@@ -9,17 +11,26 @@ public interface ITestService
 {
     Task QuestionAccessForTestTemplate(List<CreateUpdateQuestionDto> question, CancellationToken cancellationToken);
     Task QuestionAccessForTest(List<CreateUpdateQuestionDto> question, CancellationToken cancellationToken);
+    Task<Test> CanViewTestDetails(Guid testId, CancellationToken cancellationToken);
 }
 
 public class TestService : ITestService
 {
     private readonly IApplicationDbContext _context;
+    private readonly IClassService _classService;
     private readonly IUser _user;
+    private readonly IIdentityService _identityService;
 
-    public TestService(IApplicationDbContext context, IUser user)
+    public TestService(
+        IApplicationDbContext context,
+        IUser user,
+        IClassService classService,
+        IIdentityService identityService)
     {
         _context = context;
         _user = user;
+        _classService = classService;
+        _identityService = identityService;
     }
 
     public async Task QuestionAccessForTestTemplate(List<CreateUpdateQuestionDto> question, CancellationToken cancellationToken)
@@ -110,5 +121,22 @@ public class TestService : ITestService
 
             throw new ErrorCodeException(errors);
         }
+    }
+
+    public async Task<Test> CanViewTestDetails(Guid testId, CancellationToken cancellationToken)
+    {
+        var test = await _context.Tests.Where(x => x.Id == testId).FirstOrDefaultAsync(cancellationToken);
+        if (test == null)
+            throw new ErrorCodeException(ErrorCodes.TEST_NOT_FOUND, "Không tìm thấy test");
+
+        if (!await _identityService.IsInAnyRoleAsync(_user.UserId!.Value, Domain.Constants.Roles.Administrator,
+                Domain.Constants.Roles.Moderator))
+        {
+            var isLecturerOrOwnerInClass = await _classService.IsLecturerOrOwnerInClass(test.ClassId);
+            if (!isLecturerOrOwnerInClass)
+                throw new ErrorCodeException(ErrorCodes.NOT_FOUND_TEACHER_OR_OWNER_IN_CLASS, "Không phải lecturer hoặc owner của class");
+        }
+        
+        return test;
     }
 }

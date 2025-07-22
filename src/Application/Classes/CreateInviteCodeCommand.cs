@@ -58,7 +58,9 @@ public class CreateInviteCodeCommandHandler : IRequestHandler<CreateInviteCodeCo
         if (classById == null)
             throw new ErrorCodeException(ErrorCodes.CLASS_NOTFOUND, "Không tìm thấy class");
         
-        await _classService.IsLecturerOrOwnerInClass(rq.ClassId);
+        var isLecturerOrOwnerInClass = await _classService.IsLecturerOrOwnerInClass(rq.ClassId);
+        if (!isLecturerOrOwnerInClass)
+            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_TEACHER_OR_OWNER_IN_CLASS, "Không phải lecturer hoặc owner của class");
 
         var inviteCode = await _context.ClassInvitations
             .Where(x => x.ClassId == rq.ClassId)
