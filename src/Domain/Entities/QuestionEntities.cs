@@ -270,7 +270,9 @@ public class Test : BaseAuditableEntity
     public required GradeQuestionMethod GradeQuestionMethod { get; set; }
     public bool IsShowCorrectAnswerInReview { get; set; }
     public bool IsAllowReviewAfterSubmit { get; set; }    
-
+    
+    public bool IsDeleted { get; set; }    
+    
     public List<TestGrade> TestGrades { get; set; } = new();
     public List<TestVersion> TestVersions { get; set; } = new();
     public List<Attempt> Attempts { get; set; } = new();

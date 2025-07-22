@@ -31,7 +31,7 @@ public class UserAccount : IdentityUser<Guid>
     public int EmailRequestLockout { get; set; } = 0;
     public DateTime? EmailRequestLockoutTime { get; set; }
 
-    public required User User { get; set; }
+    public User? User { get; set; }
 }
 
 public sealed class ApplicationRole : IdentityRole<Guid>
