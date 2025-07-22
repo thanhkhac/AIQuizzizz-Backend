@@ -1,4 +1,4 @@
-using CleanArchitectureBase.Infrastructure.Identity;
+﻿using CleanArchitectureBase.Infrastructure.Identity;
 
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
@@ -19,6 +19,7 @@ public class IdentityService_GetUserNameAsyncTests : IdentityServiceTestBase
 
         Assert.That(result, Is.EqualTo("testuser"));
     }
+    
 
     [Test]
     public async Task GetUserNameAsync_UserNotFound_ReturnsNull()
