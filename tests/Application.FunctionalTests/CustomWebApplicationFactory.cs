@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace CleanArchitectureBase.Application.FunctionalTests;
+namespace CleanArchitectureBase.Application.Command.UnitTests;
 
 using static Testing;
 

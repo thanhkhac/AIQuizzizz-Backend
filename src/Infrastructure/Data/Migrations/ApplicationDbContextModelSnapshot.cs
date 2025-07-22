@@ -648,6 +648,11 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.Property<bool>("IsAllowReviewAfterSubmit")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.Property<bool>("IsShowCorrectAnswerInReview")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -2172,8 +2177,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("CleanArchitectureBase.Infrastructure.Identity.UserAccount", b =>
                 {
-                    b.Navigation("User")
-                        .IsRequired();
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

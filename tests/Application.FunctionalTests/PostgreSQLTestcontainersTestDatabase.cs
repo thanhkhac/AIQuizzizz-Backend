@@ -1,4 +1,5 @@
 ﻿using System.Data.Common;
+using CleanArchitectureBase.Application.FunctionalTests;
 using CleanArchitectureBase.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -6,7 +7,7 @@ using Npgsql;
 using Respawn;
 using Testcontainers.PostgreSql;
 
-namespace CleanArchitectureBase.Application.FunctionalTests;
+namespace CleanArchitectureBase.Application.Command.UnitTests;
 
 public class PostgreSQLTestcontainersTestDatabase : ITestDatabase
 {

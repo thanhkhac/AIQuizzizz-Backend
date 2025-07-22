@@ -453,6 +453,9 @@ public class TestConfiguration : IEntityTypeConfiguration<Test>
 
         builder.Property(t => t.IsShowCorrectAnswerInReview)
             .HasDefaultValue(false);
+            
+        builder.Property(t => t.IsDeleted)
+            .HasDefaultValue(false);
     }
 }
 
