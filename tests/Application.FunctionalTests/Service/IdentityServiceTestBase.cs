@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 
 namespace CleanArchitectureBase.Application.Command.UnitTests.Service;
 
-public abstract class IdentityServiceTestBase
+public class IdentityServiceTestBase
 {
     protected Mock<UserManager<UserAccount>> _userManagerMock;
     protected Mock<IUserClaimsPrincipalFactory<UserAccount>> _claimsFactoryMock;
@@ -52,4 +52,6 @@ public abstract class IdentityServiceTestBase
             _emailServiceMock.Object
         );
     }
+    
+
 }
