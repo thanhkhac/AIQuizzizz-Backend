@@ -185,7 +185,7 @@ public class QuestionSetEndpoints : EndpointGroupBase
     /// <param name="questionCount"></param>
     /// <param name="sender"></param>
     /// <returns></returns>
-    public async Task<Ok<ApiResponse<List<QuestionResponseDto>>>> GetLearnQuestions(
+    public async Task<Ok<ApiResponse<GetQuestionSetLearnQuestionsQueryDto>>> GetLearnQuestions(
         [FromRoute] Guid questionSetId,
         [FromQuery] int questionCount,
         ISender sender)
