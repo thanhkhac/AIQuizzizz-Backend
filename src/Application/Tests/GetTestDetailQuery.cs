@@ -34,7 +34,7 @@ public class GetTestDetailQueryHandler : IRequestHandler<GetTestDetailQuery, Tes
     
     public async Task<TestDetailDto> Handle(GetTestDetailQuery rq, CancellationToken cancellationToken)
     {
-        var test = await _testService.CanViewTestDetails(rq.TestId, cancellationToken);
+        var test = await _testService.CanEditTest(rq.TestId, cancellationToken);
         
         var questions = _context.TestVersionQuestions
             .Include(x => x.TestVersion)

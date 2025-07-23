@@ -2,6 +2,7 @@
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using CleanArchitectureBase.Application.Tests.Service;
+using CleanArchitectureBase.Application.TestTemplates.Service;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.TestTemplates;
@@ -53,16 +54,16 @@ public class CreateTestTemplateCommandHandler : IRequestHandler<CreateTestTempla
 {
     private readonly IApplicationDbContext _context;
     public readonly IUser _user;
-    public readonly ITestService _testService;
+    public readonly ITestTemplateService _testTemplateService;
 
     public CreateTestTemplateCommandHandler(
         IApplicationDbContext context,
         IUser user,
-        ITestService testService)
+        ITestTemplateService testTemplateService)
     {
         _context = context;
         _user = user;
-        _testService = testService;
+        _testTemplateService = testTemplateService;
     }
     
     /// <summary>
@@ -72,7 +73,7 @@ public class CreateTestTemplateCommandHandler : IRequestHandler<CreateTestTempla
     /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<Guid> Handle(CreateTestTemplateCommand rq, CancellationToken cancellationToken)
     {
-        await _testService.QuestionAccessForTestTemplate(rq.Questions, cancellationToken);
+        await _testTemplateService.QuestionAccessForTestTemplate(rq.Questions, cancellationToken);
 
         var testTemplate = new TestTemplate { Id = Guid.NewGuid(), Name = rq.Name, IsDeleted = false, };
 

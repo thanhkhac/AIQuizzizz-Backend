@@ -51,7 +51,7 @@ public class AttemptTestCommandHandler : IRequestHandler<SubmitTestAttemptComman
         var attempt = await _context.Attempts
             .Include(x => x.Test)
             .Include(x => x.TestVersion)
-            .Where(x => x.Id == rq.AttemptId)
+            .Where(x => x.Id == rq.AttemptId && x.Test!.IsDeleted == false)
             .FirstOrDefaultAsync(cancellationToken);
         if (attempt == null || attempt.TestVersion == null || attempt.Test == null) 
             throw new ErrorCodeException(ErrorCodes.TEST_NOT_FOUND, "Bài test không tồn tại");

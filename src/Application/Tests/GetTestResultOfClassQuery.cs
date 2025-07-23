@@ -2,12 +2,14 @@
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.Tests.Dto;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Tests;
 
+[Authorize]
 public class GetTestResultOfClassQuery : IRequest<PaginatedList<ResultTestOfClassDto>>
 {
     public required Guid TestId { get; set; }
@@ -54,7 +56,7 @@ public class GetTestResultOfClassQueryHandler : IRequestHandler<GetTestResultOfC
         var resultTest = _context.TestGrades
             .Include(x => x.User)
             .Include(x => x.Test)
-            .Where(x => x.TestId == rq.TestId)
+            .Where(x => x.TestId == rq.TestId && x.Test!.IsDeleted == false)
             .Select(x => new ResultTestOfClassDto
             {
                 StudentId = x.UserId,

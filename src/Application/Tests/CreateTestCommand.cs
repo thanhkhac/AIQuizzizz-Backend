@@ -122,7 +122,7 @@ public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
             throw new ErrorCodeException(ErrorCodes.NUMBER_OF_QUESTION_EXCEED_LIMIT,
                 "Số lượng câu hỏi không được vượt quá 100");
 
-        await _testService.QuestionAccessForTest(rq.Questions, cancellationToken);
+        var validQuestionId = await _testService.QuestionAccessAndCompareForTest(rq.Questions, cancellationToken);
 
         var listQuestions = new List<Question>();
 
@@ -134,7 +134,7 @@ public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
         {
             var questionId = Guid.NewGuid();
 
-            if (questionDto.QuestionId.HasValue)
+            if (questionDto.QuestionId.HasValue && validQuestionId.Contains(questionDto.QuestionId!.Value))
             {
                 questionId = questionDto.QuestionId.Value;
             }

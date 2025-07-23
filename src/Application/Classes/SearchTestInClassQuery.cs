@@ -82,7 +82,7 @@ public class SearchTestInClassQueryHandler : IRequestHandler<SearchTestInClassQu
             throw new ErrorCodeException(ErrorCodes.NOT_FOUND_USER_IN_CLASS, "User không có trong lớp");
         
         var tests = await _context.Tests
-            .Where(x => x.ClassId.Equals(rq.ClassId)
+            .Where(x => x.ClassId.Equals(rq.ClassId) && x.IsDeleted == false
             && (string.IsNullOrEmpty(rq.TestName) || x.Name.ToLower().Contains(rq.TestName.ToLower())))
             .ToListAsync(cancellationToken);
         

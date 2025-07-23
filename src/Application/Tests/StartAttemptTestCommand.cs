@@ -37,7 +37,8 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
     /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<AttemptDetailDto> Handle(StartAttemptTestCommand rq, CancellationToken cancellationToken)
     {
-        var test = await _context.Tests.Where(x => x.Id == rq.TestId)
+        var test = await _context.Tests
+            .Where(x => x.Id == rq.TestId && x.IsDeleted == false)
             .FirstOrDefaultAsync(cancellationToken);
         if (test == null)
             throw new ErrorCodeException(ErrorCodes.TEST_NOT_FOUND, "Bài test không tồn tại");

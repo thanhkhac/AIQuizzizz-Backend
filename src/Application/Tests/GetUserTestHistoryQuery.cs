@@ -61,7 +61,9 @@ public class GetUserTestHistoryQueryHandler : IRequestHandler<GetUserTestHistory
     /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<PaginatedList<HistoryTestDto>> Handle(GetUserTestHistoryQuery rq, CancellationToken cancellationToken)
     {
-        var test = await _context.Tests.Where(x => x.Id.Equals(rq.TestId)).FirstOrDefaultAsync(cancellationToken);
+        var test = await _context.Tests
+            .Where(x => x.Id.Equals(rq.TestId) && x.IsDeleted == false)
+            .FirstOrDefaultAsync(cancellationToken);
         if (test == null)
             throw new ErrorCodeException(ErrorCodes.TEST_NOT_FOUND, "Không tìm thấy bài test");
 
