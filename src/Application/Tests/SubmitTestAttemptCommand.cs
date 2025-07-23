@@ -17,6 +17,7 @@ public class SubmitTestAttemptCommand : IRequest<TestResultDto>
     /// </summary>
     public Guid AttemptId { get; set; }
     public List<UserAnswerDto> UserAnswers { get; set; } = new();
+    public bool IsSubmit { get; set; } = false;
 }
 
 public class AttemptTestCommandValidator : AbstractValidator<SubmitTestAttemptCommand>
@@ -78,9 +79,20 @@ public class AttemptTestCommandHandler : IRequestHandler<SubmitTestAttemptComman
         
         float totalScore = 0;
         
+        var attemptedQuestions = new List<AttemptQuestion>();
+
+        if (!rq.IsSubmit)
+        {
+            attemptedQuestions = await _context.AttemptQuestions
+                .Where(x => x.AttemptId.Equals(rq.AttemptId))
+                .ToListAsync(cancellationToken);
+        }
+        
         foreach (var question in questionsInTest)
         {
-            var attemptQuestion = new AttemptQuestion
+            var attemptQuestion = attemptedQuestions.FirstOrDefault(x => x.QuestionId == question.Id);
+            
+            var newAttemptQuestion = new AttemptQuestion
             {
                 Id = Guid.NewGuid(),
                 AttemptId = rq.AttemptId,
@@ -91,7 +103,10 @@ public class AttemptTestCommandHandler : IRequestHandler<SubmitTestAttemptComman
             
             if (!userAnswers.TryGetValue(question.Id, out var userAnswer))
             {
-                attemptQuestions.Add(attemptQuestion);
+                if (attemptQuestion == null)
+                {
+                    attemptQuestions.Add(newAttemptQuestion);   
+                }
                 continue;
             }
             
@@ -102,51 +117,61 @@ public class AttemptTestCommandHandler : IRequestHandler<SubmitTestAttemptComman
                 nameof(QuestionType.Ordering) => CheckUserAnswer.CheckOrderingAnswer(userAnswer, question),
                 nameof(QuestionType.ShortText) => CheckUserAnswer.CheckShortTextAnswer(userAnswer, question),
                 _ => throw new ErrorCodeException(ErrorCodes.INVALID_QUESTION_TYPE, $"Loại câu hỏi {question.Type} không được hỗ trợ")
-            }; 
-
-            attemptQuestion.DataJson = Serializer.Serialize(userAnswer.UserAnswerData);
-            attemptQuestion.Score = scoreGraded;
-            totalScore += scoreGraded;
-            
-            attemptQuestions.Add(attemptQuestion);
-        }
-
-        var userGrade = await _context.TestGrades
-            .Where(x => x.UserId == _user.UserId && x.TestId == attempt.TestId)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (userGrade == null)
-        {
-            userGrade = new TestGrade
-            {
-                Id = Guid.NewGuid(),
-                Score = totalScore,
-                TestId = attempt.TestId,
-                UserId = _user.UserId!.Value,
             };
-            
-            _context.TestGrades.Add(userGrade);
-        }
-        else
-        {
-            if (GradeAttemptMethod.HighestScore.Equals(attempt.Test.GradeAttemptMethod))
-            {
-                var allAttempt = await _context.Attempts
-                    .Where(a => a.TestId == attempt.TestId && a.UserId == _user.UserId)
-                    .OrderByDescending(a => a.Score)
-                    .FirstOrDefaultAsync(cancellationToken);
 
-                if (allAttempt!.Score < totalScore)
+            if (attemptQuestion != null)
+            {
+                attemptQuestion.DataJson = Serializer.Serialize(userAnswer.UserAnswerData);
+                attemptQuestion.Score = scoreGraded;
+            }
+            else
+            {
+                newAttemptQuestion.DataJson = Serializer.Serialize(userAnswer.UserAnswerData);
+                newAttemptQuestion.Score = scoreGraded;
+                attemptQuestions.Add(newAttemptQuestion);
+            }
+            totalScore += scoreGraded;
+        }
+
+        if (rq.IsSubmit)
+        {
+            var userGrade = await _context.TestGrades
+                .Where(x => x.UserId == _user.UserId && x.TestId == attempt.TestId)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (userGrade == null)
+            {
+                userGrade = new TestGrade
+                {
+                    Id = Guid.NewGuid(),
+                    Score = totalScore,
+                    TestId = attempt.TestId,
+                    UserId = _user.UserId!.Value,
+                };
+            
+                _context.TestGrades.Add(userGrade);
+            }
+            else
+            {
+                if (GradeAttemptMethod.HighestScore.Equals(attempt.Test.GradeAttemptMethod))
+                {
+                    var allAttempt = await _context.Attempts
+                        .Where(a => a.TestId == attempt.TestId && a.UserId == _user.UserId)
+                        .OrderByDescending(a => a.Score)
+                        .FirstOrDefaultAsync(cancellationToken);
+
+                    if (allAttempt!.Score < totalScore)
+                    {
+                        userGrade.Score = totalScore;
+                        _context.TestGrades.Update(userGrade);
+                    }
+                }
+                else
                 {
                     userGrade.Score = totalScore;
                     _context.TestGrades.Update(userGrade);
                 }
-            }
-            else
-            {
-                userGrade.Score = totalScore;
-                _context.TestGrades.Update(userGrade);
-            }
+            }   
         }
         
         _context.AttemptQuestions.AddRange(attemptQuestions);
