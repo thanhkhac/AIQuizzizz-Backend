@@ -10,8 +10,9 @@ public interface IQuestionService
 {
     public Task<List<QuestionResponseDto>> GetQuestionsBySetIdForDetailAsync(Guid questionSetId, Guid? userId,
         CancellationToken cancellationToken = default);
-        
-    public Task<List<QuestionResponseDto>> GetQuestionsBySetIdForLearnAsync(Guid questionSetId, Guid userId, int questionCount,
+
+    public Task<(List<QuestionResponseDto> Questions, int TotalQuestions, int CompletedQuestions)> GetQuestionsBySetIdForLearnAsync(Guid questionSetId,
+        Guid userId, int questionCount,
         CancellationToken cancellationToken = default);
 }
 
@@ -70,18 +71,34 @@ public class QuestionService : IQuestionService
         }
     }
 
-    public async Task<List<QuestionResponseDto>> GetQuestionsBySetIdForLearnAsync(Guid questionSetId, Guid userId, int questionCount,
-        CancellationToken cancellationToken = default)
+    public async Task<(List<QuestionResponseDto> Questions, int TotalQuestions, int CompletedQuestions)>
+        GetQuestionsBySetIdForLearnAsync(Guid questionSetId, Guid userId, int questionCount,
+            CancellationToken cancellationToken = default)
     {
-    
         var query = _context.Questions
             .Where(q => q.QuestionSetId == questionSetId && !q.IsDeleted)
             .GroupJoin(_context.UserQuestionSetHistories,
-                q => new { QuestionId = q.Id, UserId = userId },
-                h => new { h.QuestionId, h.UserId },
-                (q, gj) => new { Question = q, History = gj })
+                q => new
+                {
+                    QuestionId = q.Id,
+                    UserId = userId
+                },
+                h => new
+                {
+                    h.QuestionId,
+                    h.UserId
+                },
+                (q, gj) => new
+                {
+                    Question = q,
+                    History = gj
+                })
             .SelectMany(x => x.History.DefaultIfEmpty(),
-                (q, history) => new { q.Question, History = history })
+                (q, history) => new
+                {
+                    q.Question,
+                    History = history
+                })
             .Where(x => x.History == null || x.History.IsCorrect == false)
             .OrderBy(x => x.History != null && x.History.IsCorrect == false ? 0 : 1)
             .Select(x => new
@@ -90,10 +107,25 @@ public class QuestionService : IQuestionService
                 IsCorrect = x.History != null ? x.History.IsCorrect : (bool?)null
             });
 
-        var result = await query.Take(questionCount).ToListAsync(cancellationToken);
+        var completedQuestionCount = await _context.UserQuestionSetHistories
+            .Where(h => h.UserId == userId && h.IsCorrect == true)
+            .Join(_context.Questions.Where(q => q.QuestionSetId == questionSetId && !q.IsDeleted),
+                h => h.QuestionId,
+                q => q.Id,
+                (h, q) => q)
+            .CountAsync(cancellationToken);
 
-        return result
+        var questionSet = (await _context.QuestionSets
+            .Where(q => q.Id == questionSetId && !q.IsDeleted)
+            .FirstOrDefaultAsync(cancellationToken));
+
+        var totalQuestionCount = questionSet?.QuestionCount ?? 0;
+
+        var result = await query.Take(questionCount).ToListAsync(cancellationToken);
+        var questionDtos = result
             .Select(x => QuestionResponseDto.Mapper.FromEntity(x.Question, x.IsCorrect))
             .ToList();
+
+        return (questionDtos, totalQuestionCount, completedQuestionCount);
     }
 }

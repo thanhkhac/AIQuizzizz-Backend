@@ -1443,7 +1443,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfQuestionResponseDto"
+                  "$ref": "#/components/schemas/ApiResponseOfGetQuestionSetLearnQuestionsQueryDto"
                 }
               }
             }
@@ -3777,6 +3777,61 @@
             "items": {
               "type": "string",
               "format": "guid"
+            }
+          }
+        }
+      },
+      "ApiResponseOfGetQuestionSetLearnQuestionsQueryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/GetQuestionSetLearnQuestionsQueryDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "GetQuestionSetLearnQuestionsQueryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "completedQuestionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalQuestionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuestionResponseDto"
             }
           }
         }

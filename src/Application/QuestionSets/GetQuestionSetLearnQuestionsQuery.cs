@@ -10,10 +10,17 @@ using CleanArchitectureBase.Domain.Constants;
 namespace CleanArchitectureBase.Application.QuestionSets;
 
 [Authorize]
-public class GetQuestionSetLearnQuestionsQuery : IRequest<List<QuestionResponseDto>>
+public class GetQuestionSetLearnQuestionsQuery : IRequest<GetQuestionSetLearnQuestionsQueryDto>
 {
     public Guid QuestionSetId { get; set; }
     public int QuestionCount { get; set; }
+}
+
+public class GetQuestionSetLearnQuestionsQueryDto
+{
+    public int CompletedQuestionCount { get; set; }
+    public int TotalQuestionCount { get; set; }
+    public  List<QuestionResponseDto> Questions { get; set; } = new ();
 }
 
 public class GetQuestionSetLearnQuestionsQueryValidator : AbstractValidator<GetQuestionSetLearnQuestionsQuery>
@@ -30,7 +37,7 @@ public class GetQuestionSetLearnQuestionsQueryValidator : AbstractValidator<GetQ
 
 }
 
-public class GetQuestionSetLearnQuestionsQueryHandler : IRequestHandler<GetQuestionSetLearnQuestionsQuery, List<QuestionResponseDto>>
+public class GetQuestionSetLearnQuestionsQueryHandler : IRequestHandler<GetQuestionSetLearnQuestionsQuery,GetQuestionSetLearnQuestionsQueryDto>
 {
 
     private IQuestionSetService _questionSetService;
@@ -47,7 +54,7 @@ public class GetQuestionSetLearnQuestionsQueryHandler : IRequestHandler<GetQuest
         _planService = planService;
     }
 
-    public async Task<List<QuestionResponseDto>> Handle(GetQuestionSetLearnQuestionsQuery request, CancellationToken cancellationToken)
+    public async Task<GetQuestionSetLearnQuestionsQueryDto> Handle(GetQuestionSetLearnQuestionsQuery request, CancellationToken cancellationToken)
     {
         // Check xem người dùng có quyền học không
         if (!await _planService.CanLearn(_user.UserId!.Value))
@@ -61,6 +68,14 @@ public class GetQuestionSetLearnQuestionsQueryHandler : IRequestHandler<GetQuest
 
         var result = await _questionService.GetQuestionsBySetIdForLearnAsync(request.QuestionSetId, _user.UserId!.Value, request.QuestionCount,
             cancellationToken);
-        return result;
+            
+        var finalResult = new GetQuestionSetLearnQuestionsQueryDto
+        {
+            CompletedQuestionCount = result.CompletedQuestions,
+            TotalQuestionCount = result.TotalQuestions,
+            Questions = result.Questions
+        };
+            
+        return finalResult;
     }
 }
