@@ -1,8 +1,5 @@
-﻿using System.Text.Json;
-using CleanArchitectureBase.Application.Common.Interfaces;
+﻿using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Questions.Dtos;
-using CleanArchitectureBase.Application.QuestionSets.Dtos;
-using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Questions.Services;
 
@@ -14,6 +11,7 @@ public interface IQuestionService
     public Task<(List<QuestionResponseDto> Questions, int TotalQuestions, int CompletedQuestions)> GetQuestionsBySetIdForLearnAsync(Guid questionSetId,
         Guid userId, int questionCount,
         CancellationToken cancellationToken = default);
+
 }
 
 public class QuestionService : IQuestionService
