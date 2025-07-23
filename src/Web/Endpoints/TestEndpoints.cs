@@ -19,6 +19,9 @@ public class Test : EndpointGroupBase
             .MapPost(SubmitTestAttempt, "/Submit")
             .MapPost(StartAttemptTestTestAttempt, "/{TestId}/Attempt")
             .MapDelete(DeleteTest, "/{TestId}/");
+
+        app.MapGroup(this)
+            .MapPatch("/{TestId}", EditTest);
     }
     
     public async Task<Ok<ApiResponse<TestDetailDto>>> GetTestDetail([FromRoute] Guid testId, ISender sender)
@@ -88,4 +91,14 @@ public class Test : EndpointGroupBase
         var result = await sender.Send(new DeleteTestCommand{TestId = testId});
         return result.ToOk();
     } 
+    
+    public async Task<Ok<ApiResponse<Guid>>> EditTest(
+        [FromRoute] Guid testId,
+        [FromBody] EditTestCommand rq,
+        ISender sender)
+    {
+        rq.TestId = testId;
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
 }

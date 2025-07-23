@@ -9,11 +9,17 @@ using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Tests;
 
-[Authorize]
-public class CreateTestCommand : IRequest<Guid>
+public class CheckUpdateQuestion
 {
+    public List<Guid> NotUpdateQuestionIds { get; set; } = new();
+    public List<Guid> UpdateQuestionIds { get; set; } = new();
+}
+
+[Authorize]
+public class EditTestCommand : IRequest<Guid>
+{
+    public Guid TestId { get; set; }
     public required string Name { get; set; }
-    public required Guid ClassId { get; set; }
     public required int TimeLimit { get; set; }
     public required DateTime StartTime { get; set; }
     public required DateTime EndTime { get; set; }
@@ -23,19 +29,20 @@ public class CreateTestCommand : IRequest<Guid>
     public bool IsAllowReviewAfterSubmit { get; set; }
     public int MaxAttempt { get; set; } = 1;
     public int PassingScore { get; set; } = 0;
-    public List<CreateUpdateQuestionDto> Questions { get; set; } = new ();
+    public List<CreateUpdateQuestionDto> CreateUpdateQuestions { get; set; } = new ();
+    public List<Guid> DeleteQuestionIds { get; set; } = new();
 }
 
-public class CreateTestCommandValidator : AbstractValidator<CreateTestCommand>
+public class EditTestCommandValidator : AbstractValidator<EditTestCommand>
 {
-    public CreateTestCommandValidator()
+    public EditTestCommandValidator()
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Tên bài kiểm tra không được để trống")
             .MaximumLength(200).WithMessage("Tên bài kiểm tra không được vượt quá 200 ký tự");
 
-        RuleFor(x => x.ClassId)
-            .NotEmpty().WithMessage("ClassId không được để trống");
+        RuleFor(x => x.TestId)
+            .NotEmpty().WithMessage("TestId không được để trống");
 
         RuleFor(x => x.TimeLimit)
             .GreaterThan(0).WithMessage("Thời gian làm bài phải lớn hơn 0")
@@ -61,18 +68,18 @@ public class CreateTestCommandValidator : AbstractValidator<CreateTestCommand>
             .Must(type => new[] {"Partial", "AllOrNothing"}.Contains(type))
             .WithMessage($"Loại câu hỏi phải là Partial, AllOrNothing");
         
-        RuleForEach(x => x.Questions)
+        RuleForEach(x => x.CreateUpdateQuestions)
             .SetValidator((command, question) => new CreateUpdateQuestionDto.QuestionCreateDtoValidator());
     }
 }
 
-public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
+public class EditTestCommandHandler : IRequestHandler<EditTestCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
     private readonly ITestService _testService;
     private readonly IClassService _classService;
     
-    public CreateTestCommandHandler(
+    public EditTestCommandHandler(
         IApplicationDbContext context,
         ITestService testService,
         IClassService classService)
@@ -81,60 +88,88 @@ public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
         _testService = testService;
         _classService = classService;
     }
-
-    /// <summary>
-    /// The function creates a new test for a class, including its questions and version, and returns the test ID
-    /// </summary>
-    /// <param name="rq">Request contains ClassId, Name, GradeAttemptMethod, GradeQuestionMethod, EndTime, StartTime, TimeLimit, MaxAttempt, PassingScore, IsShowCorrectAnswerInReview, and Questions information</param>
-    /// <param name="cancellationToken">Token to cancel the task</param>
-    public async Task<Guid> Handle(CreateTestCommand rq, CancellationToken cancellationToken)
+    
+    public async Task<Guid> Handle(EditTestCommand rq, CancellationToken cancellationToken)
     {
-        var classById = await _context.Classes
-            .Where(x => x.Id == rq.ClassId)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (classById == null)
-            throw new ErrorCodeException(ErrorCodes.CLASS_NOTFOUND, "Không tìm thấy lớp");
+        var test = await _testService.CanEditTest(rq.TestId, cancellationToken);
         
-        var isLecturerOrOwnerInClass = await _classService.IsLecturerOrOwnerInClass(rq.ClassId);
-        if (!isLecturerOrOwnerInClass)
-            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_TEACHER_OR_OWNER_IN_CLASS, "Không phải lecturer hoặc owner của class");
+        test.Name = rq.Name;
+        test.TimeFinish = rq.EndTime;
+        test.TimeStart = rq.StartTime;
+        test.TimeLimit = rq.TimeLimit;
+        test.MaxAttempt = rq.MaxAttempt;
+        test.PassingScore = rq.PassingScore;
+        test.IsShowCorrectAnswerInReview = rq.IsShowCorrectAnswerInReview;
+        test.IsAllowReviewAfterSubmit = rq.IsAllowReviewAfterSubmit;
+        test.GradeAttemptMethod = Enum.Parse<GradeAttemptMethod>(rq.GradeAttemptMethod);
+        test.GradeQuestionMethod = Enum.Parse<GradeQuestionMethod>(rq.GradeQuestionMethod);
 
-        var test = new Test
-        {
-            Id = Guid.NewGuid(),
-            Name = rq.Name,
-            ClassId = rq.ClassId,
-            GradeAttemptMethod = Enum.Parse<GradeAttemptMethod>(rq.GradeAttemptMethod),
-            GradeQuestionMethod = Enum.Parse<GradeQuestionMethod>(rq.GradeQuestionMethod),
-            TimeFinish = rq.EndTime,
-            TimeStart = rq.StartTime,
-            TimeLimit = rq.TimeLimit,
-            MaxAttempt = rq.MaxAttempt,
-            PassingScore = rq.PassingScore,
-            IsShowCorrectAnswerInReview = rq.IsShowCorrectAnswerInReview,
-            IsAllowReviewAfterSubmit = rq.IsAllowReviewAfterSubmit,
-            QuestionCount = 0
-        };
-
-        var testVersion = new TestVersion { Id = Guid.NewGuid(), TestId = test.Id, No = 0, };
-
-        if (rq.Questions.Count > 100)
+        var testVersion = await _context.TestVersions
+            .Where(x => x.TestId.Equals(test.Id))
+            .Select(x => x.Id)
+            .ToListAsync(cancellationToken);
+        
+        if (rq.CreateUpdateQuestions.Count > 100)
             throw new ErrorCodeException(ErrorCodes.NUMBER_OF_QUESTION_EXCEED_LIMIT,
                 "Số lượng câu hỏi không được vượt quá 100");
 
-        var validQuestionId = await _testService.QuestionAccessAndCompareForTest(rq.Questions, cancellationToken);
+        var versionQuestion = await _context.TestVersionQuestions
+            .Include(x => x.TestVersion)
+            .ThenInclude(x => x!.Test)
+            .Include(x => x.Question)
+            .Where(x => x.TestVersion!.Test!.Id == rq.TestId && x.TestVersion.No == 0)
+            .Select(x => new {QuestionId = x.QuestionId, Question = x.Question})
+            .ToListAsync(cancellationToken);
+        
+        var updateQuestionDto = rq.CreateUpdateQuestions
+            .Where(x => x.QuestionId != null &&
+                         versionQuestion.Select(y => y.QuestionId).Contains(x.QuestionId.Value))
+            .ToList();
 
+        var updateQuestion = versionQuestion
+            .Where(x => updateQuestionDto.Any(q => q.QuestionId!.Value == x.QuestionId))
+            .Select(x => x.Question!)
+            .ToList();
+        
+        var newQuestionDto = rq.CreateUpdateQuestions
+            .Where(x => x.QuestionId == null ||
+                        !versionQuestion.Select(y => y.QuestionId).Contains(x.QuestionId.Value))
+            .ToList();
+        
+        var newQuestionIds = await _testService.QuestionAccessAndCompareForTest(newQuestionDto, cancellationToken);
+
+        var updateQuestionIds = await _testService.UpdateQuestion(updateQuestionDto, updateQuestion);
+        
         var listQuestions = new List<Question>();
-
+        
         var listTestVersionQuestions = new List<TestVersionQuestion>();
 
-        int order = 0;
+        var order = versionQuestion.Count;
 
-        foreach (var questionDto in rq.Questions)
+        foreach (var questionDto in rq.CreateUpdateQuestions)
         {
             var questionId = Guid.NewGuid();
 
-            if (questionDto.QuestionId.HasValue && validQuestionId.Contains(questionDto.QuestionId!.Value))
+            if (questionDto.QuestionId.HasValue &&
+                updateQuestionIds.NotUpdateQuestionIds.Contains(questionDto.QuestionId!.Value))
+            {
+                continue;
+            }
+            else if(questionDto.QuestionId.HasValue &&
+                    updateQuestionIds.UpdateQuestionIds.Contains(questionDto.QuestionId!.Value))
+            {
+                var question = versionQuestion
+                    .Where(x => x.QuestionId == questionDto.QuestionId)
+                    .Select(x => x.Question!)
+                    .FirstOrDefault();
+                
+                question!.QuestionText = questionDto.QuestionText;
+                
+                question.DataJson = CreateUpdateQuestionDto.Serializer.Serialize(questionDto);
+                
+                continue;
+            }
+            else if (questionDto.QuestionId.HasValue && newQuestionIds.Contains(questionDto.QuestionId!.Value))
             {
                 questionId = questionDto.QuestionId.Value;
             }
@@ -148,36 +183,32 @@ public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
                     TextFormat = TextFormat.PlainText,
                     Score = questionDto.Score
                 };
-
+                
                 question.DataJson = CreateUpdateQuestionDto.Serializer.Serialize(questionDto);
-
+                
                 listQuestions.Add(question);
 
                 questionId = question.Id;
             }
 
-            var testVersionQuestion = new TestVersionQuestion
+            foreach (var version in testVersion)
             {
-                Id = Guid.NewGuid(), QuestionId = questionId, Order = order, TestVersionId = testVersion.Id
-            };
-
+                var testVersionQuestion = new TestVersionQuestion
+                {
+                    Id = Guid.NewGuid(), QuestionId = questionId, Order = order, TestVersionId = version
+                };
+                
+                listTestVersionQuestions.Add(testVersionQuestion);
+            }
             order++;
-
-            listTestVersionQuestions.Add(testVersionQuestion);
         }
-        
-        test.QuestionCount = listTestVersionQuestions.Count;
-        
-        _context.Tests.Add(test);
-        
-        _context.TestVersions.Add(testVersion);
         
         _context.Questions.AddRange(listQuestions);
         
         _context.TestVersionQuestions.AddRange(listTestVersionQuestions);
         
         await _context.SaveChangesAsync(cancellationToken);
-
+        
         return test.Id;
     }
 }

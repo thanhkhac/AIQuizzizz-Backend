@@ -59,6 +59,7 @@ public class UpdatePositionCommandHandler : IRequestHandler<UpdatePositionComman
     public async Task<UpdatePositionDto> Handle(UpdatePositionCommand rq, CancellationToken cancellationToken)
     {
         var classUserData = await _context.ClassUsers
+            .Include(x => x.Class)
             .Where(cu => cu.ClassId == rq.ClassId &&
                           (cu.UserId == _user.UserId || (cu.UserId == rq.UserId && cu.Class.IsDeleted == false)))
             .Select(cu => new { ClassUser = cu, Class = cu.Class })

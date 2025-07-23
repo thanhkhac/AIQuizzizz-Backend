@@ -10,6 +10,7 @@ namespace CleanArchitectureBase.Application.Classes;
 
 public class SearchQuestionSetDto
 {
+    public Guid Id { get; set; }
     public string? Name { get; set; }
     public string? Description { get; set; }
     public int NumberOfQuestions { get; set; }
@@ -87,6 +88,7 @@ public class SearchQuestionSetQueryHandler : IRequestHandler<SearchQuestionSetQu
         return await PaginatedList<SearchQuestionSetDto>.CreateAsync(
             questionSet.Select(qs => new SearchQuestionSetDto
             {
+                Id = qs.Id,
                 Name = qs.Name,
                 Description = qs.Description,
                 NumberOfQuestions = qs.Questions.Count,
