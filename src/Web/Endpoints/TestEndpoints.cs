@@ -1,9 +1,9 @@
-﻿using CleanArchitectureBase.Application.Classes.Dto;
-using CleanArchitectureBase.Application.Common.Models;
+﻿using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Tests;
 using CleanArchitectureBase.Application.Tests.Dto;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using HistoryTestDto = CleanArchitectureBase.Application.Tests.Dto.HistoryTestDto;
 
 namespace CleanArchitectureBase.Web.Endpoints;
 
@@ -12,11 +12,31 @@ public class Test : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
+            .MapGet(GetTestDetail, "/{TestId}")
+            .MapGet(GetTestResultOfClass, "/{TestId}/Class/Result")
             .MapGet(GetHistoryTest, "/{TestId}/History")
-            .MapGet(GetTestSchedule, "/Class/{ClassId}/Schedule")
             .MapPost(CreateTest, "")
             .MapPost(SubmitTestAttempt, "/Submit")
-            .MapPost(StartAttemptTestTestAttempt, "/{TestId}/Attempt");
+            .MapPost(StartAttemptTestTestAttempt, "/{TestId}/Attempt")
+            .MapDelete(DeleteTest, "/{TestId}/");
+    }
+    
+    public async Task<Ok<ApiResponse<TestDetailDto>>> GetTestDetail([FromRoute] Guid testId, ISender sender)
+    {
+        var rq = new GetTestDetailQuery { TestId = testId };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<PaginatedList<ResultTestOfClassDto>>>> GetTestResultOfClass(
+        [FromRoute] Guid testId,
+        ISender sender,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 5)
+    {
+        var rq = new GetTestResultOfClassQuery { TestId = testId, PageNumber = pageNumber, PageSize = pageSize };
+        var result = await sender.Send(rq);
+        return result.ToOk();
     }
     
     public async Task<Ok<ApiResponse<Guid>>> CreateTest([FromBody] CreateTestCommand rq, ISender sender)
@@ -27,7 +47,7 @@ public class Test : EndpointGroupBase
     
     public async Task<Ok<ApiResponse<PaginatedList<HistoryTestDto>>>> GetHistoryTest(
         [FromRoute] Guid testId,
-        [FromQuery] string? studentName,
+        [FromQuery] Guid? userId,
         [FromQuery] bool? isPassed,
         ISender sender,
         [FromQuery] int pageNumber = 1,
@@ -37,6 +57,7 @@ public class Test : EndpointGroupBase
         {
             TestId = testId,
             IsPassed = isPassed,
+            UserId = userId,
             PageNumber = pageNumber,
             PageSize = pageSize
         };
@@ -60,15 +81,11 @@ public class Test : EndpointGroupBase
         return result.ToOk();
     }
     
-    public async Task<Ok<ApiResponse<List<TestScheduleResponse>>>> GetTestSchedule(
-        [FromRoute] Guid classId,
-        [FromQuery] int? month,
-        [FromQuery] int? year,
+    public async Task<Ok<ApiResponse<Guid>>> DeleteTest(
+        [FromRoute] Guid testId,
         ISender sender)
     {
-        var rq = new GetTestScheduleQuery() { ClassId = classId, Month = month, Year = year };
-        var result = await sender.Send(rq);
+        var result = await sender.Send(new DeleteTestCommand{TestId = testId});
         return result.ToOk();
-        
-    }
+    } 
 }

@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using CleanArchitectureBase.Application.Questions.Dtos;
 using CleanArchitectureBase.Application.Questions.Utils;
 using CleanArchitectureBase.Domain.Entities;
 
@@ -242,5 +243,104 @@ public class CreateUpdateQuestionDto
 
             return dto;
         }
+    }
+
+    public static class Compare
+    {
+        public static bool CompareQuestion(Question question, CreateUpdateQuestionDto questionDto)
+        {
+            var questionResponseDto = QuestionResponseDto.Mapper.FromEntity(question, true);
+        
+            if(!question.QuestionText!.Trim().ToLower().Equals(questionDto.QuestionText!.Trim().ToLower()))
+                return false;
+
+            return questionDto.Type switch
+            {
+                nameof(QuestionType.MultipleChoice) =>
+                    CompareMultipleChoiceQuestion(questionResponseDto.QuestionData.MultipleChoice, questionDto.MultipleChoices!),
+                nameof(QuestionType.Matching) =>
+                    CompareMatchingQuestion(questionResponseDto.QuestionData.Matching, questionDto.MatchingPairs!),
+                nameof(QuestionType.Ordering) =>
+                    CompareOrderingQuestion(questionResponseDto.QuestionData.Ordering, questionDto.OrderingItems!),
+                nameof(QuestionType.ShortText) =>
+                    questionResponseDto.QuestionData.ShortText != null ||
+                    questionResponseDto.QuestionData.ShortText!.Trim().ToLower() == questionDto.ShortAnswer!.Trim().ToLower(),
+                _ => false
+            };
+        }
+        
+        public static bool CompareMultipleChoiceQuestion(List<MultipleChoiceItemDto>? choiceItems,
+            List<CreateMultipleChoiceDto> choiceItemsDto)
+        {
+            if (choiceItems == null || choiceItems.Count != choiceItemsDto.Count)
+            {
+                return false;
+            }
+            
+            var sortedItems = choiceItems.OrderBy(x => x.Text.Trim().ToLower()).ToList();
+            var sortedDtos = choiceItemsDto.OrderBy(x => x.Text!.Trim().ToLower()).ToList();
+            
+            for (int i = 0; i < sortedItems.Count; i++)
+            {
+                if (sortedItems[i].Text != sortedDtos[i].Text || 
+                    sortedItems[i].IsAnswer != sortedDtos[i].IsAnswer)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public static bool CompareMatchingQuestion(MatchingDataDto? matchingItems,
+            List<CreateMatchingPairDto> matchingItemsDto)
+        {
+            if(matchingItems == null || matchingItems.Matches.Count != matchingItemsDto.Count)
+                return false;
+
+            var leftItems = matchingItems.LeftItems.ToDictionary(x => x.Id, x => x.Text);
+            var rightItems = matchingItems.RightItems.ToDictionary(x => x.Id, x => x.Text);
+
+            var matchingDto = matchingItems.Matches
+                .Select(q => (
+                    leftItems.TryGetValue(q.LeftId, out var left) ? left.Trim().ToLower() : "",
+                    rightItems.TryGetValue(q.RightId, out var right) ? right.Trim().ToLower() : ""
+                ))
+                .Select(p => string.Compare(p.Item1, p.Item2, StringComparison.OrdinalIgnoreCase) <= 0 
+                    ? p 
+                    : (p.Item2, p.Item1))
+                .OrderBy(x => x.Item1).ThenBy(x => x.Item2)
+                .ToList();
+            
+            var inputPairs = matchingItemsDto.Select(dto => 
+                    string.Compare(dto.LeftItem, dto.RightItem, StringComparison.OrdinalIgnoreCase) <= 0
+                        ? (dto.LeftItem?.Trim().ToLower() ?? "", dto.RightItem?.Trim().ToLower() ?? "")
+                        : (dto.RightItem?.Trim().ToLower() ?? "", dto.LeftItem?.Trim().ToLower() ?? ""))
+                .ToList();
+
+            return matchingDto.OrderBy(x => x.Item1).ThenBy(x => x.Item2)
+                .SequenceEqual(inputPairs.OrderBy(x => x.Item1).ThenBy(x => x.Item2));
+        }
+
+        public static bool CompareOrderingQuestion(List<OrderingItemDto>? orderingItems,
+            List<CreateOrderingItemDto> orderingItemsDto)
+        {
+            if(orderingItems == null || orderingItems.Count != orderingItemsDto.Count)
+                return false;
+            
+            var orderItems = orderingItems
+                .OrderBy(x => x.CorrectOrder)
+                .Select(x => x.Text.Trim().ToLower())
+                .ToList();
+
+            var orderItemDto = orderingItemsDto
+                .OrderBy(x => x.CorrectOrder)
+                .Select(x => x.Text!.Trim().ToLower())
+                .ToList();
+            
+            var check = orderItems.SequenceEqual(orderItemDto);
+            return check;
+        }
+        
+        
     }
 }

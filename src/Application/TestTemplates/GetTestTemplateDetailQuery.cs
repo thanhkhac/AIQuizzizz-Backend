@@ -49,7 +49,8 @@ public class GetTestTemplateDetailQueryHandler : IRequestHandler<GetTestTemplate
     /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<TestTemplateDetailDto> Handle(GetTestTemplateDetailQuery rq, CancellationToken cancellationToken)
     {
-        var testTemplate = await _context.TestTemplates.Where(t => t.Id == rq.TestTemplateId && t.IsDeleted == false)
+        var testTemplate = await _context.TestTemplates
+            .Where(t => t.Id == rq.TestTemplateId && t.IsDeleted == false)
             .FirstOrDefaultAsync(cancellationToken);
         if (testTemplate == null)
             throw new ErrorCodeException(ErrorCodes.TEST_TEMPLATE_NOT_FOUND, "TestTemplate không tồn tại");

@@ -129,6 +129,4 @@ public class QuestionSetService : IQuestionSetService
                 && x.CreatedByUser.IsBanned == false, cancellationToken: cancellationToken);
         return questionSet;
     }
-
-
 }

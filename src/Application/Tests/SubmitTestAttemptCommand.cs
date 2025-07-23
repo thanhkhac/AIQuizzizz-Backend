@@ -51,14 +51,19 @@ public class AttemptTestCommandHandler : IRequestHandler<SubmitTestAttemptComman
         var attempt = await _context.Attempts
             .Include(x => x.Test)
             .Include(x => x.TestVersion)
-            .Where(x => x.Id == rq.AttemptId)
+            .Where(x => x.Id == rq.AttemptId && x.Test!.IsDeleted == false)
             .FirstOrDefaultAsync(cancellationToken);
         if (attempt == null || attempt.TestVersion == null || attempt.Test == null) 
             throw new ErrorCodeException(ErrorCodes.TEST_NOT_FOUND, "Bài test không tồn tại");
+
+        if (attempt.UserId != _user.UserId)
+            throw new ErrorCodeException(ErrorCodes.ERROR_ATTEMPT_USER, "Người làm bài không phải student đã attempt");
         
         attempt.TimeFinish = DateTime.UtcNow;
         
-        await _classService.IsStudentInClass(attempt.Test.ClassId);
+        var isStudentInClass = await _classService.IsStudentInClass(attempt.Test.ClassId);
+        if (!isStudentInClass)
+            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Chỉ student trong lớp mới có quyền");
 
         var questionsInTest = await _context.TestVersionQuestions
             .Include(x => x.Question)

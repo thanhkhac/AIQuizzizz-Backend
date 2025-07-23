@@ -99,4 +99,7 @@ public static class ErrorCodes
     public const string INVALID_FILE_FORMAT = nameof(INVALID_FILE_FORMAT);
     public const string ERROR_FORMAT_FILE = nameof(ERROR_FORMAT_FILE);
     
+    //Attempt
+    public const string ERROR_ATTEMPT_USER = nameof(ERROR_ATTEMPT_USER);
+    
 }

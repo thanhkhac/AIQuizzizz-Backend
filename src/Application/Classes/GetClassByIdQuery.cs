@@ -55,7 +55,9 @@ public class GetClassByIdQueryHandler : IRequestHandler<GetClassByIdQuery, Class
         if (classById == null)
             throw new ErrorCodeException(ErrorCodes.CLASS_NOTFOUND, "Không tìm thấy class");
 
-        await _classService.IsUserInClass(rq.ClassId);
+        var isUserInClass = await _classService.IsUserInClass(rq.ClassId);
+        if (!isUserInClass)
+            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_USER_IN_CLASS, "User không có trong lớp");
         
         return new ClassDetailDto { ClassId = classById.Id, Name = classById.Name, Topic = classById.Topic };
     }

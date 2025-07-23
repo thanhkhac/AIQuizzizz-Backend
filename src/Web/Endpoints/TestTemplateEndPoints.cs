@@ -15,7 +15,8 @@ public class TestTemplate : EndpointGroupBase
             .MapGet(SearchTestTemplate, "")
             .MapGet(GetTestTemplatePermissions, "/{testTemplateId}/Permissions")
             .MapGet(GetTestTemplateDetail, "/{testTemplateId}")
-            .MapPost(CreateTestTemplate, "");
+            .MapPost(CreateTestTemplate, "")
+            .MapDelete(DeleteTestTemplate, "/{testTemplateId}");
 
         app.MapGroup(this).DisableAntiforgery()
             .MapPost(ImportFileTestTemplate, "/ImportFile");
@@ -79,4 +80,12 @@ public class TestTemplate : EndpointGroupBase
         });
         return result.ToOk();
     }
+    
+    public async Task<Ok<ApiResponse<Guid>>> DeleteTestTemplate(
+        [FromRoute] Guid testTemplateId,
+        ISender sender)
+    {
+        var result = await sender.Send(new DeleteTestTemplateCommand{TestTemplateId = testTemplateId});
+        return result.ToOk();
+    } 
 }
