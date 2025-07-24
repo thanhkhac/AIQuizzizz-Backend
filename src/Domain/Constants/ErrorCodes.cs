@@ -87,13 +87,16 @@ public static class ErrorCodes
     public const string USER_NOT_HAVE_PERMISSION_IN_FOLDER = nameof(USER_NOT_HAVE_PERMISSION_IN_FOLDER);
     
     //Test
-    public const string TEST_TEMPLATE_NOT_FOUND = nameof(TEST_TEMPLATE_NOT_FOUND);
     public const string MAX_ATTEMPT_IN_THIS_TEST = nameof(MAX_ATTEMPT_IN_THIS_TEST);
     public const string TEST_IS_OVERDUE = nameof(TEST_IS_OVERDUE);
     public const string TEST_NOT_FOUND = nameof(TEST_NOT_FOUND);
     public const string NUMBER_OF_QUESTION_EXCEED_LIMIT = nameof(NUMBER_OF_QUESTION_EXCEED_LIMIT);
     public const string USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE = nameof(USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE);
     
+    //TestTemplate
+    public const string TEST_TEMPLATE_NOT_FOUND = nameof(TEST_TEMPLATE_NOT_FOUND);
+    public const string TEST_TEMPLATE_ALREADY_EXISTS = nameof(TEST_TEMPLATE_ALREADY_EXISTS);
+
     //File
     public const string FILE_NOT_FOUND = nameof(FILE_NOT_FOUND);
     public const string INVALID_FILE_FORMAT = nameof(INVALID_FILE_FORMAT);
