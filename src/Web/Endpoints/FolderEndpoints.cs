@@ -1,5 +1,6 @@
 ﻿using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.FolderTest;
+using CleanArchitectureBase.Application.FolderTest.Dto;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,8 +12,10 @@ public class Folder : EndpointGroupBase
         app.MapGroup(this)
             .MapGet(SearchFolderTest, "")
             .MapGet(SearchTestTemplateInFolder, "/{FolderId}/TestTemplates")
+            .MapGet(GetSharingInFolder, "/{FolderId}/Sharing")
             .MapPost(CreateFolder, "")
-            .MapDelete(DeleteFolder, "/{FolderId}/");
+            .MapDelete(DeleteFolder, "/{FolderId}/")
+            .MapDelete(RemoveSharingInFolder, "/{FolderId}/Sharing");
         
         app.MapGroup(this)
             .MapPatch("/{FolderId}", UpdateFolder);
@@ -66,11 +69,27 @@ public class Folder : EndpointGroupBase
         return result.ToOk();
     }
     
+    public async Task<Ok<ApiResponse<ResourceShareDto>>> GetSharingInFolder([FromRoute] Guid folderId, ISender sender)
+    {
+        var result = await sender.Send(new GetSharingInFolderQuery{FolderId = folderId});
+        return result.ToOk();
+    }
+    
     public async Task<Ok<ApiResponse<Guid>>> DeleteFolder([FromRoute] Guid folderId, ISender sender)
     {
         var result = await sender.Send(new DeleteFolderCommand{FolderId = folderId});
         return result.ToOk();
     }
+    
+    public async Task<Ok<ApiResponse<Guid>>> RemoveSharingInFolder(
+        [FromRoute] Guid folderId,
+        [FromBody] RemoveSharingInFolderCommand rq,
+        ISender sender)
+    {
+        rq.FolderId = folderId;
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    } 
     
     public async Task<Ok<ApiResponse<Guid>>> UpdateFolder(
         [FromRoute] Guid folderId,
