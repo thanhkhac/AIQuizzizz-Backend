@@ -11,7 +11,7 @@ namespace CleanArchitectureBase.Application.Tests.Service;
 public interface ITestService
 {
     Task<List<Guid>> QuestionAccessAndCompareForTest(List<CreateUpdateQuestionDto> question, CancellationToken cancellationToken);
-    Task<CheckUpdateQuestion> UpdateQuestion(List<CreateUpdateQuestionDto> question, List<Question> questions);
+    CheckUpdateQuestion UpdateQuestion(List<CreateUpdateQuestionDto> questionDtos, List<Question> questions);
     Task<Test> CanEditTest(Guid testId, CancellationToken cancellationToken);
 }
 
@@ -85,27 +85,18 @@ public class TestService : ITestService
             .ToList();
     }
 
-    public async Task<CheckUpdateQuestion> UpdateQuestion(List<CreateUpdateQuestionDto> question,List<Question> questions)
+    public CheckUpdateQuestion UpdateQuestion(List<CreateUpdateQuestionDto> questionDtos,List<Question> questions)
     {
-        if (question.Count == 0 || question.Count == 0) return new CheckUpdateQuestion();
+        if (questionDtos.Count == 0 || questionDtos.Count == 0) return new CheckUpdateQuestion();
 
         var notUpdateQuestionIds = questions
             .Where(x =>
-                CreateUpdateQuestionDto.Compare.CompareQuestion(x, question.First(q => q.QuestionId!.Equals(x.Id))))
+                CreateUpdateQuestionDto.Compare.CompareQuestion(x, questionDtos.First(q => q.QuestionId!.Equals(x.Id))))
             .Select(x => x.Id)
             .ToList();
-        
-        var newQuestionIds = await _context.TestTemplateQuestions
-            .Include(x => x.Question)
-            .Where(x => x.Question != null
-                        && (x.Question.QuestionSetId != null
-                        || question.Select(y => y.QuestionId!.Value).Contains(x.QuestionId)))
-            .Select(x => x.QuestionId)
-            .ToListAsync();
 
-        var updateQuestionIds = question
-            .Where(x => !newQuestionIds.Contains(x.QuestionId!.Value)
-                        && !notUpdateQuestionIds.Contains(x.QuestionId!.Value))
+        var updateQuestionIds = questionDtos
+            .Where(x => !notUpdateQuestionIds.Contains(x.QuestionId!.Value))
             .Select(x => x.QuestionId!.Value)
             .ToList();
 

@@ -1,6 +1,7 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.QuestionSets.Dtos;
+using CleanArchitectureBase.Application.Tests;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
@@ -11,6 +12,7 @@ public interface ITestTemplateService
     Task QuestionAccessForTestTemplate(List<CreateUpdateQuestionDto> question, CancellationToken cancellationToken);
     Task CanViewTesTemplate (Guid testTemplateId);
     Task<TestTemplate> CanDeleteTestTemplate (Guid testTemplateId, CancellationToken cancellationToken);
+    Task<TestTemplate> CanEditTestTemplate (Guid testTemplateId, CancellationToken cancellationToken);
 }
 
 public class TestTemplateService : ITestTemplateService
@@ -106,6 +108,30 @@ public class TestTemplateService : ITestTemplateService
             if (userTestTemplate == null)
                 throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE,
                     "Không có quyền xóa");
+        }
+
+        return testTemplate;
+    }
+
+    public async Task<TestTemplate> CanEditTestTemplate(Guid testTemplateId, CancellationToken cancellationToken)
+    {
+        var testTemplate = await _context.TestTemplates
+            .Where(t => t.Id == testTemplateId && t.IsDeleted == false)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (testTemplate == null)
+            throw new ErrorCodeException(ErrorCodes.TEST_TEMPLATE_NOT_FOUND, "Không tìm thấy test template");
+        
+        if (!await _identityService.IsInAnyRoleAsync(_user.UserId!.Value, Domain.Constants.Roles.Administrator,
+                Domain.Constants.Roles.Moderator))
+        {
+            var userTestTemplate = await _context.TestTemplateUsers
+                .Where(x => x.UserId == _user.UserId &&
+                            x.TestTemplateId == testTemplateId &&
+                            (TestTemplateUserShareMode.Owner == x.ShareMode || TestTemplateUserShareMode.Editable == x.ShareMode))
+                .FirstOrDefaultAsync(cancellationToken);
+            if (userTestTemplate == null)
+                throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE,
+                    "Không có quyền edit");
         }
 
         return testTemplate;

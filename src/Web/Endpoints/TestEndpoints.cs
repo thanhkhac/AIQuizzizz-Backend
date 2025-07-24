@@ -94,7 +94,7 @@ public class Test : EndpointGroupBase
     
     public async Task<Ok<ApiResponse<Guid>>> EditTest(
         [FromRoute] Guid testId,
-        [FromBody] EditTestCommand rq,
+        [FromBody] UpdateTestCommand rq,
         ISender sender)
     {
         rq.TestId = testId;

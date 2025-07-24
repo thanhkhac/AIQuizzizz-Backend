@@ -9,7 +9,7 @@ namespace CleanArchitectureBase.Application.Classes;
 [Authorize]
 public class UpdateClassCommand : IRequest<Guid>
 {
-    public required Guid ClassId { get; set; }
+    public Guid ClassId { get; set; }
     public required string Name { get; set; }
     public string? Topic { get; set; }
 }
