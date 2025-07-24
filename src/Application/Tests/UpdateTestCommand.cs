@@ -16,7 +16,7 @@ public class CheckUpdateQuestion
 }
 
 [Authorize]
-public class EditTestCommand : IRequest<Guid>
+public class UpdateTestCommand : IRequest<Guid>
 {
     public Guid TestId { get; set; }
     public required string Name { get; set; }
@@ -33,9 +33,9 @@ public class EditTestCommand : IRequest<Guid>
     public List<Guid> DeleteQuestionIds { get; set; } = new();
 }
 
-public class EditTestCommandValidator : AbstractValidator<EditTestCommand>
+public class UpdateTestCommandValidator : AbstractValidator<UpdateTestCommand>
 {
-    public EditTestCommandValidator()
+    public UpdateTestCommandValidator()
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Tên bài kiểm tra không được để trống")
@@ -73,13 +73,13 @@ public class EditTestCommandValidator : AbstractValidator<EditTestCommand>
     }
 }
 
-public class EditTestCommandHandler : IRequestHandler<EditTestCommand, Guid>
+public class UpdateTestCommandHandler : IRequestHandler<UpdateTestCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
     private readonly ITestService _testService;
     private readonly IClassService _classService;
     
-    public EditTestCommandHandler(
+    public UpdateTestCommandHandler(
         IApplicationDbContext context,
         ITestService testService,
         IClassService classService)
@@ -89,7 +89,7 @@ public class EditTestCommandHandler : IRequestHandler<EditTestCommand, Guid>
         _classService = classService;
     }
     
-    public async Task<Guid> Handle(EditTestCommand rq, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(UpdateTestCommand rq, CancellationToken cancellationToken)
     {
         var test = await _testService.CanEditTest(rq.TestId, cancellationToken);
         

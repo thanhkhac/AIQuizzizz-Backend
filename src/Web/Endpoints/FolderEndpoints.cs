@@ -11,7 +11,11 @@ public class Folder : EndpointGroupBase
         app.MapGroup(this)
             .MapGet(SearchFolderTest, "")
             .MapGet(SearchTestTemplateInFolder, "/{FolderId}/TestTemplates")
-            .MapPost(CreateFolder, "");
+            .MapPost(CreateFolder, "")
+            .MapDelete(DeleteFolder, "/{FolderId}/");
+        
+        app.MapGroup(this)
+            .MapPatch("/{FolderId}", UpdateFolder);
 }
 
     public async Task<Ok<ApiResponse<Guid>>> CreateFolder([FromBody] CreateFolderCommand rq, ISender sender)
@@ -27,7 +31,7 @@ public class Folder : EndpointGroupBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
-        var rq = new SearchFolderTestQuery
+        var rq = new SearchFolderQuery
         {
             SharedMode = sharedMode,
             FolderName = folderName,
@@ -59,6 +63,22 @@ public class Folder : EndpointGroupBase
         
         var result = await sender.Send(rq);
         
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<Guid>>> DeleteFolder([FromRoute] Guid folderId, ISender sender)
+    {
+        var result = await sender.Send(new DeleteFolderCommand{FolderId = folderId});
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<Guid>>> UpdateFolder(
+        [FromRoute] Guid folderId,
+        [FromQuery] string name,
+        ISender sender)
+    {
+        var rq = new UpdateFolderCommand { FolderId = folderId, Name = name };
+        var result = await sender.Send(rq);
         return result.ToOk();
     }
 }
