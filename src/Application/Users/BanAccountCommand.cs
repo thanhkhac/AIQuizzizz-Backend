@@ -1,11 +1,16 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.Users;
 
+[Authorize (Roles = Domain.Constants.Roles.Administrator)]
 public class BanAccountCommand : IRequest<Guid>
 {
+    /// <summary>
+    /// Id of the user want to ban
+    /// </summary>   
     public required Guid UserId { get; set; }
 }
 
@@ -31,15 +36,14 @@ public class BanAccountCommandHandler : IRequestHandler<BanAccountCommand, Guid>
         _identityService = identityService;
     }
     
+    /// <summary>
+    /// The function bans a user account by setting the ban status, returning the user ID
+    /// </summary>
+    /// <param name="rq">Request contains UserId information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<Guid> Handle(BanAccountCommand rq, CancellationToken cancellationToken)
     {
         var admins = await _identityService.GetUsersInRoleAsync();
-        
-        var user = await _context.DomainUsers
-            .Where(x => x.Id == _user.UserId && x.IsDeleted == false && x.IsBanned == false)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (user == null)
-            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {_user.UserId} not found");
         
         var bannedUsers = await _context.DomainUsers
             .Where(x => x.IsDeleted == false 
@@ -51,6 +55,7 @@ public class BanAccountCommandHandler : IRequestHandler<BanAccountCommand, Guid>
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {_user.UserId} not found");
 
         bannedUsers.IsBanned = true;
+        await _identityService.BanUser(rq.UserId);
         await _context.SaveChangesAsync(cancellationToken);
         return bannedUsers.Id;
     }

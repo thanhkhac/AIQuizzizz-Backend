@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <RootNamespace>CleanArchitectureBase.Application.FunctionalTests</RootNamespace>
-        <AssemblyName>CleanArchitectureBase.Application.FunctionalTests</AssemblyName>
+        <RootNamespace>CleanArchitectureBase.Application.Command.UnitTests</RootNamespace>
+        <AssemblyName>CleanArchitectureBase.Application.Command.UnitTests</AssemblyName>
+        <NoWarn>CS8600</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
@@ -20,6 +21,7 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="Moq.EntityFrameworkCore" />
         <PackageReference Include="nunit" />
         <PackageReference Include="NUnit.Analyzers">
           <PrivateAssets>all</PrivateAssets>
@@ -38,7 +40,12 @@
     </ItemGroup>
     
     <ItemGroup>
+        <ProjectReference Include="..\..\src\Application\Application.csproj" />
         <ProjectReference Include="..\..\src\Web\Web.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="zExample\" />
     </ItemGroup>
 
 </Project>

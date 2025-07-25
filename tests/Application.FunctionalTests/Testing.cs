@@ -1,4 +1,4 @@
-﻿using CleanArchitectureBase.Domain.Constants;
+﻿using CleanArchitectureBase.Application.FunctionalTests;
 using CleanArchitectureBase.Domain.Entities;
 using CleanArchitectureBase.Infrastructure.Data;
 using CleanArchitectureBase.Infrastructure.Identity;
@@ -7,16 +7,17 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace CleanArchitectureBase.Application.FunctionalTests;
+namespace CleanArchitectureBase.Application.Command.UnitTests;
 
 [SetUpFixture]
 public partial class Testing
 {
     private static ITestDatabase _database = null!;
-    private static CustomWebApplicationFactory _factory = null!;
-    private static IServiceScopeFactory _scopeFactory = null!;
+    internal static CustomWebApplicationFactory _factory = null!;
+    internal static IServiceScopeFactory _scopeFactory = null!;
     private static Guid? _userId;
 
+    
     [OneTimeSetUp]
     public async Task RunBeforeAnyTests()
     {
@@ -26,6 +27,9 @@ public partial class Testing
         
         _scopeFactory = _factory.Services.GetRequiredService<IServiceScopeFactory>();
     }
+    
+    public static IServiceScope CreateScope() => _scopeFactory?.CreateScope()
+                                                 ?? throw new InvalidOperationException("Testing is not initialized. Ensure OneTimeSetUp ran.");
 
     public static async Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
     {
@@ -57,9 +61,9 @@ public partial class Testing
 
     public static async Task<Guid> RunAsAdministratorAsync()
     {
-        return await RunAsUserAsync("administrator@local", "Administrator1234!", new[] { Roles.Administrator });
+        return await RunAsUserAsync("administrator@local", "Administrator1234!", new[] { Domain.Constants.Roles.Administrator });
     }
-
+     
     public static async Task<Guid> RunAsUserAsync(string email, string password, string[] roles)
     {
         using var scope = _scopeFactory.CreateScope();

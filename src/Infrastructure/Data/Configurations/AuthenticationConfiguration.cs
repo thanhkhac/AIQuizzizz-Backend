@@ -23,6 +23,24 @@ public class UserConfig : IEntityTypeConfiguration<User>
 
     public void Configure(EntityTypeBuilder<User> builder)
     {
+        builder.HasKey(u => u.Id);
+
+        builder.Property(u => u.FullName)
+            .HasMaxLength(500);
+
+        builder.Property(u => u.Email)
+            .IsRequired()
+            .HasMaxLength(500);
+
+        builder.Property(u => u.IsDeleted)
+            .HasDefaultValue(false);
+
+        builder.Property(u => u.IsBanned)
+            .HasDefaultValue(false);
+
+        builder.Property(u => u.TokenCount)
+            .HasDefaultValue(0);
+                
         builder
             .HasOne<UserAccount>()
             .WithOne(account => account.User)

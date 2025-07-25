@@ -6,12 +6,14 @@ public static class ErrorCodes
     //COMMON
     public const string COMMON_FORBIDDEN = nameof(COMMON_FORBIDDEN);
     public const string COMMON_SERVER_INTERNAL_ERROR = nameof(COMMON_SERVER_INTERNAL_ERROR);
+    public const string COMMON_UNHANDLED_ERROR = nameof(COMMON_UNHANDLED_ERROR);
     public const string COMMON_NOT_FOUND = nameof(COMMON_NOT_FOUND);
     public const string COMMON_GONE = nameof(COMMON_GONE);
     public const string COMMON_BAD_REQUEST = nameof(COMMON_BAD_REQUEST);
     public const string COMMON_CONFLICT = nameof(COMMON_CONFLICT);
     public const string COMMON_TIMEOUT_ERROR = nameof(COMMON_TIMEOUT_ERROR);
     public const string FIELD_NAME_NOT_FOUND = nameof(FIELD_NAME_NOT_FOUND);
+    public const string INVALID_SHARE_MODE = nameof(INVALID_SHARE_MODE);
 
     //ACCOUNT
     public const string ACCOUNT_NOTFOUND = nameof(ACCOUNT_NOTFOUND);
@@ -22,7 +24,19 @@ public static class ErrorCodes
     public const string ACCOUNT_INVALID_PASSWORD = nameof(ACCOUNT_INVALID_PASSWORD);
     public const string ACCOUNT_INVALID_CREDENTIALS = nameof(ACCOUNT_INVALID_CREDENTIALS);
     public const string ACCOUNT_INVALID_VERIFICATION_CODE = nameof(ACCOUNT_INVALID_VERIFICATION_CODE);
-    public const string ACCOUNT_EMAIL_NOT_VERIFIED = nameof(ACCOUNT_EMAIL_NOT_VERIFIED); //TODO: Check xác thực email
+    public const string ACCOUNT_EMAIL_NOT_VERIFIED = nameof(ACCOUNT_EMAIL_NOT_VERIFIED); 
+    public const string ACCOUNT_EMAIL_BANNED  = nameof(ACCOUNT_EMAIL_BANNED ); 
+    public const string ACCOUNT_INVALID_RESET_CODE  = nameof(ACCOUNT_INVALID_RESET_CODE ); 
+    public const string ACCOUNT_WRONG_PASSWORD  = nameof(ACCOUNT_WRONG_PASSWORD ); 
+    public const string EMAIL_VERIFICATION_REQUEST_TOO_MANY  = nameof(EMAIL_VERIFICATION_REQUEST_TOO_MANY ); 
+    public const string EMAIL_VERIFICATION_CODE_FAILED_TOO_MANY  = nameof(EMAIL_VERIFICATION_CODE_FAILED_TOO_MANY ); 
+    public const string PASSWORD_RESET_REQUEST_TOO_MANY  = nameof(PASSWORD_RESET_REQUEST_TOO_MANY ); 
+    public const string PASSWORD_RESET_CODE_FAILED_TOO_MANY  = nameof(PASSWORD_RESET_CODE_FAILED_TOO_MANY ); 
+    public const string REFRESHTOKEN_NOTFOUND  = nameof(REFRESHTOKEN_NOTFOUND ); 
+    
+    
+    //ROLE
+    public const string ROLE_NOTFOUND  = nameof(ROLE_NOTFOUND ); 
     
     
     //IDENTITY OVERRIDE ERROR DESCRIBER
@@ -51,19 +65,55 @@ public static class ErrorCodes
     
     //Class
     public const string CLASS_NOTFOUND = nameof(CLASS_NOTFOUND);
+    public const string PERMISSION_NOT_FOUND = nameof(PERMISSION_NOT_FOUND);
     public const string CLASS_ALREADY_EXISTS = nameof(CLASS_ALREADY_EXISTS);
     public const string CLASS_CODE_NOT_FOUND = nameof(CLASS_CODE_NOT_FOUND);
     public const string STUDENT_ALREADY_EXISTS_IN_CLASS = nameof(STUDENT_ALREADY_EXISTS_IN_CLASS);
     public const string ONLY_OWNERS_CAN_UPDATE = nameof(ONLY_OWNERS_CAN_UPDATE);
     public const string NOT_FOUND_STUDENT_IN_CLASS = nameof(NOT_FOUND_STUDENT_IN_CLASS);
+    public const string NOT_FOUND_TEACHER_OR_OWNER_IN_CLASS = nameof(NOT_FOUND_TEACHER_OR_OWNER_IN_CLASS);
+    public const string NOT_FOUND_USER_IN_CLASS = nameof(NOT_FOUND_USER_IN_CLASS);
     public const string QUESTION_SET_ALREADY_IN_CLASS = nameof(QUESTION_SET_ALREADY_IN_CLASS);
+    public const string NOT_HAVE_PERMISSION_TO_ADD_QUESTION_SET = nameof(NOT_HAVE_PERMISSION_TO_ADD_QUESTION_SET);
+    
+    //Question
+    public const string INVALID_QUESTION_TYPE = nameof(INVALID_QUESTION_TYPE);
     
     //Question set
     public const string QUESTION_SET_NOT_FOUND = nameof(QUESTION_SET_NOT_FOUND);
     public const string QUESTION_SET_NOT_FOUND_IN_CLASS = nameof(QUESTION_SET_NOT_FOUND_IN_CLASS);
-    
+    public const string USER_NOT_ACCESS_TO_QUESTION_SET = nameof(USER_NOT_ACCESS_TO_QUESTION_SET);
     
     public const string PLAN_REQUIRE_PLAN = nameof(PLAN_REQUIRE_PLAN);
     public const string PLAN_NOT_FOUND = nameof(PLAN_NOT_FOUND);
+    
+    //FOLDER
+    public const string FOLDER_NOT_FOUND = nameof(FOLDER_NOT_FOUND);
+    public const string FOLDER_ALREADY_EXISTS = nameof(FOLDER_ALREADY_EXISTS);
+    public const string USER_NOT_HAVE_PERMISSION_IN_FOLDER = nameof(USER_NOT_HAVE_PERMISSION_IN_FOLDER);
+    public const string USER_ALREADY_EXISTS_IN_FOLDER = nameof(USER_ALREADY_EXISTS_IN_FOLDER);
+    public const string TEST_TEMPLATE_ALREADY_EXISTS_IN_FOLDER = nameof(TEST_TEMPLATE_ALREADY_EXISTS_IN_FOLDER);
+    public const string TEST_TEMPLATE_NOT_FOUND_IN_FOLDER = nameof(TEST_TEMPLATE_NOT_FOUND_IN_FOLDER);
+    public const string CAN_NOT_DELETE_OWNER = nameof(CAN_NOT_DELETE_OWNER);
 
+    
+    //Test
+    public const string MAX_ATTEMPT_IN_THIS_TEST = nameof(MAX_ATTEMPT_IN_THIS_TEST);
+    public const string TEST_IS_OVERDUE = nameof(TEST_IS_OVERDUE);
+    public const string TEST_NOT_FOUND = nameof(TEST_NOT_FOUND);
+    public const string NUMBER_OF_QUESTION_EXCEED_LIMIT = nameof(NUMBER_OF_QUESTION_EXCEED_LIMIT);
+    public const string USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE = nameof(USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE);
+    public const string TEST_TIME_IS_UP = nameof(TEST_TIME_IS_UP);
+    
+    //TestTemplate
+    public const string TEST_TEMPLATE_NOT_FOUND = nameof(TEST_TEMPLATE_NOT_FOUND);
+    public const string TEST_TEMPLATE_ALREADY_EXISTS = nameof(TEST_TEMPLATE_ALREADY_EXISTS);
+
+    //File
+    public const string FILE_NOT_FOUND = nameof(FILE_NOT_FOUND);
+    public const string INVALID_FILE_FORMAT = nameof(INVALID_FILE_FORMAT);
+    public const string ERROR_FORMAT_FILE = nameof(ERROR_FORMAT_FILE);
+    
+    //Attempt
+    public const string ERROR_ATTEMPT_USER = nameof(ERROR_ATTEMPT_USER);
 }

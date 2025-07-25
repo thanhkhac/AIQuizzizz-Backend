@@ -68,7 +68,7 @@ public class UserTokenPurchaseConfiguration : IEntityTypeConfiguration<UserToken
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(utp => utp.User)
-            .WithMany()
+            .WithMany(u => u.UserTokenPurchases)
             .HasForeignKey(utp => utp.UserId)
             .OnDelete(DeleteBehavior.Restrict);
     }
@@ -89,7 +89,7 @@ public class UserSubscriptionConfiguration : IEntityTypeConfiguration<UserSubscr
             .HasDefaultValue(false);
 
         builder.HasOne(us => us.User)
-            .WithMany()
+            .WithMany(u => u.UserSubscriptions)
             .HasForeignKey(us => us.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
@@ -104,6 +104,8 @@ public class QuestionConfiguration : IEntityTypeConfiguration<Question>
 {
     public void Configure(EntityTypeBuilder<Question> builder)
     {
+        builder.HasKey(q => q.Id);
+
         builder.Property(q => q.Type)
             .IsRequired()
             .HasConversion(
@@ -113,6 +115,9 @@ public class QuestionConfiguration : IEntityTypeConfiguration<Question>
         builder.Property(q => q.QuestionText)
             .HasMaxLength(1000);
 
+        builder.Property(q => q.ExplainText)
+            .HasMaxLength(1000);
+
         builder.Property(q => q.TextFormat)
             .IsRequired()
             .HasConversion(
@@ -120,7 +125,8 @@ public class QuestionConfiguration : IEntityTypeConfiguration<Question>
                 v => (TextFormat)Enum.Parse(typeof(TextFormat), v));
 
         builder.Property(q => q.Score)
-            .HasColumnType("numeric(5,2)");
+            .HasColumnType("numeric(5,2)")
+            .HasDefaultValue(0);
 
         builder.Property(q => q.DataJson)
             .IsRequired()
@@ -169,15 +175,19 @@ public class QuestionSetTagConfiguration : IEntityTypeConfiguration<QuestionSetT
     public void Configure(EntityTypeBuilder<QuestionSetTag> builder)
     {
         //composite key
-        builder.HasKey(qst => new { qst.TagId, qst.QuestionSetId });
+        builder.HasKey(qst => new
+        {
+            qst.TagId,
+            qst.QuestionSetId
+        });
 
         builder.HasOne(qst => qst.Tag)
-            .WithMany()
+            .WithMany(t => t.QuestionSetTags)
             .HasForeignKey(qst => qst.TagId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(qst => qst.QuestionSet)
-            .WithMany()
+            .WithMany(qs => qs.QuestionSetTags)
             .HasForeignKey(qst => qst.QuestionSetId)
             .OnDelete(DeleteBehavior.Cascade);
     }
@@ -200,7 +210,11 @@ public class QuestionSetUserConfiguration : IEntityTypeConfiguration<QuestionSet
 
     public void Configure(EntityTypeBuilder<QuestionSetUser> builder)
     {
-        builder.HasKey(qsu => new { qsu.UserId, qsu.QuestionSetId });
+        builder.HasKey(qsu => new
+        {
+            qsu.UserId,
+            qsu.QuestionSetId
+        });
 
         builder.Property(qsu => qsu.ShareMode)
             .IsRequired()
@@ -209,12 +223,12 @@ public class QuestionSetUserConfiguration : IEntityTypeConfiguration<QuestionSet
                 v => (QuestionSetUserShareMode)Enum.Parse(typeof(QuestionSetUserShareMode), v));
 
         builder.HasOne(qsu => qsu.User)
-            .WithMany()
+            .WithMany(u => u.QuestionSetUsers)
             .HasForeignKey(qsu => qsu.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(qsu => qsu.QuestionSet)
-            .WithMany()
+            .WithMany(qs => qs.QuestionSetUsers)
             .HasForeignKey(qsu => qsu.QuestionSetId)
             .OnDelete(DeleteBehavior.Cascade);
     }
@@ -224,6 +238,8 @@ public class CommentConfiguration : IEntityTypeConfiguration<Comment>
 {
     public void Configure(EntityTypeBuilder<Comment> builder)
     {
+        builder.HasKey(c => c.Id);
+
         builder.Property(c => c.Content)
             .IsRequired()
             .HasMaxLength(1000);
@@ -233,17 +249,23 @@ public class CommentConfiguration : IEntityTypeConfiguration<Comment>
             .HasDefaultValue(false);
 
         builder.HasOne(c => c.User)
-            .WithMany()
+            .WithMany(u => u.Comments)
             .HasForeignKey(c => c.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(c => c.Question)
-            .WithMany()
+            .WithMany(q => q.Comments)
             .HasForeignKey(c => c.QuestionId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(c => c.ParentComment)
             .WithMany(c => c.ChildComments)
+            .HasForeignKey(c => c.ParentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Self-referencing relationship for comments
+        builder.HasMany(c => c.ChildComments)
+            .WithOne(c => c.ParentComment)
             .HasForeignKey(c => c.ParentId)
             .OnDelete(DeleteBehavior.Restrict);
     }
@@ -253,16 +275,18 @@ public class UserQuestionSetHistoryConfiguration : IEntityTypeConfiguration<User
 {
     public void Configure(EntityTypeBuilder<UserQuestionSetHistory> builder)
     {
+        builder.HasKey(uqsh => uqsh.Id);
+
         builder.Property(uqsh => uqsh.IsCorrect)
             .IsRequired();
 
         builder.HasOne(uqsh => uqsh.User)
-            .WithMany()
+            .WithMany(u => u.UserQuestionSetHistories)
             .HasForeignKey(uqsh => uqsh.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(uqsh => uqsh.Question)
-            .WithMany()
+            .WithMany(q => q.UserQuestionSetHistories)
             .HasForeignKey(uqsh => uqsh.QuestionId)
             .OnDelete(DeleteBehavior.Cascade);
     }
@@ -282,13 +306,15 @@ public class TestTemplateQuestionConfiguration : IEntityTypeConfiguration<TestTe
 {
     public void Configure(EntityTypeBuilder<TestTemplateQuestion> builder)
     {
+        builder.HasKey(ttq => ttq.Id);
+
         builder.HasOne(ttq => ttq.TestTemplate)
-            .WithMany()
+            .WithMany(tt => tt.TestTemplateQuestions)
             .HasForeignKey(ttq => ttq.TestTemplateId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(ttq => ttq.Question)
-            .WithMany()
+            .WithMany(q => q.TestTemplateQuestions)
             .HasForeignKey(ttq => ttq.QuestionId)
             .OnDelete(DeleteBehavior.Restrict);
     }
@@ -308,16 +334,48 @@ public class FolderTestTemplateConfiguration : IEntityTypeConfiguration<FolderTe
 {
     public void Configure(EntityTypeBuilder<FolderTestTemplate> builder)
     {
-        builder.HasKey(ftt => new { ftt.FolderId, ftt.TestTemplateId });
+        builder.HasKey(ftt => new
+        {
+            ftt.FolderId,
+            ftt.TestTemplateId
+        });
 
         builder.HasOne(ftt => ftt.Folder)
-            .WithMany()
+            .WithMany(f => f.FolderTestTemplates)
             .HasForeignKey(ftt => ftt.FolderId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(ftt => ftt.TestTemplate)
-            .WithMany()
+            .WithMany(tt => tt.FolderTestTemplates)
             .HasForeignKey(ftt => ftt.TestTemplateId)
+            .OnDelete(DeleteBehavior.Cascade);
+    }
+}
+
+public class TestTemplateUserConfiguration : IEntityTypeConfiguration<TestTemplateUser>
+{
+    public void Configure(EntityTypeBuilder<TestTemplateUser> builder)
+    {
+        builder.HasKey(ttu => new
+        {
+            ttu.UserId,
+            ttu.TestTemplateId
+        });
+
+        builder.Property(ttu => ttu.ShareMode)
+            .IsRequired()
+            .HasConversion(
+                v => v.ToString(),
+                v => (TestTemplateUserShareMode)Enum.Parse(typeof(TestTemplateUserShareMode), v));
+
+        builder.HasOne(ttu => ttu.User)
+            .WithMany(u => u.TestTemplateUsers)
+            .HasForeignKey(ttu => ttu.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(ttu => ttu.TestTemplate)
+            .WithMany(tt => tt.TestTemplateUsers)
+            .HasForeignKey(ttu => ttu.TestTemplateId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
@@ -326,7 +384,11 @@ public class FolderUserConfiguration : IEntityTypeConfiguration<FolderUser>
 {
     public void Configure(EntityTypeBuilder<FolderUser> builder)
     {
-        builder.HasKey(fu => new { fu.UserId, fu.FolderId });
+        builder.HasKey(fu => new
+        {
+            fu.UserId,
+            fu.FolderId
+        });
 
         builder.Property(fu => fu.ShareMode)
             .IsRequired()
@@ -335,12 +397,12 @@ public class FolderUserConfiguration : IEntityTypeConfiguration<FolderUser>
                 v => (FolderShareMode)Enum.Parse(typeof(FolderShareMode), v));
 
         builder.HasOne(fu => fu.User)
-            .WithMany()
+            .WithMany(u => u.FolderUsers)
             .HasForeignKey(fu => fu.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(fu => fu.Folder)
-            .WithMany()
+            .WithMany(f => f.FolderUsers)
             .HasForeignKey(fu => fu.FolderId)
             .OnDelete(DeleteBehavior.Cascade);
     }
@@ -365,6 +427,10 @@ public class TestConfiguration : IEntityTypeConfiguration<Test>
         builder.Property(t => t.QuestionCount)
             .IsRequired();
 
+        builder.Property(t => t.PassingScore)
+            .IsRequired()
+            .HasColumnType("numeric(5,2)");
+
         builder.Property(t => t.GradeAttemptMethod)
             .IsRequired()
             .HasConversion(
@@ -381,11 +447,14 @@ public class TestConfiguration : IEntityTypeConfiguration<Test>
             .IsRequired();
 
         builder.HasOne(t => t.Class)
-            .WithMany()
+            .WithMany(c => c.Tests)
             .HasForeignKey(t => t.ClassId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.Property(t => t.IsShowCorrectAnswerInReview)
+            .HasDefaultValue(false);
+            
+        builder.Property(t => t.IsDeleted)
             .HasDefaultValue(false);
     }
 }
@@ -398,7 +467,7 @@ public class TestVersionConfiguration : IEntityTypeConfiguration<TestVersion>
             .IsRequired();
 
         builder.HasOne(tv => tv.Test)
-            .WithMany()
+            .WithMany(t => t.TestVersions)
             .HasForeignKey(tv => tv.TestId)
             .OnDelete(DeleteBehavior.Cascade);
     }
@@ -408,16 +477,18 @@ public class TestVersionQuestionConfiguration : IEntityTypeConfiguration<TestVer
 {
     public void Configure(EntityTypeBuilder<TestVersionQuestion> builder)
     {
+        builder.HasKey(tvq => tvq.Id);
+
         builder.Property(tvq => tvq.Order)
             .IsRequired();
 
         builder.HasOne(tvq => tvq.TestVersion)
-            .WithMany()
+            .WithMany(tv => tv.TestVersionQuestions)
             .HasForeignKey(tvq => tvq.TestVersionId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(tvq => tvq.Question)
-            .WithMany()
+            .WithMany(q => q.TestVersionQuestions)
             .HasForeignKey(tvq => tvq.QuestionId)
             .OnDelete(DeleteBehavior.Restrict);
     }
@@ -427,6 +498,8 @@ public class AttemptConfiguration : IEntityTypeConfiguration<Attempt>
 {
     public void Configure(EntityTypeBuilder<Attempt> builder)
     {
+        builder.HasKey(a => a.Id);
+
         builder.Property(a => a.TimeStart)
             .IsRequired();
 
@@ -438,12 +511,17 @@ public class AttemptConfiguration : IEntityTypeConfiguration<Attempt>
             .HasColumnType("numeric(5,2)");
 
         builder.HasOne(a => a.Test)
-            .WithMany()
+            .WithMany(t => t.Attempts)
             .HasForeignKey(a => a.TestId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasOne(a => a.TestVersion)
+            .WithMany(tv => tv.Attempts)
+            .HasForeignKey(a => a.TestVersionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasOne(a => a.User)
-            .WithMany()
+            .WithMany(u => u.Attempts)
             .HasForeignKey(a => a.UserId)
             .OnDelete(DeleteBehavior.Restrict);
     }
@@ -453,6 +531,8 @@ public class AttemptQuestionConfiguration : IEntityTypeConfiguration<AttemptQues
 {
     public void Configure(EntityTypeBuilder<AttemptQuestion> builder)
     {
+        builder.HasKey(aq => aq.Id);
+
         builder.Property(aq => aq.Order)
             .HasDefaultValue(0);
 
@@ -466,12 +546,12 @@ public class AttemptQuestionConfiguration : IEntityTypeConfiguration<AttemptQues
         builder.Ignore(aq => aq.Data);
 
         builder.HasOne(aq => aq.Attempt)
-            .WithMany()
+            .WithMany(a => a.AttemptQuestions)
             .HasForeignKey(aq => aq.AttemptId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(aq => aq.Question)
-            .WithMany()
+            .WithMany(q => q.AttemptQuestions)
             .HasForeignKey(aq => aq.QuestionId)
             .OnDelete(DeleteBehavior.Restrict);
     }
@@ -496,7 +576,11 @@ public class ClassUserConfiguration : IEntityTypeConfiguration<ClassUser>
 {
     public void Configure(EntityTypeBuilder<ClassUser> builder)
     {
-        builder.HasKey(cu => new { cu.ClassId, cu.UserId });
+        builder.HasKey(cu => new
+        {
+            cu.ClassId,
+            cu.UserId
+        });
 
         builder.Property(cu => cu.ShareMode)
             .IsRequired()
@@ -505,12 +589,12 @@ public class ClassUserConfiguration : IEntityTypeConfiguration<ClassUser>
                 v => (ClassShareMode)Enum.Parse(typeof(ClassShareMode), v));
 
         builder.HasOne(cu => cu.Class)
-            .WithMany()
+            .WithMany(c => c.ClassUsers)
             .HasForeignKey(cu => cu.ClassId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(cu => cu.User)
-            .WithMany()
+            .WithMany(u => u.ClassUsers)
             .HasForeignKey(cu => cu.UserId)
             .OnDelete(DeleteBehavior.Restrict);
     }
@@ -520,7 +604,11 @@ public class ClassQuestionSetConfiguration : IEntityTypeConfiguration<ClassQuest
 {
     public void Configure(EntityTypeBuilder<ClassQuestionSet> builder)
     {
-        builder.HasKey(cqs => new { cqs.ClassId, cqs.QuestionSetId });
+        builder.HasKey(cqs => new
+        {
+            cqs.ClassId,
+            cqs.QuestionSetId
+        });
 
         builder.HasOne(cqs => cqs.Class)
             .WithMany(c => c.ClassQuestionSets)
@@ -528,7 +616,7 @@ public class ClassQuestionSetConfiguration : IEntityTypeConfiguration<ClassQuest
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(cqs => cqs.QuestionSet)
-            .WithMany()
+            .WithMany(qs => qs.ClassQuestionSets)
             .HasForeignKey(cqs => cqs.QuestionSetId)
             .OnDelete(DeleteBehavior.Restrict);
     }
@@ -552,7 +640,7 @@ public class ClassInvitationConfiguration : IEntityTypeConfiguration<ClassInvita
             .HasDefaultValue(false);
 
         builder.HasOne(ci => ci.Class)
-            .WithMany()
+            .WithMany(c => c.ClassInvitations)
             .HasForeignKey(ci => ci.ClassId)
             .OnDelete(DeleteBehavior.Cascade);
     }
@@ -566,7 +654,7 @@ public class ClassInvitationUserConfiguration : IEntityTypeConfiguration<ClassIn
             .IsRequired();
 
         builder.HasOne(ciu => ciu.User)
-            .WithMany()
+            .WithMany(u => u.ClassInvitationUsers)
             .HasForeignKey(ciu => ciu.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
@@ -596,7 +684,7 @@ public class TestGradeConfiguration : IEntityTypeConfiguration<TestGrade>
 
         //Nối với bảng User
         builder.HasOne(tg => tg.User)
-            .WithMany() // nếu User không có navigation property ngược
+            .WithMany(u => u.TestGrades) // nếu User không có navigation property ngược
             .HasForeignKey(tg => tg.UserId)
             .OnDelete(DeleteBehavior.Cascade);
     }

@@ -30,8 +30,16 @@ else
 
 app.UseHealthChecks("/health");
 // app.UseHttpsRedirection();
+
+// CORS MIDDLEWARE
+// if (app.Environment.IsDevelopment())
+//     app.UseCors("AllowAll");
+// else
+    app.UseCors("AllowSpecificOrigins");
+
+
 app.UseStaticFiles();
-app.UseAuthentication(); 
+app.UseAuthentication();
 
 app.UseSwaggerUi(settings =>
 {
@@ -39,7 +47,6 @@ app.UseSwaggerUi(settings =>
     settings.DocumentPath = "/api/specification.json";
     settings.DocExpansion = "list"; //none/list/full
 });
-
 
 
 app.MapControllerRoute(
@@ -51,11 +58,11 @@ app.UseExceptionHandler(options => { });
 app.Map("/", () => Results.Redirect("/api"));
 
 
-
-
-app.MapEndpoints();    
+app.MapEndpoints();
 
 app.Run();
 
 
-public partial class Program { }
+public partial class Program
+{
+}

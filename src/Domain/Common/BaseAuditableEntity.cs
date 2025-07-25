@@ -9,4 +9,7 @@ public abstract class BaseAuditableEntity : BaseEntity
     public DateTimeOffset LastModified { get; set; }
 
     public Guid? LastModifiedBy { get; set; }
+
+    // Navigation property
+    public CleanArchitectureBase.Domain.Entities.User? CreatedByUser { get; set; }
 }

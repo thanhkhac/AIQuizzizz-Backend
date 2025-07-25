@@ -1,11 +1,9 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
-using CleanArchitectureBase.Application.Users;
 using CleanArchitectureBase.Application.Users.Common;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
@@ -14,9 +12,10 @@ using CleanArchitectureBase.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+
+// ReSharper disable InconsistentNaming
 
 namespace CleanArchitectureBase.Infrastructure.Identity;
 
@@ -28,16 +27,44 @@ public class IdentityService : IIdentityService
     private readonly SignInManager<UserAccount> _signInManager;
     private readonly JwtSettings _jwtSettings;
     private readonly ApplicationDbContext _dbContext;
+    private readonly IGoogleAuthService _googleAuthService;
+    private readonly IEmailService _emailService;
+    private readonly RoleManager<ApplicationRole> _roleManager;
 
+    private static class LockoutSettings
+    {
+        //Số lần gửi email tối đa
+        public const int MaxEmailRequestAttempts = 5;
+
+        //Lượng thời gian khóa sau khi người dùng gửi vượt quá lượt email cho phép
+        public const int EmailRequestLockoutMinutes = 10;
+
+        //Số lượt xác minh cho phép
+        public const int MaxEmailVerificationAttempts = 5;
+
+        //Thời gian hiệu lực cho mã xác minh email
+        public const int EmailVerificationCodeExpiryMinutes = 10;
+
+        //Số lần tối đa cho phép reset password
+        public const int MaxPasswordResetAttempts = 5;
+
+        //Thời gian hiệu lực cho mã reset password
+        public const int PasswordResetCodeExpiryMinutes = 10;
+
+        //Lượng thời gian khóa sau khi người dùng lock email 
+        public const int PasswordResetLockoutMinutes = 60;
+    }
 
     public IdentityService(
         UserManager<UserAccount> userManager,
         IUserClaimsPrincipalFactory<UserAccount> userClaimsPrincipalFactory,
         IAuthorizationService authorizationService,
         SignInManager<UserAccount> signInManager,
-        IConfiguration configuration,
         IOptions<JwtSettings> jwtSettings,
-        ApplicationDbContext dbContext)
+        ApplicationDbContext dbContext,
+        IGoogleAuthService googleAuthService,
+        IEmailService emailService,
+        RoleManager<ApplicationRole> roleManager)
     {
         _userManager = userManager;
         _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
@@ -45,74 +72,78 @@ public class IdentityService : IIdentityService
         _signInManager = signInManager;
         _dbContext = dbContext;
         _jwtSettings = jwtSettings.Value;
+        _googleAuthService = googleAuthService;
+        _emailService = emailService;
+        _roleManager = roleManager;
     }
 
     public async Task<string?> GetUserNameAsync(Guid userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
-
         return user?.UserName;
     }
 
-    public async Task<(Result Result, Guid UserId)> CreateUserAsync(string email, string password)
+    private async Task<UserAccount> CreateUserAccountAsync(string email, string? password = null, string? fullName = null, bool emailConfirmed = false)
     {
-    
         var existingUser = await _userManager.FindByEmailAsync(email);
         if (existingUser != null)
         {
             if (existingUser.IsBanned)
-            {
-                throw new ErrorCodeException(ErrorCodes.ACCOUNT_BANNED);
-            }
+                throw new ErrorCodeException(ErrorCodes.ACCOUNT_EMAIL_BANNED);
             throw new ErrorCodeException(ErrorCodes.IDENTITY_DUPLICATE_EMAIL);
         }
-        
+
         var user = new User
         {
             Id = Guid.NewGuid(),
             Email = email,
-            FullName = email,
+            FullName = fullName ?? email
         };
         var userAccount = new UserAccount
         {
             Id = user.Id,
             UserName = Guid.NewGuid().ToString(),
             Email = email,
-            User = user
+            User = user,
+            EmailConfirmed = emailConfirmed
         };
 
-        IdentityResult result = await _userManager.CreateAsync(userAccount, password);
+        IdentityResult result = password != null
+            ? await _userManager.CreateAsync(userAccount, password)
+            : await _userManager.CreateAsync(userAccount);
 
-        return (result.ToApplicationResult(), userAccount.Id);
+        if (!result.Succeeded)
+            throw new ErrorCodeException(ErrorCodes.COMMON_SERVER_INTERNAL_ERROR);
+
+        return userAccount;
+    }
+
+    public async Task<(Result Result, Guid UserId)> CreateUserAsync(string email, string password)
+    {
+        var userAccount = await CreateUserAccountAsync(email, password);
+        return (Result.Success(), userAccount.Id);
     }
 
     public async Task<bool> IsInRoleAsync(Guid userId, string role)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
-
         return user != null && await _userManager.IsInRoleAsync(user, role);
     }
 
     public async Task<bool> AuthorizeAsync(Guid userId, string policyName)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
-
         if (user == null)
-        {
             return false;
-        }
 
         var principal = await _userClaimsPrincipalFactory.CreateAsync(user);
-
         var result = await _authorizationService.AuthorizeAsync(principal, policyName);
-
         return result.Succeeded;
     }
 
     public async Task<Result> DeleteUserAsync(Guid userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
-
         return user != null ? await DeleteUserAsync(user) : Result.Success();
     }
 
@@ -124,28 +155,21 @@ public class IdentityService : IIdentityService
         return result.ToApplicationResult();
     }
 
-    public async Task<bool> IsLockedOutAsync(UserAccount userAccount)
-    {
-        return await _userManager.IsLockedOutAsync(userAccount);
-    }
-
 
     public async Task<TokenDto> TryLoginAsync(string email, string password)
     {
         var user = await _userManager.FindByEmailAsync(email);
-        
 
-        if (user == null || user.IsDeleted)
+        if (user == null)
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, $"User with email {email} not found");
-
         if (user.IsBanned)
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_BANNED);
-            
-        if(user.EmailConfirmed == false) throw new ErrorCodeException(ErrorCodes.ACCOUNT_EMAIL_NOT_VERIFIED);    
+        if (user.EmailConfirmed == false)
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_EMAIL_NOT_VERIFIED);
 
         var result = await _signInManager.CheckPasswordSignInAsync(user, password, lockoutOnFailure: true);
-        
-        if(result.IsLockedOut)
+
+        if (result.IsLockedOut)
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_LOCKED_OUT);
         if (!result.Succeeded)
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, "Incorrect password");
@@ -153,36 +177,37 @@ public class IdentityService : IIdentityService
         return await GenerateJwtTokenAsync(user);
     }
 
+    //TODO: Tên hàm đặt sai
     public async Task<List<Guid>> GetUsersInRoleAsync()
     {
         var admin = await _userManager.GetUsersInRoleAsync(Roles.Administrator);
         return admin.Select(u => u.Id).ToList();
     }
-    
+
     public async Task<Guid> ChangeRoleAsync(Guid userId, string role)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {userId} not found");
-        
+
+
+        if (!await _roleManager.RoleExistsAsync(role))
+            throw new ErrorCodeException(ErrorCodes.ROLE_NOTFOUND, $"Role '{role}' does not exist");
+
         var currentRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
-    
+
         if (currentRole == role)
-        {
             return userId;
-        }
-        
+
         if (currentRole != null)
-        {
-          await _userManager.RemoveFromRoleAsync(user, currentRole);
-        }
+            await _userManager.RemoveFromRoleAsync(user, currentRole);
 
         await _userManager.AddToRoleAsync(user, role);
         await _userManager.UpdateSecurityStampAsync(user);
 
         return userId;
     }
-    
+
     private async Task<TokenDto> GenerateJwtTokenAsync(UserAccount userAccount)
     {
         var claims = new List<Claim>
@@ -218,16 +243,34 @@ public class IdentityService : IIdentityService
         var storedRefreshToken = await _dbContext.Set<RefreshToken>()
             .FirstOrDefaultAsync(rt => rt.Token == refreshToken && rt.UserAccountId == userId);
 
-        if (storedRefreshToken != null)
+        if (storedRefreshToken != null || storedRefreshToken != null && storedRefreshToken.ExpireAt < DateTimeOffset.UtcNow)
         {
             _dbContext.Set<RefreshToken>().Remove(storedRefreshToken);
             await _dbContext.SaveChangesAsync();
         }
         else
         {
-            throw new ErrorCodeException(ErrorCodes.COMMON_NOT_FOUND, "Refresh token not found");
+            throw new ErrorCodeException(ErrorCodes.REFRESHTOKEN_NOTFOUND);
         }
     }
+
+    public async Task TrySetPasswordAsync(Guid userId, string password)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {userId} not found");
+
+        // Nếu user đã có mật khẩu thì throw lỗi
+        if (await _userManager.HasPasswordAsync(user))
+            throw new ErrorCodeException(ErrorCodes.IDENTITY_USER_ALREADY_HAS_PASSWORD, "Người dùng đã có mật khẩu.");
+
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        var result = await _userManager.ResetPasswordAsync(user, token, password);
+
+        if (!result.Succeeded)
+            throw new ErrorCodeException(ErrorCodes.COMMON_SERVER_INTERNAL_ERROR, "Failed to set password");
+    }
+
 
     public async Task<TokenDto> RefreshTokenAsync(string accessToken, string refreshToken)
     {
@@ -235,22 +278,16 @@ public class IdentityService : IIdentityService
             .FirstOrDefaultAsync(rt => rt.Token == refreshToken);
 
         if (storedRefreshToken == null || storedRefreshToken.ExpireAt < DateTime.UtcNow)
-        {
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, "Invalid or expired refresh token");
-        }
 
         var principal = GetPrincipalFromToken(accessToken, validateLifetime: false);
         var userIdClaim = principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId) || userId != storedRefreshToken.UserAccountId)
-        {
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, "Invalid access token for refresh");
-        }
 
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null || user.IsDeleted || user.IsBanned || await _userManager.IsLockedOutAsync(user))
-        {
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, "User account is invalid or locked out or banned");
-        }
 
         _dbContext.Set<RefreshToken>().Remove(storedRefreshToken);
         await _dbContext.SaveChangesAsync();
@@ -308,5 +345,283 @@ public class IdentityService : IIdentityService
         }
     }
 
+    public async Task<TokenDto> TryGoogleLoginAsync(string authorizationCode, string redirectUri)
+    {
+        GoogleUserDto? googleUser;
+        try
+        {
+            googleUser = await _googleAuthService.ExchangeCodeForUserInfoAsync(authorizationCode, redirectUri);
+            if (googleUser == null) throw new Exception();
+        }
+        catch (Exception)
+        {
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, "Invalid authorization code");
+        }
 
+        var existingUser = await _userManager.FindByEmailAsync(googleUser.Email);
+
+        if (existingUser != null)
+        {
+            if (existingUser.IsDeleted)
+                throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, $"User with email {googleUser.Email} not found");
+
+            if (existingUser.IsBanned)
+                throw new ErrorCodeException(ErrorCodes.ACCOUNT_BANNED);
+
+            if (!existingUser.EmailConfirmed)
+            {
+                existingUser.EmailConfirmed = true;
+                await _userManager.UpdateAsync(existingUser);
+            }
+
+            return await GenerateJwtTokenAsync(existingUser);
+        }
+
+        var user = new User
+        {
+            Id = Guid.NewGuid(),
+            Email = googleUser.Email,
+            FullName = googleUser.Name,
+        };
+
+        var userAccount = new UserAccount
+        {
+            Id = user.Id,
+            UserName = Guid.NewGuid().ToString(),
+            Email = googleUser.Email,
+            User = user,
+            EmailConfirmed = true
+        };
+
+        var result = await _userManager.CreateAsync(userAccount);
+
+        if (!result.Succeeded)
+            throw new ErrorCodeException(ErrorCodes.COMMON_SERVER_INTERNAL_ERROR, $"Error at change password");
+
+        var tokenDto = await GenerateJwtTokenAsync(userAccount);
+        tokenDto.HasPassword = false;
+
+        return tokenDto;
+    }
+
+
+    public async Task RequestEmailVerificationAsync(string email)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with email {email} not found");
+
+        // Lockout gửi email xác thực
+        if (user.EmailVerificationRequestLockoutEnd.HasValue &&
+            DateTimeOffset.UtcNow < user.EmailVerificationRequestLockoutEnd.Value)
+        {
+            throw new ErrorCodeException(ErrorCodes.EMAIL_VERIFICATION_REQUEST_TOO_MANY,
+                $"Too much sent email request, please try after {LockoutSettings.EmailRequestLockoutMinutes} minutes.");
+        }
+        if (user.EmailVerificationRequestLockoutEnd.HasValue &&
+            DateTimeOffset.UtcNow >= user.EmailVerificationRequestLockoutEnd.Value)
+        {
+            user.EmailVerificationRequestAttempts = 0;
+            user.EmailVerificationRequestLockoutEnd = null;
+        }
+
+        // Tạo và lưu mã xác thực
+        user.EmailVerificationCode = GenerateRandomCode();
+        user.EmailVerificationCodeExpiryTime = DateTimeOffset.UtcNow.AddMinutes(LockoutSettings.EmailVerificationCodeExpiryMinutes);
+        user.EmailVerificationRequestAttempts++;
+        if (user.EmailVerificationRequestAttempts >= LockoutSettings.MaxEmailRequestAttempts)
+        {
+            user.EmailVerificationRequestLockoutEnd = DateTimeOffset.UtcNow.AddMinutes(LockoutSettings.EmailRequestLockoutMinutes);
+        }
+        await _userManager.UpdateAsync(user);
+
+        var subject = "Xác thực email";
+        var body =
+            $@"<html><body><h2>Xác thực email</h2><p>Mã xác thực của bạn: <strong>{user.EmailVerificationCode}</strong></p><p>Mã xác thực sẽ hết hạn sau {LockoutSettings.EmailVerificationCodeExpiryMinutes} phút.</p><p>Nếu bạn không gửi yêu cầu xác thực, vui lòng bỏ qua email này.</p><br/><p>Trân trọng,<br/>AIQuizzizz</p></body></html>";
+        await _emailService.SendEmailAsync(email, subject, body);
+    }
+
+    public async Task VerifyEmailAsync(EmailVerificationConfirmDto dto)
+    {
+        var user = await _userManager.FindByEmailAsync(dto.Email);
+        if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with email {dto.Email} not found");
+
+        // Check lock
+        if (user.EmailVerificationLockoutEnd.HasValue &&
+            DateTimeOffset.UtcNow < user.EmailVerificationLockoutEnd.Value)
+        {
+            throw new ErrorCodeException(ErrorCodes.EMAIL_VERIFICATION_CODE_FAILED_TOO_MANY,
+                $"Failed too many. Try again after {LockoutSettings.EmailVerificationCodeExpiryMinutes} minutes.");
+        }
+        if (user.EmailVerificationLockoutEnd.HasValue &&
+            DateTimeOffset.UtcNow >= user.EmailVerificationLockoutEnd.Value)
+        {
+            user.FailedEmailVerificationAttempts = 0;
+        }
+        // Kiểm tra mã và thời gian hết hạn
+        if (user.EmailVerificationCode != dto.VerificationCode ||
+            !user.EmailVerificationCodeExpiryTime.HasValue ||
+            DateTimeOffset.UtcNow > user.EmailVerificationCodeExpiryTime.Value)
+        {
+            user.FailedEmailVerificationAttempts++;
+            if (user.FailedEmailVerificationAttempts >= LockoutSettings.MaxEmailVerificationAttempts)
+            {
+                user.EmailVerificationLockoutEnd = DateTimeOffset.UtcNow.AddMinutes(LockoutSettings.EmailVerificationCodeExpiryMinutes);
+            }
+            await _userManager.UpdateAsync(user);
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_VERIFICATION_CODE, "Invalid verification code");
+        }
+        // Xác minh thành công
+        user.EmailVerificationCode = null;
+        user.EmailVerificationCodeExpiryTime = null;
+        user.FailedEmailVerificationAttempts = 0;
+        user.EmailVerificationRequestAttempts = 0;
+        user.EmailVerificationRequestLockoutEnd = null;
+        user.EmailVerificationLockoutEnd = null;
+        user.EmailConfirmed = true;
+        await _userManager.UpdateAsync(user);
+    }
+
+    public async Task RequestPasswordResetAsync(ForgotPasswordDto dto)
+    {
+        var user = await _userManager.FindByEmailAsync(dto.Email);
+        if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with email {dto.Email} not found");
+
+        // Lockout gửi email reset password
+        if (user.PasswordResetRequestLockoutEnd.HasValue &&
+            DateTimeOffset.UtcNow < user.PasswordResetRequestLockoutEnd.Value)
+        {
+            throw new ErrorCodeException(ErrorCodes.PASSWORD_RESET_REQUEST_TOO_MANY,
+                $"Too many request. Please try again after {LockoutSettings.EmailRequestLockoutMinutes} minutes.");
+        }
+        if (user.PasswordResetRequestLockoutEnd.HasValue &&
+            DateTimeOffset.UtcNow >= user.PasswordResetRequestLockoutEnd.Value)
+        {
+            user.PasswordResetRequestAttempts = 0;
+            user.PasswordResetRequestLockoutEnd = null;
+        }
+
+        // Tạo mã reset ngẫu nhiên
+        var resetCode = GenerateRandomCode();
+        user.PasswordResetCode = resetCode;
+        user.PasswordResetCodeExpiryTime = DateTimeOffset.UtcNow.AddMinutes(LockoutSettings.PasswordResetCodeExpiryMinutes);
+        user.PasswordResetRequestAttempts++;
+        if (user.PasswordResetRequestAttempts >= LockoutSettings.MaxEmailRequestAttempts)
+        {
+            user.PasswordResetRequestLockoutEnd = DateTimeOffset.UtcNow.AddMinutes(LockoutSettings.EmailRequestLockoutMinutes);
+        }
+        await _userManager.UpdateAsync(user);
+
+        // Gửi email reset mật khẩu
+        var subject = "Đặt lại mật khẩu";
+        var body =
+            $@"<html><body><h2>Đặt lại mật khẩu</h2><p>Mã đặt lại mật khẩu của bạn: <strong>{resetCode}</strong></p><p>Mã này sẽ hết hạn sau {LockoutSettings.PasswordResetCodeExpiryMinutes} phút.</p><p>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.</p><br/><p>Trân trọng,<br/>AIQuizzizz</p></body></html>";
+        await _emailService.SendEmailAsync(dto.Email, subject, body);
+    }
+
+    public async Task ResetPasswordAsync(ResetPasswordDto dto)
+    {
+        var user = await _userManager.FindByEmailAsync(dto.Email);
+        if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with email {dto.Email} not found");
+
+        // Lockout
+        if (user.PasswordResetLockoutEnd.HasValue &&
+            DateTimeOffset.UtcNow < user.PasswordResetLockoutEnd.Value)
+        {
+            throw new ErrorCodeException(ErrorCodes.PASSWORD_RESET_CODE_FAILED_TOO_MANY,
+                $"Failed too many. Try again after {LockoutSettings.PasswordResetLockoutMinutes} minutes.");
+        }
+        if (user.PasswordResetLockoutEnd.HasValue &&
+            DateTimeOffset.UtcNow >= user.PasswordResetLockoutEnd.Value)
+        {
+            user.FailedPasswordResetAttempts = 0;
+        }
+        // Kiểm tra mã reset và thời gian hết hạn
+        if (user.PasswordResetCode != dto.ResetCode ||
+            !user.PasswordResetCodeExpiryTime.HasValue ||
+            DateTimeOffset.UtcNow > user.PasswordResetCodeExpiryTime.Value)
+        {
+            user.FailedPasswordResetAttempts++;
+            if (user.FailedPasswordResetAttempts >= LockoutSettings.MaxPasswordResetAttempts)
+            {
+                user.PasswordResetLockoutEnd = DateTimeOffset.UtcNow.AddMinutes(LockoutSettings.PasswordResetLockoutMinutes);
+            }
+            await _userManager.UpdateAsync(user);
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_RESET_CODE, "Mã đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.");
+        }
+        // Đặt lại mật khẩu
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        var result = await _userManager.ResetPasswordAsync(user, token, dto.NewPassword);
+        if (!result.Succeeded)
+            throw new ErrorCodeException(ErrorCodes.COMMON_SERVER_INTERNAL_ERROR, "Đổi mật khẩu thất bại");
+        user.PasswordResetCode = null;
+        user.PasswordResetCodeExpiryTime = null;
+        user.FailedPasswordResetAttempts = 0;
+        user.PasswordResetLockoutEnd = null;
+        await _userManager.UpdateAsync(user);
+    }
+
+    public async Task ChangePasswordAsync(Guid userId, string currentPassword, string newPassword)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {userId} not found");
+
+        var result = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+        if (!result.Succeeded)
+        {
+            if (result.Errors.Any(e => e.Code == nameof(IdentityErrorDescriber.PasswordMismatch)))
+                throw new ErrorCodeException(ErrorCodes.ACCOUNT_WRONG_PASSWORD);
+            throw new ErrorCodeException(ErrorCodes.COMMON_SERVER_INTERNAL_ERROR, $"Error at change password");
+        }
+    }
+
+    public async Task BanUser(Guid userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id  {userId} not found");
+
+        user.IsBanned = true;
+
+        await _userManager.UpdateAsync(user);
+    }
+
+    public async Task ActiveUser(Guid userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id  {userId} not found");
+
+        user.IsBanned = true;
+
+        await _userManager.UpdateAsync(user);
+    }
+    //TODO: Thêm navigation để truy vấn ngắn hơn
+    public async Task<bool> IsInAnyRoleAsync(Guid userId, params string[] roles)
+    {
+        var isInRole = await _dbContext.UserRoles
+            .Join(_dbContext.Roles,
+                ur => ur.RoleId,
+                r => r.Id,
+                (ur, r) => new
+                {
+                    ur.UserId,
+                    RoleName = r.Name
+                })
+            .Where(x => x.UserId == userId && roles.Contains(x.RoleName))
+            .AnyAsync();
+        return isInRole;
+    }
+    public async Task<IList<string>> GetUserRolesAsync(Guid userId)
+    {
+        var identityUser = await _userManager.FindByIdAsync(userId.ToString());
+        if (identityUser == null)
+            return new List<string>();
+
+        return await _userManager.GetRolesAsync(identityUser);
+    }
+
+    private string GenerateRandomCode()
+    {
+        var random = new Random();
+        return random.Next(100000, 999999).ToString();
+    }
 }

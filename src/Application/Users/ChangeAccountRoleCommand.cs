@@ -1,12 +1,14 @@
-﻿using CleanArchitectureBase.Application.Common.Exceptions;
-using CleanArchitectureBase.Application.Common.Interfaces;
-using CleanArchitectureBase.Domain.Constants;
-using StackExchange.Redis;
+﻿using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 
 namespace CleanArchitectureBase.Application.Users;
 
+[Authorize (Roles = Domain.Constants.Roles.Administrator)]
 public class ChangeAccountRoleCommand : IRequest<Guid>
 {
+    /// <summary>
+    /// Id of the user want to change role
+    /// </summary>   
     public required Guid UserId { get; set; }
     public required string Role { get; set; }
     
@@ -36,14 +38,13 @@ public class ChangeAccountRoleCommandHandler : IRequestHandler<ChangeAccountRole
         _identityService = identityService;
     }
     
+    /// <summary>
+    /// The function changes the role of a user account and returns the user ID
+    /// </summary>
+    /// <param name="rq">Request contains UserId and Role information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<Guid> Handle(ChangeAccountRoleCommand rq, CancellationToken cancellationToken)
     {
-        var user = await _context.DomainUsers
-            .Where(x => x.Id == _user.UserId && x.IsDeleted == false && x.IsBanned == false)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (user == null)
-            throw new ErrorCodeException(ErrorCodes.COMMON_NOT_FOUND, $"User with id {_user.UserId} not found");
-
         var result = await _identityService.ChangeRoleAsync(rq.UserId, rq.Role);
         return result;
     }

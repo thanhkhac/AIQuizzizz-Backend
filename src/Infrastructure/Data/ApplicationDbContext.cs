@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Domain.Common;
 using CleanArchitectureBase.Domain.Entities;
 using CleanArchitectureBase.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
@@ -37,6 +38,7 @@ public class ApplicationDbContext : IdentityDbContext<UserAccount,
     public DbSet<UserQuestionSetHistory> UserQuestionSetHistories => Set<UserQuestionSetHistory>();
     public DbSet<TestTemplate> TestTemplates => Set<TestTemplate>();
     public DbSet<TestTemplateQuestion> TestTemplateQuestions => Set<TestTemplateQuestion>();
+    public DbSet<TestTemplateUser> TestTemplateUsers => Set<TestTemplateUser>();
     public DbSet<Folder> Folders => Set<Folder>();
     public DbSet<FolderTestTemplate> FolderTestTemplates => Set<FolderTestTemplate>();
     public DbSet<FolderUser> FolderUsers => Set<FolderUser>();
@@ -54,10 +56,28 @@ public class ApplicationDbContext : IdentityDbContext<UserAccount,
     public DbSet<QuestionSetUser> QuestionSetUsers => Set<QuestionSetUser>();
     public DbSet<Tag> Tags => Set<Tag>();
     public DbSet<QuestionSetTag> QuestionSetTags => Set<QuestionSetTag>();
-
+    
+    // public override DbSet<ApplicationUserRole> UserRoles { get; set; }
+    // public override DbSet<ApplicationRole> Roles { get; set; }
+    // public override DbSet<ApplicationUserClaim> UserClaims { get; set; }
+    // public override DbSet<ApplicationUserLogin> UserLogins { get; set; }
+    // public override DbSet<ApplicationUserToken> UserTokens { get; set; }
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+        
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+        foreach (var entityType in builder.Model.GetEntityTypes())
+        {
+            if (typeof(CleanArchitectureBase.Domain.Common.BaseAuditableEntity).IsAssignableFrom(entityType.ClrType))
+            {
+                builder.Entity(entityType.ClrType)
+                    .HasOne(typeof(User), nameof(BaseAuditableEntity.CreatedByUser))
+                    .WithMany()
+                    .HasForeignKey(nameof(BaseAuditableEntity.CreatedBy))
+                    .OnDelete(DeleteBehavior.Restrict);
+            }
+        }
     }
 }

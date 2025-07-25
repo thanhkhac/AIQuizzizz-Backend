@@ -1,11 +1,16 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.Users;
 
+[Authorize (Roles = Domain.Constants.Roles.Administrator)]
 public class ActiveAccountCommand : IRequest<Guid>
 {
+    /// <summary>
+    /// Id of the user want to activate
+    /// </summary>
     public required Guid UserId { get; set; }
 }
 
@@ -31,15 +36,14 @@ public class ActiveAccountCommandHandler : IRequestHandler<ActiveAccountCommand,
         _identityService = identityService;
     }
     
+    /// <summary>
+    /// The function activates a banned user account by removing the ban, returning the user ID
+    /// </summary>
+    /// <param name="rq">Request contains UserId information</param>
+    /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<Guid> Handle(ActiveAccountCommand rq, CancellationToken cancellationToken)
     {
         var admins = await _identityService.GetUsersInRoleAsync();
-        
-        var user = await _context.DomainUsers
-            .Where(x => x.Id == _user.UserId && x.IsDeleted == false && x.IsBanned == false)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (user == null)
-            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {_user.UserId} not found");
         
         var bannedUsers = await _context.DomainUsers
             .Where(x => x.IsDeleted == false 
@@ -51,6 +55,7 @@ public class ActiveAccountCommandHandler : IRequestHandler<ActiveAccountCommand,
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {_user.UserId} not found");
 
         bannedUsers.IsBanned = false;
+        await _identityService.ActiveUser(rq.UserId);
         await _context.SaveChangesAsync(cancellationToken);
         return bannedUsers.Id;
     }

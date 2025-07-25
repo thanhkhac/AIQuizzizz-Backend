@@ -1,4 +1,6 @@
-﻿namespace CleanArchitectureBase.Application.FunctionalTests;
+﻿using CleanArchitectureBase.Application.FunctionalTests;
+
+namespace CleanArchitectureBase.Application.Command.UnitTests;
 
 using static Testing;
 
@@ -6,7 +8,7 @@ using static Testing;
 public abstract class BaseTestFixture
 {
     [SetUp]
-    public async Task TestSetUp()
+    public virtual async Task TestSetUp()
     {
         await ResetState();
     }

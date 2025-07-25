@@ -3,6 +3,8 @@
   <PropertyGroup>
     <RootNamespace>CleanArchitectureBase.Application</RootNamespace>
     <AssemblyName>CleanArchitectureBase.Application</AssemblyName>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,12 +12,17 @@
     <PackageReference Include="AutoMapper" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
-    <PackageReference Include="StackExchange.Redis" />
     <PackageReference Include="System.Linq.Dynamic.Core" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Common\Serializers\" />
+    <Folder Include="QuestionSets\Repository\" />
+    <Folder Include="zExample\" />
   </ItemGroup>
 
 </Project>
