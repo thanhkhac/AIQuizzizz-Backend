@@ -43,12 +43,6 @@ public class CreateClassCommandHandler : IRequestHandler<CreateClassCommand, Gui
     /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<Guid> Handle(CreateClassCommand rq, CancellationToken cancellationToken)
     {
-        var classExists = await _context.Classes
-            .Where(x => x.Name == rq.Name && x.CreatedBy.Equals(_user.UserId))
-            .FirstOrDefaultAsync(cancellationToken);
-        if (classExists != null)
-            throw new ErrorCodeException(ErrorCodes.CLASS_ALREADY_EXISTS, "Class đã tồn tại");
-
         var newClass = new Class { Id = Guid.NewGuid(), Name = rq.Name, Topic = rq.Topic};
         
         var classUser = new ClassUser

@@ -12,7 +12,7 @@ namespace CleanArchitectureBase.Application.FolderTest;
 public class UpdateSharingInFolderCommand : IRequest<Guid>
 {
     public Guid FolderId { get; set; }
-    public UpdateSharing? UpdateSharing { get; set; }
+    public UpsertSharing? UpdateSharing { get; set; }
     public List<Guid>? DeleteUserIds { get; set; } = new();
 }
 
@@ -61,44 +61,24 @@ public class UpdateSharingInFolderCommandHandler : IRequestHandler<UpdateSharing
         {
             rq.UpdateSharing.SharingModel.ForEach(x =>
             {
-                switch (x.ShareMode)
-                {
-                    case nameof(FolderShareMode.Editable):
-                        if (x.SharingUsers != null)
-                        {
-                            foreach (var userId in x.SharingUsers)
-                            {
-                                if (!userFolders.ContainsKey(userId))
-                                    throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND,
-                                        $"UserId {userId} không tồn tại trong folder");
-                                
-                                userFolders[userId].ShareMode = FolderShareMode.Editable;
-                            }   
-                        }
-                        break;
-                    case nameof(FolderShareMode.ViewOnly):
-                        if (x.SharingUsers != null)
-                        {
-                            foreach (var userId in x.SharingUsers)
-                            {
-                                if (!userFolders.ContainsKey(userId))
-                                    throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND,
-                                        $"UserId {userId} không tồn tại trong folder");
-                                
-                                userFolders[userId].ShareMode = FolderShareMode.ViewOnly;
-                            }   
-                        }
-                        break;
-                    default:
-                        throw new ErrorCodeException(ErrorCodes.INVALID_SHARE_MODE,
-                            $"Chế độ chia sẻ không hợp lệ: {x.ShareMode}");
+                if (x.SharingUserId == null || x.ShareMode == null) {
+                    return;
                 }
+                var shareMode = Enum.Parse<FolderShareMode>(x.ShareMode!);
+                
+                if (!userFolders.ContainsKey(x.SharingUserId.Value))
+                    throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND,
+                        $"UserId {x.SharingUserId.Value} không tồn tại trong folder");
+                
+                userFolders[x.SharingUserId.Value].ShareMode = shareMode;
             });
         }
         
-        
         if (rq.DeleteUserIds?.Count > 0)
         {
+            if (rq.DeleteUserIds.Contains(folder.CreatedBy!.Value))
+                throw new ErrorCodeException(ErrorCodes.CAN_NOT_DELETE_OWNER, "Không thể xóa owner");
+            
             var deleteUserIds = rq.DeleteUserIds
                 .Where(id => userFolders.ContainsKey(id))
                 .Select(id => userFolders[id])
