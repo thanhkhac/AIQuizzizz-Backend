@@ -13,9 +13,11 @@ public class Folder : EndpointGroupBase
             .MapGet(SearchFolderTest, "")
             .MapGet(SearchTestTemplateInFolder, "/{FolderId}/TestTemplates")
             .MapGet(GetSharingInFolder, "/{FolderId}/Sharing")
+            .MapPost(AddTestTemplateToFolder, "/{FolderId}/TestTemplate/{TestTemplateId}")
             .MapPost(AddSharingInFolder, "/{FolderId}/Sharing")
             .MapPost(CreateFolder, "")
             .MapDelete(DeleteFolder, "/{FolderId}/")
+            .MapDelete(RemoveTestTestTemplateInFolder, "/{FolderId}/TestTemplate/{TestTemplateId}")
             .MapPatch(UpdateSharingInFolder, "/{FolderId}/Sharing");
         
         app.MapGroup(this)
@@ -24,6 +26,26 @@ public class Folder : EndpointGroupBase
 
     public async Task<Ok<ApiResponse<Guid>>> CreateFolder([FromBody] CreateFolderCommand rq, ISender sender)
     {
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<Guid>>> AddTestTemplateToFolder(
+        [FromRoute] Guid folderId,
+        [FromRoute] Guid testTemplateId,
+        ISender sender)
+    {
+        var rq = new AddTestTemplateToFolderCommand { FolderId = folderId, TestTemplateId = testTemplateId, };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<Guid>>> RemoveTestTestTemplateInFolder(
+        [FromRoute] Guid folderId,
+        [FromRoute] Guid testTemplateId,
+        ISender sender)
+    {
+        var rq = new RemoveTestTestTemplateInFolderCommand { FolderId = folderId, TestTemplateId = testTemplateId, };
         var result = await sender.Send(rq);
         return result.ToOk();
     }
