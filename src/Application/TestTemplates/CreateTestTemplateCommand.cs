@@ -13,6 +13,7 @@ namespace CleanArchitectureBase.Application.TestTemplates;
 public class CreateTestTemplateCommand : IRequest<Guid>
 {
     public required string Name { get; set; }
+    public string? Description { get; set; }
     public List<CreateUpdateQuestionDto> Questions { get; set; } = new ();
 }
 
@@ -83,7 +84,7 @@ public class CreateTestTemplateCommandHandler : IRequestHandler<CreateTestTempla
         if (testTemplateByName != null)
             throw new ErrorCodeException(ErrorCodes.TEST_TEMPLATE_ALREADY_EXISTS, "Test template đã tồn tại");
         
-        var testTemplate = new TestTemplate { Id = Guid.NewGuid(), Name = rq.Name, IsDeleted = false, };
+        var testTemplate = new TestTemplate { Id = Guid.NewGuid(), Name = rq.Name, IsDeleted = false, Description = rq.Description};
 
         var testTemplateUser = new TestTemplateUser
         {

@@ -45,7 +45,7 @@ public class Folder : EndpointGroupBase
         [FromRoute] Guid testTemplateId,
         ISender sender)
     {
-        var rq = new RemoveTestTestTemplateInFolderCommand { FolderId = folderId, TestTemplateId = testTemplateId, };
+        var rq = new RemoveTestTemplateInFolderCommand { FolderId = folderId, TestTemplateId = testTemplateId, };
         var result = await sender.Send(rq);
         return result.ToOk();
     }
