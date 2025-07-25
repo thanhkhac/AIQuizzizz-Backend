@@ -33,6 +33,10 @@ public class CreateTestCommandValidator : AbstractValidator<CreateTestCommand>
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Tên bài kiểm tra không được để trống")
             .MaximumLength(200).WithMessage("Tên bài kiểm tra không được vượt quá 200 ký tự");
+        
+        RuleFor(x => x.PassingScore)
+            .NotEmpty().WithMessage("PassingScore không được để trống")
+            .LessThan(100).WithMessage("PassingScore không được vượt quá 100%");
 
         RuleFor(x => x.ClassId)
             .NotEmpty().WithMessage("ClassId không được để trống");

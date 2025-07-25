@@ -53,6 +53,13 @@ public class GetTestResultOfClassQueryHandler : IRequestHandler<GetTestResultOfC
         if (!isLecturerOrOwnerInClass)
             throw new ErrorCodeException(ErrorCodes.NOT_FOUND_TEACHER_OR_OWNER_IN_CLASS, "Không phải lecturer hoặc owner của class");
 
+        var totalScore = _context.TestVersionQuestions
+            .Include(x => x.Question)
+            .Include(x => x.TestVersion)
+            .ThenInclude(x => x!.Test)
+            .Where(x => x.TestVersion!.Test!.Id == rq.TestId && x.TestVersion.No == 0)
+            .Sum(x => x.Question!.Score);
+        
         var resultTest = _context.TestGrades
             .Include(x => x.User)
             .Include(x => x.Test)
@@ -63,7 +70,7 @@ public class GetTestResultOfClassQueryHandler : IRequestHandler<GetTestResultOfC
                 StudentName = x.User!.FullName,
                 StudentEmail = x.User!.Email,
                 Score = x.Score,
-                Status = x.Score >= x.Test!.PassingScore
+                Status = x.Score/totalScore >= x.Test!.PassingScore/100
                     ? nameof(AttemptStatus.Passed)
                     : nameof(AttemptStatus.Failed)
             });
