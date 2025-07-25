@@ -86,6 +86,7 @@ public static class ErrorCodes
     public const string FOLDER_NOT_FOUND = nameof(FOLDER_NOT_FOUND);
     public const string FOLDER_ALREADY_EXISTS = nameof(FOLDER_ALREADY_EXISTS);
     public const string USER_NOT_HAVE_PERMISSION_IN_FOLDER = nameof(USER_NOT_HAVE_PERMISSION_IN_FOLDER);
+    public const string USER_ALREADY_EXISTS_IN_FOLDER = nameof(USER_ALREADY_EXISTS_IN_FOLDER);
     
     //Test
     public const string MAX_ATTEMPT_IN_THIS_TEST = nameof(MAX_ATTEMPT_IN_THIS_TEST);

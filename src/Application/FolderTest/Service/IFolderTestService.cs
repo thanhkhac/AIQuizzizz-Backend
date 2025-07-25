@@ -8,8 +8,7 @@ namespace CleanArchitectureBase.Application.FolderTest.Service;
 public interface IFolderTestService
 {
     Task<bool> CanDeleteOrEditFolderTest(Guid folderTestId, CancellationToken cancellationToken);
-    Task<bool> InSharedFolder(Guid folderTestId, CancellationToken cancellationToken);
-    Task<bool> IsOwner(Guid folderTestId, CancellationToken cancellationToken);
+    Task<bool> IsOwnerOrEditor(Guid folderTestId, CancellationToken cancellationToken);
 }
 
 public class FolderTestService : IFolderTestService
@@ -43,23 +42,13 @@ public class FolderTestService : IFolderTestService
         return true;
     }
 
-    public async Task<bool> InSharedFolder(Guid folderTestId, CancellationToken cancellationToken)
-    {
-        var folderUser = await _context.FolderUsers
-            .Where(x => x.FolderId.Equals(folderTestId) && x.UserId.Equals(_user.UserId))
-            .FirstOrDefaultAsync(cancellationToken);
-        if (folderUser == null)
-            return false;
-
-        return true;
-    }
-
-    public async Task<bool> IsOwner(Guid folderTestId, CancellationToken cancellationToken)
+    public async Task<bool> IsOwnerOrEditor(Guid folderTestId, CancellationToken cancellationToken)
     {
         var folderUser = await _context.FolderUsers
             .Where(x => x.FolderId.Equals(folderTestId)
                         && x.UserId.Equals(_user.UserId)
-                        && FolderShareMode.Owner == x.ShareMode)
+                        && (FolderShareMode.Owner == x.ShareMode
+                        || FolderShareMode.Editable == x.ShareMode))
             .FirstOrDefaultAsync(cancellationToken);
         if (folderUser == null)
             return false;

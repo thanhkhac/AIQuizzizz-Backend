@@ -42,7 +42,7 @@ public class GetSharingInFolderQueryHandler : IRequestHandler<GetSharingInFolder
         if (folder == null)
             throw new ErrorCodeException(ErrorCodes.FOLDER_NOT_FOUND, "Không tìm thấy folder");
 
-        if (!await _folderTestService.InSharedFolder(rq.FolderId, cancellationToken))
+        if (!await _folderTestService.IsOwnerOrEditor(rq.FolderId, cancellationToken))
             throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_FOLDER,
                 "User không có quyền trong folder");
         
@@ -51,9 +51,9 @@ public class GetSharingInFolderQueryHandler : IRequestHandler<GetSharingInFolder
             .Where(x => x.FolderId.Equals(rq.FolderId))
             .ToListAsync(cancellationToken);
         
-        var ownerSharedMode = new SharingModelDto{SharedMode = "Owner", SharingUsers = new List<SharingUserDto>()};
-        var editableSharedMode = new SharingModelDto{SharedMode = "Editable", SharingUsers = new List<SharingUserDto>()};
-        var viewSharedMode = new SharingModelDto{SharedMode = "ViewOnly", SharingUsers = new List<SharingUserDto>()};
+        var ownerSharedMode = new SharingModelDto{ShareMode = "Owner", SharingUsers = new List<SharingUserDto>()};
+        var editableSharedMode = new SharingModelDto{ShareMode = "Editable", SharingUsers = new List<SharingUserDto>()};
+        var viewSharedMode = new SharingModelDto{ShareMode = "ViewOnly", SharingUsers = new List<SharingUserDto>()};
 
         folderUsers.ForEach(x =>
         {
