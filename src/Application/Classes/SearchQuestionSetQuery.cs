@@ -10,6 +10,7 @@ namespace CleanArchitectureBase.Application.Classes;
 
 public class SearchQuestionSetDto
 {
+    public Guid Id { get; set; }
     public string? Name { get; set; }
     public string? Description { get; set; }
     public int NumberOfQuestions { get; set; }
@@ -67,7 +68,9 @@ public class SearchQuestionSetQueryHandler : IRequestHandler<SearchQuestionSetQu
         if (classById == null)
             throw new ErrorCodeException(ErrorCodes.CLASS_NOTFOUND, "Không tìm thấy lớp");
 
-        await _classService.IsUserInClass(rq.ClassId);
+        var isUserInClass = await _classService.IsUserInClass(rq.ClassId);
+        if (!isUserInClass)
+            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_USER_IN_CLASS, "User không có trong lớp");
 
         var questionSet = _context.QuestionSets
             .Include(x => x.CreatedByUser)
@@ -85,6 +88,7 @@ public class SearchQuestionSetQueryHandler : IRequestHandler<SearchQuestionSetQu
         return await PaginatedList<SearchQuestionSetDto>.CreateAsync(
             questionSet.Select(qs => new SearchQuestionSetDto
             {
+                Id = qs.Id,
                 Name = qs.Name,
                 Description = qs.Description,
                 NumberOfQuestions = qs.Questions.Count,

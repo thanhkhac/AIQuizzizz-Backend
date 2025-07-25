@@ -77,7 +77,9 @@ public class QuestionDataDto
         private static List<MultipleChoiceItemDto>? DeserializeMultipleChoice(string dataJson)
         {
             var items = JsonSerializer.Deserialize<List<QTypeMultipleChoice>>(dataJson);
-            return items?.Select(item => new MultipleChoiceItemDto
+            return items?
+                .OrderBy(x => x.ShuffleOrder)
+                .Select(item => new MultipleChoiceItemDto
             {
                 Id = item.Id,
                 Text = item.Text,
@@ -95,12 +97,16 @@ public class QuestionDataDto
 
             return new MatchingDataDto
             {
-                LeftItems = leftItems.Select(item => new MatchingItemDto
+                LeftItems = leftItems
+                    .OrderBy(x => x.ShuffleOrder)
+                    .Select(item => new MatchingItemDto
                 {
                     Id = item.Id,
                     Text = item.Text
                 }).ToList(),
-                RightItems = rightItems.Select(item => new MatchingItemDto
+                RightItems = rightItems
+                    .OrderBy(x => x.ShuffleOrder)
+                    .Select(item => new MatchingItemDto
                 {
                     Id = item.Id,
                     Text = item.Text
@@ -116,7 +122,9 @@ public class QuestionDataDto
         private static List<OrderingItemDto>? DeserializeOrdering(string dataJson)
         {
             var items = JsonSerializer.Deserialize<List<QTypeOrderingItem>>(dataJson);
-            return items?.Select(item => new OrderingItemDto
+            return items?
+                .OrderBy(x => x.ShuffleOrder)
+                .Select(item => new OrderingItemDto
             {
                 Id = item.Id,
                 Text = item.Text,

@@ -978,6 +978,110 @@
             }
           }
         }
+      },
+      "patch": {
+        "tags": [
+          "Class"
+        ],
+        "summary": "Class onwer - Update class",
+        "operationId": "PatchApiClass",
+        "parameters": [
+          {
+            "name": "ClassId",
+            "x-originalName": "classId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "topic",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Class/{ClassId}/Schedule": {
+      "get": {
+        "tags": [
+          "Class"
+        ],
+        "summary": "Retrieves the test schedule for a specified class, optionally filtered by month and year",
+        "operationId": "GetTestSchedule",
+        "parameters": [
+          {
+            "name": "ClassId",
+            "x-originalName": "classId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfTestScheduleResponse"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/Class/{ClassId}/Members/{UserId}": {
@@ -1229,6 +1333,284 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfTestTemplateDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Folder/{FolderId}/Sharing": {
+      "get": {
+        "tags": [
+          "Folder"
+        ],
+        "operationId": "GetSharingInFolder",
+        "parameters": [
+          {
+            "name": "FolderId",
+            "x-originalName": "folderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfResourceShareDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Folder"
+        ],
+        "operationId": "AddSharingInFolder",
+        "parameters": [
+          {
+            "name": "FolderId",
+            "x-originalName": "folderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddSharingInFolderCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Folder"
+        ],
+        "operationId": "UpdateSharingInFolder",
+        "parameters": [
+          {
+            "name": "FolderId",
+            "x-originalName": "folderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSharingInFolderCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Folder/{FolderId}/TestTemplate/{TestTemplateId}": {
+      "post": {
+        "tags": [
+          "Folder"
+        ],
+        "operationId": "AddTestTemplateToFolder",
+        "parameters": [
+          {
+            "name": "FolderId",
+            "x-originalName": "folderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "TestTemplateId",
+            "x-originalName": "testTemplateId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Folder"
+        ],
+        "operationId": "RemoveTestTestTemplateInFolder",
+        "parameters": [
+          {
+            "name": "FolderId",
+            "x-originalName": "folderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "TestTemplateId",
+            "x-originalName": "testTemplateId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Folder/{FolderId}": {
+      "delete": {
+        "tags": [
+          "Folder"
+        ],
+        "operationId": "DeleteFolder",
+        "parameters": [
+          {
+            "name": "FolderId",
+            "x-originalName": "folderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Folder"
+        ],
+        "operationId": "PatchApiFolder",
+        "parameters": [
+          {
+            "name": "FolderId",
+            "x-originalName": "folderId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
                 }
               }
             }
@@ -1629,6 +2011,166 @@
         }
       }
     },
+    "/api/Test/{TestId}": {
+      "get": {
+        "tags": [
+          "Test"
+        ],
+        "operationId": "GetTestDetail",
+        "parameters": [
+          {
+            "name": "TestId",
+            "x-originalName": "testId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfTestDetailDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Test"
+        ],
+        "operationId": "DeleteTest",
+        "parameters": [
+          {
+            "name": "TestId",
+            "x-originalName": "testId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Test"
+        ],
+        "operationId": "PatchApiTest",
+        "parameters": [
+          {
+            "name": "TestId",
+            "x-originalName": "testId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTestCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Test/{TestId}/Class/Result": {
+      "get": {
+        "tags": [
+          "Test"
+        ],
+        "operationId": "GetTestResultOfClass",
+        "parameters": [
+          {
+            "name": "TestId",
+            "x-originalName": "testId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "x-position": 2
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 5
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfResultTestOfClassDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Test/{TestId}/History": {
       "get": {
         "tags": [
@@ -1648,10 +2190,11 @@
             "x-position": 1
           },
           {
-            "name": "studentName",
+            "name": "userId",
             "in": "query",
             "schema": {
               "type": "string",
+              "format": "guid",
               "nullable": true
             },
             "x-position": 2
@@ -1693,59 +2236,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfHistoryTestDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Test/Class/{ClassId}/Schedule": {
-      "get": {
-        "tags": [
-          "Test"
-        ],
-        "operationId": "GetTestSchedule",
-        "parameters": [
-          {
-            "name": "ClassId",
-            "x-originalName": "classId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "guid"
-            },
-            "x-position": 1
-          },
-          {
-            "name": "month",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "nullable": true
-            },
-            "x-position": 2
-          },
-          {
-            "name": "year",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "nullable": true
-            },
-            "x-position": 3
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfTestScheduleResponse"
                 }
               }
             }
@@ -1997,6 +2487,81 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfTestTemplateDetailDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "TestTemplate"
+        ],
+        "operationId": "DeleteTestTemplate",
+        "parameters": [
+          {
+            "name": "testTemplateId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/TestTemplate/{TestTemplateId}": {
+      "patch": {
+        "tags": [
+          "TestTemplate"
+        ],
+        "operationId": "PatchApiTestTemplate",
+        "parameters": [
+          {
+            "name": "TestTemplateId",
+            "x-originalName": "testTemplateId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTestTemplateCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
                 }
               }
             }
@@ -3030,6 +3595,10 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
           "name": {
             "type": "string",
             "nullable": true
@@ -3096,6 +3665,70 @@
             "nullable": true
           },
           "topic": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ApiResponseOfListOfTestScheduleResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/TestScheduleResponse"
+            }
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TestScheduleResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "testSchedules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TestScheduleDto"
+            }
+          }
+        }
+      },
+      "TestScheduleDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "testId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "testName": {
             "type": "string",
             "nullable": true
           }
@@ -3332,12 +3965,168 @@
           }
         }
       },
+      "ApiResponseOfResourceShareDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ResourceShareDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ResourceShareDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "sharingModel": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SharingModelDto"
+            }
+          }
+        }
+      },
+      "SharingModelDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "shareMode": {
+            "type": "string",
+            "nullable": true
+          },
+          "sharingUsers": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/SharingUserDto"
+            }
+          }
+        }
+      },
+      "SharingUserDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "fullName": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "AddSharingInFolderCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "folderId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "sharing": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UpdateSharing"
+              }
+            ]
+          }
+        }
+      },
+      "UpdateSharing": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sharingModel": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdateSharingModelDto"
+            }
+          }
+        }
+      },
+      "UpdateSharingModelDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "shareMode": {
+            "type": "string",
+            "nullable": true
+          },
+          "sharingUsers": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string",
+              "format": "guid"
+            }
+          }
+        }
+      },
       "CreateFolderCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
           "folderName": {
             "type": "string"
+          }
+        }
+      },
+      "UpdateSharingInFolderCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "folderId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "updateSharing": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UpdateSharing"
+              }
+            ]
+          },
+          "deleteUserIds": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string",
+              "format": "guid"
+            }
           }
         }
       },
@@ -3926,6 +4715,193 @@
           }
         }
       },
+      "ApiResponseOfTestDetailDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TestDetailDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TestDetailDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "testId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "timeStart": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "timeEnd": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "timeLimit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "questionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "gradeAttemptMethod": {
+            "type": "string",
+            "nullable": true
+          },
+          "gradeQuestionValue": {
+            "type": "string",
+            "nullable": true
+          },
+          "isShowCorrectAnswerInReview": {
+            "type": "boolean"
+          },
+          "isAllowReviewAfterSubmit": {
+            "type": "boolean"
+          },
+          "maxAttempt": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "passScore": {
+            "type": "number",
+            "format": "double"
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuestionResponseDto"
+            }
+          }
+        }
+      },
+      "ApiResponseOfPaginatedListOfResultTestOfClassDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedListOfResultTestOfClassDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PaginatedListOfResultTestOfClassDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResultTestOfClassDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ResultTestOfClassDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "studentId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "studentName": {
+            "type": "string",
+            "nullable": true
+          },
+          "studentEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "score": {
+            "type": "number",
+            "format": "float"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "ApiResponseOfPaginatedListOfHistoryTestDto": {
         "type": "object",
         "additionalProperties": false,
@@ -4028,70 +5004,9 @@
           "status": {
             "type": "string",
             "nullable": true
-          }
-        }
-      },
-      "ApiResponseOfListOfTestScheduleResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "errors": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
           },
-          "validationErrors": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "data": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/TestScheduleResponse"
-            }
-          },
-          "success": {
+          "canReview": {
             "type": "boolean"
-          }
-        }
-      },
-      "TestScheduleResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "date": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "testSchedules": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TestScheduleDto"
-            }
-          }
-        }
-      },
-      "TestScheduleDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "testId": {
-            "type": "string",
-            "format": "guid"
-          },
-          "testName": {
-            "type": "string",
-            "nullable": true
           }
         }
       },
@@ -4125,6 +5040,9 @@
             "type": "string"
           },
           "isShowCorrectAnswerInReview": {
+            "type": "boolean"
+          },
+          "isAllowReviewAfterSubmit": {
             "type": "boolean"
           },
           "maxAttempt": {
@@ -4196,6 +5114,9 @@
             "items": {
               "$ref": "#/components/schemas/UserAnswerDto"
             }
+          },
+          "isSubmit": {
+            "type": "boolean"
           }
         }
       },
@@ -4451,6 +5372,64 @@
           }
         }
       },
+      "UpdateTestCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "testId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "timeLimit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "startTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "gradeAttemptMethod": {
+            "type": "string"
+          },
+          "gradeQuestionMethod": {
+            "type": "string"
+          },
+          "isShowCorrectAnswerInReview": {
+            "type": "boolean"
+          },
+          "isAllowReviewAfterSubmit": {
+            "type": "boolean"
+          },
+          "maxAttempt": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "passingScore": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createUpdateQuestions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateUpdateQuestionDto"
+            }
+          },
+          "deleteQuestionIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "guid"
+            }
+          }
+        }
+      },
       "ApiResponseOfTestTemplatePermissionsDto": {
         "type": "object",
         "additionalProperties": false,
@@ -4568,6 +5547,32 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CreateUpdateQuestionDto"
+            }
+          }
+        }
+      },
+      "UpdateTestTemplateCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "testTemplateId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "createUpdateQuestions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateUpdateQuestionDto"
+            }
+          },
+          "deleteQuestionIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "guid"
             }
           }
         }

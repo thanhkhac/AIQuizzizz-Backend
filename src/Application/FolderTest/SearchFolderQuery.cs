@@ -13,7 +13,7 @@ public class SearchFolderTestDto
 }
 
 [Authorize]
-public class SearchFolderTestQuery : IRequest<PaginatedList<SearchFolderTestDto>>
+public class SearchFolderQuery : IRequest<PaginatedList<SearchFolderTestDto>>
 {
     public string? FolderName { get; set; }
     public string? SharedMode { get; set; }
@@ -21,9 +21,9 @@ public class SearchFolderTestQuery : IRequest<PaginatedList<SearchFolderTestDto>
     public int PageSize { get; set; } = 5;
 }
 
-public class SearchFolderTestQueryValidator : AbstractValidator<SearchFolderTestQuery>
+public class SearchFolderQueryValidator : AbstractValidator<SearchFolderQuery>
 {
-    public SearchFolderTestQueryValidator()
+    public SearchFolderQueryValidator()
     {
         RuleFor(x => x.SharedMode)
             .Must(mode => new[] {"Owner", "Editable", "ViewOnly"}.Contains(mode) || string.IsNullOrEmpty(mode))
@@ -36,12 +36,12 @@ public class SearchFolderTestQueryValidator : AbstractValidator<SearchFolderTest
     }
 }
 
-public class SearchFolderTestQueryHandler : IRequestHandler<SearchFolderTestQuery, PaginatedList<SearchFolderTestDto>>
+public class SearchFolderQueryHandler : IRequestHandler<SearchFolderQuery, PaginatedList<SearchFolderTestDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
 
-    public SearchFolderTestQueryHandler(IApplicationDbContext context, IUser user)
+    public SearchFolderQueryHandler(IApplicationDbContext context, IUser user)
     {
         _context = context;
         _user = user;
@@ -52,7 +52,7 @@ public class SearchFolderTestQueryHandler : IRequestHandler<SearchFolderTestQuer
     /// </summary>
     /// <param name="rq">Request contains FolderName, SharedMode, PageNumber, and PageSize information</param>
     /// <param name="cancellationToken">Token to cancel the task</param>
-    public async Task<PaginatedList<SearchFolderTestDto>> Handle(SearchFolderTestQuery rq, CancellationToken cancellationToken)
+    public async Task<PaginatedList<SearchFolderTestDto>> Handle(SearchFolderQuery rq, CancellationToken cancellationToken)
     {
         var authors = await _context.FolderUsers
             .Include(fu => fu.Folder)
@@ -73,7 +73,7 @@ public class SearchFolderTestQueryHandler : IRequestHandler<SearchFolderTestQuer
         
         var folders = _context.FolderUsers
             .Include(fu => fu.Folder)
-            .Where(fu => fu.UserId == _user.UserId
+            .Where(fu => fu.UserId == _user.UserId && fu.Folder!.IsDeleted == false
             && (string.IsNullOrEmpty(rq.FolderName) || fu.Folder!.Name.ToLower().Contains(rq.FolderName.ToLower()))
             && (shareMode == null || fu.ShareMode == shareMode))
             .Select(fu => new { Folder = fu.Folder, FolderUser = fu })

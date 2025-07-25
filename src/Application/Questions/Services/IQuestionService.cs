@@ -1,7 +1,5 @@
-﻿using System.Text.Json;
-using CleanArchitectureBase.Application.Common.Interfaces;
+﻿using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Questions.Dtos;
-using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Questions.Services;
 
@@ -128,6 +126,4 @@ public class QuestionService : IQuestionService
 
         return (questionDtos, totalQuestionCount, completedQuestionCount);
     }
-
-
 }
