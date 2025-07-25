@@ -57,13 +57,13 @@ public class SubmitTestAttemptCommandHandler : IRequestHandler<SubmitTestAttempt
         if (attempt == null || attempt.TestVersion == null || attempt.Test == null) 
             throw new ErrorCodeException(ErrorCodes.TEST_NOT_FOUND, "Bài test không tồn tại");
 
+        if (attempt.Test.TimeFinish < DateTime.UtcNow)
+            throw new ErrorCodeException(ErrorCodes.TEST_TIME_IS_UP, "Thời gian làm bài đã hết");
+        
         if (attempt.UserId != _user.UserId)
             throw new ErrorCodeException(ErrorCodes.ERROR_ATTEMPT_USER, "Người làm bài không phải student đã attempt");
         
         attempt.TimeFinish = DateTime.UtcNow;
-
-        if (attempt.Test.TimeFinish < DateTime.UtcNow)
-            throw new ErrorCodeException(ErrorCodes.TEST_TIME_IS_UP, "Thời gian làm bài đã hết");
         
         var isStudentInClass = await _classService.IsStudentInClass(attempt.Test.ClassId);
         if (!isStudentInClass)

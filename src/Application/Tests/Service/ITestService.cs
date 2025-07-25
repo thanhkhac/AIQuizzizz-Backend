@@ -34,15 +34,16 @@ public class TestService : ITestService
         _identityService = identityService;
     }
 
-    public async Task<List<Guid>> QuestionAccessAndCompareForTest(List<CreateUpdateQuestionDto> question, CancellationToken cancellationToken)
+    public async Task<List<Guid>> QuestionAccessAndCompareForTest(List<CreateUpdateQuestionDto> question,
+        CancellationToken cancellationToken)
     {
         var questionSetPairs = question
-            .Where(q => q.QuestionId.HasValue && q.QuestionId!=Guid.Empty)
+            .Where(q => q.QuestionId.HasValue && q.QuestionId != Guid.Empty)
             .Select(q => q.QuestionId)
             .ToList();
 
         if (questionSetPairs.Count == 0) return new List<Guid>();
-        
+
         var validQuestionInTestTemplate = await _context.TestTemplateQuestions
             .Include(x => x.Question)
             .Include(x => x.TestTemplate)
@@ -52,14 +53,14 @@ public class TestService : ITestService
             .ThenInclude(x => x.Folder)
             .ThenInclude(x => x!.FolderUsers)
             .Where(q => questionSetPairs.Contains(q.QuestionId))
-            .Where(q => 
+            .Where(q =>
                 q.TestTemplate!.TestTemplateUsers.Any(tu => tu.UserId == _user.UserId)
-                || q.TestTemplate!.FolderTestTemplates.Any(ft => 
+                || q.TestTemplate!.FolderTestTemplates.Any(ft =>
                     ft.Folder!.FolderUsers.Any(fu => fu.UserId == _user.UserId)))
             .Distinct()
             .ToListAsync(cancellationToken);
-            
-        
+
+
         var invalidQuestion = questionSetPairs
             .Where(q => !validQuestionInTestTemplate.Any(v => v.QuestionId.Equals(q!.Value)))
             .ToList();
@@ -69,8 +70,8 @@ public class TestService : ITestService
             var errors = new Dictionary<string, string[]>
             {
                 {
-                    ErrorCodes.USER_NOT_ACCESS_TO_QUESTION_SET,
-                    invalidQuestion.Select(q => $"Question {q!.Value} không có quyền truy cập hoặc không tồn tại")
+                    ErrorCodes.USER_NOT_ACCESS_TO_QUESTION_SET, invalidQuestion
+                        .Select(q => $"Question {q!.Value} không có quyền truy cập hoặc không tồn tại")
                         .ToArray()
                 }
             };
@@ -79,12 +80,13 @@ public class TestService : ITestService
         }
         
         return validQuestionInTestTemplate
-            .Where(x =>
-                CreateUpdateQuestionDto.Compare.CompareQuestion(x.Question!, question.First(q => q.QuestionId!.Equals(x.QuestionId))))
-            .Select(x => x.QuestionId)
+            .Select(x => new { x.Question, MatchingQuestion = question.First(q => q.QuestionId!.Equals(x.QuestionId)) })
+            .Where(x => CreateUpdateQuestionDto.Compare.CompareQuestion(x.Question!, x.MatchingQuestion)
+                        && x.Question!.Score == x.MatchingQuestion.Score)
+            .Select(x => x.Question!.Id)
             .ToList();
     }
-
+    
     public CheckUpdateQuestion UpdateQuestion(List<CreateUpdateQuestionDto> questionDtos,List<Question> questions)
     {
         if (questionDtos.Count == 0 || questionDtos.Count == 0) return new CheckUpdateQuestion();

@@ -80,7 +80,14 @@ public class GetUserTestHistoryQueryHandler : IRequestHandler<GetUserTestHistory
             if (rq.UserId != null && rq.UserId != Guid.Empty)
                 userId = rq.UserId.Value;
         }
-
+        
+        var totalScore = _context.TestVersionQuestions
+            .Include(x => x.Question)
+            .Include(x => x.TestVersion)
+            .ThenInclude(x => x!.Test)
+            .Where(x => x.TestVersion!.Test!.Id == rq.TestId && x.TestVersion.No == 0)
+            .Sum(x => x.Question!.Score);
+            
         var attempts = _context.Attempts
             .Include(x => x.User)
             .Include(x => x.Test)
@@ -92,7 +99,7 @@ public class GetUserTestHistoryQueryHandler : IRequestHandler<GetUserTestHistory
                 StudentName = x.User != null ? x.User.FullName : null,
                 StudentEmail = x.User != null ? x.User.Email : null,
                 Score = x.Score,
-                Status = x.Test!.PassingScore <= x.Score ? nameof(AttemptStatus.Passed) : nameof(AttemptStatus.Failed),
+                Status = x.Test!.PassingScore/100 <= x.Score/totalScore ? nameof(AttemptStatus.Passed) : nameof(AttemptStatus.Failed),
                 TimeStart = x.TimeStart,
                 TimeSubmit = x.TimeFinish,
                 CanReview = x.Test.IsAllowReviewAfterSubmit || isLecturerOrOwnerInClass
