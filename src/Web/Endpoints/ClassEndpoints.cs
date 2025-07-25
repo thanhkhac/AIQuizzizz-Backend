@@ -184,7 +184,6 @@ public class Class : EndpointGroupBase
     /// Lecturer - Search added question sets in class
     /// </summary>
     /// <param name="name"></param>
-    /// <param name="shareMode"></param>
     /// <param name="classId"></param>
     /// <param name="sender"></param>
     /// <param name="pageNumber"></param>
@@ -192,7 +191,6 @@ public class Class : EndpointGroupBase
     /// <returns></returns>
     public async Task<Ok<ApiResponse<PaginatedList<SearchQuestionSetDto>>>> SearchQuestionSet(
         [FromQuery] string? name,
-        [FromQuery] string? shareMode,
         [FromRoute] Guid classId,
         ISender sender,
         [FromQuery] int pageNumber = 1,
@@ -202,7 +200,6 @@ public class Class : EndpointGroupBase
         {
             ClassId = classId,
             Name = name,
-            ShareMode = shareMode,
             PageNumber = pageNumber,
             PageSize = pageSize,
         };

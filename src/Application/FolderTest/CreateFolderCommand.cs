@@ -40,13 +40,6 @@ public class CreateFolderCommandHandler : IRequestHandler<CreateFolderCommand, G
     /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<Guid> Handle(CreateFolderCommand rq, CancellationToken cancellationToken)
     {
-        var folder = await _context.Folders
-            .FirstOrDefaultAsync(x => x.Name == rq.FolderName &&
-                                      x.IsDeleted == false &&
-                                      x.CreatedBy == _user.UserId, cancellationToken);
-        if (folder != null)
-            throw new ErrorCodeException(ErrorCodes.FOLDER_ALREADY_EXISTS, "Folder đã tồn tại");
-
         var newFolder = new Folder
         {
             Id = Guid.NewGuid(),

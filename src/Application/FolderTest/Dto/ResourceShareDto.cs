@@ -9,22 +9,17 @@ public class ResourceShareDto
 public class SharingModelDto
 {
     public string? ShareMode { get; set; }
-    public List<SharingUserDto>? SharingUsers { get; set; }
-}
-
-public class SharingUserDto
-{
     public Guid UserId { get; set; }
     public string? FullName { get; set; }
 }
 
-public class UpdateSharing
+public class UpsertSharing
 {
-    public List<UpdateSharingModelDto> SharingModel { get; set; } = new();
+    public List<UpsertSharingModelDto> SharingModel { get; set; } = new();
 }
 
-public class UpdateSharingModelDto
+public class UpsertSharingModelDto
 {
     public string? ShareMode { get; set; }
-    public List<Guid>? SharingUsers { get; set; }
+    public Guid? SharingUserId { get; set; }
 }

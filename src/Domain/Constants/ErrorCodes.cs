@@ -94,6 +94,7 @@ public static class ErrorCodes
     public const string USER_ALREADY_EXISTS_IN_FOLDER = nameof(USER_ALREADY_EXISTS_IN_FOLDER);
     public const string TEST_TEMPLATE_ALREADY_EXISTS_IN_FOLDER = nameof(TEST_TEMPLATE_ALREADY_EXISTS_IN_FOLDER);
     public const string TEST_TEMPLATE_NOT_FOUND_IN_FOLDER = nameof(TEST_TEMPLATE_NOT_FOUND_IN_FOLDER);
+    public const string CAN_NOT_DELETE_OWNER = nameof(CAN_NOT_DELETE_OWNER);
 
     
     //Test
@@ -102,6 +103,7 @@ public static class ErrorCodes
     public const string TEST_NOT_FOUND = nameof(TEST_NOT_FOUND);
     public const string NUMBER_OF_QUESTION_EXCEED_LIMIT = nameof(NUMBER_OF_QUESTION_EXCEED_LIMIT);
     public const string USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE = nameof(USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE);
+    public const string TEST_TIME_IS_UP = nameof(TEST_TIME_IS_UP);
     
     //TestTemplate
     public const string TEST_TEMPLATE_NOT_FOUND = nameof(TEST_TEMPLATE_NOT_FOUND);
@@ -114,5 +116,4 @@ public static class ErrorCodes
     
     //Attempt
     public const string ERROR_ATTEMPT_USER = nameof(ERROR_ATTEMPT_USER);
-    
 }

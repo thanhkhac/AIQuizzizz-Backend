@@ -1,5 +1,6 @@
 ﻿using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.FolderTest;
+using CleanArchitectureBase.Application.FolderTest.Dto;
 using CleanArchitectureBase.Application.TestTemplates;
 using CleanArchitectureBase.Application.TestTemplates.Dto;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -15,16 +16,20 @@ public class TestTemplate : EndpointGroupBase
             .MapGet(SearchTestTemplate, "")
             .MapGet(GetTestTemplatePermissions, "/{testTemplateId}/Permissions")
             .MapGet(GetTestTemplateDetail, "/{testTemplateId}")
+            .MapGet(GetSharingInTestTemplate, "/{testTemplateId}/Sharing")
+            .MapPost(AddSharingInTestTemplate, "/{testTemplateId}/Sharing")
             .MapPost(CreateTestTemplate, "")
             .MapDelete(DeleteTestTemplate, "/{testTemplateId}")
             .MapPatch("/{TestTemplateId}", UpdateTestTemplate);
 
         app.MapGroup(this).DisableAntiforgery()
-            .MapPost(ImportFileTestTemplate, "/ImportFile");
+            .MapPost(ImportFileTestTemplate, "/ImportFile")
+            .MapPatch(UpdateSharingInTestTemplate, "/{testTemplateId}/Sharing");
+        ;
     }
 
     public async Task<Ok<ApiResponse<PaginatedList<TestTemplateDto>>>> SearchTestTemplate(
-        [FromQuery] string? folderName,
+        [FromQuery] string? name,
         [FromQuery] string? sharedMode,
         ISender sender,
         [FromQuery] int pageNumber = 1,
@@ -32,10 +37,36 @@ public class TestTemplate : EndpointGroupBase
     {
         var rq = new SearchTestTemplateQuery
         {
-            TestTemplateName = folderName, SharedMode = sharedMode, PageNumber = pageNumber, PageSize = pageSize,
+            TestTemplateName = name, SharedMode = sharedMode, PageNumber = pageNumber, PageSize = pageSize,
         };
         
         var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<Guid>>> AddSharingInTestTemplate(
+        [FromRoute] Guid testTemplateId,
+        [FromBody] AddSharingTestTemplateCommand rq,
+        ISender sender)
+    {
+        rq.TestTemplateId = testTemplateId;
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    } 
+    
+    public async Task<Ok<ApiResponse<Guid>>> UpdateSharingInTestTemplate(
+        [FromRoute] Guid testTemplateId,
+        [FromBody] UpdateSharingInTestTemplateCommand rq,
+        ISender sender)
+    {
+        rq.TestTemplateId = testTemplateId;
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<ResourceShareDto>>> GetSharingInTestTemplate([FromRoute] Guid testTemplateId, ISender sender)
+    {
+        var result = await sender.Send(new GetSharingInTestTemplateQuery{TestTemplateId = testTemplateId});
         return result.ToOk();
     }
 
