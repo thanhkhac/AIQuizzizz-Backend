@@ -11,6 +11,7 @@ public interface ITestTemplateService
 {
     Task QuestionAccessForTestTemplate(List<CreateUpdateQuestionDto> question, CancellationToken cancellationToken);
     Task CanViewTesTemplate (Guid testTemplateId);
+    Task CanUseTesTemplate (Guid testTemplateId);
     Task<TestTemplate> CanDeleteTestTemplate (Guid testTemplateId, CancellationToken cancellationToken);
     Task<TestTemplate> CanEditTestTemplate (Guid testTemplateId, CancellationToken cancellationToken);
 }
@@ -87,6 +88,16 @@ public class TestTemplateService : ITestTemplateService
         
         if (accessToView == null && accessToViewInFolder == null)
             throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE, "User không có quyền xem test template này");
+    }
+
+    public async Task CanUseTesTemplate(Guid testTemplateId)
+    {
+        var accessToView = await _context.TestTemplateUsers
+            .Where(t => t.UserId.Equals(_user.UserId) && t.TestTemplateId.Equals(testTemplateId))
+            .FirstOrDefaultAsync();
+        
+        if (accessToView == null)
+            throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE, "User không có quyền dùng test template này");
     }
 
     public async Task<TestTemplate> CanDeleteTestTemplate(Guid testTemplateId, CancellationToken cancellationToken)
