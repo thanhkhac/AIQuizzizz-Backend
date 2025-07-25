@@ -28,11 +28,16 @@ public static class ErrorCodes
     public const string ACCOUNT_EMAIL_BANNED  = nameof(ACCOUNT_EMAIL_BANNED ); 
     public const string ACCOUNT_INVALID_RESET_CODE  = nameof(ACCOUNT_INVALID_RESET_CODE ); 
     public const string ACCOUNT_WRONG_PASSWORD  = nameof(ACCOUNT_WRONG_PASSWORD ); 
-    // public const string ACCOUNT_TOO_MANY_REQUESTS  = nameof(ACCOUNT_TOO_MANY_REQUESTS ); 
     public const string EMAIL_VERIFICATION_REQUEST_TOO_MANY  = nameof(EMAIL_VERIFICATION_REQUEST_TOO_MANY ); 
     public const string EMAIL_VERIFICATION_CODE_FAILED_TOO_MANY  = nameof(EMAIL_VERIFICATION_CODE_FAILED_TOO_MANY ); 
     public const string PASSWORD_RESET_REQUEST_TOO_MANY  = nameof(PASSWORD_RESET_REQUEST_TOO_MANY ); 
     public const string PASSWORD_RESET_CODE_FAILED_TOO_MANY  = nameof(PASSWORD_RESET_CODE_FAILED_TOO_MANY ); 
+    public const string REFRESHTOKEN_NOTFOUND  = nameof(REFRESHTOKEN_NOTFOUND ); 
+    
+    
+    //ROLE
+    public const string ROLE_NOTFOUND  = nameof(ROLE_NOTFOUND ); 
+    
     
     //IDENTITY OVERRIDE ERROR DESCRIBER
     public const string IDENTITY_DEFAULT_ERROR = nameof(IDENTITY_DEFAULT_ERROR);

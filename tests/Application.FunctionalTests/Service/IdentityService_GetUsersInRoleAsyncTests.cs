@@ -46,4 +46,35 @@ public class IdentityService_GetUsersInRoleAsyncTests : IdentityServiceTestDatab
         Assert.That(userIds, Is.Not.Null);
         Assert.That(userIds, Does.Contain(userId));
     }
+    
+    [Test]
+    public async Task GetUsersInRoleAsync_NoUsersInRole_ReturnsEmptyList()
+    {
+        var roleManager = _scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+
+        if (!await roleManager.RoleExistsAsync("Administrator"))
+        {
+            await roleManager.CreateAsync(new ApplicationRole { Name = "Administrator" });
+        }
+
+        var userIds = await _service.GetUsersInRoleAsync();
+        Assert.That(userIds, Is.Empty);
+    }
+    
+    
+    [Test]
+    public async Task GetUsersInRoleAsync_RoleDoesNotExist_ReturnsEmptyList()
+    {
+        var roleManager = _scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+        var role = await roleManager.FindByNameAsync("Administrator");
+        if (role != null)
+        {
+            await roleManager.DeleteAsync(role);
+        }
+
+        var userIds = await _service.GetUsersInRoleAsync();
+        Assert.That(userIds, Is.Empty);
+    }
+
+
 }

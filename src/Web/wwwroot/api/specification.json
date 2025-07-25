@@ -3754,10 +3754,6 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "questionSetId": {
-            "type": "string",
-            "format": "guid"
-          },
           "name": {
             "type": "string",
             "nullable": true

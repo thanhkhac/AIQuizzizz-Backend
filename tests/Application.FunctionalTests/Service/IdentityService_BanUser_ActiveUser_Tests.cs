@@ -32,4 +32,5 @@ public class IdentityService_BanUser_ActiveUser_Tests : IdentityServiceTestBase
 
         Assert.That(user.IsBanned, Is.True);
     }
+    
 } 

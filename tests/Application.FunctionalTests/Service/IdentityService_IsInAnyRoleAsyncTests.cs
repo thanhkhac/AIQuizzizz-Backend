@@ -45,7 +45,6 @@ public class IdentityService_IsInAnyRoleAsyncTests : IdentityServiceTestDatabase
             await userManager.AddToRoleAsync(user, "Admin");
         }
 
-        // Thực hiện test
         var result = await _service.IsInAnyRoleAsync(userId, "Admin");
         Assert.That(result, Is.True);
     }
@@ -84,8 +83,17 @@ public class IdentityService_IsInAnyRoleAsyncTests : IdentityServiceTestDatabase
             await userManager.RemoveFromRoleAsync(user, "Admin");
         }
 
-        // Thực hiện test
         var result = await _service.IsInAnyRoleAsync(userId, "Admin");
+        Assert.That(result, Is.False);
+    }
+    
+    [Test]
+    public async Task IsInAnyRoleAsync_UserDoesNotExist_ReturnsFalse()
+    {
+        var nonExistentUserId = Guid.NewGuid();
+
+        var result = await _service.IsInAnyRoleAsync(nonExistentUserId, "Admin");
+
         Assert.That(result, Is.False);
     }
 }
