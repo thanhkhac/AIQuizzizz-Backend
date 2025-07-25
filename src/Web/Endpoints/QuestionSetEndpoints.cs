@@ -53,6 +53,7 @@ public class QuestionSetEndpoints : EndpointGroupBase
         [FromBody] UpdateQuestionSetCommand command,
         ISender sender)
     {
+        command.QuestionSetId = questionSetId;
         var result = await sender.Send(command);
         return result.ToOk();
     }

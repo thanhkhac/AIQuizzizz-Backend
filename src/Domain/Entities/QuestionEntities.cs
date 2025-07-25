@@ -144,7 +144,6 @@ public class QuestionSetUser : BaseAuditableEntity
 
     public User? User { get; set; }
     public QuestionSet? QuestionSet { get; set; }
-
 }
 
 public class Comment : BaseAuditableEntity
@@ -179,7 +178,8 @@ public class TestTemplate : BaseAuditableEntity
     public required Guid Id { get; set; }
     public required string Name { get; set; }
     public bool IsDeleted { get; set; }
-
+    public string? Description { get; set; }
+    
     // Navigation properties
     public List<TestTemplateQuestion> TestTemplateQuestions { get; set; } = new();
     public List<TestTemplateUser> TestTemplateUsers { get; set; } = new();

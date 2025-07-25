@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
@@ -13,6 +14,7 @@ namespace CleanArchitectureBase.Application.QuestionSets;
 [Authorize]
 public class UpdateQuestionSetCommand : IRequest<Guid>
 {
+    [JsonIgnore]
     public Guid QuestionSetId { get; set; }
     public string? Name { get; set; }
     public string? Description { get; set; }
@@ -24,6 +26,8 @@ public class UpdateQuestionSetCommandValidator : AbstractValidator<UpdateQuestio
 {
     public UpdateQuestionSetCommandValidator()
     {
+        RuleFor(x => x.QuestionSetId)
+            .NotEmpty();
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Tên bộ câu hỏi không được để trống")
             .MaximumLength(200).WithMessage("Tên bộ câu hỏi không được vượt quá 200 ký tự");
