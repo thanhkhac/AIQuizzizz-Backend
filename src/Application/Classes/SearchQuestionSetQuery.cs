@@ -25,7 +25,6 @@ public class SearchQuestionSetQuery : IRequest<PaginatedList<SearchQuestionSetDt
     /// </summary>
     public required Guid ClassId { get; set; }
     public string? Name { get; set; }
-    public string? ShareMode { get; set; }
     public int PageNumber { get; set; } = 1;
     public int PageSize { get; set; } = 5;
 }
@@ -36,10 +35,6 @@ public class SearchQuestionSetQueryValidator : AbstractValidator<SearchQuestionS
     {
         RuleFor(x => x.ClassId)
             .NotEmpty().WithMessage("ClassId không được null");
-        
-        RuleFor(x => x.ShareMode)
-            .Must(mode => new[] {"Owner", "Editable", "ViewOnly"}.Contains(mode) || string.IsNullOrEmpty(mode))
-            .WithMessage($"SharedMode phải là Owner, Editable, ViewOnly");
     }
 }
 
@@ -79,11 +74,6 @@ public class SearchQuestionSetQueryHandler : IRequestHandler<SearchQuestionSetQu
             .Include(qs => qs.QuestionSetUsers)
             .Where(qs => qs.ClassQuestionSets.Any(x => x.ClassId == rq.ClassId) &&
                          (string.IsNullOrEmpty(rq.Name) || qs.Name.ToLower().Contains(rq.Name.ToLower())));
-
-        if (!string.IsNullOrEmpty(rq.ShareMode) && Enum.TryParse<QuestionSetUserShareMode>(rq.ShareMode, out var shareMode))
-        {
-            questionSet = questionSet.Where(qs => qs.QuestionSetUsers.Any(qsu => qsu.ShareMode == shareMode));
-        }
 
         return await PaginatedList<SearchQuestionSetDto>.CreateAsync(
             questionSet.Select(qs => new SearchQuestionSetDto

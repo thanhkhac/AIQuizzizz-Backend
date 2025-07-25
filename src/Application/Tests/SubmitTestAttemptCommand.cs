@@ -20,22 +20,22 @@ public class SubmitTestAttemptCommand : IRequest<TestResultDto>
     public bool IsSubmit { get; set; } = false;
 }
 
-public class AttemptTestCommandValidator : AbstractValidator<SubmitTestAttemptCommand>
+public class SubmitTestAttemptCommandValidator : AbstractValidator<SubmitTestAttemptCommand>
 {
-    public AttemptTestCommandValidator()
+    public SubmitTestAttemptCommandValidator()
     {
         RuleFor(x => x.AttemptId)
             .NotEmpty().WithMessage("TestId không được rỗng");
     }
 }
 
-public class AttemptTestCommandHandler : IRequestHandler<SubmitTestAttemptCommand, TestResultDto>
+public class SubmitTestAttemptCommandHandler : IRequestHandler<SubmitTestAttemptCommand, TestResultDto>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
     private readonly IUser _user;
     
-    public AttemptTestCommandHandler(IApplicationDbContext context, IClassService classService, IUser user)
+    public SubmitTestAttemptCommandHandler(IApplicationDbContext context, IClassService classService, IUser user)
     {
         _context = context;
         _classService = classService;
@@ -61,6 +61,9 @@ public class AttemptTestCommandHandler : IRequestHandler<SubmitTestAttemptComman
             throw new ErrorCodeException(ErrorCodes.ERROR_ATTEMPT_USER, "Người làm bài không phải student đã attempt");
         
         attempt.TimeFinish = DateTime.UtcNow;
+
+        if (attempt.Test.TimeFinish < DateTime.UtcNow)
+            throw new ErrorCodeException(ErrorCodes.TEST_TIME_IS_UP, "Thời gian làm bài đã hết");
         
         var isStudentInClass = await _classService.IsStudentInClass(attempt.Test.ClassId);
         if (!isStudentInClass)

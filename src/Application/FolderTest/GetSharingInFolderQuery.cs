@@ -51,49 +51,26 @@ public class GetSharingInFolderQueryHandler : IRequestHandler<GetSharingInFolder
             .Where(x => x.FolderId.Equals(rq.FolderId))
             .ToListAsync(cancellationToken);
         
-        var ownerSharedMode = new SharingModelDto{ShareMode = "Owner", SharingUsers = new List<SharingUserDto>()};
-        var editableSharedMode = new SharingModelDto{ShareMode = "Editable", SharingUsers = new List<SharingUserDto>()};
-        var viewSharedMode = new SharingModelDto{ShareMode = "ViewOnly", SharingUsers = new List<SharingUserDto>()};
+        var sharedModes = new List<SharingModelDto>();
 
         folderUsers.ForEach(x =>
         {
-            switch (x.ShareMode)
+            sharedModes.Add(new SharingModelDto
             {
-                case FolderShareMode.Owner:
-                    ownerSharedMode.SharingUsers.Add(new SharingUserDto
-                    {
-                        UserId = x.User!.Id, FullName = x.User!.FullName
-                    });
-                    break;
-                case FolderShareMode.Editable:
-                    editableSharedMode.SharingUsers.Add(new SharingUserDto
-                    {
-                        UserId = x.User!.Id, FullName = x.User!.FullName
-                    });
-                    break;
-                case FolderShareMode.ViewOnly:
-                    viewSharedMode.SharingUsers.Add(new SharingUserDto
-                    {
-                        UserId = x.User!.Id, FullName = x.User!.FullName
-                    });
-                    break;
-                default:
-                    throw new ErrorCodeException(ErrorCodes.INVALID_SHARE_MODE,
-                        $"Chế độ chia sẻ không hợp lệ: {x.ShareMode}");
-            }
+                ShareMode = x.ShareMode.ToString(),
+                UserId = x.User!.Id,
+                FullName = x.User.FullName
+            });
         });
-
-        var sharingModelDtos = new List<SharingModelDto> 
-        { 
-            ownerSharedMode, 
-            editableSharedMode, 
-            viewSharedMode 
-        };
-
+        
+        var orderPriority = new List<string> { "Owner", "Editable", "ViewOnly" };
+        
         return new ResourceShareDto
         {
             Id = rq.FolderId,
-            SharingModel = sharingModelDtos
+            SharingModel = sharedModes
+                .OrderBy(x => orderPriority.IndexOf(x.ShareMode!))
+                .ToList()
         };
     }
 }

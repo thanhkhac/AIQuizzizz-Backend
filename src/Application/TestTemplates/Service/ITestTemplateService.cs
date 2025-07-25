@@ -142,7 +142,7 @@ public class TestTemplateService : ITestTemplateService
                 .FirstOrDefaultAsync(cancellationToken);
             if (userTestTemplate == null)
                 throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE,
-                    "Không có quyền edit");
+                    "Không có quyền trong Test Template này");
         }
 
         return testTemplate;
