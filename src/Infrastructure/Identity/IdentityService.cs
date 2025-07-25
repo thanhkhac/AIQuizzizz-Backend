@@ -29,6 +29,7 @@ public class IdentityService : IIdentityService
     private readonly ApplicationDbContext _dbContext;
     private readonly IGoogleAuthService _googleAuthService;
     private readonly IEmailService _emailService;
+    private readonly RoleManager<ApplicationRole> _roleManager;
 
     private static class LockoutSettings
     {
@@ -62,7 +63,8 @@ public class IdentityService : IIdentityService
         IOptions<JwtSettings> jwtSettings,
         ApplicationDbContext dbContext,
         IGoogleAuthService googleAuthService,
-        IEmailService emailService)
+        IEmailService emailService,
+        RoleManager<ApplicationRole> roleManager)
     {
         _userManager = userManager;
         _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
@@ -72,6 +74,7 @@ public class IdentityService : IIdentityService
         _jwtSettings = jwtSettings.Value;
         _googleAuthService = googleAuthService;
         _emailService = emailService;
+        _roleManager = roleManager;
     }
 
     public async Task<string?> GetUserNameAsync(Guid userId)
@@ -187,6 +190,10 @@ public class IdentityService : IIdentityService
         if (user == null)
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {userId} not found");
 
+
+        if (!await _roleManager.RoleExistsAsync(role))
+            throw new ErrorCodeException(ErrorCodes.ROLE_NOTFOUND, $"Role '{role}' does not exist");
+
         var currentRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
 
         if (currentRole == role)
@@ -236,10 +243,14 @@ public class IdentityService : IIdentityService
         var storedRefreshToken = await _dbContext.Set<RefreshToken>()
             .FirstOrDefaultAsync(rt => rt.Token == refreshToken && rt.UserAccountId == userId);
 
-        if (storedRefreshToken != null)
+        if (storedRefreshToken != null || storedRefreshToken != null && storedRefreshToken.ExpireAt < DateTimeOffset.UtcNow)
         {
             _dbContext.Set<RefreshToken>().Remove(storedRefreshToken);
             await _dbContext.SaveChangesAsync();
+        }
+        else
+        {
+            throw new ErrorCodeException(ErrorCodes.REFRESHTOKEN_NOTFOUND);
         }
     }
 
@@ -248,6 +259,10 @@ public class IdentityService : IIdentityService
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {userId} not found");
+
+        // Nếu user đã có mật khẩu thì throw lỗi
+        if (await _userManager.HasPasswordAsync(user))
+            throw new ErrorCodeException(ErrorCodes.IDENTITY_USER_ALREADY_HAS_PASSWORD, "Người dùng đã có mật khẩu.");
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
         var result = await _userManager.ResetPasswordAsync(user, token, password);
@@ -396,8 +411,7 @@ public class IdentityService : IIdentityService
         if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with email {email} not found");
 
         // Lockout gửi email xác thực
-        if (user.EmailVerificationRequestAttempts >= LockoutSettings.MaxEmailRequestAttempts &&
-            user.EmailVerificationRequestLockoutEnd.HasValue &&
+        if (user.EmailVerificationRequestLockoutEnd.HasValue &&
             DateTimeOffset.UtcNow < user.EmailVerificationRequestLockoutEnd.Value)
         {
             throw new ErrorCodeException(ErrorCodes.EMAIL_VERIFICATION_REQUEST_TOO_MANY,
@@ -407,6 +421,7 @@ public class IdentityService : IIdentityService
             DateTimeOffset.UtcNow >= user.EmailVerificationRequestLockoutEnd.Value)
         {
             user.EmailVerificationRequestAttempts = 0;
+            user.EmailVerificationRequestLockoutEnd = null;
         }
 
         // Tạo và lưu mã xác thực
@@ -431,8 +446,7 @@ public class IdentityService : IIdentityService
         if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with email {dto.Email} not found");
 
         // Check lock
-        if (user.FailedEmailVerificationAttempts >= LockoutSettings.MaxEmailVerificationAttempts &&
-            user.EmailVerificationLockoutEnd.HasValue &&
+        if (user.EmailVerificationLockoutEnd.HasValue &&
             DateTimeOffset.UtcNow < user.EmailVerificationLockoutEnd.Value)
         {
             throw new ErrorCodeException(ErrorCodes.EMAIL_VERIFICATION_CODE_FAILED_TOO_MANY,
@@ -473,8 +487,7 @@ public class IdentityService : IIdentityService
         if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with email {dto.Email} not found");
 
         // Lockout gửi email reset password
-        if (user.PasswordResetRequestAttempts >= LockoutSettings.MaxEmailRequestAttempts &&
-            user.PasswordResetRequestLockoutEnd.HasValue &&
+        if (user.PasswordResetRequestLockoutEnd.HasValue &&
             DateTimeOffset.UtcNow < user.PasswordResetRequestLockoutEnd.Value)
         {
             throw new ErrorCodeException(ErrorCodes.PASSWORD_RESET_REQUEST_TOO_MANY,
@@ -484,6 +497,7 @@ public class IdentityService : IIdentityService
             DateTimeOffset.UtcNow >= user.PasswordResetRequestLockoutEnd.Value)
         {
             user.PasswordResetRequestAttempts = 0;
+            user.PasswordResetRequestLockoutEnd = null;
         }
 
         // Tạo mã reset ngẫu nhiên
@@ -510,8 +524,7 @@ public class IdentityService : IIdentityService
         if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with email {dto.Email} not found");
 
         // Lockout
-        if (user.FailedPasswordResetAttempts >= LockoutSettings.MaxPasswordResetAttempts &&
-            user.PasswordResetLockoutEnd.HasValue &&
+        if (user.PasswordResetLockoutEnd.HasValue &&
             DateTimeOffset.UtcNow < user.PasswordResetLockoutEnd.Value)
         {
             throw new ErrorCodeException(ErrorCodes.PASSWORD_RESET_CODE_FAILED_TOO_MANY,

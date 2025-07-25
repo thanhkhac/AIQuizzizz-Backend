@@ -9,9 +9,9 @@ public interface IClassService
 {
     Task<(ClassUser IsOwner, Class ClassExists)> GetClassOwnerAccess(Guid classId,
         CancellationToken cancellationToken);
-    Task IsStudentInClass(Guid classId);
-    Task IsUserInClass(Guid classId);
-    Task IsLecturerOrOwnerInClass(Guid classId);
+    Task<bool> IsStudentInClass(Guid classId);
+    Task<bool> IsUserInClass(Guid classId);
+    Task<bool> IsLecturerOrOwnerInClass(Guid classId);
 }
 
 public class ClassService : IClassService{
@@ -52,34 +52,38 @@ public class ClassService : IClassService{
         return (result.ClassUser, result.Class);
     }
 
-    public async Task IsStudentInClass(Guid classId)
+    public async Task<bool> IsStudentInClass(Guid classId)
     {
         var student = await _context.ClassUsers
             .Where(u => u.UserId == _user.UserId && u.ClassId == classId && ClassShareMode.Student == u.ShareMode)
             .FirstOrDefaultAsync();
 
         if (student == null)
-            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Chỉ student trong lớp mới có quyền");
+            return false;
+
+        return true;
     }
 
-    public async Task IsUserInClass(Guid classId)
+    public async Task<bool> IsUserInClass(Guid classId)
     {
         var user = await _context.ClassUsers
             .Where(u => u.UserId == _user.UserId && u.ClassId == classId)
             .FirstOrDefaultAsync();
 
         if (user == null)
-            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_USER_IN_CLASS, "User không có trong lớp");
+            return false;
+
+        return true;
     }
 
-    public async Task IsLecturerOrOwnerInClass(Guid classId)
+    public async Task<bool> IsLecturerOrOwnerInClass(Guid classId)
     {
         var user = await _context.ClassUsers
             .Where(u => u.UserId == _user.UserId && u.ClassId == classId &&
                         (ClassShareMode.Owner.Equals(u.ShareMode) || ClassShareMode.Teacher.Equals(u.ShareMode)))
             .FirstOrDefaultAsync();
+        if (user == null) return false;
 
-        if (user == null)
-            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_TEACHER_OR_OWNER_IN_CLASS, "Không phải lecturer hoặc owner của class");
+        return true;
     }
 }

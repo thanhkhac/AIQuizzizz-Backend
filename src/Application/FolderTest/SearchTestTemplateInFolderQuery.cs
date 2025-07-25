@@ -77,7 +77,7 @@ public class SearchTestTemplateInFolderQueryHandler : IRequestHandler<SearchTest
             .Include(ft => ft.TestTemplate)
             .ThenInclude(t => t!.TestTemplateQuestions)
             .Include(t => t.TestTemplate!.CreatedByUser)
-            .Where(ft => ft.FolderId == rq.FolderId
+            .Where(ft => ft.FolderId == rq.FolderId && ft.Folder != null && ft.Folder.IsDeleted == false
             && (string.IsNullOrEmpty(rq.TestTemplateName) || ft.TestTemplate!.Name.ToLower().Contains(rq.TestTemplateName.ToLower()))
             && (sharedMode == null || ft.TestTemplate!.TestTemplateUsers.Any(t => t.ShareMode == sharedMode)))
             .Select(ft => new TestTemplateDto

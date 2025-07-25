@@ -39,6 +39,20 @@ public static class IdentityTestHelpers
         return signInManagerMock;
     }
     
+    public static Mock<RoleManager<TRole>> MockRoleManager<TRole>() where TRole : class
+    {
+        var store = new Mock<IRoleStore<TRole>>();
+        var roleManager = new Mock<RoleManager<TRole>>(
+            store.Object,
+            new IRoleValidator<TRole>[0],
+            new Mock<ILookupNormalizer>().Object,
+            new Mock<IdentityErrorDescriber>().Object,
+            new Mock<ILogger<RoleManager<TRole>>>().Object);
+    
+        return roleManager;
+    }
+
+    
     public static Mock<DbSet<T>> CreateMockDbSet<T>(IEnumerable<T> data) where T : class
     {
         var queryable = data.AsQueryable();

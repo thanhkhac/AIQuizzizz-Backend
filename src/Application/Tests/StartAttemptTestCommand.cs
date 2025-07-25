@@ -37,12 +37,15 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
     /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<AttemptDetailDto> Handle(StartAttemptTestCommand rq, CancellationToken cancellationToken)
     {
-        var test = await _context.Tests.Where(x => x.Id == rq.TestId)
+        var test = await _context.Tests
+            .Where(x => x.Id == rq.TestId && x.IsDeleted == false)
             .FirstOrDefaultAsync(cancellationToken);
         if (test == null)
             throw new ErrorCodeException(ErrorCodes.TEST_NOT_FOUND, "Bài test không tồn tại");
         
-        await _classService.IsStudentInClass(test.ClassId);
+        var isStudentInClass = await _classService.IsStudentInClass(test.ClassId);
+        if (!isStudentInClass)
+            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Chỉ student trong lớp mới có quyền");
         
         if (test.TimeFinish < DateTime.UtcNow)
             throw new ErrorCodeException(ErrorCodes.TEST_IS_OVERDUE, "Hết hạn làm bài");
@@ -50,7 +53,7 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
         var attemptUser = _context.Attempts
             .Where(x => x.UserId == _user.UserId && x.TestId == rq.TestId)
             .ToList();
-        if (attemptUser.Count >= test.MaxAttempt)
+        if (attemptUser.Count > test.MaxAttempt)
             throw new ErrorCodeException(ErrorCodes.MAX_ATTEMPT_IN_THIS_TEST, "Đã hết lượt làm bài");
         
         var testVersionId = await _context.TestVersions

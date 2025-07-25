@@ -732,6 +732,9 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
@@ -1269,7 +1272,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .HasMaxLength(36)
                         .HasColumnType("character varying(36)");
 
-                    b.Property<DateTime>("ExpireAt")
+                    b.Property<DateTimeOffset>("ExpireAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Token")

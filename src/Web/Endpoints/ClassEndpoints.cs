@@ -1,4 +1,5 @@
 ﻿using CleanArchitectureBase.Application.Classes;
+using CleanArchitectureBase.Application.Classes.Dto;
 using CleanArchitectureBase.Application.Common.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -20,10 +21,14 @@ public class Class : EndpointGroupBase
             .MapGet(GetInviteStudentCode, "/{ClassId}/Invitation-Code")
             .MapGet(SearchQuestionSet, "/{ClassId}/Questionsets")
             .MapGet(GetClassById, "/{ClassId}")
+            .MapGet(GetTestSchedule, "/{ClassId}/Schedule")
             .MapDelete(DeleteClass, "/{ClassId}")
             .MapDelete(RemoveStudent, "/{ClassId}/Members/{UserId}")
             .MapDelete(RemoveQuestionSet, "/{ClassId}/Questionsets/{QuestionSetId}")
             .MapPatch("/{ClassId}/Members/{UserId}", UpdatePosition);
+        
+        app.MapGroup(this)
+            .MapPatch("/{ClassId}", UpdateClass);
     }
 
     /// <summary>
@@ -61,6 +66,26 @@ public class Class : EndpointGroupBase
         var result = await sender.Send(new GetClassByIdQuery{ClassId = classId});
         return result.ToOk();
     } 
+    
+    /// <summary>
+    /// Retrieves the test schedule for a specified class, optionally filtered by month and year
+    /// </summary>
+    /// <param name="classId"></param>
+    /// <param name="month"></param>
+    /// <param name="year"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
+    public async Task<Ok<ApiResponse<List<TestScheduleResponse>>>> GetTestSchedule(
+        [FromRoute] Guid classId,
+        [FromQuery] int? month,
+        [FromQuery] int? year,
+        ISender sender)
+    {
+        var rq = new GetTestScheduleQuery() { ClassId = classId, Month = month, Year = year };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+        
+    }
     
     /// <summary>
     /// Lecturer - Get class invitation code for view
@@ -231,6 +256,30 @@ public class Class : EndpointGroupBase
             ClassId = classId,
             Position = position,
             UserId = userId
+        };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    /// <summary>
+    /// Class onwer - Update class
+    /// </summary>
+    /// <param name="classId"></param>
+    /// <param name="name"></param>
+    /// <param name="topic"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
+    public async Task<Ok<ApiResponse<Guid>>> UpdateClass(
+        [FromRoute] Guid classId,
+        [FromQuery] string name,
+        [FromQuery] string? topic,
+        ISender sender)
+    {
+        var rq = new UpdateClassCommand()
+        {
+            ClassId = classId,
+            Name = name,
+            Topic = topic,
         };
         var result = await sender.Send(rq);
         return result.ToOk();

@@ -20,6 +20,7 @@ public class IdentityServiceTestBase
     protected Mock<IEmailService> _emailServiceMock;
     protected IdentityService _service;
     protected Mock<ApplicationDbContext> _dbContextMock;
+    protected Mock<RoleManager<ApplicationRole>> _roleManagerMock = IdentityTestHelpers.MockRoleManager<ApplicationRole>();
 
     [SetUp]
     public virtual void SetUp()
@@ -41,6 +42,9 @@ public class IdentityServiceTestBase
         _googleAuthServiceMock = new Mock<IGoogleAuthService>();
         _emailServiceMock = new Mock<IEmailService>();
 
+        var refreshTokenDbSetMock = CreateMockDbSet<RefreshToken>();
+        _dbContextMock.Setup(x => x.Set<RefreshToken>()).Returns(refreshTokenDbSetMock.Object);
+
         _service = new IdentityService(
             _userManagerMock.Object,
             _claimsFactoryMock.Object,
@@ -49,9 +53,67 @@ public class IdentityServiceTestBase
             _jwtOptionsMock.Object,
             _dbContextMock.Object,
             _googleAuthServiceMock.Object,
-            _emailServiceMock.Object
+            _emailServiceMock.Object,
+            _roleManagerMock.Object
         );
     }
     
+    public static Mock<DbSet<T>> CreateMockDbSet<T>(params T[] entities) where T : class
+    {
+        var list = entities.ToList();
+        var queryable = list.AsQueryable();
+
+        var mockSet = new Mock<DbSet<T>>();
+
+        // Hỗ trợ LINQ query
+        mockSet.As<IQueryable<T>>().Setup(m => m.Provider).Returns(() => list.AsQueryable().Provider);
+        mockSet.As<IQueryable<T>>().Setup(m => m.Expression).Returns(() => list.AsQueryable().Expression);
+        mockSet.As<IQueryable<T>>().Setup(m => m.ElementType).Returns(() => list.AsQueryable().ElementType);
+        mockSet.As<IQueryable<T>>().Setup(m => m.GetEnumerator()).Returns(() => list.AsQueryable().GetEnumerator());
+
+        // Hỗ trợ Add
+        mockSet.Setup(d => d.Add(It.IsAny<T>())).Callback<T>(entity => list.Add(entity));
+        mockSet.Setup(d => d.AddRange(It.IsAny<IEnumerable<T>>())).Callback<IEnumerable<T>>(entities => list.AddRange(entities));
+
+        // Hỗ trợ Remove
+        mockSet.Setup(d => d.Remove(It.IsAny<T>())).Callback<T>(entity => list.Remove(entity));
+        mockSet.Setup(d => d.RemoveRange(It.IsAny<IEnumerable<T>>())).Callback<IEnumerable<T>>(entities =>
+        {
+            foreach (var entity in entities)
+            {
+                list.Remove(entity);
+            }
+        });
+
+       return mockSet;
+    }
+
+    
+    public static Mock<DbSet<T>> CreateMockDbSet<T>(IQueryable<T> queryableData) where T : class
+    {
+        var list = queryableData.ToList(); // chuyển về list để hỗ trợ Add/Remove
+        var mockSet = new Mock<DbSet<T>>();
+
+        mockSet.As<IQueryable<T>>().Setup(m => m.Provider).Returns(() => list.AsQueryable().Provider);
+        mockSet.As<IQueryable<T>>().Setup(m => m.Expression).Returns(() => list.AsQueryable().Expression);
+        mockSet.As<IQueryable<T>>().Setup(m => m.ElementType).Returns(() => list.AsQueryable().ElementType);
+        mockSet.As<IQueryable<T>>().Setup(m => m.GetEnumerator()).Returns(() => list.AsQueryable().GetEnumerator());
+
+        mockSet.Setup(d => d.Add(It.IsAny<T>())).Callback<T>(entity => list.Add(entity));
+        mockSet.Setup(d => d.AddRange(It.IsAny<IEnumerable<T>>())).Callback<IEnumerable<T>>(entities => list.AddRange(entities));
+
+        mockSet.Setup(d => d.Remove(It.IsAny<T>())).Callback<T>(entity => list.Remove(entity));
+        mockSet.Setup(d => d.RemoveRange(It.IsAny<IEnumerable<T>>())).Callback<IEnumerable<T>>(entities =>
+        {
+            foreach (var entity in entities)
+            {
+                list.Remove(entity);
+            }
+        });
+
+        return mockSet;
+    }
+
+
 
 }
