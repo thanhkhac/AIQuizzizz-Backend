@@ -1,12 +1,13 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Domain.Constants;
+using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Comments.Service;
 
 public interface ICommentService
 {
-    Task CanComment(Guid questionId, CancellationToken cancellationToken);
+    Task<Question> CanComment(Guid questionId, CancellationToken cancellationToken);
     Task CanDelete(Guid commentId, CancellationToken cancellationToken);
 }
 
@@ -24,7 +25,7 @@ public class CommentService : ICommentService
         _identityService = identityService;
     }
     
-    public async Task CanComment(Guid questionId, CancellationToken cancellationToken)
+    public async Task<Question> CanComment(Guid questionId, CancellationToken cancellationToken)
     {
         var question = await _context.Questions
             .Include(x => x.QuestionSet)
@@ -40,6 +41,8 @@ public class CommentService : ICommentService
             .FirstOrDefaultAsync(cancellationToken);
         if (questionSetUser == null)
             throw new ErrorCodeException(ErrorCodes.USER_NOT_ACCESS_TO_QUESTION_SET, "User không trong question set của question");
+
+        return question;
     }
 
     public async Task CanDelete(Guid commentId, CancellationToken cancellationToken)

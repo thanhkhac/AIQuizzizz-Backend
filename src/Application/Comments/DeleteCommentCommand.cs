@@ -15,7 +15,7 @@ public class DeleteCommentCommandValidator : AbstractValidator<DeleteCommentComm
     public DeleteCommentCommandValidator()
     {
         RuleFor(x => x.CommentId)
-            .NotEmpty().WithMessage("QuestionID không được để trống");
+            .NotEmpty().WithMessage("CommentId không được để trống");
     }
 }
 

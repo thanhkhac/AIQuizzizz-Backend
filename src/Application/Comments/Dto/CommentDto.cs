@@ -8,7 +8,7 @@ public class CommentDto
     public UserCreateCommentDto? CreateBy { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public int ReplyCount  { get; set; }
-    public List<CommentDto>? Replies { get; set; }
+    public List<CommentDto>? ChildComments { get; set; }
 }
 
 public class UserCreateCommentDto
