@@ -11,12 +11,18 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // Xóa foreign key 
+            migrationBuilder.DropForeignKey(
+                name: "FK_Comments_DomainUsers_CreatedBy",
+                table: "Comments");
+
             migrationBuilder.DropForeignKey(
                 name: "FK_Comments_DomainUsers_UserId",
                 table: "Comments");
 
-            // Xóa cột UserId khỏi bảng Comments
+            migrationBuilder.DropIndex(
+                name: "IX_Comments_UserId",
+                table: "Comments");
+
             migrationBuilder.DropColumn(
                 name: "UserId",
                 table: "Comments");
@@ -28,21 +34,22 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                 nullable: true,
                 oldClrType: typeof(Guid),
                 oldType: "uuid");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Comments_DomainUsers_CreatedBy",
+                table: "Comments",
+                column: "CreatedBy",
+                principalTable: "DomainUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Comments_DomainUsers_UserId",
+                name: "FK_Comments_DomainUsers_CreatedBy",
                 table: "Comments");
-
-            // Thêm lại cột UserId 
-            migrationBuilder.AddColumn<Guid>(
-                name: "UserId",
-                table: "Comments",
-                type: "uuid",
-                nullable: true);
 
             migrationBuilder.AlterColumn<Guid>(
                 name: "ParentId",
@@ -53,6 +60,26 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                 oldClrType: typeof(Guid),
                 oldType: "uuid",
                 oldNullable: true);
+
+            migrationBuilder.AddColumn<Guid>(
+                name: "UserId",
+                table: "Comments",
+                type: "uuid",
+                nullable: false,
+                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Comments_UserId",
+                table: "Comments",
+                column: "UserId");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Comments_DomainUsers_CreatedBy",
+                table: "Comments",
+                column: "CreatedBy",
+                principalTable: "DomainUsers",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Comments_DomainUsers_UserId",
