@@ -1,9 +1,11 @@
 ﻿using CleanArchitectureBase.Application.Comments.Service;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Comments;
 
+[Authorize]
 public class CreateCommentCommand : IRequest<Guid>
 {
     public Guid QuestionId { get; set; }
