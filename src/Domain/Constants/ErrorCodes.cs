@@ -5,6 +5,8 @@ public static class ErrorCodes
 {
     //COMMON
     public const string COMMON_FORBIDDEN = nameof(COMMON_FORBIDDEN);
+    public const string COMMON_INVALID_MODEL = nameof(COMMON_INVALID_MODEL);
+    public const string COMMON_UNAUTHORIZED = nameof(COMMON_UNAUTHORIZED);
     public const string COMMON_SERVER_INTERNAL_ERROR = nameof(COMMON_SERVER_INTERNAL_ERROR);
     public const string COMMON_UNHANDLED_ERROR = nameof(COMMON_UNHANDLED_ERROR);
     public const string COMMON_NOT_FOUND = nameof(COMMON_NOT_FOUND);

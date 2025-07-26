@@ -85,6 +85,9 @@ public class QuestionSetService : IQuestionSetService
     //Owner có thể delete (Check trong bảng QuestionSetUserShareMode)
     public async Task<bool> CanUserDeleteQuestionSet(Guid userId, Guid questionSetId)
     {
+        if (await _identityService.IsInAnyRoleAsync(userId, Domain.Constants.Roles.Administrator, Domain.Constants.Roles.Moderator))
+            return true;
+            
         return await _context.QuestionSetUsers
             .AnyAsync(qsu => qsu.QuestionSetId == questionSetId
                              && qsu.UserId == userId
