@@ -292,9 +292,6 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.Property<Guid>("QuestionId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedBy");
@@ -302,8 +299,6 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.HasIndex("ParentId");
 
                     b.HasIndex("QuestionId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Comments");
                 });
