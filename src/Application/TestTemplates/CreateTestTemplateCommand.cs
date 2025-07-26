@@ -77,12 +77,6 @@ public class CreateTestTemplateCommandHandler : IRequestHandler<CreateTestTempla
     public async Task<Guid> Handle(CreateTestTemplateCommand rq, CancellationToken cancellationToken)
     {
         await _testTemplateService.QuestionAccessForTestTemplate(rq.Questions, cancellationToken);
-
-        var testTemplateByName = await _context.TestTemplates
-            .Where(x => x.Name == rq.Name && x.IsDeleted == false && x.CreatedBy.Equals(_user.UserId))
-            .FirstOrDefaultAsync(cancellationToken);
-        if (testTemplateByName != null)
-            throw new ErrorCodeException(ErrorCodes.TEST_TEMPLATE_ALREADY_EXISTS, "Test template đã tồn tại");
         
         var testTemplate = new TestTemplate { Id = Guid.NewGuid(), Name = rq.Name, IsDeleted = false, Description = rq.Description};
 
