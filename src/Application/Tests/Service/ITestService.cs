@@ -85,6 +85,7 @@ public class TestService : ITestService
             .ToList();
     }
 
+    //TODO: @TruongPX Đặt sai tên hàm
     public CheckUpdateQuestion UpdateQuestion(List<CreateUpdateQuestionDto> questionDtos,List<Question> questions)
     {
         if (questionDtos.Count == 0 || questionDtos.Count == 0) return new CheckUpdateQuestion();
