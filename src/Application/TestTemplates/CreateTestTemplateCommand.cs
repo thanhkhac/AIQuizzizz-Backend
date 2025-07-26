@@ -104,6 +104,7 @@ public class CreateTestTemplateCommandHandler : IRequestHandler<CreateTestTempla
                 Id = Guid.NewGuid(),
                 Type = Enum.Parse<QuestionType>(questionDto.Type!),
                 QuestionText = questionDto.QuestionText,
+                ExplainText = questionDto.ExplainText,
                 TextFormat = TextFormat.PlainText,
                 Score = questionDto.Score
             };
