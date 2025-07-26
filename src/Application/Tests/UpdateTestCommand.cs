@@ -164,6 +164,7 @@ public class UpdateTestCommandHandler : IRequestHandler<UpdateTestCommand, Guid>
             {
                 Id = Guid.NewGuid(),
                 Type = Enum.Parse<QuestionType>(questionDto.Type!),
+                ExplainText = questionDto.ExplainText,
                 QuestionText = questionDto.QuestionText,
                 TextFormat = TextFormat.PlainText,
                 Score = questionDto.Score

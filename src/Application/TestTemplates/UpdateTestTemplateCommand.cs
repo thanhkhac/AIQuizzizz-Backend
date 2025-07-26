@@ -60,9 +60,9 @@ public class UpdateTestTemplateCommandValidator : AbstractValidator<UpdateTestTe
 public class UpdateTestTemplateCommandHandler : IRequestHandler<UpdateTestTemplateCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
-    public readonly IUser _user;
-    public readonly ITestTemplateService _testTemplateService;
-    public readonly ITestService _testService;
+    private readonly IUser _user;
+    private readonly ITestTemplateService _testTemplateService;
+    private readonly ITestService _testService;
     
     public UpdateTestTemplateCommandHandler(
         IApplicationDbContext context,
@@ -134,6 +134,7 @@ public class UpdateTestTemplateCommandHandler : IRequestHandler<UpdateTestTempla
                 Id = Guid.NewGuid(),
                 Type = Enum.Parse<QuestionType>(questionDto.Type!),
                 QuestionText = questionDto.QuestionText,
+                ExplainText = questionDto.ExplainText,
                 TextFormat = TextFormat.PlainText,
                 Score = questionDto.Score,
                 DataJson = CreateUpdateQuestionDto.Serializer.Serialize(questionDto)
