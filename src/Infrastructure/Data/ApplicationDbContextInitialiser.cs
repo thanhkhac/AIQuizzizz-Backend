@@ -20,7 +20,7 @@ public static class InitialiserExtensions
 
         await initialiser.InitialiseAsync();
         
-        await initialiser.SeedAsync();
+        // await initialiser.SeedAsync();
         await Task.CompletedTask;
     }
 }
@@ -53,7 +53,7 @@ public class ApplicationDbContextInitialiser
 
             // if (!databaseExists)
             // {
-            //await _context.Database.MigrateAsync();
+            await _context.Database.MigrateAsync();
             // }
             await Task.CompletedTask;
         }

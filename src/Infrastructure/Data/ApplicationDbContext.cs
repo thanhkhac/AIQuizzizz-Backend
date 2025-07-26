@@ -66,8 +66,6 @@ public class ApplicationDbContext : IdentityDbContext<UserAccount,
     {
         base.OnModelCreating(builder);
         
-        builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-
         foreach (var entityType in builder.Model.GetEntityTypes())
         {
             if (typeof(CleanArchitectureBase.Domain.Common.BaseAuditableEntity).IsAssignableFrom(entityType.ClrType))
@@ -79,5 +77,8 @@ public class ApplicationDbContext : IdentityDbContext<UserAccount,
                     .OnDelete(DeleteBehavior.Restrict);
             }
         }
+        
+        builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
     }
 }

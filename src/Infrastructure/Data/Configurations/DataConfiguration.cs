@@ -254,6 +254,10 @@ public class CommentConfiguration : IEntityTypeConfiguration<Comment>
             .HasForeignKey(c => c.QuestionId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasOne(c => c.CreatedByUser)
+            .WithMany(u => u.Comments)
+            .HasForeignKey(c => c.CreatedBy).OnDelete(DeleteBehavior.Cascade);
+
         builder.HasOne(c => c.ParentComment)
             .WithMany(c => c.ChildComments)
             .HasForeignKey(c => c.ParentId)
@@ -449,7 +453,7 @@ public class TestConfiguration : IEntityTypeConfiguration<Test>
 
         builder.Property(t => t.IsShowCorrectAnswerInReview)
             .HasDefaultValue(false);
-            
+
         builder.Property(t => t.IsDeleted)
             .HasDefaultValue(false);
     }
