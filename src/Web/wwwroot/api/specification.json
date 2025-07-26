@@ -860,15 +860,6 @@
             "x-position": 1
           },
           {
-            "name": "shareMode",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 2
-          },
-          {
             "name": "ClassId",
             "x-originalName": "classId",
             "in": "path",
@@ -877,7 +868,7 @@
               "type": "string",
               "format": "guid"
             },
-            "x-position": 3
+            "x-position": 2
           },
           {
             "name": "pageNumber",
@@ -887,7 +878,7 @@
               "format": "int32",
               "default": 1
             },
-            "x-position": 4
+            "x-position": 3
           },
           {
             "name": "pageSize",
@@ -897,7 +888,7 @@
               "format": "int32",
               "default": 5
             },
-            "x-position": 5
+            "x-position": 4
           }
         ],
         "responses": {
@@ -2348,7 +2339,7 @@
         "operationId": "SearchTestTemplate",
         "parameters": [
           {
-            "name": "folderName",
+            "name": "name",
             "in": "query",
             "schema": {
               "type": "string",
@@ -2510,6 +2501,122 @@
             "x-position": 1
           }
         ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/TestTemplate/{testTemplateId}/Sharing": {
+      "get": {
+        "tags": [
+          "TestTemplate"
+        ],
+        "operationId": "GetSharingInTestTemplate",
+        "parameters": [
+          {
+            "name": "testTemplateId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfResourceShareDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "TestTemplate"
+        ],
+        "operationId": "AddSharingInTestTemplate",
+        "parameters": [
+          {
+            "name": "testTemplateId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddSharingTestTemplateCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "TestTemplate"
+        ],
+        "operationId": "UpdateSharingInTestTemplate",
+        "parameters": [
+          {
+            "name": "testTemplateId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSharingInTestTemplateCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
         "responses": {
           "200": {
             "description": "",
@@ -4024,19 +4131,6 @@
             "type": "string",
             "nullable": true
           },
-          "sharingUsers": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/SharingUserDto"
-            }
-          }
-        }
-      },
-      "SharingUserDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
           "userId": {
             "type": "string",
             "format": "guid"
@@ -4059,25 +4153,25 @@
             "nullable": true,
             "oneOf": [
               {
-                "$ref": "#/components/schemas/UpdateSharing"
+                "$ref": "#/components/schemas/UpsertSharing"
               }
             ]
           }
         }
       },
-      "UpdateSharing": {
+      "UpsertSharing": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
           "sharingModel": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/UpdateSharingModelDto"
+              "$ref": "#/components/schemas/UpsertSharingModelDto"
             }
           }
         }
       },
-      "UpdateSharingModelDto": {
+      "UpsertSharingModelDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -4085,13 +4179,10 @@
             "type": "string",
             "nullable": true
           },
-          "sharingUsers": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "type": "string",
-              "format": "guid"
-            }
+          "sharingUserId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
           }
         }
       },
@@ -4116,7 +4207,7 @@
             "nullable": true,
             "oneOf": [
               {
-                "$ref": "#/components/schemas/UpdateSharing"
+                "$ref": "#/components/schemas/UpsertSharing"
               }
             ]
           },
@@ -5536,6 +5627,24 @@
           }
         }
       },
+      "AddSharingTestTemplateCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "testTemplateId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "sharing": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UpsertSharing"
+              }
+            ]
+          }
+        }
+      },
       "CreateTestTemplateCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -5628,6 +5737,32 @@
             "nullable": true,
             "items": {
               "$ref": "#/components/schemas/CreateUpdateQuestionDto"
+            }
+          }
+        }
+      },
+      "UpdateSharingInTestTemplateCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "testTemplateId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "updateSharing": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UpsertSharing"
+              }
+            ]
+          },
+          "deleteUserIds": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string",
+              "format": "guid"
             }
           }
         }

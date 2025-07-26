@@ -248,10 +248,6 @@ public class CommentConfiguration : IEntityTypeConfiguration<Comment>
             .IsRequired()
             .HasDefaultValue(false);
 
-        builder.HasOne(c => c.User)
-            .WithMany(u => u.Comments)
-            .HasForeignKey(c => c.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(c => c.Question)
             .WithMany(q => q.Comments)

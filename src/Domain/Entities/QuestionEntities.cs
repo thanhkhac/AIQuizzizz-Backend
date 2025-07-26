@@ -149,13 +149,11 @@ public class QuestionSetUser : BaseAuditableEntity
 public class Comment : BaseAuditableEntity
 {
     public required Guid Id { get; set; }
-    public required Guid ParentId { get; set; }
-    public required Guid UserId { get; set; }
+    public Guid? ParentId { get; set; }
     public required Guid QuestionId { get; set; }
     public required string Content { get; set; }
-    public required bool IsDeleted { get; set; }
+    public bool IsDeleted { get; set; }
 
-    public User? User { get; set; }
     public Question? Question { get; set; }
     // Nếu ParentId là Comment cha (recursive relationship)
     public Comment? ParentComment { get; set; }
