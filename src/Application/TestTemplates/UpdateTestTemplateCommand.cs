@@ -60,33 +60,29 @@ public class UpdateTestTemplateCommandValidator : AbstractValidator<UpdateTestTe
 public class UpdateTestTemplateCommandHandler : IRequestHandler<UpdateTestTemplateCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IUser _user;
     private readonly ITestTemplateService _testTemplateService;
-    private readonly ITestService _testService;
     
     public UpdateTestTemplateCommandHandler(
         IApplicationDbContext context,
-        IUser user,
-        ITestTemplateService testTemplateService,
-        ITestService testService)
+        ITestTemplateService testTemplateService)
     {
         _context = context;
-        _user = user;
         _testTemplateService = testTemplateService;
-        _testService = testService;
     }
     
     public async Task<Guid> Handle(UpdateTestTemplateCommand rq, CancellationToken cancellationToken)
     {
-        var template = await _testTemplateService.CanEditTestTemplate(rq.TestTemplateId, cancellationToken);
-        
-        var testTemplateByName = await _context.TestTemplates
-            .Where(x => x.Name == rq.Name && x.IsDeleted == false && x.CreatedBy.Equals(_user.UserId))
+        var testTemplate = await _context.TestTemplates
+            .Where(t => t.Id == rq.TestTemplateId && t.IsDeleted == false)
             .FirstOrDefaultAsync(cancellationToken);
-        if (testTemplateByName != null)
-            throw new ErrorCodeException(ErrorCodes.TEST_TEMPLATE_ALREADY_EXISTS, "Test template đã tồn tại");
+        if (testTemplate == null)
+            throw new ErrorCodeException(ErrorCodes.TEST_TEMPLATE_NOT_FOUND, "Không tìm thấy test template");
+            
+        var canUpdateSharing = await _testTemplateService.CanEditTestTemplate(rq.TestTemplateId, cancellationToken);
+        if (!canUpdateSharing)
+            throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE, "Không có quyền sửa");
         
-        template.Name = rq.Name;
+        testTemplate.Name = rq.Name;
         
         var testTemplateQuestions = await _context.TestTemplateQuestions
             .Include(x => x.Question)
@@ -108,9 +104,9 @@ public class UpdateTestTemplateCommandHandler : IRequestHandler<UpdateTestTempla
                         !testTemplateQuestions.Select(y => y.QuestionId).Contains(x.QuestionId.Value))
             .ToList();
         
-        await _testTemplateService.QuestionAccessForTestTemplate(questionFromQuestionSet, cancellationToken);
+        await _testTemplateService.TryQuestionAccessForTestTemplate(questionFromQuestionSet, cancellationToken);
 
-        var updateQuestionIds = _testService.UpdateQuestion(updateQuestionDto, updateQuestion);
+        var updateQuestionIds = _testTemplateService.CheckQuestionsForUpdate(updateQuestionDto, updateQuestion);
         
         var deleteUpdateQuestion = testTemplateQuestions
             .Where(x => updateQuestionIds.UpdateQuestionIds.Contains(x.QuestionId)

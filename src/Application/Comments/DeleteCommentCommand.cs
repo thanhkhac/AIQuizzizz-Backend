@@ -1,10 +1,12 @@
 ﻿using CleanArchitectureBase.Application.Comments.Service;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.Comments;
 
+[Authorize]
 public class DeleteCommentCommand :IRequest<Guid>
 {
     public Guid CommentId { get; set; }
@@ -15,7 +17,7 @@ public class DeleteCommentCommandValidator : AbstractValidator<DeleteCommentComm
     public DeleteCommentCommandValidator()
     {
         RuleFor(x => x.CommentId)
-            .NotEmpty().WithMessage("QuestionID không được để trống");
+            .NotEmpty().WithMessage("CommentId không được để trống");
     }
 }
 

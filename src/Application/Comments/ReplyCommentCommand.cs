@@ -1,11 +1,13 @@
 ﻿using CleanArchitectureBase.Application.Comments.Service;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Comments;
 
+[Authorize]
 public class ReplyCommentCommand : IRequest<Guid>
 {
     public Guid CommentId { get; set; }
@@ -27,13 +29,11 @@ public class ReplyCommentCommandValidator : AbstractValidator<ReplyCommentComman
 public class ReplyCommentCommandHandler : IRequestHandler<ReplyCommentCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IUser _user;
     private readonly ICommentService _commentService;
     
     public ReplyCommentCommandHandler(IApplicationDbContext context, IUser user, ICommentService commentService)
     {
         _context = context;
-        _user = user;
         _commentService = commentService;
     }
     
@@ -55,8 +55,6 @@ public class ReplyCommentCommandHandler : IRequestHandler<ReplyCommentCommand, G
             Id = Guid.NewGuid(),
             Content = rq.Content,
             QuestionId = comment.QuestionId,
-            UserId = _user.UserId!.Value,
-            ParentId = comment.Id,
             IsDeleted = false,
         };
         

@@ -26,19 +26,13 @@ public class GetTestTemplateDetailQueryValidator : AbstractValidator<GetTestTemp
 public class GetTestTemplateDetailQueryHandler : IRequestHandler<GetTestTemplateDetailQuery, TestTemplateDetailDto>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IUser _user;
-    private readonly IIdentityService _identityService;
     private readonly ITestTemplateService _testTemplateService;
 
     public GetTestTemplateDetailQueryHandler(
         IApplicationDbContext context,
-        IUser user,
-        IIdentityService identityService,
         ITestTemplateService testTemplateService)
     {
         _context = context;
-        _user = user;
-        _identityService = identityService;
         _testTemplateService = testTemplateService;
     }
     
@@ -55,10 +49,10 @@ public class GetTestTemplateDetailQueryHandler : IRequestHandler<GetTestTemplate
         if (testTemplate == null)
             throw new ErrorCodeException(ErrorCodes.TEST_TEMPLATE_NOT_FOUND, "TestTemplate không tồn tại");
         
-        var isAdmin = await _identityService.IsInAnyRoleAsync(_user.UserId!.Value, Domain.Constants.Roles.Administrator, Domain.Constants.Roles.Moderator);
-
-        if(!isAdmin) await _testTemplateService.CanViewTesTemplate(rq.TestTemplateId);
-
+        var canView = await _testTemplateService.CanViewTesTemplate(rq.TestTemplateId);
+        if (!canView)
+            throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE, "User không có quyền xem test template này");
+        
         var result = await _context.TestTemplates
             .Include(t => t.TestTemplateQuestions)
             .ThenInclude(t => t.Question)

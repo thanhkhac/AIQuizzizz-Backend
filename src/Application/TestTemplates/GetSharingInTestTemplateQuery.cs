@@ -4,7 +4,6 @@ using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.FolderTest.Dto;
 using CleanArchitectureBase.Application.TestTemplates.Service;
 using CleanArchitectureBase.Domain.Constants;
-using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.TestTemplates;
 
@@ -36,7 +35,15 @@ public class GetSharingInTestTemplateQueryHandler : IRequestHandler<GetSharingIn
     
     public async Task<ResourceShareDto> Handle(GetSharingInTestTemplateQuery rq, CancellationToken cancellationToken)
     {
-        var testTemplate = await _testTemplateService.CanEditTestTemplate(rq.TestTemplateId, cancellationToken);
+        var testTemplate = await _context.TestTemplates
+            .Where(t => t.Id == rq.TestTemplateId && t.IsDeleted == false)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (testTemplate == null)
+            throw new ErrorCodeException(ErrorCodes.TEST_TEMPLATE_NOT_FOUND, "Không tìm thấy test template");
+            
+        var canGetSharing = await _testTemplateService.CanEditTestTemplate(rq.TestTemplateId, cancellationToken);
+        if (!canGetSharing)
+            throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE, "Không có quyền xem");
 
         var testTemplateUsers = await _context.TestTemplateUsers
             .Include(x => x.User)

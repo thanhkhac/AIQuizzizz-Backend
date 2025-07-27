@@ -1,5 +1,4 @@
-﻿using CleanArchitectureBase.Application.Classes.Service;
-using CleanArchitectureBase.Application.Common.Exceptions;
+﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.QuestionSets.Dtos;
@@ -74,16 +73,13 @@ public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
     private readonly ITestService _testService;
-    private readonly IClassService _classService;
     
     public CreateTestCommandHandler(
         IApplicationDbContext context,
-        ITestService testService,
-        IClassService classService)
+        ITestService testService)
     {
         _context = context;
         _testService = testService;
-        _classService = classService;
     }
 
     /// <summary>
@@ -99,7 +95,7 @@ public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
         if (classById == null)
             throw new ErrorCodeException(ErrorCodes.CLASS_NOTFOUND, "Không tìm thấy lớp");
         
-        var isLecturerOrOwnerInClass = await _classService.IsLecturerOrOwnerInClass(rq.ClassId);
+        var isLecturerOrOwnerInClass = await _testService.CanCreateTest(rq.ClassId);
         if (!isLecturerOrOwnerInClass)
             throw new ErrorCodeException(ErrorCodes.NOT_FOUND_TEACHER_OR_OWNER_IN_CLASS, "Không phải lecturer hoặc owner của class");
 

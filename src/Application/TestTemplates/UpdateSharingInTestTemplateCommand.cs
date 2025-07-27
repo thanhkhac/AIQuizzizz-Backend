@@ -43,8 +43,16 @@ public class UpdateSharingInTestTemplateCommandHandler : IRequestHandler<UpdateS
     
     public async Task<Guid> Handle(UpdateSharingInTestTemplateCommand rq, CancellationToken cancellationToken)
     {
-        var testTemplate = await _testTemplateService.CanEditTestTemplate(rq.TestTemplateId, cancellationToken);
-
+        var testTemplate = await _context.TestTemplates
+            .Where(t => t.Id == rq.TestTemplateId && t.IsDeleted == false)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (testTemplate == null)
+            throw new ErrorCodeException(ErrorCodes.TEST_TEMPLATE_NOT_FOUND, "Không tìm thấy test template");
+            
+        var canUpdateSharing = await _testTemplateService.CanEditTestTemplate(rq.TestTemplateId, cancellationToken);
+        if (!canUpdateSharing)
+            throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE, "Không có quyền sửa");
+        
         var userTemplateExits = await _context.TestTemplateUsers
             .Where(x => x.TestTemplateId.Equals(rq.TestTemplateId))
             .ToDictionaryAsync(x => x.UserId, x => x, cancellationToken);
