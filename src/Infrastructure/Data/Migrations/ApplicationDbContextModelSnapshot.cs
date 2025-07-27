@@ -1551,9 +1551,9 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Comment", b =>
                 {
                     b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
-                        .WithMany()
+                        .WithMany("Comments")
                         .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("CleanArchitectureBase.Domain.Entities.Comment", "ParentComment")
                         .WithMany("ChildComments")
@@ -1565,10 +1565,6 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", null)
-                        .WithMany("Comments")
-                        .HasForeignKey("UserId");
 
                     b.Navigation("CreatedByUser");
 

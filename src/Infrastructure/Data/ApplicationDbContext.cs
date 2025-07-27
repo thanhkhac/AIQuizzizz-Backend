@@ -65,7 +65,7 @@ public class ApplicationDbContext : IdentityDbContext<UserAccount,
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-
+        
         foreach (var entityType in builder.Model.GetEntityTypes())
         {
             if (typeof(CleanArchitectureBase.Domain.Common.BaseAuditableEntity).IsAssignableFrom(entityType.ClrType))
@@ -79,5 +79,6 @@ public class ApplicationDbContext : IdentityDbContext<UserAccount,
         }
         
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
     }
 }
