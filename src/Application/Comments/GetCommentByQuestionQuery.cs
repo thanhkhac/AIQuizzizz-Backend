@@ -3,9 +3,11 @@ using CleanArchitectureBase.Application.Comments.Service;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
 using AutoMapper;
+using CleanArchitectureBase.Application.Common.Security;
 
 namespace CleanArchitectureBase.Application.Comments;
 
+[Authorize]
 public class GetCommentByQuestionQuery : IRequest<PaginatedList<CommentDto>>
 {
     public required Guid QuestionId { get; set; }
@@ -37,7 +39,7 @@ public class GetCommentByQuestionQueryHandler : IRequestHandler<GetCommentByQues
     
     public async Task<PaginatedList<CommentDto>> Handle(GetCommentByQuestionQuery rq, CancellationToken cancellationToken)
     {
-        var question = await _commentService.CanComment(rq.QuestionId, cancellationToken);
+        await _commentService.CanComment(rq.QuestionId, cancellationToken);
 
         var comments = await _context.Comments
             .Where(x => x.QuestionId == rq.QuestionId && x.IsDeleted == false)

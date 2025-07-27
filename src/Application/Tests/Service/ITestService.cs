@@ -11,7 +11,7 @@ namespace CleanArchitectureBase.Application.Tests.Service;
 public interface ITestService
 {
     Task<List<Guid>> QuestionAccessAndCompareForTest(List<CreateUpdateQuestionDto> question, CancellationToken cancellationToken);
-    CheckUpdateQuestion UpdateQuestion(List<CreateUpdateQuestionDto> questionDtos, List<Question> questions);
+    CheckUpdateQuestion CheckQuestionsForUpdate(List<CreateUpdateQuestionDto> questionDtos, List<Question> questions);
     Task<Test> CanEditTest(Guid testId, CancellationToken cancellationToken);
 }
 
@@ -87,9 +87,7 @@ public class TestService : ITestService
             .ToList();
     }
     
-
-    //TODO: @TruongPX Đặt sai tên hàm
-    public CheckUpdateQuestion UpdateQuestion(List<CreateUpdateQuestionDto> questionDtos,List<Question> questions)
+    public CheckUpdateQuestion CheckQuestionsForUpdate(List<CreateUpdateQuestionDto> questionDtos,List<Question> questions)
     {
         if (questionDtos.Count == 0 || questionDtos.Count == 0) return new CheckUpdateQuestion();
 

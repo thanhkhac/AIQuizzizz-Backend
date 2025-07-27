@@ -145,7 +145,7 @@ public class UpdateTestCommandHandler : IRequestHandler<UpdateTestCommand, Guid>
         
         var newQuestionIds = await _testService.QuestionAccessAndCompareForTest(newQuestionDto, cancellationToken);
 
-        var updateQuestionIds = _testService.UpdateQuestion(updateQuestionDto, updateQuestion);
+        var updateQuestionIds = _testService.CheckQuestionsForUpdate(updateQuestionDto, updateQuestion);
 
         var deleteUpdateQuestion = versionQuestionsAllNo
             .Where(x => updateQuestionIds.UpdateQuestionIds.Contains(x.QuestionId)

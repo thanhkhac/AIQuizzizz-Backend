@@ -29,17 +29,21 @@ public class TestTemplateService : ITestTemplateService
         _identityService = identityService;
     }
 
-    public async Task QuestionAccessForTestTemplate(List<CreateUpdateQuestionDto> question, CancellationToken cancellationToken)
+    public async Task QuestionAccessForTestTemplate(List<CreateUpdateQuestionDto> questions, CancellationToken cancellationToken)
     {
-        var questionSetPairs = question
-            .Where(q => q.QuestionId.HasValue && q.QuestionId!=Guid.Empty)
-            .Select(q => q.QuestionId)
+        var questionIds = questions
+            .Where(q => q.QuestionId.HasValue && q.QuestionId != Guid.Empty)
+            .Select(q => q.QuestionId!.Value)
+            .Distinct()
             .ToList();
 
-        if (questionSetPairs.Count == 0) return;
-
+        if (!questionIds.Any())
+        {
+            return;
+        }
+        
         var validQuestion = await _context.Questions
-            .Where(q => questionSetPairs.Contains(q.Id))
+            .Where(q => questionIds.Contains(q.Id))
             .Include(qs => qs.QuestionSet)
             .Where(qs => qs.QuestionSet != null)
             .GroupJoin(_context.QuestionSetUsers,
@@ -47,26 +51,25 @@ public class TestTemplateService : ITestTemplateService
                 qsu => qsu.QuestionSetId,
                 (qs, qsu) => new
                 {
-                    QuestionSet = qs, QuestionSetUser = qsu.FirstOrDefault(qsu => qsu.UserId == _user.UserId)
+                    QuestionSet = qs.QuestionSet,
+                    QuestionSetUser = qsu.FirstOrDefault(qsu => qsu.UserId == _user.UserId),
+                    QuestionId = qs.Id,
                 })
-            .Where(qs => qs.QuestionSet.CreatedBy.Equals(_user.UserId)
-                         || qs.QuestionSetUser!.UserId.Equals(_user.UserId))
+            .Where(qs => qs.QuestionSetUser!.UserId.Equals(_user.UserId)
+            || QuestionSetVisibilityMode.Public == qs.QuestionSet!.VisibilityMode)
             .ToListAsync(cancellationToken);
         
-        
-
-        var invalidQuestion = questionSetPairs
-            .Where(q => !validQuestion.Any(v => v.QuestionSet.Id == q!.Value))
+        var invalidQuestionIds = questionIds
+            .Where(q => !validQuestion.Any(v => v.QuestionId == q))
             .ToList();
 
-        if (invalidQuestion.Count > 0)
+        if (invalidQuestionIds.Count > 0)
         {
             var errors = new Dictionary<string, string[]>
             {
                 {
-                    ErrorCodes.USER_NOT_ACCESS_TO_QUESTION_SET,
-                    invalidQuestion.Select(q => $"Question {q!.Value} không có quyền truy cập hoặc không tồn tại")
-                        .ToArray()
+                    ErrorCodes.USER_NOT_ACCESS_TO_QUESTION_SET, 
+                    invalidQuestionIds.Select(qId => $"Question {qId} is not accessible or does not exist").ToArray()
                 }
             };
 

@@ -80,12 +80,6 @@ public class UpdateTestTemplateCommandHandler : IRequestHandler<UpdateTestTempla
     {
         var template = await _testTemplateService.CanEditTestTemplate(rq.TestTemplateId, cancellationToken);
         
-        var testTemplateByName = await _context.TestTemplates
-            .Where(x => x.Name == rq.Name && x.IsDeleted == false && x.CreatedBy.Equals(_user.UserId))
-            .FirstOrDefaultAsync(cancellationToken);
-        if (testTemplateByName != null)
-            throw new ErrorCodeException(ErrorCodes.TEST_TEMPLATE_ALREADY_EXISTS, "Test template đã tồn tại");
-        
         template.Name = rq.Name;
         
         var testTemplateQuestions = await _context.TestTemplateQuestions
@@ -110,7 +104,7 @@ public class UpdateTestTemplateCommandHandler : IRequestHandler<UpdateTestTempla
         
         await _testTemplateService.QuestionAccessForTestTemplate(questionFromQuestionSet, cancellationToken);
 
-        var updateQuestionIds = _testService.UpdateQuestion(updateQuestionDto, updateQuestion);
+        var updateQuestionIds = _testService.CheckQuestionsForUpdate(updateQuestionDto, updateQuestion);
         
         var deleteUpdateQuestion = testTemplateQuestions
             .Where(x => updateQuestionIds.UpdateQuestionIds.Contains(x.QuestionId)

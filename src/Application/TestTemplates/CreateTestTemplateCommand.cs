@@ -56,8 +56,8 @@ public class CreateTestTemplateCommandValidator : AbstractValidator<CreateTestTe
 public class CreateTestTemplateCommandHandler : IRequestHandler<CreateTestTemplateCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
-    public readonly IUser _user;
-    public readonly ITestTemplateService _testTemplateService;
+    private readonly IUser _user;
+    private readonly ITestTemplateService _testTemplateService;
 
     public CreateTestTemplateCommandHandler(
         IApplicationDbContext context,
