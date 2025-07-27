@@ -16,7 +16,7 @@ public class SearchFolderTestDto
 public class SearchFolderQuery : IRequest<PaginatedList<SearchFolderTestDto>>
 {
     public string? FolderName { get; set; }
-    public string? SharedMode { get; set; }
+    public string? ShareMode { get; set; }
     public int PageNumber { get; set; } = 1;
     public int PageSize { get; set; } = 5;
 }
@@ -25,7 +25,7 @@ public class SearchFolderQueryValidator : AbstractValidator<SearchFolderQuery>
 {
     public SearchFolderQueryValidator()
     {
-        RuleFor(x => x.SharedMode)
+        RuleFor(x => x.ShareMode)
             .Must(mode => new[] {"Owner", "Editable", "ViewOnly"}.Contains(mode) || string.IsNullOrEmpty(mode))
             .WithMessage($"SharedMode phải là Owner, Editable, ViewOnly");
         RuleFor(x => x.PageNumber)
@@ -66,7 +66,7 @@ public class SearchFolderQueryHandler : IRequestHandler<SearchFolderQuery, Pagin
             .ToDictionaryAsync(x => x.Id, x => x.FullName, cancellationToken);
         
         FolderShareMode? shareMode = null;
-        if (!string.IsNullOrEmpty(rq.SharedMode) && Enum.TryParse<FolderShareMode>(rq.SharedMode, out var ShareMode))
+        if (!string.IsNullOrEmpty(rq.ShareMode) && Enum.TryParse<FolderShareMode>(rq.ShareMode, out var ShareMode))
         {
             shareMode = ShareMode;
         }

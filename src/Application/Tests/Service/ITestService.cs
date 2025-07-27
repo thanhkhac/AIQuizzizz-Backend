@@ -12,25 +12,25 @@ public interface ITestService
 {
     Task<List<Guid>> QuestionAccessAndCompareForTest(List<CreateUpdateQuestionDto> question, CancellationToken cancellationToken);
     CheckUpdateQuestion CheckQuestionsForUpdate(List<CreateUpdateQuestionDto> questionDtos, List<Question> questions);
-    Task<Test> CanEditTest(Guid testId, CancellationToken cancellationToken);
+    Task<bool> CanViewOrEditTest(Guid classId, CancellationToken cancellationToken);
+    Task<bool> CanViewHistoryOfTest(Guid testId, CancellationToken cancellationToken);
+    Task<bool> CanCreateTest(Guid classId);
+    Task<bool> CanAttemptTest(Guid classId);
 }
 
 public class TestService : ITestService
 {
     private readonly IApplicationDbContext _context;
-    private readonly IClassService _classService;
     private readonly IUser _user;
     private readonly IIdentityService _identityService;
 
     public TestService(
         IApplicationDbContext context,
         IUser user,
-        IClassService classService,
         IIdentityService identityService)
     {
         _context = context;
         _user = user;
-        _classService = classService;
         _identityService = identityService;
     }
 
@@ -109,22 +109,54 @@ public class TestService : ITestService
         };
     }
 
-    public async Task<Test> CanEditTest(Guid testId, CancellationToken cancellationToken)
+    public async Task<bool> CanViewOrEditTest(Guid classId, CancellationToken cancellationToken)
     {
-        var test = await _context.Tests
-            .Where(x => x.Id == testId && x.IsDeleted == false)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (test == null)
-            throw new ErrorCodeException(ErrorCodes.TEST_NOT_FOUND, "Không tìm thấy test");
-
         if (await _identityService.IsInAnyRoleAsync(_user.UserId!.Value, Domain.Constants.Roles.Administrator,
                 Domain.Constants.Roles.Moderator))
-            return test;
+            return true;
         
-        var isLecturerOrOwnerInClass = await _classService.IsLecturerOrOwnerInClass(test.ClassId);
-        if (!isLecturerOrOwnerInClass)
-            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_TEACHER_OR_OWNER_IN_CLASS, "Không phải lecturer hoặc owner của class");
+        var isLecturerOrOwnerInClass = await _context.ClassUsers
+            .Where(u => u.UserId == _user.UserId && u.ClassId == classId &&
+                        (ClassShareMode.Owner.Equals(u.ShareMode) || ClassShareMode.Teacher.Equals(u.ShareMode)))
+            .FirstOrDefaultAsync(cancellationToken);
+        if (isLecturerOrOwnerInClass == null)
+            return false;
         
-        return test;
+        return true;
+    }
+
+    public async Task<bool> CanViewHistoryOfTest(Guid classId, CancellationToken cancellationToken)
+    {
+        var user = await _context.ClassUsers
+            .Where(u => u.UserId == _user.UserId && u.ClassId == classId)
+            .FirstOrDefaultAsync(cancellationToken);
+        
+        if (user == null)
+            return false;
+        
+        return true;
+    }
+
+    public async Task<bool> CanCreateTest(Guid classId)
+    {
+        var user = await _context.ClassUsers
+            .Where(u => u.UserId == _user.UserId && u.ClassId == classId &&
+                        (ClassShareMode.Owner.Equals(u.ShareMode) || ClassShareMode.Teacher.Equals(u.ShareMode)))
+            .FirstOrDefaultAsync();
+        if (user == null) return false;
+
+        return true;
+    }
+
+    public async Task<bool> CanAttemptTest(Guid classId)
+    {
+        var student = await _context.ClassUsers
+            .Where(u => u.UserId == _user.UserId && u.ClassId == classId && ClassShareMode.Student == u.ShareMode)
+            .FirstOrDefaultAsync();
+
+        if (student == null)
+            return false;
+        
+        return true;
     }
 }

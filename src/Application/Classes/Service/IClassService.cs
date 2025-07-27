@@ -9,7 +9,6 @@ public interface IClassService
 {
     Task<(ClassUser IsOwner, Class ClassExists)> GetClassOwnerAccess(Guid classId,
         CancellationToken cancellationToken);
-    Task<bool> IsStudentInClass(Guid classId);
     Task<bool> IsUserInClass(Guid classId);
     Task<bool> IsLecturerOrOwnerInClass(Guid classId);
 }
@@ -51,19 +50,7 @@ public class ClassService : IClassService{
 
         return (result.ClassUser, result.Class);
     }
-
-    public async Task<bool> IsStudentInClass(Guid classId)
-    {
-        var student = await _context.ClassUsers
-            .Where(u => u.UserId == _user.UserId && u.ClassId == classId && ClassShareMode.Student == u.ShareMode)
-            .FirstOrDefaultAsync();
-
-        if (student == null)
-            return false;
-
-        return true;
-    }
-
+    
     public async Task<bool> IsUserInClass(Guid classId)
     {
         var user = await _context.ClassUsers

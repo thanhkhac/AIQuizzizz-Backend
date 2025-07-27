@@ -1,5 +1,4 @@
-﻿using CleanArchitectureBase.Application.Classes.Service;
-using CleanArchitectureBase.Application.Common.Exceptions;
+﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.QuestionSets.Dtos;
@@ -81,21 +80,26 @@ public class UpdateTestCommandHandler : IRequestHandler<UpdateTestCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
     private readonly ITestService _testService;
-    private readonly IClassService _classService;
     
     public UpdateTestCommandHandler(
         IApplicationDbContext context,
-        ITestService testService,
-        IClassService classService)
+        ITestService testService)
     {
         _context = context;
         _testService = testService;
-        _classService = classService;
     }
     
     public async Task<Guid> Handle(UpdateTestCommand rq, CancellationToken cancellationToken)
     {
-        var test = await _testService.CanEditTest(rq.TestId, cancellationToken);
+        var test = await _context.Tests
+            .Where(x => x.Id == rq.TestId && x.IsDeleted == false)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (test == null)
+            throw new ErrorCodeException(ErrorCodes.TEST_NOT_FOUND, "Không tìm thấy test");
+            
+        var canUpdate = await _testService.CanViewOrEditTest(test.ClassId, cancellationToken);
+        if (!canUpdate)
+            throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST, "Không có quyền sửa");
         
         test.Name = rq.Name;
         test.TimeFinish = rq.EndTime;

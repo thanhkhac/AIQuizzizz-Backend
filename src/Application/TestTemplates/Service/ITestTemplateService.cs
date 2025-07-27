@@ -9,11 +9,11 @@ namespace CleanArchitectureBase.Application.TestTemplates.Service;
 
 public interface ITestTemplateService
 {
-    Task QuestionAccessForTestTemplate(List<CreateUpdateQuestionDto> question, CancellationToken cancellationToken);
-    Task CanViewTesTemplate (Guid testTemplateId);
-    Task CanUseTesTemplate (Guid testTemplateId);
-    Task<TestTemplate> CanDeleteTestTemplate (Guid testTemplateId, CancellationToken cancellationToken);
-    Task<TestTemplate> CanEditTestTemplate (Guid testTemplateId, CancellationToken cancellationToken);
+    Task TryQuestionAccessForTestTemplate(List<CreateUpdateQuestionDto> question, CancellationToken cancellationToken);
+    Task<bool> CanViewTesTemplate (Guid testTemplateId);
+    Task<bool> CanDeleteTestTemplate (Guid testTemplateId, CancellationToken cancellationToken);
+    Task<bool> CanEditTestTemplate (Guid testTemplateId, CancellationToken cancellationToken);
+    CheckUpdateQuestion CheckQuestionsForUpdate(List<CreateUpdateQuestionDto> questionDtos, List<Question> questions);
 }
 
 public class TestTemplateService : ITestTemplateService
@@ -29,7 +29,7 @@ public class TestTemplateService : ITestTemplateService
         _identityService = identityService;
     }
 
-    public async Task QuestionAccessForTestTemplate(List<CreateUpdateQuestionDto> questions, CancellationToken cancellationToken)
+    public async Task TryQuestionAccessForTestTemplate(List<CreateUpdateQuestionDto> questions, CancellationToken cancellationToken)
     {
         var questionIds = questions
             .Where(q => q.QuestionId.HasValue && q.QuestionId != Guid.Empty)
@@ -77,8 +77,10 @@ public class TestTemplateService : ITestTemplateService
         }
     }
 
-    public async Task CanViewTesTemplate(Guid testTemplateId)
+    public async Task<bool> CanViewTesTemplate(Guid testTemplateId)
     {
+        var isAdmin = await _identityService.IsInAnyRoleAsync(_user.UserId!.Value, Domain.Constants.Roles.Administrator, Domain.Constants.Roles.Moderator);
+        
         var accessToView = await _context.TestTemplateUsers
             .Where(t => t.UserId == _user.UserId && t.TestTemplateId == testTemplateId)
             .FirstOrDefaultAsync();
@@ -89,28 +91,14 @@ public class TestTemplateService : ITestTemplateService
             .Where(x => x.TestTemplateId.Equals(testTemplateId) && x.Folder!.FolderUsers.Any(y => y.UserId == _user.UserId))
             .FirstOrDefaultAsync();
         
-        if (accessToView == null && accessToViewInFolder == null)
-            throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE, "User không có quyền xem test template này");
+        if (accessToView == null && accessToViewInFolder == null && !isAdmin)
+            return false;
+        
+        return true;
     }
 
-    public async Task CanUseTesTemplate(Guid testTemplateId)
+    public async Task<bool> CanDeleteTestTemplate(Guid testTemplateId, CancellationToken cancellationToken)
     {
-        var accessToView = await _context.TestTemplateUsers
-            .Where(t => t.UserId.Equals(_user.UserId) && t.TestTemplateId.Equals(testTemplateId))
-            .FirstOrDefaultAsync();
-        
-        if (accessToView == null)
-            throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE, "User không có quyền dùng test template này");
-    }
-
-    public async Task<TestTemplate> CanDeleteTestTemplate(Guid testTemplateId, CancellationToken cancellationToken)
-    {
-        var testTemplate = await _context.TestTemplates
-            .Where(t => t.Id == testTemplateId && t.IsDeleted == false)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (testTemplate == null)
-            throw new ErrorCodeException(ErrorCodes.TEST_TEMPLATE_NOT_FOUND, "Không tìm thấy test template");
-        
         if (!await _identityService.IsInAnyRoleAsync(_user.UserId!.Value, Domain.Constants.Roles.Administrator,
                 Domain.Constants.Roles.Moderator))
         {
@@ -120,21 +108,14 @@ public class TestTemplateService : ITestTemplateService
                             TestTemplateUserShareMode.Owner == x.ShareMode)
                 .FirstOrDefaultAsync(cancellationToken);
             if (userTestTemplate == null)
-                throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE,
-                    "Không có quyền xóa");
+                return false;
         }
 
-        return testTemplate;
+        return true;
     }
 
-    public async Task<TestTemplate> CanEditTestTemplate(Guid testTemplateId, CancellationToken cancellationToken)
+    public async Task<bool> CanEditTestTemplate(Guid testTemplateId, CancellationToken cancellationToken)
     {
-        var testTemplate = await _context.TestTemplates
-            .Where(t => t.Id == testTemplateId && t.IsDeleted == false)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (testTemplate == null)
-            throw new ErrorCodeException(ErrorCodes.TEST_TEMPLATE_NOT_FOUND, "Không tìm thấy test template");
-        
         if (!await _identityService.IsInAnyRoleAsync(_user.UserId!.Value, Domain.Constants.Roles.Administrator,
                 Domain.Constants.Roles.Moderator))
         {
@@ -144,10 +125,31 @@ public class TestTemplateService : ITestTemplateService
                             (TestTemplateUserShareMode.Owner == x.ShareMode || TestTemplateUserShareMode.Editable == x.ShareMode))
                 .FirstOrDefaultAsync(cancellationToken);
             if (userTestTemplate == null)
-                throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE,
-                    "Không có quyền trong Test Template này");
+                return false;
         }
 
-        return testTemplate;
+        return true;
+    }
+
+    public CheckUpdateQuestion CheckQuestionsForUpdate(List<CreateUpdateQuestionDto> questionDtos, List<Question> questions)
+    {
+        if (questionDtos.Count == 0 || questionDtos.Count == 0) return new CheckUpdateQuestion();
+
+        var notUpdateQuestionIds = questions
+            .Where(x =>
+                CreateUpdateQuestionDto.Compare.CompareQuestion(x, questionDtos.First(q => q.QuestionId!.Equals(x.Id))))
+            .Select(x => x.Id)
+            .ToList();
+
+        var updateQuestionIds = questionDtos
+            .Where(x => !notUpdateQuestionIds.Contains(x.QuestionId!.Value))
+            .Select(x => x.QuestionId!.Value)
+            .ToList();
+
+        return new CheckUpdateQuestion
+        {
+            UpdateQuestionIds = updateQuestionIds,
+            NotUpdateQuestionIds = notUpdateQuestionIds
+        };
     }
 }

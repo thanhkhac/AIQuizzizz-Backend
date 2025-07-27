@@ -29,7 +29,8 @@ public class CommentService : ICommentService
     {
         var question = await _context.Questions
             .Include(x => x.QuestionSet)
-            .Where(x => x.Id == questionId).FirstOrDefaultAsync(cancellationToken);
+            .Where(x => x.Id == questionId)
+            .FirstOrDefaultAsync(cancellationToken);
         if (question == null)
             throw new ErrorCodeException(ErrorCodes.QUESTION_NOT_FOUND, "Question không tìm thấy");
         

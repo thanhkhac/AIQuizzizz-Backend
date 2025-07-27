@@ -1,9 +1,9 @@
-﻿using CleanArchitectureBase.Application.Classes.Service;
-using CleanArchitectureBase.Application.Common.Exceptions;
+﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.Questions.Dtos;
 using CleanArchitectureBase.Application.Tests.Dto;
+using CleanArchitectureBase.Application.Tests.Service;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
@@ -32,13 +32,13 @@ public class SubmitTestAttemptCommandValidator : AbstractValidator<SubmitTestAtt
 public class SubmitTestAttemptCommandHandler : IRequestHandler<SubmitTestAttemptCommand, TestResultDto>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IClassService _classService;
+    private readonly ITestService _testService;
     private readonly IUser _user;
     
-    public SubmitTestAttemptCommandHandler(IApplicationDbContext context, IClassService classService, IUser user)
+    public SubmitTestAttemptCommandHandler(IApplicationDbContext context, ITestService testService, IUser user)
     {
         _context = context;
-        _classService = classService;
+        _testService = testService;
         _user = user;
     }
 
@@ -65,9 +65,9 @@ public class SubmitTestAttemptCommandHandler : IRequestHandler<SubmitTestAttempt
         
         attempt.TimeFinish = DateTime.UtcNow;
         
-        var isStudentInClass = await _classService.IsStudentInClass(attempt.Test.ClassId);
+        var isStudentInClass = await _testService.CanAttemptTest(attempt.Test.ClassId);
         if (!isStudentInClass)
-            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Chỉ student trong lớp mới có quyền");
+            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Chỉ student trong lớp mới có thể attempt test");
 
         var questionsInTest = await _context.TestVersionQuestions
             .Include(x => x.Question)

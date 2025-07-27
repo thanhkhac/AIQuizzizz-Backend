@@ -106,6 +106,7 @@ public static class ErrorCodes
     public const string TEST_NOT_FOUND = nameof(TEST_NOT_FOUND);
     public const string NUMBER_OF_QUESTION_EXCEED_LIMIT = nameof(NUMBER_OF_QUESTION_EXCEED_LIMIT);
     public const string USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE = nameof(USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE);
+    public const string USER_NOT_HAVE_PERMISSION_IN_TEST = nameof(USER_NOT_HAVE_PERMISSION_IN_TEST);
     public const string TEST_TIME_IS_UP = nameof(TEST_TIME_IS_UP);
     
     //TestTemplate

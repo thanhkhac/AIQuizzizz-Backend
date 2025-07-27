@@ -10,8 +10,19 @@ namespace CleanArchitectureBase.Application.TestTemplates;
 public class SearchTestTemplateQuery : IRequest<PaginatedList<TestTemplateDto>>
 {
     public required string? TestTemplateName { get; set; }
+    public required string? ShareMode { get; set; }
     public int PageNumber { get; set; } = 1;
     public int PageSize { get; set; } = 5;
+}
+
+public class SearchTestTemplateQueryValidator : AbstractValidator<SearchTestTemplateQuery>
+{
+    public SearchTestTemplateQueryValidator()
+    {
+        RuleFor(x => x.ShareMode)
+            .Must(mode => new[] {"Owner", "Editable", "ViewOnly"}.Contains(mode) || string.IsNullOrEmpty(mode))
+            .WithMessage($"SharedMode phải là Owner, Editable, ViewOnly");
+    }
 }
 
 public class SearchTestTemplateQueryHandler : IRequestHandler<SearchTestTemplateQuery, PaginatedList<TestTemplateDto>>
@@ -32,11 +43,19 @@ public class SearchTestTemplateQueryHandler : IRequestHandler<SearchTestTemplate
     /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<PaginatedList<TestTemplateDto>> Handle(SearchTestTemplateQuery rq, CancellationToken cancellationToken)
     {
+        TestTemplateUserShareMode? sharedMode = null;
+        if (!string.IsNullOrEmpty(rq.ShareMode) &&
+            Enum.TryParse<TestTemplateUserShareMode>(rq.ShareMode, true, out var parsedSharedMode))
+        {
+            sharedMode = parsedSharedMode;
+        }
+        
         var testTemplates = _context.TestTemplateUsers
             .Include(t => t.TestTemplate)
             .Where(t => t.UserId == _user.UserId
                         && (string.IsNullOrEmpty(rq.TestTemplateName) ||
                             t.TestTemplate!.Name.ToLower().Contains(rq.TestTemplateName.ToLower()))
+                        && (sharedMode == null || t.ShareMode == sharedMode)
                         && t.TestTemplate!.IsDeleted == false)
             .Select(t => new TestTemplateDto
             {

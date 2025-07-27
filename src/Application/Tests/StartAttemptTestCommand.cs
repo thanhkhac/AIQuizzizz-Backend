@@ -1,8 +1,8 @@
-﻿using CleanArchitectureBase.Application.Classes.Service;
-using CleanArchitectureBase.Application.Common.Exceptions;
+﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.Tests.Dto;
+using CleanArchitectureBase.Application.Tests.Service;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
@@ -20,13 +20,13 @@ public class StartAttemptTestCommand : IRequest<AttemptDetailDto>
 public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCommand, AttemptDetailDto>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IClassService _classService;
+    private readonly ITestService _testService;
     private readonly IUser _user;
     
-    public StartAttemptTestCommandHandler(IApplicationDbContext context, IClassService classService, IUser user)
+    public StartAttemptTestCommandHandler(IApplicationDbContext context, ITestService testService, IUser user)
     {
         _context = context;
-        _classService = classService;
+        _testService = testService;
         _user = user;
     }
     
@@ -43,9 +43,9 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
         if (test == null)
             throw new ErrorCodeException(ErrorCodes.TEST_NOT_FOUND, "Bài test không tồn tại");
         
-        var isStudentInClass = await _classService.IsStudentInClass(test.ClassId);
+        var isStudentInClass = await _testService.CanAttemptTest(test.ClassId);
         if (!isStudentInClass)
-            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Chỉ student trong lớp mới có quyền");
+            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Chỉ student trong lớp mới có thể attempt test");
         
         if (test.TimeFinish < DateTime.UtcNow)
             throw new ErrorCodeException(ErrorCodes.TEST_IS_OVERDUE, "Hết hạn làm bài");

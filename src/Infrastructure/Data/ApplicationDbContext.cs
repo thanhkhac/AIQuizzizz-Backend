@@ -65,8 +65,6 @@ public class ApplicationDbContext : IdentityDbContext<UserAccount,
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        
-        builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
         foreach (var entityType in builder.Model.GetEntityTypes())
         {
@@ -79,5 +77,7 @@ public class ApplicationDbContext : IdentityDbContext<UserAccount,
                     .OnDelete(DeleteBehavior.Restrict);
             }
         }
+        
+        builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 }

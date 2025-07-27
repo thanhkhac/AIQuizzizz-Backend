@@ -2,7 +2,6 @@
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.FolderTest.Service;
-using CleanArchitectureBase.Application.TestTemplates.Service;
 using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.FolderTest;
@@ -30,16 +29,13 @@ public class RemoveTestTemplateInFolderCommandHandler : IRequestHandler<RemoveTe
 {
     private readonly IApplicationDbContext _context;
     private readonly IFolderTestService _folderTestService;
-    private readonly ITestTemplateService _testTemplateService;
 
     public RemoveTestTemplateInFolderCommandHandler(
         IApplicationDbContext context,
-        IFolderTestService folderTestService,
-        ITestTemplateService testTemplateService)
+        IFolderTestService folderTestService)
     {
         _context = context;
         _folderTestService = folderTestService;
-        _testTemplateService = testTemplateService;
     }
 
     public async Task<Guid> Handle(RemoveTestTemplateInFolderCommand rq, CancellationToken cancellationToken)

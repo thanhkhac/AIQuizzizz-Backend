@@ -30,13 +30,14 @@ public class TestTemplate : EndpointGroupBase
 
     public async Task<Ok<ApiResponse<PaginatedList<TestTemplateDto>>>> SearchTestTemplate(
         [FromQuery] string? name,
+        [FromQuery] string? shareMode,
         ISender sender,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
         var rq = new SearchTestTemplateQuery
         {
-            TestTemplateName = name, PageNumber = pageNumber, PageSize = pageSize,
+            TestTemplateName = name, PageNumber = pageNumber, PageSize = pageSize,ShareMode = shareMode
         };
         
         var result = await sender.Send(rq);
