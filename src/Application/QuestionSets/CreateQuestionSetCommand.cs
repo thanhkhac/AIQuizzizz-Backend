@@ -25,7 +25,6 @@ public class CreateQuestionSetCommandValidator : AbstractValidator<CreateQuestio
             .MaximumLength(200).WithMessage("Tên bộ câu hỏi không được vượt quá 200 ký tự");
 
         RuleFor(x => x.Description)
-            .NotEmpty().WithMessage("Mô tả bộ câu hỏi không được để trống")
             .MaximumLength(500).WithMessage("Mô tả không được vượt quá 500 ký tự");
 
         RuleFor(x => x.Questions)
