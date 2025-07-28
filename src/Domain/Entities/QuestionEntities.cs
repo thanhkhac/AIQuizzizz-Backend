@@ -105,6 +105,7 @@ public class Tag : BaseEntity
 {
     public required Guid Id { get; set; }
     public required string Name { get; set; }
+    public int QuestionSetCount { get; set; }
 
     // Navigation properties
     public List<QuestionSetTag> QuestionSetTags { get; set; } = new();

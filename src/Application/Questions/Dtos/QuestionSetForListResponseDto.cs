@@ -1,6 +1,8 @@
-﻿namespace CleanArchitectureBase.Application.QuestionSets.Dtos;
+﻿using CleanArchitectureBase.Application.Tags.Dto;
 
-public class SearchQuestionSetDto
+namespace CleanArchitectureBase.Application.Questions.Dtos;
+
+public class QuestionSetForListResponseDto
 {
     public Guid Id { get; set; }
     public string? Name { get; set; }
@@ -9,4 +11,5 @@ public class SearchQuestionSetDto
     public int RatingCount { get; set; }
     public double RatingAverage { get; set; }
     public string? CreateBy { get; set; }
+    public List<TagForListReponseDto>  Tags { get; set; } = new();
 }

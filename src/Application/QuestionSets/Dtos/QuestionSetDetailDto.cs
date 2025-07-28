@@ -1,4 +1,5 @@
-﻿using CleanArchitectureBase.Application.Users.Common;
+﻿using CleanArchitectureBase.Application.Tags.Dto;
+using CleanArchitectureBase.Application.Users.Common;
 
 namespace CleanArchitectureBase.Application.QuestionSets.Dtos;
 
@@ -12,4 +13,5 @@ public class QuestionSetDetailDto
     public bool IsDeleted { get; set; }
     public CreatedByDto? CreatedBy { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
+    public List<TagForListReponseDto>  Tags { get; set; } = new();
 }

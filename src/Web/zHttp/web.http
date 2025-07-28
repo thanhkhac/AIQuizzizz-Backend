@@ -5,6 +5,7 @@ Content-Type: application/json
 {
   "name": "Kiểm tra kiến thức tổng quát",
   "description": "Bài kiểm tra ngắn về các chủ đề cơ bản",
+  "tags": ["Tag 3"],
   "questions": [
     {
       "type": "MultipleChoice",
