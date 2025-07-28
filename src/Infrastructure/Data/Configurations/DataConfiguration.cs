@@ -112,6 +112,8 @@ public class QuestionConfiguration : IEntityTypeConfiguration<Question>
                 v => v.ToString(),
                 v => (QuestionType)Enum.Parse(typeof(QuestionType), v));
 
+        // builder.HasQueryFilter(x => !x.IsDeleted);
+        
         builder.Property(q => q.QuestionText)
             .HasMaxLength(1000);
 
@@ -152,6 +154,8 @@ public class QuestionSetConfiguration : IEntityTypeConfiguration<QuestionSet>
 
         builder.Property(qs => qs.Description)
             .HasMaxLength(500);
+            
+        builder.HasQueryFilter(x => !x.IsDeleted);
 
         builder.Property(qs => qs.VisibilityMode)
             .HasConversion(
@@ -196,7 +200,6 @@ public class TagConfiguration : IEntityTypeConfiguration<Tag>
 {
     public void Configure(EntityTypeBuilder<Tag> builder)
     {
-        //Độ dài phải ngang với Description của QuestionSet
         builder.Property(t => t.Name)
             .IsRequired()
             .HasMaxLength(500);
@@ -246,8 +249,9 @@ public class CommentConfiguration : IEntityTypeConfiguration<Comment>
         builder.Property(c => c.IsDeleted)
             .IsRequired()
             .HasDefaultValue(false);
-
-
+            
+        builder.HasQueryFilter(x => !x.IsDeleted);
+            
         builder.HasOne(c => c.Question)
             .WithMany(q => q.Comments)
             .HasForeignKey(c => c.QuestionId)
@@ -563,6 +567,8 @@ public class ClassConfiguration : IEntityTypeConfiguration<Class>
         builder.Property(c => c.Name)
             .IsRequired()
             .HasMaxLength(100);
+            
+        builder.HasQueryFilter(x => !x.IsDeleted);
 
         builder.HasMany(c => c.ClassQuestionSets)
             .WithOne(cqs => cqs.Class)
@@ -637,6 +643,8 @@ public class ClassInvitationConfiguration : IEntityTypeConfiguration<ClassInvita
 
         builder.Property(ci => ci.IsDeleted)
             .HasDefaultValue(false);
+            
+        builder.HasQueryFilter(x => !x.IsDeleted);
 
         builder.HasOne(ci => ci.Class)
             .WithMany(c => c.ClassInvitations)
