@@ -1,6 +1,8 @@
 ﻿using CleanArchitectureBase.Application.Comments.Service;
+using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
+using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Comments;
@@ -36,8 +38,19 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
     }
     
     public async Task<Guid> Handle(CreateCommentCommand rq, CancellationToken cancellationToken)
-    { 
-        await _commentService.CanComment(rq.QuestionId, cancellationToken);
+    {
+        var question = await _context.Questions
+            .Include(x => x.QuestionSet)
+            .Where(x => x.Id == rq.QuestionId && x.IsDeleted == false)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (question == null || question.QuestionSet == null)
+            throw new ErrorCodeException(ErrorCodes.QUESTION_CAN_NOT_COMMENT,
+                "Question không tồn tại hoặc không thể comment");
+        
+        var canComment = await _commentService.CanComment(question.QuestionSet.Id);
+        if (!canComment)
+            throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_COMMENT, "User không được comment");
 
         var comment = new Comment
         {

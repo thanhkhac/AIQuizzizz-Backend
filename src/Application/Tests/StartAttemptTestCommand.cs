@@ -47,6 +47,9 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
         if (!isStudentInClass)
             throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Chỉ student trong lớp mới có thể attempt test");
         
+        if (test.TimeStart > DateTime.UtcNow)
+            throw new ErrorCodeException(ErrorCodes.NOT_YET_TIME_TO_OPEN_TEST, "Chưa đến thời gian mở test");
+        
         if (test.TimeFinish < DateTime.UtcNow)
             throw new ErrorCodeException(ErrorCodes.TEST_IS_OVERDUE, "Hết hạn làm bài");
 
