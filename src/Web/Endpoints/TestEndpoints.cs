@@ -4,6 +4,7 @@ using CleanArchitectureBase.Application.Tests.Dto;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using HistoryTestDto = CleanArchitectureBase.Application.Tests.Dto.HistoryTestDto;
+using TestResultDto = CleanArchitectureBase.Application.Tests.TestResultDto;
 
 namespace CleanArchitectureBase.Web.Endpoints;
 
