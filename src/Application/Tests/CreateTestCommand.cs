@@ -20,6 +20,7 @@ public class CreateTestCommand : IRequest<Guid>
     public required string GradeQuestionMethod { get; set; }
     public bool IsShowCorrectAnswerInReview { get; set; }
     public bool IsAllowReviewAfterSubmit { get; set; }
+    public int NumberOfShuffles { get; set; } = 1;
     public int MaxAttempt { get; set; } = 1;
     public int PassingScore { get; set; } = 0;
     public List<CreateUpdateQuestionDto> Questions { get; set; } = new ();
@@ -39,6 +40,11 @@ public class CreateTestCommandValidator : AbstractValidator<CreateTestCommand>
 
         RuleFor(x => x.ClassId)
             .NotEmpty().WithMessage("ClassId không được để trống");
+        
+        RuleFor(x => x.NumberOfShuffles)
+            .NotEmpty().WithMessage("NumberOfShuffles không được để trống")
+            .LessThan(10).WithMessage("Số lần shuffles tối đa 10")
+            .GreaterThan(0).WithMessage("Số lần shuffles tối thiểu 1");
 
         RuleFor(x => x.TimeLimit)
             .GreaterThan(0).WithMessage("Thời gian làm bài phải lớn hơn 0")
@@ -73,6 +79,7 @@ public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
     private readonly ITestService _testService;
+    private readonly Random _random = new();
     
     public CreateTestCommandHandler(
         IApplicationDbContext context,
@@ -116,66 +123,59 @@ public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
             QuestionCount = 0
         };
 
-        var testVersion = new TestVersion { Id = Guid.NewGuid(), TestId = test.Id, No = 0, };
-
         if (rq.Questions.Count > 100)
             throw new ErrorCodeException(ErrorCodes.NUMBER_OF_QUESTION_EXCEED_LIMIT,
                 "Số lượng câu hỏi không được vượt quá 100");
 
-        var validQuestionId = await _testService.QuestionAccessAndCompareForTest(rq.Questions, cancellationToken);
+        var validQuestionIds = await _testService.QuestionAccessAndCompareForTest(rq.Questions, cancellationToken);
 
-        var listQuestions = new List<Question>();
+        var questionsToAdd = new List<Question>();
 
-        var listTestVersionQuestions = new List<TestVersionQuestion>();
-
-        int order = 0;
-
-        foreach (var questionDto in rq.Questions)
+        var questionIds = rq.Questions.Select((q, index) =>
         {
-            var questionId = Guid.NewGuid();
+            if (q.QuestionId.HasValue && validQuestionIds.Contains(q.QuestionId.Value))
+                return q.QuestionId.Value;
 
-            if (questionDto.QuestionId.HasValue && validQuestionId.Contains(questionDto.QuestionId!.Value))
+            var question = new Question
             {
-                questionId = questionDto.QuestionId.Value;
-            }
-            else
-            {
-                var question = new Question
-                {
-                    Id = Guid.NewGuid(),
-                    Type = Enum.Parse<QuestionType>(questionDto.Type!),
-                    QuestionText = questionDto.QuestionText,
-                    ExplainText = questionDto.ExplainText,
-                    TextFormat = TextFormat.PlainText,
-                    Score = questionDto.Score
-                };
-
-                question.DataJson = CreateUpdateQuestionDto.Serializer.Serialize(questionDto);
-
-                listQuestions.Add(question);
-
-                questionId = question.Id;
-            }
-
-            var testVersionQuestion = new TestVersionQuestion
-            {
-                Id = Guid.NewGuid(), QuestionId = questionId, Order = order, TestVersionId = testVersion.Id
+                Id = Guid.NewGuid(),
+                Type = Enum.Parse<QuestionType>(q.Type!),
+                QuestionText = q.QuestionText,
+                ExplainText = q.ExplainText,
+                TextFormat = TextFormat.PlainText,
+                Score = q.Score,
+                DataJson = CreateUpdateQuestionDto.Serializer.Serialize(q)
             };
-
-            order++;
-
-            listTestVersionQuestions.Add(testVersionQuestion);
-        }
+            questionsToAdd.Add(question);
+            return question.Id;
+        }).ToList();
         
-        test.QuestionCount = listTestVersionQuestions.Count;
+        var testVersions = Enumerable.Range(0, rq.NumberOfShuffles).Select(versionNo => new TestVersion
+        {
+            Id = Guid.NewGuid(),
+            TestId = test.Id,
+            No = versionNo
+        }).ToList();
+
+        var testVersionQuestions = testVersions.SelectMany(t =>
+        {
+            var shuffledIndex = Enumerable.Range(0, questionIds.Count()).OrderBy(_ => _random.Next()).ToList();
+
+            return shuffledIndex.Select((index, order) => new TestVersionQuestion
+            {
+                Id = Guid.NewGuid(), QuestionId = questionIds[index], TestVersionId = t.Id, Order = order
+            });
+        }).ToList();
+        
+        test.QuestionCount = questionIds.Count;
         
         _context.Tests.Add(test);
         
-        _context.TestVersions.Add(testVersion);
+        _context.TestVersions.AddRange(testVersions);
         
-        _context.Questions.AddRange(listQuestions);
+        _context.Questions.AddRange(questionsToAdd);
         
-        _context.TestVersionQuestions.AddRange(listTestVersionQuestions);
+        _context.TestVersionQuestions.AddRange(testVersionQuestions);
         
         await _context.SaveChangesAsync(cancellationToken);
 

@@ -10,13 +10,6 @@ public class UserAnswerDto
     public UserAnswerDataDto UserAnswerData { get; set; } = null!;
 }
 
-public class TestResultDto
-{
-    public DateTimeOffset TimeStart;
-    public DateTimeOffset TimeEnd;
-    public float Score;
-}
-
 public static class Serializer
 {
     public static string Serialize(UserAnswerDataDto dto)
