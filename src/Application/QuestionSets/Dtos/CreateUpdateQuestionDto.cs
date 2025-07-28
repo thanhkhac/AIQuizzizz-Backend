@@ -72,7 +72,7 @@ public class CreateUpdateQuestionDto
 
             RuleFor(x => x.QuestionId)
                 .Must(id => !id.HasValue || (id.Value != Guid.Empty && id.Value != default(Guid)))
-                .WithMessage("QuestionId phải là một Guid hợp lệ");
+                .WithMessage("QuestionId phải là một Guid hợp lệ hoặc null");
 
             // Validate cho MultipleChoice
             When(x => x.Type == "MultipleChoice", () =>

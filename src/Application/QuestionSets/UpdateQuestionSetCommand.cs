@@ -71,9 +71,6 @@ public class UpdateQuestionSetCommandHandler : IRequestHandler<UpdateQuestionSet
         if (questionSet == null)
             throw new ErrorCodeException(ErrorCodes.QUESTION_SET_NOT_FOUND);
 
-        if (questionSet == null)
-            throw new ErrorCodeException(ErrorCodes.QUESTION_SET_NOT_FOUND);
-
         if (!await _questionSetService.CanUserEditQuestionSet(_currentUser.UserId!.Value, questionSet.Id))
             throw new ErrorCodeException(ErrorCodes.COMMON_FORBIDDEN);
 
