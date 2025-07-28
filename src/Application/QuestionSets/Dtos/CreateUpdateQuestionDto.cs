@@ -72,7 +72,7 @@ public class CreateUpdateQuestionDto
 
             RuleFor(x => x.QuestionId)
                 .Must(id => !id.HasValue || (id.Value != Guid.Empty && id.Value != default(Guid)))
-                .WithMessage("QuestionId phải là một Guid hợp lệ");
+                .WithMessage("QuestionId phải là một Guid hợp lệ hoặc null");
 
             // Validate cho MultipleChoice
             When(x => x.Type == "MultipleChoice", () =>
@@ -87,8 +87,8 @@ public class CreateUpdateQuestionDto
                     .ChildRules((options) =>
                     {
                         options.RuleFor(o => o.Text)
-                            .NotEmpty().WithMessage($"Nội dung không được để trống");
-                        // .MaximumLength(500).WithMessage($"Nội dung không được vượt quá 200 ký tự");
+                            .NotEmpty().WithMessage($"Nội dung không được để trống")
+                            .MaximumLength(1000).WithMessage($"Nội dung không được vượt quá 200 ký tự");
                     });
             });
 
@@ -128,7 +128,7 @@ public class CreateUpdateQuestionDto
                     {
                         item.RuleFor(i => i.Text)
                             .NotEmpty().WithMessage($"Nội dung không được để trống")
-                            .MaximumLength(200).WithMessage($"Nội dung không được vượt quá 200 ký tự");
+                            .MaximumLength(1000).WithMessage($"Nội dung không được vượt quá 200 ký tự");
                     });
             });
 
@@ -136,7 +136,7 @@ public class CreateUpdateQuestionDto
             {
                 RuleFor(x => x.ShortAnswer)
                     .NotEmpty().WithMessage($"Đáp án không được để trống")
-                    .MaximumLength(500).WithMessage($"Đáp án không được vượt quá 500 ký tự");
+                    .MaximumLength(1000).WithMessage($"Đáp án không được vượt quá 500 ký tự");
             });
         }
     }
@@ -199,9 +199,9 @@ public class CreateUpdateQuestionDto
                         // Group items by AnswerId to reconstruct pairs
                         var leftItems = matchingItems.Where(x => !string.IsNullOrEmpty(x.AnswerId)).ToList();
                         var rightItems = matchingItems.Where(x => string.IsNullOrEmpty(x.AnswerId)).ToList();
-                        
+
                         dto.MatchingPairs = new List<CreateMatchingPairDto>();
-                        
+
                         foreach (var leftItem in leftItems)
                         {
                             var rightItem = rightItems.FirstOrDefault(x => x.Id.ToString() == leftItem.AnswerId);
@@ -250,8 +250,8 @@ public class CreateUpdateQuestionDto
         public static bool CompareQuestion(Question question, CreateUpdateQuestionDto questionDto)
         {
             var questionResponseDto = QuestionResponseDto.Mapper.FromEntity(question, true);
-        
-            if(!question.QuestionText!.Trim().ToLower().Equals(questionDto.QuestionText!.Trim().ToLower()))
+
+            if (!question.QuestionText!.Trim().ToLower().Equals(questionDto.QuestionText!.Trim().ToLower()))
                 return false;
 
             return questionDto.Type switch
@@ -268,7 +268,7 @@ public class CreateUpdateQuestionDto
                 _ => false
             };
         }
-        
+
         public static bool CompareMultipleChoiceQuestion(List<MultipleChoiceItemDto>? choiceItems,
             List<CreateMultipleChoiceDto> choiceItemsDto)
         {
@@ -276,13 +276,13 @@ public class CreateUpdateQuestionDto
             {
                 return false;
             }
-            
+
             var sortedItems = choiceItems.OrderBy(x => x.Text.Trim().ToLower()).ToList();
             var sortedDtos = choiceItemsDto.OrderBy(x => x.Text!.Trim().ToLower()).ToList();
-            
+
             for (int i = 0; i < sortedItems.Count; i++)
             {
-                if (sortedItems[i].Text != sortedDtos[i].Text || 
+                if (sortedItems[i].Text != sortedDtos[i].Text ||
                     sortedItems[i].IsAnswer != sortedDtos[i].IsAnswer)
                 {
                     return false;
@@ -294,7 +294,7 @@ public class CreateUpdateQuestionDto
         public static bool CompareMatchingQuestion(MatchingDataDto? matchingItems,
             List<CreateMatchingPairDto> matchingItemsDto)
         {
-            if(matchingItems == null || matchingItems.Matches.Count != matchingItemsDto.Count)
+            if (matchingItems == null || matchingItems.Matches.Count != matchingItemsDto.Count)
                 return false;
 
             var leftItems = matchingItems.LeftItems.ToDictionary(x => x.Id, x => x.Text);
@@ -305,13 +305,13 @@ public class CreateUpdateQuestionDto
                     leftItems.TryGetValue(q.LeftId, out var left) ? left.Trim().ToLower() : "",
                     rightItems.TryGetValue(q.RightId, out var right) ? right.Trim().ToLower() : ""
                 ))
-                .Select(p => string.Compare(p.Item1, p.Item2, StringComparison.OrdinalIgnoreCase) <= 0 
-                    ? p 
+                .Select(p => string.Compare(p.Item1, p.Item2, StringComparison.OrdinalIgnoreCase) <= 0
+                    ? p
                     : (p.Item2, p.Item1))
                 .OrderBy(x => x.Item1).ThenBy(x => x.Item2)
                 .ToList();
-            
-            var inputPairs = matchingItemsDto.Select(dto => 
+
+            var inputPairs = matchingItemsDto.Select(dto =>
                     string.Compare(dto.LeftItem, dto.RightItem, StringComparison.OrdinalIgnoreCase) <= 0
                         ? (dto.LeftItem?.Trim().ToLower() ?? "", dto.RightItem?.Trim().ToLower() ?? "")
                         : (dto.RightItem?.Trim().ToLower() ?? "", dto.LeftItem?.Trim().ToLower() ?? ""))
@@ -324,9 +324,9 @@ public class CreateUpdateQuestionDto
         public static bool CompareOrderingQuestion(List<OrderingItemDto>? orderingItems,
             List<CreateOrderingItemDto> orderingItemsDto)
         {
-            if(orderingItems == null || orderingItems.Count != orderingItemsDto.Count)
+            if (orderingItems == null || orderingItems.Count != orderingItemsDto.Count)
                 return false;
-            
+
             var orderItems = orderingItems
                 .OrderBy(x => x.CorrectOrder)
                 .Select(x => x.Text.Trim().ToLower())
@@ -336,11 +336,11 @@ public class CreateUpdateQuestionDto
                 .OrderBy(x => x.CorrectOrder)
                 .Select(x => x.Text!.Trim().ToLower())
                 .ToList();
-            
+
             var check = orderItems.SequenceEqual(orderItemDto);
             return check;
         }
-        
-        
+
+
     }
 }

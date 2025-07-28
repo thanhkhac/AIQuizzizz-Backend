@@ -1,8 +1,10 @@
-﻿using CleanArchitectureBase.Application.Common.Interfaces;
+﻿using CleanArchitectureBase.Application.Common.Exceptions;
+using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.Questions.Dtos;
 using CleanArchitectureBase.Application.Tests.Dto;
 using CleanArchitectureBase.Application.Tests.Service;
+using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.Tests;
 
@@ -34,7 +36,15 @@ public class GetTestDetailQueryHandler : IRequestHandler<GetTestDetailQuery, Tes
     
     public async Task<TestDetailDto> Handle(GetTestDetailQuery rq, CancellationToken cancellationToken)
     {
-        var test = await _testService.CanEditTest(rq.TestId, cancellationToken);
+        var test = await _context.Tests
+            .Where(x => x.Id == rq.TestId && x.IsDeleted == false)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (test == null)
+            throw new ErrorCodeException(ErrorCodes.TEST_NOT_FOUND, "Không tìm thấy test");
+        
+        var canView = await _testService.CanViewOrEditTest(test.ClassId, cancellationToken);
+        if (!canView)
+            throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST, "Không có quyền xem");
         
         var questions = _context.TestVersionQuestions
             .Include(x => x.TestVersion)

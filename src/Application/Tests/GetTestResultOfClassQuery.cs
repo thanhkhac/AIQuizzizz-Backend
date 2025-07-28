@@ -1,9 +1,9 @@
-﻿using CleanArchitectureBase.Application.Classes.Service;
-using CleanArchitectureBase.Application.Common.Exceptions;
+﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.Tests.Dto;
+using CleanArchitectureBase.Application.Tests.Service;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
@@ -35,12 +35,12 @@ public class GetTestResultOfClassQueryValidator : AbstractValidator<GetTestResul
 public class GetTestResultOfClassQueryHandler : IRequestHandler<GetTestResultOfClassQuery, PaginatedList<ResultTestOfClassDto>>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IClassService _classService;
+    private readonly ITestService _testService;
     
-    public GetTestResultOfClassQueryHandler(IApplicationDbContext context, IClassService classService)
+    public GetTestResultOfClassQueryHandler(IApplicationDbContext context, ITestService testService)
     {
         _context = context;
-        _classService = classService;
+        _testService = testService;
     }
     
     public async Task<PaginatedList<ResultTestOfClassDto>> Handle(GetTestResultOfClassQuery rq, CancellationToken cancellationToken)
@@ -49,10 +49,17 @@ public class GetTestResultOfClassQueryHandler : IRequestHandler<GetTestResultOfC
         if (test == null)
             throw new ErrorCodeException(ErrorCodes.TEST_NOT_FOUND, "Không tìm thấy bài test");
 
-        var isLecturerOrOwnerInClass = await _classService.IsLecturerOrOwnerInClass(test.ClassId);
-        if (!isLecturerOrOwnerInClass)
-            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_TEACHER_OR_OWNER_IN_CLASS, "Không phải lecturer hoặc owner của class");
+        var canView = await _testService.CanViewOrEditTest(test.ClassId, cancellationToken);
+        if (!canView)
+            throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST, "Không có quyền xem");
 
+        var totalScore = _context.TestVersionQuestions
+            .Include(x => x.Question)
+            .Include(x => x.TestVersion)
+            .ThenInclude(x => x!.Test)
+            .Where(x => x.TestVersion!.Test!.Id == rq.TestId && x.TestVersion.No == 0)
+            .Sum(x => x.Question!.Score);
+        
         var resultTest = _context.TestGrades
             .Include(x => x.User)
             .Include(x => x.Test)
@@ -63,7 +70,7 @@ public class GetTestResultOfClassQueryHandler : IRequestHandler<GetTestResultOfC
                 StudentName = x.User!.FullName,
                 StudentEmail = x.User!.Email,
                 Score = x.Score,
-                Status = x.Score >= x.Test!.PassingScore
+                Status = x.Score/totalScore >= x.Test!.PassingScore/100
                     ? nameof(AttemptStatus.Passed)
                     : nameof(AttemptStatus.Failed)
             });

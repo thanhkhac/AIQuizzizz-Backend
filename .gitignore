@@ -482,3 +482,4 @@ $RECYCLE.BIN/
 /.idea
 /src/Web/.env
 .env
+/document

@@ -1,4 +1,5 @@
 ﻿using CleanArchitectureBase.Application.Common.Models;
+using CleanArchitectureBase.Domain.Constants;
 using FluentValidation.Results;
 
 namespace CleanArchitectureBase.Application.Common.Exceptions;
@@ -32,9 +33,10 @@ public class ErrorCodeException : Exception
     {
         Errors = errors;
     }
-
+    
     public ErrorCodeException(IEnumerable<ValidationFailure> validationFailures)
     {
+        Errors[ErrorCodes.COMMON_INVALID_MODEL] = new[] {"Sai model"};
         ValidationErrors = validationFailures
             .GroupBy(e => e.PropertyName, e => e.ErrorMessage)
             .ToDictionary(failureGroup => failureGroup.Key, failureGroup => failureGroup.ToArray());

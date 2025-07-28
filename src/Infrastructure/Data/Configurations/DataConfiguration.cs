@@ -151,7 +151,6 @@ public class QuestionSetConfiguration : IEntityTypeConfiguration<QuestionSet>
             .HasMaxLength(100);
 
         builder.Property(qs => qs.Description)
-            .IsRequired()
             .HasMaxLength(500);
 
         builder.Property(qs => qs.VisibilityMode)
@@ -248,15 +247,15 @@ public class CommentConfiguration : IEntityTypeConfiguration<Comment>
             .IsRequired()
             .HasDefaultValue(false);
 
-        builder.HasOne(c => c.User)
-            .WithMany(u => u.Comments)
-            .HasForeignKey(c => c.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(c => c.Question)
             .WithMany(q => q.Comments)
             .HasForeignKey(c => c.QuestionId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(c => c.CreatedByUser)
+            .WithMany(u => u.Comments)
+            .HasForeignKey(c => c.CreatedBy).OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(c => c.ParentComment)
             .WithMany(c => c.ChildComments)
@@ -453,7 +452,7 @@ public class TestConfiguration : IEntityTypeConfiguration<Test>
 
         builder.Property(t => t.IsShowCorrectAnswerInReview)
             .HasDefaultValue(false);
-            
+
         builder.Property(t => t.IsDeleted)
             .HasDefaultValue(false);
     }

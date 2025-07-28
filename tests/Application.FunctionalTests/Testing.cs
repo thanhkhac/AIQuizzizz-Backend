@@ -1,4 +1,7 @@
-﻿using CleanArchitectureBase.Application.FunctionalTests;
+﻿using System.Text.Encodings.Web;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using CleanArchitectureBase.Application.FunctionalTests;
 using CleanArchitectureBase.Domain.Entities;
 using CleanArchitectureBase.Infrastructure.Data;
 using CleanArchitectureBase.Infrastructure.Identity;
@@ -34,9 +37,9 @@ public partial class Testing
     public static async Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
     {
         using var scope = _scopeFactory.CreateScope();
-
         var mediator = scope.ServiceProvider.GetRequiredService<ISender>();
-
+        PrintJson("=================SendAsync=================");
+        PrintJson(request);
         return await mediator.Send(request);
     }
 
@@ -122,6 +125,19 @@ public partial class Testing
 
         return await context.FindAsync<TEntity>(keyValues);
     }
+    
+    public static async Task<List<TEntity>> QueryListAsync<TEntity>(
+        Func<IQueryable<TEntity>, IQueryable<TEntity>> queryBuilder)
+        where TEntity : class
+    {
+        using var scope = _scopeFactory.CreateScope();
+
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        var query = queryBuilder(context.Set<TEntity>());
+
+        return await query.ToListAsync();
+    }
 
     public static async Task AddAsync<TEntity>(TEntity entity)
         where TEntity : class
@@ -142,6 +158,16 @@ public partial class Testing
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         return await context.Set<TEntity>().CountAsync();
+    }
+    
+    public static void PrintJson(object obj)
+    {
+        Console.WriteLine(JsonSerializer.Serialize(obj, new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        }));
     }
 
     [OneTimeTearDown]

@@ -2,21 +2,20 @@
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.FolderTest.Service;
-using CleanArchitectureBase.Application.TestTemplates.Service;
 using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.FolderTest;
 
 [Authorize]
-public class RemoveTestTestTemplateInFolderCommand : IRequest<Guid>
+public class RemoveTestTemplateInFolderCommand : IRequest<Guid>
 {
     public Guid FolderId { get; set; }
     public Guid TestTemplateId { get; set; } 
 }
 
-public class RemoveTestTestTemplateInFolderCommandValidator : AbstractValidator<AddTestTemplateToFolderCommand>
+public class RemoveTestTemplateInFolderCommandValidator : AbstractValidator<AddTestTemplateToFolderCommand>
 {
-    public RemoveTestTestTemplateInFolderCommandValidator()
+    public RemoveTestTemplateInFolderCommandValidator()
     {
         RuleFor(x => x.FolderId)
             .NotEmpty().WithMessage("FolderId không được trống");
@@ -26,23 +25,20 @@ public class RemoveTestTestTemplateInFolderCommandValidator : AbstractValidator<
     }
 }
 
-public class RemoveTestTestTemplateInFolderCommandHandler : IRequestHandler<RemoveTestTestTemplateInFolderCommand, Guid>
+public class RemoveTestTemplateInFolderCommandHandler : IRequestHandler<RemoveTestTemplateInFolderCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
     private readonly IFolderTestService _folderTestService;
-    private readonly ITestTemplateService _testTemplateService;
 
-    public RemoveTestTestTemplateInFolderCommandHandler(
+    public RemoveTestTemplateInFolderCommandHandler(
         IApplicationDbContext context,
-        IFolderTestService folderTestService,
-        ITestTemplateService testTemplateService)
+        IFolderTestService folderTestService)
     {
         _context = context;
         _folderTestService = folderTestService;
-        _testTemplateService = testTemplateService;
     }
 
-    public async Task<Guid> Handle(RemoveTestTestTemplateInFolderCommand rq, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(RemoveTestTemplateInFolderCommand rq, CancellationToken cancellationToken)
     {
         var folder = await _context.Folders
             .Where(x => x.Id == rq.FolderId && x.IsDeleted == false)

@@ -30,7 +30,7 @@ public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRe
             // Must be authenticated user
             if (_user.UserId == null)
             {
-                throw new UnauthorizedAccessException();
+                throw new ErrorCodeException(ErrorCodes.COMMON_UNAUTHORIZED, "Người dùng chưa đăng nhập");
             }
 
             // Role-based authorization

@@ -1,9 +1,9 @@
-﻿using CleanArchitectureBase.Application.Classes.Service;
-using CleanArchitectureBase.Application.Common.Exceptions;
+﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.Tests.Dto;
+using CleanArchitectureBase.Application.Tests.Service;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
@@ -41,16 +41,16 @@ public class GetUserTestHistoryQueryValidator : AbstractValidator<GetUserTestHis
 public class GetUserTestHistoryQueryHandler : IRequestHandler<GetUserTestHistoryQuery, PaginatedList<HistoryTestDto>>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IClassService _classService;
+    private readonly ITestService _testService;
     private readonly IUser _user;
     
     public GetUserTestHistoryQueryHandler(
         IApplicationDbContext context,
-        IClassService classService,
+        ITestService testService,
         IUser user)
     {
         _context = context;
-        _classService = classService;
+        _testService = testService;
         _user = user;
     }
     
@@ -61,26 +61,31 @@ public class GetUserTestHistoryQueryHandler : IRequestHandler<GetUserTestHistory
     /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<PaginatedList<HistoryTestDto>> Handle(GetUserTestHistoryQuery rq, CancellationToken cancellationToken)
     {
-        var test = await _context.Tests
-            .Where(x => x.Id.Equals(rq.TestId) && x.IsDeleted == false)
-            .FirstOrDefaultAsync(cancellationToken);
+        var test = await _context.Tests.Where(x => x.Id.Equals(rq.TestId)).FirstOrDefaultAsync(cancellationToken);
         if (test == null)
             throw new ErrorCodeException(ErrorCodes.TEST_NOT_FOUND, "Không tìm thấy bài test");
 
         var userId = _user.UserId;
         
-        var isUserInClass = await _classService.IsUserInClass(test.ClassId);
+        var isUserInClass = await _testService.CanViewHistoryOfTest(test.ClassId, cancellationToken);
         if (!isUserInClass)
             throw new ErrorCodeException(ErrorCodes.NOT_FOUND_USER_IN_CLASS, "User không có trong lớp");
 
-        var isLecturerOrOwnerInClass = await _classService.IsLecturerOrOwnerInClass(test.ClassId);
+        var isLecturerOrOwnerInClass = await _testService.CanViewOrEditTest(test.ClassId, cancellationToken);
         
         if (isLecturerOrOwnerInClass)
         {
             if (rq.UserId != null && rq.UserId != Guid.Empty)
                 userId = rq.UserId.Value;
         }
-
+        
+        var totalScore = _context.TestVersionQuestions
+            .Include(x => x.Question)
+            .Include(x => x.TestVersion)
+            .ThenInclude(x => x!.Test)
+            .Where(x => x.TestVersion!.Test!.Id == rq.TestId && x.TestVersion.No == 0)
+            .Sum(x => x.Question!.Score);
+            
         var attempts = _context.Attempts
             .Include(x => x.User)
             .Include(x => x.Test)
@@ -92,7 +97,7 @@ public class GetUserTestHistoryQueryHandler : IRequestHandler<GetUserTestHistory
                 StudentName = x.User != null ? x.User.FullName : null,
                 StudentEmail = x.User != null ? x.User.Email : null,
                 Score = x.Score,
-                Status = x.Test!.PassingScore <= x.Score ? nameof(AttemptStatus.Passed) : nameof(AttemptStatus.Failed),
+                Status = x.Test!.PassingScore/100 <= x.Score/totalScore ? nameof(AttemptStatus.Passed) : nameof(AttemptStatus.Failed),
                 TimeStart = x.TimeStart,
                 TimeSubmit = x.TimeFinish,
                 CanReview = x.Test.IsAllowReviewAfterSubmit || isLecturerOrOwnerInClass
