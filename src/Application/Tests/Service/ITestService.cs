@@ -15,7 +15,7 @@ public interface ITestService
     Task<bool> CanViewOrEditTest(Guid classId, CancellationToken cancellationToken);
     Task<bool> CanViewHistoryOfTest(Guid testId, CancellationToken cancellationToken);
     Task<bool> CanCreateTest(Guid classId);
-    Task<bool> CanAttemptTest(Guid classId);
+    Task TryCheckCanAttemptTest(Test test);
 }
 
 public class TestService : ITestService
@@ -148,15 +148,19 @@ public class TestService : ITestService
         return true;
     }
 
-    public async Task<bool> CanAttemptTest(Guid classId)
+    public async Task TryCheckCanAttemptTest(Test test)
     {
+        if (test.TimeStart > DateTime.UtcNow)
+            throw new ErrorCodeException(ErrorCodes.NOT_YET_TIME_TO_OPEN_TEST, "Chưa đến thời gian mở test");
+        
+        if (test.TimeFinish < DateTime.UtcNow)
+            throw new ErrorCodeException(ErrorCodes.TEST_IS_OVERDUE, "Hết hạn làm bài");
+        
         var student = await _context.ClassUsers
-            .Where(u => u.UserId == _user.UserId && u.ClassId == classId && ClassShareMode.Student == u.ShareMode)
+            .Where(u => u.UserId == _user.UserId && u.ClassId == test.ClassId && ClassShareMode.Student == u.ShareMode)
             .FirstOrDefaultAsync();
 
         if (student == null)
-            return false;
-        
-        return true;
+            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Chỉ student trong lớp mới có thể attempt test");
     }
 }

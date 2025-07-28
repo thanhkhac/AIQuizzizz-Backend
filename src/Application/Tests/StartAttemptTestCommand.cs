@@ -43,15 +43,7 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
         if (test == null)
             throw new ErrorCodeException(ErrorCodes.TEST_NOT_FOUND, "Bài test không tồn tại");
         
-        var isStudentInClass = await _testService.CanAttemptTest(test.ClassId);
-        if (!isStudentInClass)
-            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Chỉ student trong lớp mới có thể attempt test");
-        
-        if (test.TimeStart > DateTime.UtcNow)
-            throw new ErrorCodeException(ErrorCodes.NOT_YET_TIME_TO_OPEN_TEST, "Chưa đến thời gian mở test");
-        
-        if (test.TimeFinish < DateTime.UtcNow)
-            throw new ErrorCodeException(ErrorCodes.TEST_IS_OVERDUE, "Hết hạn làm bài");
+        await _testService.TryCheckCanAttemptTest(test);
 
         var attemptUser = _context.Attempts
             .Where(x => x.UserId == _user.UserId && x.TestId == rq.TestId)

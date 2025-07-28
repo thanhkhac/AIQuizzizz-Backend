@@ -104,7 +104,7 @@ public class UpdateTestTemplateCommandHandler : IRequestHandler<UpdateTestTempla
                         !testTemplateQuestions.Select(y => y.QuestionId).Contains(x.QuestionId.Value))
             .ToList();
         
-        await _testTemplateService.TryQuestionAccessForTestTemplate(questionFromQuestionSet, cancellationToken);
+        await _testTemplateService.TryCheckQuestionAccessForTestTemplate(questionFromQuestionSet, cancellationToken);
 
         var updateQuestionIds = _testTemplateService.CheckQuestionsForUpdate(updateQuestionDto, updateQuestion);
         
