@@ -41,19 +41,24 @@ public class ReplyCommentCommandHandler : IRequestHandler<ReplyCommentCommand, G
     {
         var comment = await _context.Comments
             .Include(x => x.Question)
+            .ThenInclude(x => x!.QuestionSet)
             .Where(x => x.Id == rq.CommentId && x.IsDeleted == false
                                              && x.Question != null
+                                             && x.Question.QuestionSet != null
                                              && x.Question.IsDeleted == false)
             .FirstOrDefaultAsync(cancellationToken);
         if (comment == null)
             throw new ErrorCodeException(ErrorCodes.COMMENT_NOT_FOUND, "Không tìm thấy comment");
         
-        await _commentService.CanComment(comment.QuestionId, cancellationToken);
+        var canGetComment = await _commentService.CanComment(comment.Question!.QuestionSet!.Id);
+        if (!canGetComment)
+            throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_COMMENT, "User không được comment");
 
         var reply = new Comment
         {
             Id = Guid.NewGuid(),
             Content = rq.Content,
+            ParentId = rq.CommentId,
             QuestionId = comment.QuestionId,
             IsDeleted = false,
         };
