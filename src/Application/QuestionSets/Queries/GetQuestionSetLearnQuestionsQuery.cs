@@ -7,7 +7,7 @@ using CleanArchitectureBase.Application.Questions.Services;
 using CleanArchitectureBase.Application.QuestionSets.Services;
 using CleanArchitectureBase.Domain.Constants;
 
-namespace CleanArchitectureBase.Application.QuestionSets;
+namespace CleanArchitectureBase.Application.QuestionSets.Queries;
 
 [Authorize]
 public class GetQuestionSetLearnQuestionsQuery : IRequest<GetQuestionSetLearnQuestionsQueryDto>

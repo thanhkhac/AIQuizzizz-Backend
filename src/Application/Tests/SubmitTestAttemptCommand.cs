@@ -63,21 +63,13 @@ public class SubmitTestAttemptCommandHandler : IRequestHandler<SubmitTestAttempt
             .FirstOrDefaultAsync(cancellationToken);
         if (attempt == null || attempt.TestVersion == null || attempt.Test == null) 
             throw new ErrorCodeException(ErrorCodes.TEST_NOT_FOUND, "Bài test không tồn tại");
-
-        if (attempt.Test.TimeStart > DateTime.UtcNow)
-            throw new ErrorCodeException(ErrorCodes.NOT_YET_TIME_TO_OPEN_TEST, "Chưa đến thời gian mở test");
-        
-        if (attempt.Test.TimeFinish < DateTime.UtcNow)
-            throw new ErrorCodeException(ErrorCodes.TEST_IS_OVERDUE, "Thời gian làm bài đã hết");
         
         if (attempt.UserId != _user.UserId)
             throw new ErrorCodeException(ErrorCodes.ERROR_ATTEMPT_USER, "Người làm bài không phải student đã attempt");
         
         attempt.TimeFinish = DateTime.UtcNow;
         
-        var isStudentInClass = await _testService.CanAttemptTest(attempt.Test.ClassId);
-        if (!isStudentInClass)
-            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Chỉ student trong lớp mới có thể attempt test");
+        await _testService.TryCheckCanAttemptTest(attempt.Test);
 
         var questionsInTest = await _context.TestVersionQuestions
             .Include(x => x.Question)

@@ -897,7 +897,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfSearchQuestionSetDto"
+                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfQuestionSetForListResponseDto"
                 }
               }
             }
@@ -1924,6 +1924,83 @@
         }
       }
     },
+    "/api/QuestionSet/Public": {
+      "get": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "summary": "Use for search question by name/ search questionset by tag/ Recommend by tag",
+        "operationId": "SearchQuestionSets",
+        "parameters": [
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "x-position": 1
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 5
+            },
+            "x-position": 2
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "tagIds",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "nullable": true,
+              "items": {
+                "type": "string",
+                "format": "guid"
+              }
+            },
+            "x-position": 4
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "\"Rating\" (default) or \"Newest\"",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfQuestionSetForListResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/QuestionSet/{questionSetId}": {
       "get": {
         "tags": [
@@ -2252,7 +2329,7 @@
         }
       }
     },
-    "/api/QuestionSet/{questionSetId}/GetQuestionsForCopy": {
+    "/api/QuestionSet/{questionSetId}/QuestionsForCopy": {
       "get": {
         "tags": [
           "QuestionSet"
@@ -2278,6 +2355,118 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfListOfCreateUpdateQuestionDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/QuestionSet/SharedOrOwned": {
+      "get": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "SearchQuestionSetsOwnedOrSharedWithMe",
+        "parameters": [
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "x-position": 1
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 5
+            },
+            "x-position": 2
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "\"RecentAccess\"(default) or \"Newest\"",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "filterBy",
+            "in": "query",
+            "description": "\"ShareWithMe\" or \"CreatedByMe\" (default)",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfQuestionSetForListResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Tag": {
+      "get": {
+        "tags": [
+          "Tag"
+        ],
+        "operationId": "SearchTags",
+        "parameters": [
+          {
+            "name": "Name",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfTagForListReponseDto"
                 }
               }
             }
@@ -3912,7 +4101,7 @@
           }
         }
       },
-      "ApiResponseOfPaginatedListOfSearchQuestionSetDto": {
+      "ApiResponseOfPaginatedListOfQuestionSetForListResponseDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -3938,7 +4127,7 @@
             "nullable": true,
             "oneOf": [
               {
-                "$ref": "#/components/schemas/PaginatedListOfSearchQuestionSetDto"
+                "$ref": "#/components/schemas/PaginatedListOfQuestionSetForListResponseDto"
               }
             ]
           },
@@ -3947,14 +4136,14 @@
           }
         }
       },
-      "PaginatedListOfSearchQuestionSetDto": {
+      "PaginatedListOfQuestionSetForListResponseDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/SearchQuestionSetDto"
+              "$ref": "#/components/schemas/QuestionSetForListResponseDto"
             }
           },
           "pageNumber": {
@@ -3981,7 +4170,7 @@
           }
         }
       },
-      "SearchQuestionSetDto": {
+      "QuestionSetForListResponseDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -4012,6 +4201,45 @@
           "createBy": {
             "type": "string",
             "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdById": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TagForListReponseDto"
+            }
+          },
+          "lastAccessByMe": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "TagForListReponseDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "questionSetCount": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -4747,6 +4975,12 @@
             "items": {
               "$ref": "#/components/schemas/CreateUpdateQuestionDto"
             }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
@@ -4916,6 +5150,12 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TagForListReponseDto"
+            }
           }
         }
       },
@@ -5157,6 +5397,12 @@
               "$ref": "#/components/schemas/CreateUpdateQuestionDto"
             }
           },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "deleteQuestionIds": {
             "type": "array",
             "items": {
@@ -5308,6 +5554,40 @@
             "nullable": true,
             "items": {
               "$ref": "#/components/schemas/CreateUpdateQuestionDto"
+            }
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ApiResponseOfListOfTagForListReponseDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/TagForListReponseDto"
             }
           },
           "success": {

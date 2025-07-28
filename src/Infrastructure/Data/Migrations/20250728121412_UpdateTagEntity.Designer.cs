@@ -3,6 +3,7 @@ using System;
 using CleanArchitectureBase.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250728121412_UpdateTagEntity")]
+    partial class UpdateTagEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1037,27 +1040,6 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.ToTable("DomainUsers");
                 });
 
-            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.UserQuestionSetAccessHistory", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("QuestionSetId")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("IsSaved")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTimeOffset>("LastAccess")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("UserId", "QuestionSetId");
-
-                    b.HasIndex("QuestionSetId");
-
-                    b.ToTable("UserQuestionSetAccessHistories");
-                });
-
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.UserQuestionSetHistory", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1951,25 +1933,6 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.UserQuestionSetAccessHistory", b =>
-                {
-                    b.HasOne("CleanArchitectureBase.Domain.Entities.QuestionSet", "QuestionSet")
-                        .WithMany("AccessHistories")
-                        .HasForeignKey("QuestionSetId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "User")
-                        .WithMany("AccessHistories")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("QuestionSet");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.UserQuestionSetHistory", b =>
                 {
                     b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
@@ -2146,8 +2109,6 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.QuestionSet", b =>
                 {
-                    b.Navigation("AccessHistories");
-
                     b.Navigation("ClassQuestionSets");
 
                     b.Navigation("QuestionSetTags");
@@ -2194,8 +2155,6 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.User", b =>
                 {
-                    b.Navigation("AccessHistories");
-
                     b.Navigation("Attempts");
 
                     b.Navigation("ClassInvitationUsers");

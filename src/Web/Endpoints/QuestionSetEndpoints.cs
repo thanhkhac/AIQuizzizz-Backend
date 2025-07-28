@@ -1,7 +1,9 @@
 ﻿using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Questions.Dtos;
 using CleanArchitectureBase.Application.QuestionSets;
+using CleanArchitectureBase.Application.QuestionSets.Commands;
 using CleanArchitectureBase.Application.QuestionSets.Dtos;
+using CleanArchitectureBase.Application.QuestionSets.Queries;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Web.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -17,6 +19,7 @@ public class QuestionSetEndpoints : EndpointGroupBase
     {
         app.MapGroup(this)
             .MapPost(CreateQuestionSet)
+            .MapGet(SearchQuestionSets, "Public")
             .MapGet(GetQuestionSetDetail, ("{questionSetId}"))
             .MapGet(GetQuestions, "{questionSetId}/Questions")
             .MapPatch(UpdateQuestionSet, "{questionSetId}")
@@ -26,7 +29,8 @@ public class QuestionSetEndpoints : EndpointGroupBase
             .MapDelete(ResetQuestionSetHistory, "{questionSetId}/LearnHistory")
             .MapGet(GetPermissions, "{questionSetId}/Permissions")
             .MapGet(GetQuestionsForEdit, "{questionSetId}/QuestionsForEdit")
-            .MapGet(GetQuestionsForCopy, "{questionSetId}/GetQuestionsForCopy")
+            .MapGet(GetQuestionsForCopy, "{questionSetId}/QuestionsForCopy")
+            .MapGet(SearchQuestionSetsOwnedOrSharedWithMe, "/SharedOrOwned")
             ;
     }
 
@@ -222,22 +226,64 @@ public class QuestionSetEndpoints : EndpointGroupBase
     }
 
 
+
     /// <summary>
-    /// Search question sets by name/description (with pagination)
+    /// Use for search question by name/ search questionset by tag/ Recommend by tag
     /// </summary>
-    public async Task<Ok<ApiResponse<PaginatedList<SearchQuestionSetDto>>>> SearchQuestionSets(
+    /// <param name="sender"></param>
+    /// <param name="pageNumber"></param>
+    /// <param name="pageSize"></param>
+    /// <param name="name"></param>
+    /// <param name="tagIds"></param>
+    /// <param name="sortBy">"Rating" (default) or "Newest"</param>
+    /// <returns></returns>
+    public async Task<Ok<ApiResponse<PaginatedList<QuestionSetForListResponseDto>>>> SearchQuestionSets(
         ISender sender,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5,
         [FromQuery] string? name = null,
-        [FromQuery] Guid? tagId = null)
+        [FromQuery] Guid[]? tagIds = null,
+        [FromQuery] string? sortBy = null
+    )
     {
         var query = new SearchPublicQuestionSetByNameQuery
         {
             Name = name,
-            TagId = tagId,
+            TagIds = tagIds?.ToList(),
+            SortBy = sortBy,
             PageNumber = pageNumber,
             PageSize = pageSize
+        };
+        var result = await sender.Send(query);
+        return result.ToOk();
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="pageNumber"></param>
+    /// <param name="pageSize"></param>
+    /// <param name="name"></param>
+    /// <param name="sortBy">"RecentAccess"(default) or "Newest"</param>
+    /// <param name="filterBy">"ShareWithMe" or "CreatedByMe" (default)</param>
+    /// <returns></returns>
+    public async Task<Ok<ApiResponse<PaginatedList<QuestionSetForListResponseDto>>>> SearchQuestionSetsOwnedOrSharedWithMe(
+        ISender sender,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 5,
+        [FromQuery] string? name = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] string? filterBy = null
+    )
+    {
+        var query = new SearchOwnAndSharedQuestionSetQuery
+        {
+            Name = name,
+            SortBy = sortBy,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            FilterBy = filterBy
         };
         var result = await sender.Send(query);
         return result.ToOk();

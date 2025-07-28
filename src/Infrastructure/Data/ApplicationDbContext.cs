@@ -56,7 +56,8 @@ public class ApplicationDbContext : IdentityDbContext<UserAccount,
     public DbSet<QuestionSetUser> QuestionSetUsers => Set<QuestionSetUser>();
     public DbSet<Tag> Tags => Set<Tag>();
     public DbSet<QuestionSetTag> QuestionSetTags => Set<QuestionSetTag>();
-    
+    public DbSet<UserQuestionSetAccessHistory> UserQuestionSetAccessHistories => Set<UserQuestionSetAccessHistory>();
+
     // public override DbSet<ApplicationUserRole> UserRoles { get; set; }
     // public override DbSet<ApplicationRole> Roles { get; set; }
     // public override DbSet<ApplicationUserClaim> UserClaims { get; set; }

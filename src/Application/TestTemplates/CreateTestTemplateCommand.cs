@@ -73,7 +73,7 @@ public class CreateTestTemplateCommandHandler : IRequestHandler<CreateTestTempla
     /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<Guid> Handle(CreateTestTemplateCommand rq, CancellationToken cancellationToken)
     {
-        await _testTemplateService.TryQuestionAccessForTestTemplate(rq.Questions, cancellationToken);
+        await _testTemplateService.TryCheckQuestionAccessForTestTemplate(rq.Questions, cancellationToken);
         
         var testTemplate = new TestTemplate { Id = Guid.NewGuid(), Name = rq.Name, IsDeleted = false, Description = rq.Description};
 
