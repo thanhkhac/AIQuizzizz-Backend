@@ -113,7 +113,7 @@ public class QuestionConfiguration : IEntityTypeConfiguration<Question>
                 v => (QuestionType)Enum.Parse(typeof(QuestionType), v));
 
         // builder.HasQueryFilter(x => !x.IsDeleted);
-        
+
         builder.Property(q => q.QuestionText)
             .HasMaxLength(1000);
 
@@ -154,7 +154,7 @@ public class QuestionSetConfiguration : IEntityTypeConfiguration<QuestionSet>
 
         builder.Property(qs => qs.Description)
             .HasMaxLength(500);
-            
+
         builder.HasQueryFilter(x => !x.IsDeleted);
 
         builder.Property(qs => qs.VisibilityMode)
@@ -236,6 +236,30 @@ public class QuestionSetUserConfiguration : IEntityTypeConfiguration<QuestionSet
     }
 }
 
+public class UserQuestionSetAccessHistoryConfigutation : IEntityTypeConfiguration<UserQuestionSetAccessHistory>
+{
+
+    public void Configure(EntityTypeBuilder<UserQuestionSetAccessHistory> builder)
+    {
+        builder.HasKey(qsu => new
+        {
+            qsu.UserId,
+            qsu.QuestionSetId
+        });
+        
+        builder.HasOne(x => x.User)
+            .WithMany(u => u.AccessHistories)
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(x => x.QuestionSet)
+            .WithMany(qs => qs.AccessHistories)
+            .HasForeignKey(x => x.QuestionSetId)
+            .OnDelete(DeleteBehavior.Restrict);
+        ;
+    }
+}
+
 public class CommentConfiguration : IEntityTypeConfiguration<Comment>
 {
     public void Configure(EntityTypeBuilder<Comment> builder)
@@ -249,9 +273,9 @@ public class CommentConfiguration : IEntityTypeConfiguration<Comment>
         builder.Property(c => c.IsDeleted)
             .IsRequired()
             .HasDefaultValue(false);
-            
+
         builder.HasQueryFilter(x => !x.IsDeleted);
-            
+
         builder.HasOne(c => c.Question)
             .WithMany(q => q.Comments)
             .HasForeignKey(c => c.QuestionId)
@@ -567,7 +591,7 @@ public class ClassConfiguration : IEntityTypeConfiguration<Class>
         builder.Property(c => c.Name)
             .IsRequired()
             .HasMaxLength(100);
-            
+
         builder.HasQueryFilter(x => !x.IsDeleted);
 
         builder.HasMany(c => c.ClassQuestionSets)
@@ -643,7 +667,7 @@ public class ClassInvitationConfiguration : IEntityTypeConfiguration<ClassInvita
 
         builder.Property(ci => ci.IsDeleted)
             .HasDefaultValue(false);
-            
+
         builder.HasQueryFilter(x => !x.IsDeleted);
 
         builder.HasOne(ci => ci.Class)

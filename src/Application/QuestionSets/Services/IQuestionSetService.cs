@@ -91,6 +91,8 @@ public class QuestionSetService : IQuestionSetService
                              && qsu.UserId == userId
                              && qsu.ShareMode == QuestionSetUserShareMode.Owner);
     }
+    
+    
 
     public async Task<QuestionSetPermissionsDto> GetPermissions(Guid userId, Guid questionSetId)
     {

@@ -1,12 +1,9 @@
-﻿using System.Runtime.Serialization;
-using System.Text.Json;
-using CleanArchitectureBase.Application.Common.Interfaces;
+﻿using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
-using CleanArchitectureBase.Application.Questions.Utils;
 using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.QuestionSets;
+namespace CleanArchitectureBase.Application.QuestionSets.Commands;
 
 [Authorize]
 public class CreateQuestionSetCommand : IRequest<Guid>
@@ -14,6 +11,7 @@ public class CreateQuestionSetCommand : IRequest<Guid>
     public string? Name { get; set; }
     public string? Description { get; set; }
     public List<CreateUpdateQuestionDto> Questions { get; set; } = new();
+    public List<string> Tags { get; set; } = new();
 }
 
 public class CreateQuestionSetCommandValidator : AbstractValidator<CreateQuestionSetCommand>
@@ -36,6 +34,14 @@ public class CreateQuestionSetCommandValidator : AbstractValidator<CreateQuestio
 
         RuleForEach(x => x.Questions)
             .SetValidator((command, question) => new CreateUpdateQuestionDto.QuestionCreateDtoValidator());
+        
+        RuleFor(x => x.Tags)
+            .Must(tags => tags.Count <= 10)
+            .WithMessage("Không được nhập quá 10 tag.");
+        
+        RuleForEach(x => x.Tags)
+            .NotEmpty().WithMessage("Tag không được để trống.")
+            .MaximumLength(50).WithMessage("Mỗi tag không được vượt quá 50 ký tự.");
     }
 }
 
@@ -91,6 +97,45 @@ public class CreateQuestionSetCommandHandler : IRequestHandler<CreateQuestionSet
             ShareMode = QuestionSetUserShareMode.Owner
         };
         
+        var questionSetTags = new List<QuestionSetTag>();
+        var normalizedTagNames = request.Tags
+            .Select(t => t.Trim().ToLower())
+            .Distinct()
+            .ToList();
+            
+        var existingTags = await _dbContext.Tags
+            .Where(t => normalizedTagNames.Contains(t.Name.ToLower()))
+            .ToListAsync(cancellationToken);
+            
+        foreach (var tagName in normalizedTagNames)
+        {
+            // Kiểm tra có tồn tại chưa
+            var existingTag = existingTags.FirstOrDefault(t => t.Name.Equals(tagName, StringComparison.OrdinalIgnoreCase));
+
+            Tag tag;
+            if (existingTag != null)
+            {
+                tag = existingTag;
+                tag.QuestionSetCount++;
+            }
+            else
+            {
+                tag = new Tag
+                {
+                    Id = Guid.NewGuid(),
+                    Name = tagName,
+                    QuestionSetCount = 1
+                };
+                _dbContext.Tags.Add(tag);
+            }
+
+            questionSetTags.Add(new QuestionSetTag
+            {
+                QuestionSetId = questionSet.Id,
+                TagId = tag.Id
+            });
+        }
+        _dbContext.QuestionSetTags.AddRange(questionSetTags);
         _dbContext.QuestionSets.Add(questionSet);
         _dbContext.QuestionSetUsers.Add(questionSetUser);
         await _dbContext.SaveChangesAsync(cancellationToken);

@@ -3,6 +3,7 @@ using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Common.Security;
+using CleanArchitectureBase.Application.Questions.Dtos;
 using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
@@ -10,7 +11,7 @@ using CleanArchitectureBase.Domain.Entities;
 namespace CleanArchitectureBase.Application.Classes;
 
 [Authorize]
-public class SearchQuestionSetQuery : IRequest<PaginatedList<SearchQuestionSetDto>>
+public class SearchQuestionSetQuery : IRequest<PaginatedList<QuestionSetForListResponseDto>>
 {
     /// <summary>
     /// Id of the class want to retrieve question sets
@@ -30,7 +31,7 @@ public class SearchQuestionSetQueryValidator : AbstractValidator<SearchQuestionS
     }
 }
 
-public class SearchQuestionSetQueryHandler : IRequestHandler<SearchQuestionSetQuery, PaginatedList<SearchQuestionSetDto>>
+public class SearchQuestionSetQueryHandler : IRequestHandler<SearchQuestionSetQuery, PaginatedList<QuestionSetForListResponseDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
@@ -46,7 +47,7 @@ public class SearchQuestionSetQueryHandler : IRequestHandler<SearchQuestionSetQu
     /// </summary>
     /// <param name="rq">Request contains ClassId, Name, ShareMode, PageNumber, and PageSize information</param>
     /// <param name="cancellationToken">Token to cancel the task</param>
-    public async Task<PaginatedList<SearchQuestionSetDto>> Handle(SearchQuestionSetQuery rq,
+    public async Task<PaginatedList<QuestionSetForListResponseDto>> Handle(SearchQuestionSetQuery rq,
         CancellationToken cancellationToken)
     {
         var classById = await _context.Classes
@@ -67,8 +68,8 @@ public class SearchQuestionSetQueryHandler : IRequestHandler<SearchQuestionSetQu
             .Where(qs => qs.ClassQuestionSets.Any(x => x.ClassId == rq.ClassId) &&
                          (string.IsNullOrEmpty(rq.Name) || qs.Name.ToLower().Contains(rq.Name.ToLower())));
 
-        return await PaginatedList<SearchQuestionSetDto>.CreateAsync(
-            questionSet.Select(qs => new SearchQuestionSetDto
+        return await PaginatedList<QuestionSetForListResponseDto>.CreateAsync(
+            questionSet.Select(qs => new QuestionSetForListResponseDto
             {
                 Id = qs.Id,
                 Name = qs.Name,

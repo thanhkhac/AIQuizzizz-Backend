@@ -897,7 +897,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfSearchQuestionSetDto"
+                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfQuestionSetForListResponseDto"
                 }
               }
             }
@@ -1171,6 +1171,170 @@
         }
       }
     },
+    "/api/Comment/Question/{questionId}": {
+      "get": {
+        "tags": [
+          "Comment"
+        ],
+        "operationId": "GetComment",
+        "parameters": [
+          {
+            "name": "questionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "x-position": 2
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfCommentDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Comment"
+        ],
+        "operationId": "CreateComment",
+        "parameters": [
+          {
+            "name": "questionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "content",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Comment/{commentId}/Reply": {
+      "post": {
+        "tags": [
+          "Comment"
+        ],
+        "operationId": "ReplyComment",
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "content",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Comment/{commentId}": {
+      "delete": {
+        "tags": [
+          "Comment"
+        ],
+        "operationId": "DeleteComment",
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Folder": {
       "get": {
         "tags": [
@@ -1188,7 +1352,7 @@
             "x-position": 1
           },
           {
-            "name": "sharedMode",
+            "name": "shareMode",
             "in": "query",
             "schema": {
               "type": "string",
@@ -1270,6 +1434,7 @@
         "parameters": [
           {
             "name": "FolderId",
+            "x-originalName": "folderId",
             "in": "path",
             "required": true,
             "schema": {
@@ -1279,22 +1444,13 @@
             "x-position": 1
           },
           {
-            "name": "TestTemplateName",
+            "name": "testTemplateName",
             "in": "query",
             "schema": {
               "type": "string",
               "nullable": true
             },
             "x-position": 2
-          },
-          {
-            "name": "sharedMode",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 3
           },
           {
             "name": "pageNumber",
@@ -1304,7 +1460,7 @@
               "format": "int32",
               "default": 1
             },
-            "x-position": 4
+            "x-position": 3
           },
           {
             "name": "pageSize",
@@ -1314,7 +1470,7 @@
               "format": "int32",
               "default": 5
             },
-            "x-position": 5
+            "x-position": 4
           }
         ],
         "responses": {
@@ -1768,6 +1924,83 @@
         }
       }
     },
+    "/api/QuestionSet/Public": {
+      "get": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "summary": "Use for search question by name/ search questionset by tag/ Recommend by tag",
+        "operationId": "SearchQuestionSets",
+        "parameters": [
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "x-position": 1
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 5
+            },
+            "x-position": 2
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "tagIds",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "array",
+              "nullable": true,
+              "items": {
+                "type": "string",
+                "format": "guid"
+              }
+            },
+            "x-position": 4
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "\"Rating\" (default) or \"Newest\"",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfQuestionSetForListResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/QuestionSet/{questionSetId}": {
       "get": {
         "tags": [
@@ -2096,7 +2329,7 @@
         }
       }
     },
-    "/api/QuestionSet/{questionSetId}/GetQuestionsForCopy": {
+    "/api/QuestionSet/{questionSetId}/QuestionsForCopy": {
       "get": {
         "tags": [
           "QuestionSet"
@@ -2122,6 +2355,118 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfListOfCreateUpdateQuestionDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/QuestionSet/SharedOrOwned": {
+      "get": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "SearchQuestionSetsOwnedOrSharedWithMe",
+        "parameters": [
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "x-position": 1
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 5
+            },
+            "x-position": 2
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "\"RecentAccess\"(default) or \"Newest\"",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "filterBy",
+            "in": "query",
+            "description": "\"ShareWithMe\" or \"CreatedByMe\" (default)",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfQuestionSetForListResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Tag": {
+      "get": {
+        "tags": [
+          "Tag"
+        ],
+        "operationId": "SearchTags",
+        "parameters": [
+          {
+            "name": "Name",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfTagForListReponseDto"
                 }
               }
             }
@@ -2475,7 +2820,7 @@
             "x-position": 1
           },
           {
-            "name": "sharedMode",
+            "name": "shareMode",
             "in": "query",
             "schema": {
               "type": "string",
@@ -3756,7 +4101,7 @@
           }
         }
       },
-      "ApiResponseOfPaginatedListOfSearchQuestionSetDto": {
+      "ApiResponseOfPaginatedListOfQuestionSetForListResponseDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -3782,7 +4127,7 @@
             "nullable": true,
             "oneOf": [
               {
-                "$ref": "#/components/schemas/PaginatedListOfSearchQuestionSetDto"
+                "$ref": "#/components/schemas/PaginatedListOfQuestionSetForListResponseDto"
               }
             ]
           },
@@ -3791,14 +4136,14 @@
           }
         }
       },
-      "PaginatedListOfSearchQuestionSetDto": {
+      "PaginatedListOfQuestionSetForListResponseDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/SearchQuestionSetDto"
+              "$ref": "#/components/schemas/QuestionSetForListResponseDto"
             }
           },
           "pageNumber": {
@@ -3825,7 +4170,7 @@
           }
         }
       },
-      "SearchQuestionSetDto": {
+      "QuestionSetForListResponseDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -3856,6 +4201,45 @@
           "createBy": {
             "type": "string",
             "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdById": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TagForListReponseDto"
+            }
+          },
+          "lastAccessByMe": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "TagForListReponseDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "questionSetCount": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -4021,6 +4405,132 @@
           "userId": {
             "type": "string",
             "format": "guid"
+          }
+        }
+      },
+      "ApiResponseOfPaginatedListOfCommentDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedListOfCommentDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PaginatedListOfCommentDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommentDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CommentDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "parentId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "createBy": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UserCreateCommentDto"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "replyCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "childComments": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CommentDto"
+            }
+          }
+        }
+      },
+      "UserCreateCommentDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
+          "fullName": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -4465,6 +4975,12 @@
             "items": {
               "$ref": "#/components/schemas/CreateUpdateQuestionDto"
             }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
@@ -4634,6 +5150,12 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TagForListReponseDto"
+            }
           }
         }
       },
@@ -4875,6 +5397,12 @@
               "$ref": "#/components/schemas/CreateUpdateQuestionDto"
             }
           },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "deleteQuestionIds": {
             "type": "array",
             "items": {
@@ -5026,6 +5554,40 @@
             "nullable": true,
             "items": {
               "$ref": "#/components/schemas/CreateUpdateQuestionDto"
+            }
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ApiResponseOfListOfTagForListReponseDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/TagForListReponseDto"
             }
           },
           "success": {
@@ -5878,6 +6440,10 @@
         "properties": {
           "name": {
             "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
           },
           "questions": {
             "type": "array",

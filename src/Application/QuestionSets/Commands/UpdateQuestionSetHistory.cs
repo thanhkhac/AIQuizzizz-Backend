@@ -5,7 +5,7 @@ using CleanArchitectureBase.Application.QuestionSets.Services;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.QuestionSets;
+namespace CleanArchitectureBase.Application.QuestionSets.Commands;
 
 [Authorize]
 public class UpdateQuestionSetHistoryCommand : IRequest<Unit>
