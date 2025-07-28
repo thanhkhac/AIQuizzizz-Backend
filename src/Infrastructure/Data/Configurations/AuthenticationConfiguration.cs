@@ -27,7 +27,9 @@ public class UserConfig : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.FullName)
             .HasMaxLength(500);
-
+            
+        builder.HasQueryFilter(x => !x.IsDeleted && !x.IsBanned);
+        
         builder.Property(u => u.Email)
             .IsRequired()
             .HasMaxLength(500);

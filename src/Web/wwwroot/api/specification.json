@@ -1721,6 +1721,7 @@
         "tags": [
           "QuestionSet"
         ],
+        "summary": "Delete a question set that current user own.",
         "operationId": "DeleteQuestionSet",
         "parameters": [
           {
@@ -3717,6 +3718,14 @@
           "numberOfQuestions": {
             "type": "integer",
             "format": "int32"
+          },
+          "ratingCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ratingAverage": {
+            "type": "number",
+            "format": "double"
           },
           "createBy": {
             "type": "string",

@@ -3,19 +3,11 @@ using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Common.Security;
+using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Classes;
-
-public class SearchQuestionSetDto
-{
-    public Guid Id { get; set; }
-    public string? Name { get; set; }
-    public string? Description { get; set; }
-    public int NumberOfQuestions { get; set; }
-    public string? CreateBy { get; set; }
-}
 
 [Authorize]
 public class SearchQuestionSetQuery : IRequest<PaginatedList<SearchQuestionSetDto>>
