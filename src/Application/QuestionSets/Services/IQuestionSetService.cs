@@ -43,7 +43,6 @@ public class QuestionSetService : IQuestionSetService
     {
         var questionSet = await _context.QuestionSets
             .Include(qs => qs.QuestionSetUsers)
-            .Include(qs => qs.ClassQuestionSets)
             .Where(x => x.IsDeleted == false)
             .FirstOrDefaultAsync(qs => qs.Id == questionSetId);
 
@@ -74,7 +73,7 @@ public class QuestionSetService : IQuestionSetService
         // Check theo class mode
         if (questionSet.VisibilityMode == QuestionSetVisibilityMode.OnlyClass)
         {
-            var classIds = questionSet.ClassQuestionSets.Select(cqs => cqs.ClassId);
+            var classIds = _context.ClassQuestionSets.Where(x => x.QuestionSetId == questionSet.Id).Select(cqs => cqs.ClassId).ToList();
 
             return await _context.ClassUsers
                 .AnyAsync(cu => classIds.Contains(cu.ClassId) && cu.UserId == userId);
