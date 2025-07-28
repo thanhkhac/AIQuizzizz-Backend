@@ -151,7 +151,6 @@ public class QuestionSetConfiguration : IEntityTypeConfiguration<QuestionSet>
             .HasMaxLength(100);
 
         builder.Property(qs => qs.Description)
-            .IsRequired()
             .HasMaxLength(500);
 
         builder.Property(qs => qs.VisibilityMode)

@@ -84,7 +84,7 @@ public class Question : BaseAuditableEntity
     public Guid? QuestionSetId { get; set; }
     public required QuestionType Type { get; set; }
     public string? QuestionText { get; set; }
-    public required TextFormat TextFormat { get; set; }
+    public TextFormat TextFormat { get; set; } = TextFormat.Html;
     public string? ExplainText { get; set; }
     public float Score { get; set; }
     public string? DataJson { get; set; } //Lưu JSON List<QTypeOrderingItem>/List<QTypeMatching>/List<QTypeMultipleChoice>
@@ -123,7 +123,7 @@ public class QuestionSet : BaseAuditableEntity
 {
     public required Guid Id { get; set; }
     public required string Name { get; set; }
-    public required string Description { get; set; }
+    public string? Description { get; set; }
     public QuestionSetVisibilityMode VisibilityMode { get; set; }
     public int QuestionCount { get; set; }
     public List<Question> Questions { get; set; } = new();
@@ -162,7 +162,7 @@ public class Comment : BaseAuditableEntity
 
 public class UserQuestionSetHistory : BaseAuditableEntity
 {
-    public required Guid Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
     public required Guid UserId { get; set; }
     public required Guid QuestionId { get; set; }
     public required bool IsCorrect { get; set; }

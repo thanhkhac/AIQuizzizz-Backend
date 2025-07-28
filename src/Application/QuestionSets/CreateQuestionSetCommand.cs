@@ -43,9 +43,11 @@ public class CreateQuestionSetCommandHandler : IRequestHandler<CreateQuestionSet
 {
 
     private readonly IApplicationDbContext _dbContext;
-    public CreateQuestionSetCommandHandler(IApplicationDbContext dbContext)
+    private readonly IUser _user;
+    public CreateQuestionSetCommandHandler(IApplicationDbContext dbContext, IUser user)
     {
         _dbContext = dbContext;
+        _user = user;
     }
 
     public async Task<Guid> Handle(CreateQuestionSetCommand request, CancellationToken cancellationToken)
@@ -81,8 +83,16 @@ public class CreateQuestionSetCommandHandler : IRequestHandler<CreateQuestionSet
 
             questionSet.Questions.Add(question);
         }
-
+        
+        QuestionSetUser  questionSetUser = new QuestionSetUser
+        {
+            UserId = _user.UserId!.Value,
+            QuestionSetId = questionSet.Id,
+            ShareMode = QuestionSetUserShareMode.Owner
+        };
+        
         _dbContext.QuestionSets.Add(questionSet);
+        _dbContext.QuestionSetUsers.Add(questionSetUser);
         await _dbContext.SaveChangesAsync(cancellationToken);
         return questionSet.Id;
     }
