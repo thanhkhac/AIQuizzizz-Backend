@@ -42,7 +42,6 @@ public class QuestionSetService : IQuestionSetService
     public async Task<bool> CanUserViewQuestionSet(Guid? userId, Guid questionSetId)
     {
         var questionSet = await _context.QuestionSets
-            .Include(qs => qs.QuestionSetUsers)
             .Where(x => x.IsDeleted == false)
             .FirstOrDefaultAsync(qs => qs.Id == questionSetId);
 
@@ -64,8 +63,8 @@ public class QuestionSetService : IQuestionSetService
             return true;
 
         // Kiểm tra xem người dùng được share quyền nào không
-        var hasShareAccess = questionSet.QuestionSetUsers
-            .Any(qsu => qsu.UserId == userId);
+        var hasShareAccess = await _context.QuestionSetUsers
+            .AnyAsync(qsu => qsu.QuestionSetId == questionSet.Id && qsu.UserId == userId.Value);
 
         if (hasShareAccess)
             return true;
