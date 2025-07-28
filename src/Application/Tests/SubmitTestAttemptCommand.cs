@@ -9,6 +9,13 @@ using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Tests;
 
+public class TestResultDto
+{
+    public DateTimeOffset TimeStart;
+    public DateTimeOffset TimeEnd;
+    public float Score;
+}
+
 [Authorize]
 public class SubmitTestAttemptCommand : IRequest<TestResultDto>
 {
@@ -57,8 +64,11 @@ public class SubmitTestAttemptCommandHandler : IRequestHandler<SubmitTestAttempt
         if (attempt == null || attempt.TestVersion == null || attempt.Test == null) 
             throw new ErrorCodeException(ErrorCodes.TEST_NOT_FOUND, "Bài test không tồn tại");
 
+        if (attempt.Test.TimeStart > DateTime.UtcNow)
+            throw new ErrorCodeException(ErrorCodes.NOT_YET_TIME_TO_OPEN_TEST, "Chưa đến thời gian mở test");
+        
         if (attempt.Test.TimeFinish < DateTime.UtcNow)
-            throw new ErrorCodeException(ErrorCodes.TEST_TIME_IS_UP, "Thời gian làm bài đã hết");
+            throw new ErrorCodeException(ErrorCodes.TEST_IS_OVERDUE, "Thời gian làm bài đã hết");
         
         if (attempt.UserId != _user.UserId)
             throw new ErrorCodeException(ErrorCodes.ERROR_ATTEMPT_USER, "Người làm bài không phải student đã attempt");
@@ -183,9 +193,9 @@ public class SubmitTestAttemptCommandHandler : IRequestHandler<SubmitTestAttempt
 
         return new TestResultDto
         {
-            Score = totalScore,
             TimeStart = attempt.TimeStart,
-            TimeEnd = attempt.TimeFinish
+            TimeEnd = attempt.TimeFinish,
+            Score = totalScore,
         };
     }
 }

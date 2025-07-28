@@ -8,5 +8,4 @@ public class ReviewTestDto
     public DateTimeOffset TimeEnd { get; set; }
     public double Score { get; set; }
     public string? Status { get; set; }
-    
 }
