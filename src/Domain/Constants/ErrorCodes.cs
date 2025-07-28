@@ -88,9 +88,8 @@ public static class ErrorCodes
     public const string USER_NOT_ACCESS_TO_QUESTION_SET = nameof(USER_NOT_ACCESS_TO_QUESTION_SET);
     
     public const string PLAN_REQUIRE_PLAN = nameof(PLAN_REQUIRE_PLAN);
-    public const string PLAN_NOT_FOUND = nameof(PLAN_NOT_FOUND);
     
-    //FOLDER
+    //Folder
     public const string FOLDER_NOT_FOUND = nameof(FOLDER_NOT_FOUND);
     public const string FOLDER_ALREADY_EXISTS = nameof(FOLDER_ALREADY_EXISTS);
     public const string USER_NOT_HAVE_PERMISSION_IN_FOLDER = nameof(USER_NOT_HAVE_PERMISSION_IN_FOLDER);
@@ -107,7 +106,7 @@ public static class ErrorCodes
     public const string NUMBER_OF_QUESTION_EXCEED_LIMIT = nameof(NUMBER_OF_QUESTION_EXCEED_LIMIT);
     public const string USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE = nameof(USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE);
     public const string USER_NOT_HAVE_PERMISSION_IN_TEST = nameof(USER_NOT_HAVE_PERMISSION_IN_TEST);
-    public const string TEST_TIME_IS_UP = nameof(TEST_TIME_IS_UP);
+    public const string NOT_YET_TIME_TO_OPEN_TEST = nameof(NOT_YET_TIME_TO_OPEN_TEST);
     
     //TestTemplate
     public const string TEST_TEMPLATE_NOT_FOUND = nameof(TEST_TEMPLATE_NOT_FOUND);
@@ -125,4 +124,9 @@ public static class ErrorCodes
     public const string QUESTION_CAN_NOT_COMMENT = nameof(QUESTION_CAN_NOT_COMMENT);
     public const string USER_NOT_HAVE_PERMISSION_IN_COMMENT = nameof(USER_NOT_HAVE_PERMISSION_IN_COMMENT);
     public const string COMMENT_NOT_FOUND = nameof(COMMENT_NOT_FOUND);
+    
+    //Plan
+    public const string USER_NOT_HAVE_PERMISSION = nameof(USER_NOT_HAVE_PERMISSION);
+    public const string PLAN_NOT_FOUND = nameof(PLAN_NOT_FOUND);
+    public const string INSUFFICIENT_BALANCE = nameof(INSUFFICIENT_BALANCE);
 }
