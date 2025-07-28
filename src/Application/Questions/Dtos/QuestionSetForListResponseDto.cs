@@ -11,5 +11,8 @@ public class QuestionSetForListResponseDto
     public int RatingCount { get; set; }
     public double RatingAverage { get; set; }
     public string? CreateBy { get; set; }
+    public DateTimeOffset? CreatedAt { get; set; }
+    public Guid? CreatedById { get; set; }
     public List<TagForListReponseDto>  Tags { get; set; } = new();
+    public DateTimeOffset? LastAccessByMe { get; set; }
 }

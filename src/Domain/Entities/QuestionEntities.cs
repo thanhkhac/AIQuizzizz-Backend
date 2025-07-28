@@ -138,6 +138,7 @@ public class QuestionSet : BaseAuditableEntity
     public List<QuestionSetUser> QuestionSetUsers { get; set; } = new();
     public List<QuestionSetTag> QuestionSetTags { get; set; } = new();
     public List<ClassQuestionSet> ClassQuestionSets { get; set; } = new();
+    public List<UserQuestionSetAccessHistory> AccessHistories { get; set; } = new();
 }
 
 public class QuestionSetUser : BaseAuditableEntity
@@ -175,6 +176,18 @@ public class UserQuestionSetHistory : BaseAuditableEntity
     public User? User { get; set; }
     public Question? Question { get; set; }
 }
+
+public class UserQuestionSetAccessHistory : BaseEntity
+{
+    public required Guid UserId { get; set; }
+    public required Guid QuestionSetId { get; set; }
+
+    public DateTimeOffset LastAccess { get; set; } = DateTimeOffset.UtcNow;
+    public bool IsSaved { get; set; }
+    public User? User { get; set; }
+    public QuestionSet? QuestionSet { get; set; }
+}
+
 
 public class TestTemplate : BaseAuditableEntity
 {

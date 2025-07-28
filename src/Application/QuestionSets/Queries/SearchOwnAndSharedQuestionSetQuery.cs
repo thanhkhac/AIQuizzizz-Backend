@@ -15,6 +15,7 @@ public class SearchOwnAndSharedQuestionSetQuery : IRequest<PaginatedList<Questio
     public int PageNumber { get; set; } = 1;
     public int PageSize { get; set; } = 5;
     public string? FilterBy { get; set; }
+    public string? SortBy { get; set; } // "RecentAccess" or "Newest"
 }
 
 public class SearchOwnAndSharedQuestionSetQueryValidator : AbstractValidator<SearchOwnAndSharedQuestionSetQuery>
@@ -48,16 +49,15 @@ public class SearchOwnAndSharedQuestionSetQueryHandler : IRequestHandler<SearchO
 
     public async Task<PaginatedList<QuestionSetForListResponseDto>> Handle(SearchOwnAndSharedQuestionSetQuery request, CancellationToken cancellationToken)
     {
-        var userId = _user.UserId;
-        var normalizedFilter = request.FilterBy?.Trim();
+        var userId = _user.UserId!.Value;
+        var normalizedFilter = request.FilterBy;
         var keyword = request.Name?.Trim().ToLower();
 
         var query = _context.QuestionSets
             .Include(q => q.CreatedByUser)
-            .Include(q => q.QuestionSetTags)
-            .ThenInclude(y => y.Tag)
             .Include(q => q.QuestionSetUsers)
-            .Where(q => q.QuestionSetUsers.Any(qsu => qsu.UserId == userId)); 
+            .Include(q => q.AccessHistories)
+            .Where(q => q.QuestionSetUsers.Any(qsu => qsu.UserId == userId));
 
         if (normalizedFilter == "CreatedByMe")
         {
@@ -77,28 +77,51 @@ public class SearchOwnAndSharedQuestionSetQueryHandler : IRequestHandler<SearchO
             query = query.Where(x => EF.Functions.Like(x!.Name.ToLower(), keyword));
         }
 
-        return await PaginatedList<QuestionSetForListResponseDto>.CreateAsync(
-            query.Select(qs => new QuestionSetForListResponseDto
+        query = query.Include(q => q.QuestionSetTags).ThenInclude(qst => qst.Tag);
+        
+        var projectedQuery = query
+            .Select(q => new
             {
-                Id = qs.Id,
-                Name = qs.Name,
-                Description = qs.Description,
-                NumberOfQuestions = qs.QuestionCount,
-                CreateBy = qs.CreatedByUser != null ? qs.CreatedByUser.FullName : string.Empty,
-                RatingCount = qs.RatingCount,
-                RatingAverage = qs.RatingAverage,
-                Tags = qs.QuestionSetTags
-                    .Where(x => x.Tag != null)
-                    .Select(x => new TagForListReponseDto
-                    {
-                        Id = x.TagId,
-                        Name = x.Tag!.Name.Substring(0, 1).ToUpper() + x.Tag.Name.Substring(1),
-                        QuestionSetCount = x.Tag.QuestionSetCount
-                    })
-                    .ToList()
+                QuestionSet = q,
+                LastAccessedAt = q.AccessHistories
+                    .Where(ah => ah.UserId == userId)
+                    .Select(ah => (DateTimeOffset?)ah.LastAccess)
+                    .FirstOrDefault()
+            });
+
+        if (normalizedFilter == "ShareWithMe")
+            projectedQuery = projectedQuery.Where(x => x.LastAccessedAt != null);
+
+        if (request.SortBy == "Newest")
+            projectedQuery = projectedQuery.OrderByDescending(q => q.QuestionSet.Created);
+        else //RecentAccess
+            projectedQuery = projectedQuery
+                .OrderBy(x => x.LastAccessedAt.HasValue ? 0 : 1)
+                .ThenByDescending(x => x.LastAccessedAt);
+
+
+        var pagedResult = await PaginatedList<QuestionSetForListResponseDto>.CreateAsync(
+            projectedQuery.Select(x => new QuestionSetForListResponseDto
+            {
+                Id = x.QuestionSet.Id,
+                Name = x.QuestionSet.Name,
+                Description = x.QuestionSet.Description,
+                RatingAverage = x.QuestionSet.RatingAverage,
+                RatingCount = x.QuestionSet.RatingCount,
+                CreateBy = x.QuestionSet.CreatedByUser!.FullName,
+                CreatedById = x.QuestionSet.CreatedByUser!.Id,
+                CreatedAt = x.QuestionSet.Created,
+                NumberOfQuestions = x.QuestionSet.QuestionCount,
+                Tags = x.QuestionSet.QuestionSetTags.Select(t => new TagForListReponseDto
+                {
+                    Id = t.TagId,
+                    Name = t.Tag!.Name.Substring(0, 1).ToUpper() + t.Tag.Name.Substring(1),
+                }).ToList(),
+                LastAccessByMe = x.LastAccessedAt
             }),
             request.PageNumber,
-            request.PageSize
-        );
+            request.PageSize);
+
+        return pagedResult;
     }
 }

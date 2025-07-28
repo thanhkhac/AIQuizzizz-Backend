@@ -29,7 +29,8 @@ public class QuestionSetEndpoints : EndpointGroupBase
             .MapDelete(ResetQuestionSetHistory, "{questionSetId}/LearnHistory")
             .MapGet(GetPermissions, "{questionSetId}/Permissions")
             .MapGet(GetQuestionsForEdit, "{questionSetId}/QuestionsForEdit")
-            .MapGet(GetQuestionsForCopy, "{questionSetId}/GetQuestionsForCopy")
+            .MapGet(GetQuestionsForCopy, "{questionSetId}/QuestionsForCopy")
+            .MapGet(SearchQuestionSetsOwnedOrSharedWithMe, "/SharedOrOwned")
             ;
     }
 
@@ -225,9 +226,17 @@ public class QuestionSetEndpoints : EndpointGroupBase
     }
 
 
+
     /// <summary>
     /// Use for search question by name/ search questionset by tag/ Recommend by tag
     /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="pageNumber"></param>
+    /// <param name="pageSize"></param>
+    /// <param name="name"></param>
+    /// <param name="tagIds"></param>
+    /// <param name="sortBy">"Rating" (default) or "Newest"</param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<PaginatedList<QuestionSetForListResponseDto>>>> SearchQuestionSets(
         ISender sender,
         [FromQuery] int pageNumber = 1,
@@ -244,6 +253,37 @@ public class QuestionSetEndpoints : EndpointGroupBase
             SortBy = sortBy,
             PageNumber = pageNumber,
             PageSize = pageSize
+        };
+        var result = await sender.Send(query);
+        return result.ToOk();
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="pageNumber"></param>
+    /// <param name="pageSize"></param>
+    /// <param name="name"></param>
+    /// <param name="sortBy">"RecentAccess"(default) or "Newest"</param>
+    /// <param name="filterBy">"ShareWithMe" or "CreatedByMe" (default)</param>
+    /// <returns></returns>
+    public async Task<Ok<ApiResponse<PaginatedList<QuestionSetForListResponseDto>>>> SearchQuestionSetsOwnedOrSharedWithMe(
+        ISender sender,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 5,
+        [FromQuery] string? name = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] string? filterBy = null
+    )
+    {
+        var query = new SearchOwnAndSharedQuestionSetQuery
+        {
+            Name = name,
+            SortBy = sortBy,
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            FilterBy = filterBy
         };
         var result = await sender.Send(query);
         return result.ToOk();

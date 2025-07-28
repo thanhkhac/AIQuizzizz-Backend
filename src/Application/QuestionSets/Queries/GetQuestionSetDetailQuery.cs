@@ -34,6 +34,28 @@ public class GetQuestionSetDetailQueryHandler : IRequestHandler<GetQuestionSetDe
         var canView = await _questionSetService.CanUserViewQuestionSet(_user.UserId, questionSet);
         if (canView == false) throw new ErrorCodeException(ErrorCodes.COMMON_FORBIDDEN, "You are not allowed to view this question set");
 
+        if (_user.UserId != null)
+        {
+            var existingHistory = await _context.UserQuestionSetAccessHistories
+                .FirstOrDefaultAsync(x => x.UserId == _user.UserId && x.QuestionSetId == questionSet.Id, cancellationToken);
+
+            if (existingHistory != null)
+            {
+                existingHistory.LastAccess = DateTime.UtcNow;
+            }
+            else
+            {
+                _context.UserQuestionSetAccessHistories.Add(new Domain.Entities.UserQuestionSetAccessHistory
+                {
+                    UserId = _user.UserId.Value,
+                    QuestionSetId = questionSet.Id,
+                    LastAccess = DateTime.UtcNow
+                });
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
         var tags = await _context.QuestionSetTags.Include(x => x.Tag)
             .Where(x => x.QuestionSetId == request.QuestionSetId)
             .Where(x => x.Tag != null)
@@ -44,7 +66,7 @@ public class GetQuestionSetDetailQueryHandler : IRequestHandler<GetQuestionSetDe
                 QuestionSetCount = x.Tag.QuestionSetCount
             })
             .ToListAsync(cancellationToken);
-            
+
         foreach (var tag in tags)
         {
             if (!string.IsNullOrWhiteSpace(tag.Name))
