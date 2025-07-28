@@ -1171,6 +1171,150 @@
         }
       }
     },
+    "/api/Comment/Question/{questionId}": {
+      "get": {
+        "tags": [
+          "Comment"
+        ],
+        "operationId": "GetComment",
+        "parameters": [
+          {
+            "name": "questionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfCommentDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Comment"
+        ],
+        "operationId": "CreateComment",
+        "parameters": [
+          {
+            "name": "questionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "content",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Comment/{commentId}/Reply": {
+      "post": {
+        "tags": [
+          "Comment"
+        ],
+        "operationId": "ReplyComment",
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "content",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Comment/{commentId}": {
+      "delete": {
+        "tags": [
+          "Comment"
+        ],
+        "operationId": "DeleteComment",
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Folder": {
       "get": {
         "tags": [
@@ -1188,7 +1332,7 @@
             "x-position": 1
           },
           {
-            "name": "sharedMode",
+            "name": "shareMode",
             "in": "query",
             "schema": {
               "type": "string",
@@ -1270,6 +1414,7 @@
         "parameters": [
           {
             "name": "FolderId",
+            "x-originalName": "folderId",
             "in": "path",
             "required": true,
             "schema": {
@@ -1279,22 +1424,13 @@
             "x-position": 1
           },
           {
-            "name": "TestTemplateName",
+            "name": "testTemplateName",
             "in": "query",
             "schema": {
               "type": "string",
               "nullable": true
             },
             "x-position": 2
-          },
-          {
-            "name": "sharedMode",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 3
           },
           {
             "name": "pageNumber",
@@ -1304,7 +1440,7 @@
               "format": "int32",
               "default": 1
             },
-            "x-position": 4
+            "x-position": 3
           },
           {
             "name": "pageSize",
@@ -1314,7 +1450,7 @@
               "format": "int32",
               "default": 5
             },
-            "x-position": 5
+            "x-position": 4
           }
         ],
         "responses": {
@@ -2348,7 +2484,7 @@
             "x-position": 1
           },
           {
-            "name": "sharedMode",
+            "name": "shareMode",
             "in": "query",
             "schema": {
               "type": "string",
@@ -3886,6 +4022,132 @@
           "userId": {
             "type": "string",
             "format": "guid"
+          }
+        }
+      },
+      "ApiResponseOfPaginatedListOfCommentDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedListOfCommentDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PaginatedListOfCommentDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommentDto"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CommentDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "parentId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "createBy": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UserCreateCommentDto"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "replyCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "childComments": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CommentDto"
+            }
+          }
+        }
+      },
+      "UserCreateCommentDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
+          "fullName": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -5651,6 +5913,10 @@
         "properties": {
           "name": {
             "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
           },
           "questions": {
             "type": "array",
