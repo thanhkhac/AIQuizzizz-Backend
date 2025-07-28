@@ -128,6 +128,10 @@ public class QuestionSet : BaseAuditableEntity
     public int QuestionCount { get; set; }
     public List<Question> Questions { get; set; } = new();
     public bool IsDeleted { get; set; }
+    
+    public int RatingCount { get; set; }
+    public int RatingSum { get; set; }
+    public double RatingAverage { get; set; }
 
     // Navigation properties
     public List<QuestionSetUser> QuestionSetUsers { get; set; } = new();

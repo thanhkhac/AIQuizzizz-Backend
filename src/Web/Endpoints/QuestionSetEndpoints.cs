@@ -6,6 +6,7 @@ using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Web.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace CleanArchitectureBase.Web.Endpoints;
 
@@ -16,7 +17,7 @@ public class QuestionSetEndpoints : EndpointGroupBase
     {
         app.MapGroup(this)
             .MapPost(CreateQuestionSet)
-            .MapGet(GetQuestionSetDetail,("{questionSetId}"))
+            .MapGet(GetQuestionSetDetail, ("{questionSetId}"))
             .MapGet(GetQuestions, "{questionSetId}/Questions")
             .MapPatch(UpdateQuestionSet, "{questionSetId}")
             .MapDelete(DeleteQuestionSet, "{questionSetId}")
@@ -40,7 +41,7 @@ public class QuestionSetEndpoints : EndpointGroupBase
         var result = await sender.Send(command);
         return result.ToOk();
     }
-    
+
     /// <summary>
     /// User (Owner or sharedmode is editable) Update question set
     /// </summary>
@@ -57,7 +58,7 @@ public class QuestionSetEndpoints : EndpointGroupBase
         var result = await sender.Send(command);
         return result.ToOk();
     }
-    
+
     /// <summary>
     /// User - Get permission to show delete and update button
     /// </summary>
@@ -73,7 +74,7 @@ public class QuestionSetEndpoints : EndpointGroupBase
         var result = await sender.Send(query);
         return result.ToOk();
     }
-    
+
     /// <summary>
     /// User - Get questions of the question set
     /// </summary>
@@ -105,7 +106,7 @@ public class QuestionSetEndpoints : EndpointGroupBase
         var result = await sender.Send(query);
         return result.ToOk();
     }
-    
+
     /// <summary>
     /// Get questions data of the question set for copy/import 
     /// </summary>
@@ -121,7 +122,7 @@ public class QuestionSetEndpoints : EndpointGroupBase
         var result = await sender.Send(query);
         return result.ToOk();
     }
-    
+
     /// <summary>
     /// Get question detail data (No questions)
     /// </summary>
@@ -159,7 +160,7 @@ public class QuestionSetEndpoints : EndpointGroupBase
         var result = await sender.Send(command);
         return result.ToOk();
     }
-    
+
     /// <summary>
     /// User - Reset learn mode
     /// </summary>
@@ -201,7 +202,12 @@ public class QuestionSetEndpoints : EndpointGroupBase
         return result.ToOk();
     }
 
-
+    /// <summary>
+    /// Delete a question set that current user own.
+    /// </summary>
+    /// <param name="questionSetId"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<Unit>>> DeleteQuestionSet(
         [FromRoute] Guid questionSetId,
         ISender sender)
@@ -212,6 +218,28 @@ public class QuestionSetEndpoints : EndpointGroupBase
         };
 
         var result = await sender.Send(command);
+        return result.ToOk();
+    }
+
+
+    /// <summary>
+    /// Search question sets by name/description (with pagination)
+    /// </summary>
+    public async Task<Ok<ApiResponse<PaginatedList<SearchQuestionSetDto>>>> SearchQuestionSets(
+        ISender sender,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 5,
+        [FromQuery] string? name = null,
+        [FromQuery] Guid? tagId = null)
+    {
+        var query = new SearchPublicQuestionSetByNameQuery
+        {
+            Name = name,
+            TagId = tagId,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+        var result = await sender.Send(query);
         return result.ToOk();
     }
 
