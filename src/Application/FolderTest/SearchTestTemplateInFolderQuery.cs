@@ -3,7 +3,6 @@ using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
-using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.FolderTest;
 
@@ -24,7 +23,6 @@ public class SearchTestTemplateInFolderQuery : IRequest<PaginatedList<TestTempla
     /// </summary>
     public required Guid FolderId { get; set; }
     public required string? TestTemplateName { get; set; }
-    public required string? SharedMode { get; set; }
     public int PageNumber { get; set; } = 1;
     public int PageSize { get; set; } = 5;
 }
@@ -35,10 +33,6 @@ public class SearchTestTemplateInFolderQueryValidator : AbstractValidator<Search
     {
         RuleFor(x => x.FolderId)
             .NotEmpty().WithMessage("FolderId không được null");
-        
-        RuleFor(x => x.SharedMode)
-            .Must(mode => new[] {"Owner", "Editable", "ViewOnly"}.Contains(mode) || string.IsNullOrEmpty(mode))
-            .WithMessage($"SharedMode phải là Owner, Editable, ViewOnly");
     }
 }
 
@@ -65,21 +59,13 @@ public class SearchTestTemplateInFolderQueryHandler : IRequestHandler<SearchTest
             .FirstOrDefaultAsync(cancellationToken);
         if (accessUser == null)
             throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_FOLDER, "User không có quyền trong folder");
-
-        TestTemplateUserShareMode? sharedMode = null;
-        if (!string.IsNullOrEmpty(rq.SharedMode) &&
-            Enum.TryParse<TestTemplateUserShareMode>(rq.SharedMode, true, out var parsedSharedMode))
-        {
-            sharedMode = parsedSharedMode;
-        }
         
         var testTemplates = _context.FolderTestTemplates
             .Include(ft => ft.TestTemplate)
             .ThenInclude(t => t!.TestTemplateQuestions)
             .Include(t => t.TestTemplate!.CreatedByUser)
             .Where(ft => ft.FolderId == rq.FolderId && ft.Folder != null && ft.Folder.IsDeleted == false
-            && (string.IsNullOrEmpty(rq.TestTemplateName) || ft.TestTemplate!.Name.ToLower().Contains(rq.TestTemplateName.ToLower()))
-            && (sharedMode == null || ft.TestTemplate!.TestTemplateUsers.Any(t => t.ShareMode == sharedMode)))
+            && (string.IsNullOrEmpty(rq.TestTemplateName) || ft.TestTemplate!.Name.ToLower().Contains(rq.TestTemplateName.ToLower())))
             .Select(ft => new TestTemplateDto
             {
                 TestTemplateId = ft.TestTemplate!.Id,

@@ -2,7 +2,6 @@
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.FolderTest.Service;
-using CleanArchitectureBase.Application.TestTemplates.Service;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
@@ -31,16 +30,13 @@ public class AddTestTemplateToFolderCommandHandler : IRequestHandler<AddTestTemp
 {
     private readonly IApplicationDbContext _context;
     private readonly IFolderTestService _folderTestService;
-    private readonly ITestTemplateService _testTemplateService;
 
     public AddTestTemplateToFolderCommandHandler(
         IApplicationDbContext context,
-        IFolderTestService folderTestService,
-        ITestTemplateService testTemplateService)
+        IFolderTestService folderTestService)
     {
         _context = context;
         _folderTestService = folderTestService;
-        _testTemplateService = testTemplateService;
     }
 
     public async Task<Guid> Handle(AddTestTemplateToFolderCommand rq, CancellationToken cancellationToken)
@@ -67,7 +63,7 @@ public class AddTestTemplateToFolderCommandHandler : IRequestHandler<AddTestTemp
         if(templateFolder != null)
             throw new ErrorCodeException(ErrorCodes.TEST_TEMPLATE_ALREADY_EXISTS_IN_FOLDER, "Test template đã tồn tại trong folder");
         
-        await _testTemplateService.CanUseTesTemplate(testTemplate.Id);
+        await _folderTestService.TryCanUseTesTemplate(testTemplate.Id);
 
         var folderTestTemplate = new FolderTestTemplate { TestTemplateId = rq.TestTemplateId, FolderId = rq.FolderId, };
 

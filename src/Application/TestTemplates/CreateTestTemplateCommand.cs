@@ -1,10 +1,7 @@
-﻿using CleanArchitectureBase.Application.Common.Exceptions;
-using CleanArchitectureBase.Application.Common.Interfaces;
+﻿using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.QuestionSets.Dtos;
-using CleanArchitectureBase.Application.Tests.Service;
 using CleanArchitectureBase.Application.TestTemplates.Service;
-using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.TestTemplates;
@@ -13,6 +10,7 @@ namespace CleanArchitectureBase.Application.TestTemplates;
 public class CreateTestTemplateCommand : IRequest<Guid>
 {
     public required string Name { get; set; }
+    public string? Description { get; set; }
     public List<CreateUpdateQuestionDto> Questions { get; set; } = new ();
 }
 
@@ -55,8 +53,8 @@ public class CreateTestTemplateCommandValidator : AbstractValidator<CreateTestTe
 public class CreateTestTemplateCommandHandler : IRequestHandler<CreateTestTemplateCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
-    public readonly IUser _user;
-    public readonly ITestTemplateService _testTemplateService;
+    private readonly IUser _user;
+    private readonly ITestTemplateService _testTemplateService;
 
     public CreateTestTemplateCommandHandler(
         IApplicationDbContext context,
@@ -75,15 +73,9 @@ public class CreateTestTemplateCommandHandler : IRequestHandler<CreateTestTempla
     /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<Guid> Handle(CreateTestTemplateCommand rq, CancellationToken cancellationToken)
     {
-        await _testTemplateService.QuestionAccessForTestTemplate(rq.Questions, cancellationToken);
-
-        var testTemplateByName = await _context.TestTemplates
-            .Where(x => x.Name == rq.Name && x.IsDeleted == false && x.CreatedBy.Equals(_user.UserId))
-            .FirstOrDefaultAsync(cancellationToken);
-        if (testTemplateByName != null)
-            throw new ErrorCodeException(ErrorCodes.TEST_TEMPLATE_ALREADY_EXISTS, "Test template đã tồn tại");
+        await _testTemplateService.TryQuestionAccessForTestTemplate(rq.Questions, cancellationToken);
         
-        var testTemplate = new TestTemplate { Id = Guid.NewGuid(), Name = rq.Name, IsDeleted = false, };
+        var testTemplate = new TestTemplate { Id = Guid.NewGuid(), Name = rq.Name, IsDeleted = false, Description = rq.Description};
 
         var testTemplateUser = new TestTemplateUser
         {
@@ -103,6 +95,7 @@ public class CreateTestTemplateCommandHandler : IRequestHandler<CreateTestTempla
                 Id = Guid.NewGuid(),
                 Type = Enum.Parse<QuestionType>(questionDto.Type!),
                 QuestionText = questionDto.QuestionText,
+                ExplainText = questionDto.ExplainText,
                 TextFormat = TextFormat.PlainText,
                 Score = questionDto.Score
             };

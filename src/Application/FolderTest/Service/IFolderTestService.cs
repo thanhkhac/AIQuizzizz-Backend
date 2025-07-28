@@ -9,6 +9,7 @@ public interface IFolderTestService
 {
     Task<bool> CanDeleteOrEditFolderTest(Guid folderTestId, CancellationToken cancellationToken);
     Task<bool> IsOwnerOrEditor(Guid folderTestId, CancellationToken cancellationToken);
+    Task TryCanUseTesTemplate (Guid testTemplateId);
 }
 
 public class FolderTestService : IFolderTestService
@@ -29,17 +30,15 @@ public class FolderTestService : IFolderTestService
         var isAdmin = await _identityService.IsInAnyRoleAsync(_user.UserId!.Value, Domain.Constants.Roles.Administrator,
             Domain.Constants.Roles.Moderator);
 
-        if (!isAdmin)
-        {
-            var canDelete = await _context.FolderUsers
-                .Where(x => x.FolderId.Equals(folderTestId) && x.UserId.Equals(_user.UserId)
-                                                            && FolderShareMode.Owner == x.ShareMode)
-                .FirstOrDefaultAsync(cancellationToken);
-
-            if (canDelete == null)
-                return false;
-        }
-        return true;
+        if (isAdmin)
+         return true;
+        
+        var canDelete = await _context.FolderUsers
+            .Where(x => x.FolderId.Equals(folderTestId) && x.UserId.Equals(_user.UserId)
+                                                        && FolderShareMode.Owner == x.ShareMode)
+            .FirstOrDefaultAsync(cancellationToken);
+        
+        return canDelete != null;
     }
 
     public async Task<bool> IsOwnerOrEditor(Guid folderTestId, CancellationToken cancellationToken)
@@ -50,9 +49,17 @@ public class FolderTestService : IFolderTestService
                         && (FolderShareMode.Owner == x.ShareMode
                         || FolderShareMode.Editable == x.ShareMode))
             .FirstOrDefaultAsync(cancellationToken);
-        if (folderUser == null)
-            return false;
 
-        return true;
+        return folderUser != null;
+    }
+
+    public async Task TryCanUseTesTemplate(Guid testTemplateId)
+    {
+        var accessToView = await _context.TestTemplateUsers
+            .Where(t => t.UserId.Equals(_user.UserId) && t.TestTemplateId.Equals(testTemplateId))
+            .FirstOrDefaultAsync();
+        
+        if (accessToView == null)
+            throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE, "User không có quyền dùng test template này");
     }
 }

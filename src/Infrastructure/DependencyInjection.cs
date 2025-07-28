@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using CleanArchitectureBase.Application.Classes.Service;
+using CleanArchitectureBase.Application.Comments.Service;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.FolderTest.Service;
 using CleanArchitectureBase.Application.Plans;
@@ -176,6 +177,7 @@ public static class DependencyInjection
         services.AddTransient<ITestService, TestService>();
         services.AddTransient<ITestTemplateService, TestTemplateService>();
         services.AddTransient<IFolderTestService, FolderTestService>();
+        services.AddTransient<ICommentService, CommentService>();
         services.AddSingleton<IRedisService, RedisService>();
         services.AddSingleton<IFileService, FileService>();
 

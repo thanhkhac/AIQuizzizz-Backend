@@ -80,6 +80,7 @@ public static class ErrorCodes
     
     //Question
     public const string INVALID_QUESTION_TYPE = nameof(INVALID_QUESTION_TYPE);
+    public const string QUESTION_NOT_FOUND = nameof(QUESTION_NOT_FOUND);
     
     //Question set
     public const string QUESTION_SET_NOT_FOUND = nameof(QUESTION_SET_NOT_FOUND);
@@ -105,6 +106,7 @@ public static class ErrorCodes
     public const string TEST_NOT_FOUND = nameof(TEST_NOT_FOUND);
     public const string NUMBER_OF_QUESTION_EXCEED_LIMIT = nameof(NUMBER_OF_QUESTION_EXCEED_LIMIT);
     public const string USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE = nameof(USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE);
+    public const string USER_NOT_HAVE_PERMISSION_IN_TEST = nameof(USER_NOT_HAVE_PERMISSION_IN_TEST);
     public const string TEST_TIME_IS_UP = nameof(TEST_TIME_IS_UP);
     
     //TestTemplate
@@ -118,4 +120,9 @@ public static class ErrorCodes
     
     //Attempt
     public const string ERROR_ATTEMPT_USER = nameof(ERROR_ATTEMPT_USER);
+    
+    //Comment
+    public const string QUESTION_CAN_NOT_COMMENT = nameof(QUESTION_CAN_NOT_COMMENT);
+    public const string USER_NOT_HAVE_PERMISSION_IN_COMMENT = nameof(USER_NOT_HAVE_PERMISSION_IN_COMMENT);
+    public const string COMMENT_NOT_FOUND = nameof(COMMENT_NOT_FOUND);
 }

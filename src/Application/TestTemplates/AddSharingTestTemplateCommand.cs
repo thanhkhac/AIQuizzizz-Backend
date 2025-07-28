@@ -42,7 +42,15 @@ public class AddSharingTestTemplateCommandHandler : IRequestHandler<AddSharingTe
     
     public async Task<Guid> Handle(AddSharingTestTemplateCommand rq, CancellationToken cancellationToken)
     {
-        var testTemplate = await _testTemplateService.CanEditTestTemplate(rq.TestTemplateId, cancellationToken);
+        var testTemplate = await _context.TestTemplates
+            .Where(t => t.Id == rq.TestTemplateId && t.IsDeleted == false)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (testTemplate == null)
+            throw new ErrorCodeException(ErrorCodes.TEST_TEMPLATE_NOT_FOUND, "Không tìm thấy test template");
+            
+        var canAddSharing = await _testTemplateService.CanEditTestTemplate(rq.TestTemplateId, cancellationToken);
+        if (!canAddSharing)
+            throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE, "Không có quyền thêm");
         
         if (rq.Sharing == null || rq.Sharing.SharingModel.Count <= 0)
             return rq.TestTemplateId;
