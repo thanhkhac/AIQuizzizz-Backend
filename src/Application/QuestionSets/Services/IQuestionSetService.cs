@@ -42,8 +42,6 @@ public class QuestionSetService : IQuestionSetService
     public async Task<bool> CanUserViewQuestionSet(Guid? userId, Guid questionSetId)
     {
         var questionSet = await _context.QuestionSets
-            .Include(qs => qs.QuestionSetUsers)
-            .Include(qs => qs.ClassQuestionSets)
             .Where(x => x.IsDeleted == false)
             .FirstOrDefaultAsync(qs => qs.Id == questionSetId);
 
@@ -65,8 +63,8 @@ public class QuestionSetService : IQuestionSetService
             return true;
 
         // Kiểm tra xem người dùng được share quyền nào không
-        var hasShareAccess = questionSet.QuestionSetUsers
-            .Any(qsu => qsu.UserId == userId);
+        var hasShareAccess = await _context.QuestionSetUsers
+            .AnyAsync(qsu => qsu.QuestionSetId == questionSet.Id && qsu.UserId == userId.Value);
 
         if (hasShareAccess)
             return true;
@@ -74,7 +72,7 @@ public class QuestionSetService : IQuestionSetService
         // Check theo class mode
         if (questionSet.VisibilityMode == QuestionSetVisibilityMode.OnlyClass)
         {
-            var classIds = questionSet.ClassQuestionSets.Select(cqs => cqs.ClassId);
+            var classIds = _context.ClassQuestionSets.Where(x => x.QuestionSetId == questionSet.Id).Select(cqs => cqs.ClassId).ToList();
 
             return await _context.ClassUsers
                 .AnyAsync(cu => classIds.Contains(cu.ClassId) && cu.UserId == userId);
