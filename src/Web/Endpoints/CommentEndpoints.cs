@@ -19,9 +19,11 @@ public class CommentEndpoints : EndpointGroupBase
     
     public async Task<Ok<ApiResponse<PaginatedList<CommentDto>>>> GetComment(
         [FromRoute] Guid questionId,
-        ISender sender)
+        ISender sender,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10)
     {    
-        var rq = new GetCommentByQuestionQuery { QuestionId = questionId};
+        var rq = new GetCommentByQuestionQuery { QuestionId = questionId, PageNumber = pageNumber, PageSize = pageSize};
         var result = await sender.Send(rq);
         return result.ToOk();
     }

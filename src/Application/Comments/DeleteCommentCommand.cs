@@ -41,7 +41,9 @@ public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand,
         if (comment == null)
             throw new ErrorCodeException(ErrorCodes.COMMENT_NOT_FOUND, "Không tìm thấy comment"); 
         
-        await _commentService.CanDelete(rq.CommentId, cancellationToken);
+        var canDelete = await _commentService.CanDelete(rq.CommentId, cancellationToken);
+        if(!canDelete)
+            throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_COMMENT, "User không có quyền xóa comment này");
         
         comment.IsDeleted = true;
         
