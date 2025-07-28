@@ -2,6 +2,7 @@
 using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Comments.Service;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Mappings;
 using CleanArchitectureBase.Application.FolderTest.Service;
 using CleanArchitectureBase.Application.Plans;
 using CleanArchitectureBase.Application.Questions.Services;
@@ -166,6 +167,8 @@ public static class DependencyInjection
                 options.SignIn.RequireConfirmedPhoneNumber = false;
             }
         );
+        
+        services.AddAutoMapper(typeof(AutoMapperProfile));
 
         services.AddSingleton(TimeProvider.System);
         services.AddTransient<IIdentityService, IdentityService>();

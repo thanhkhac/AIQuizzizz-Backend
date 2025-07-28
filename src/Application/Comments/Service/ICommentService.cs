@@ -7,8 +7,9 @@ namespace CleanArchitectureBase.Application.Comments.Service;
 
 public interface ICommentService
 {
-    Task<Question> CanComment(Guid questionId, CancellationToken cancellationToken);
-    Task CanDelete(Guid commentId, CancellationToken cancellationToken);
+    public Task<bool> CanComment(Guid questionSetId);
+    public Task<bool> CanDelete(Guid commentId, CancellationToken cancellationToken);
+    public Task<bool> CanComment(QuestionSet questionSet);
 }
 
 public class CommentService : ICommentService
@@ -25,34 +26,27 @@ public class CommentService : ICommentService
         _identityService = identityService;
     }
     
-    public async Task<Question> CanComment(Guid questionId, CancellationToken cancellationToken)
+    public async Task<bool> CanComment(Guid questionSetId)
     {
-        var question = await _context.Questions
-            .Include(x => x.QuestionSet)
-            .Where(x => x.Id == questionId)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (question == null)
-            throw new ErrorCodeException(ErrorCodes.QUESTION_NOT_FOUND, "Question không tìm thấy");
-        
-        if(question.QuestionSet == null)
-            throw new ErrorCodeException(ErrorCodes.QUESTION_CAN_NOT_COMMENT, "Question không thể comment");
-        
-        var questionSetUser = await _context.QuestionSetUsers
-            .Where(x => x.QuestionSetId == question.QuestionSet.Id && x.UserId == _user.UserId)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (questionSetUser == null)
-            throw new ErrorCodeException(ErrorCodes.USER_NOT_ACCESS_TO_QUESTION_SET, "User không trong question set của question");
+        var questionSet = await _context.QuestionSets
+            .Include(qs => qs.QuestionSetUsers)
+            .Include(qs => qs.ClassQuestionSets)
+            .Where(x => x.IsDeleted == false)
+            .FirstOrDefaultAsync(qs => qs.Id == questionSetId);
 
-        return question;
+        if (questionSet == null)
+            return false;
+
+        return await CanComment(questionSet);
     }
 
-    public async Task CanDelete(Guid commentId, CancellationToken cancellationToken)
+    public async Task<bool> CanDelete(Guid commentId, CancellationToken cancellationToken)
     {
         var isAdmin = await _identityService.IsInAnyRoleAsync(_user.UserId!.Value, Domain.Constants.Roles.Administrator,
             Domain.Constants.Roles.Moderator);
 
         if (isAdmin)
-            return;
+            return true;
         
         var canDeleteComment = await _context.Comments
             .Where(x => x.Id == commentId && x.CreatedBy.Equals(_user.UserId))
@@ -60,5 +54,33 @@ public class CommentService : ICommentService
         
         if (canDeleteComment == null)
             throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_COMMENT, "User không có quyền xóa comment này");
+        
+        return true;
+    }
+
+    public async Task<bool> CanComment(QuestionSet questionSet)
+    {
+        if (questionSet.VisibilityMode == QuestionSetVisibilityMode.Public)
+            return true;
+
+        if (_user.UserId == null) return false;
+
+        if (await _identityService.IsInAnyRoleAsync(_user.UserId.Value, Domain.Constants.Roles.Administrator, Domain.Constants.Roles.Moderator))
+            return true;
+        
+        var hasShareAccess = questionSet.QuestionSetUsers
+            .Any(qsu => qsu.UserId == _user.UserId.Value);
+
+        if (hasShareAccess)
+            return true;
+        
+        if (questionSet.VisibilityMode == QuestionSetVisibilityMode.OnlyClass)
+        {
+            var classIds = questionSet.ClassQuestionSets.Select(cqs => cqs.ClassId);
+
+            return await _context.ClassUsers
+                .AnyAsync(cu => classIds.Contains(cu.ClassId) && cu.UserId == _user.UserId.Value);
+        }
+        return false;
     }
 }
