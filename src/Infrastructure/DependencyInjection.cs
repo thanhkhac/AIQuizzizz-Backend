@@ -181,6 +181,7 @@ public static class DependencyInjection
         services.AddTransient<ITestTemplateService, TestTemplateService>();
         services.AddTransient<IFolderTestService, FolderTestService>();
         services.AddTransient<ICommentService, CommentService>();
+        services.AddTransient<IAiGenerateService, AiGenerateService>();
         services.AddSingleton<IRedisService, RedisService>();
         services.AddSingleton<IFileService, FileService>();
 

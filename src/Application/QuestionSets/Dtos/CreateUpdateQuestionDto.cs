@@ -88,7 +88,7 @@ public class CreateUpdateQuestionDto
                     {
                         options.RuleFor(o => o.Text)
                             .NotEmpty().WithMessage($"Nội dung không được để trống")
-                            .MaximumLength(1000).WithMessage($"Nội dung không được vượt quá 200 ký tự");
+                            .MaximumLength(1000).WithMessage($"Nội dung không được vượt quá 1000 ký tự");
                     });
             });
 
@@ -128,7 +128,7 @@ public class CreateUpdateQuestionDto
                     {
                         item.RuleFor(i => i.Text)
                             .NotEmpty().WithMessage($"Nội dung không được để trống")
-                            .MaximumLength(1000).WithMessage($"Nội dung không được vượt quá 200 ký tự");
+                            .MaximumLength(1000).WithMessage($"Nội dung không được vượt quá 1000 ký tự");
                     });
             });
 

@@ -31,7 +31,9 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
     private readonly IApplicationDbContext _context;
     private readonly ICommentService _commentService;
     
-    public CreateCommentCommandHandler(IApplicationDbContext context, IUser user, ICommentService commentService)
+    public CreateCommentCommandHandler(
+        IApplicationDbContext context,
+        ICommentService commentService)
     {
         _context = context;
         _commentService = commentService;
