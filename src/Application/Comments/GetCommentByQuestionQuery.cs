@@ -56,6 +56,7 @@
 
             var comments = await _context.Comments
                 .Include(x => x.ChildComments)
+                .Include(x => x.CreatedByUser)
                 .Where(x => x.QuestionId == rq.QuestionId && x.IsDeleted == false)
                 .ToListAsync(cancellationToken);
             

@@ -32,6 +32,9 @@ public class QuestionSetEndpoints : EndpointGroupBase
             .MapGet(GetQuestionsForCopy, "{questionSetId}/QuestionsForCopy")
             .MapGet(SearchQuestionSetsOwnedOrSharedWithMe, "/SharedOrOwned")
             ;
+
+        app.MapGroup(this).DisableAntiforgery()
+            .MapPost(GenerateQuestionWithAi, "GenerateQuestionWithAi");
     }
 
     /// <summary>
@@ -288,6 +291,21 @@ public class QuestionSetEndpoints : EndpointGroupBase
         var result = await sender.Send(query);
         return result.ToOk();
     }
-
-
+    
+    public async Task<Ok<ApiResponse<string>>> GenerateQuestionWithAi(
+        [FromForm] IFormFile file,
+        ISender sender)
+    {
+        var rq = new FileStreamData()
+        {
+            Data = file.OpenReadStream(),
+            ContentType = file.ContentType,
+            FileName = file.FileName,
+        };
+        var result = await sender.Send(new GenerateQuestionWithAiCommand
+        {
+            FileData = rq
+        });
+        return result.ToOk();
+    }
 }
