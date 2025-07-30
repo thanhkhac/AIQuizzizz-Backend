@@ -5674,6 +5674,10 @@
             "type": "string",
             "format": "guid"
           },
+          "classId": {
+            "type": "string",
+            "format": "guid"
+          },
           "name": {
             "type": "string"
           },

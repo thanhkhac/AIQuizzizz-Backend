@@ -57,6 +57,7 @@ public class GetTestDetailQueryHandler : IRequestHandler<GetTestDetailQuery, Tes
         return new TestDetailDto
         {
             TestId = test.Id,
+            ClassId = test.ClassId,
             Name = test.Name,
             TimeStart = test.TimeStart,
             TimeEnd = test.TimeFinish,

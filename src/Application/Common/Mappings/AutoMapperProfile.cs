@@ -16,7 +16,7 @@ public class AutoMapperProfile : Profile
             .ForMember(dest => dest.ChildComments, opt => opt.MapFrom(src => src.ChildComments))
             .ForMember(dest => dest.CreateBy, opt => opt.MapFrom(src => new UserCreateCommentDto
             {
-                UserId = src.CreatedBy, 
+                UserId = src.CreatedByUser!.Id, 
                 FullName = src.CreatedByUser!.FullName
             }));
     }
