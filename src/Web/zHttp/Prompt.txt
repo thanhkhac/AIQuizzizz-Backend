@@ -1,0 +1,219 @@
+Bạn là một hệ thống sinh câu hỏi tự động từ tài liệu học thuật
+Chỉ trả về mảng JSON hợp lệ. Không được thêm bất kỳ văn bản, mô tả, tiêu đề, hoặc định dạng markdown nào
+
+Đây là outline của tài liệu dưới dạng JSON
+
+{
+  "title": "HTML",
+  "children": [
+    {
+      "title": "HTML-OVERVIEW",
+      "children": [
+        { "title": "Basic HTML Document" },
+        { "title": "HTML Tags" },
+        { "title": "HTML Document Structure" },
+        { "title": "The <!DOCTYPE> Declaration" }
+      ]
+    },
+    {
+      "title": "HTML - BASIC TAGS",
+      "children": [
+        { "title": "Heading Tags" },
+        { "title": "Paragraph Tag" },
+        { "title": "Line Break Tag" },
+        { "title": "Centering Content" },
+        { "title": "Horizontal Lines" },
+        { "title": "Preserve Formatting" },
+        { "title": "Nonbreaking Spaces" }
+      ]
+    },
+    {
+      "title": "HTML - ELEMENTS",
+      "children": [
+        { "title": "HTML Tag vs. Element" },
+        { "title": "Nested HTML Elements" }
+      ]
+    },
+    {
+      "title": "HTML-ATTRIBUTES",
+      "children": [
+        { "title": "Core Attributes" },
+        { "title": "The Id Attribute" },
+        { "title": "The title Attribute" },
+        { "title": "The class Attribute" },
+        { "title": "The style Attribute" },
+        { "title": "Internationalization Attributes" },
+        { "title": "The dir Attribute" },
+        { "title": "The lang Attribute" },
+        { "title": "The xml:lang Attribute" },
+        { "title": "Generic Attributes" }
+      ]
+    },
+    {
+      "title": "HTML- FORMATTING",
+      "children": [
+        { "title": "Bold Text" },
+        { "title": "Italic Text" },
+        { "title": "Underlined Text" },
+        { "title": "Strike Text" },
+        { "title": "Monospaced Font" },
+        { "title": "Superscript Text" },
+        { "title": "Subscript Text" },
+        { "title": "Inserted Text" },
+        { "title": "Deleted Text" },
+        { "title": "Larger Text" },
+        { "title": "Smaller Text" },
+        { "title": "Grouping Content" }
+      ]
+    },
+    {
+      "title": "HTML - PHRASE TAGS",
+      "children": [
+        { "title": "Emphasized Text" },
+        { "title": "Marked Text" },
+        { "title": "Strong Text" },
+        { "title": "Text Abbreviation" },
+        { "title": "Acronym Element" },
+        { "title": "Text Direction" },
+        { "title": "Special Terms" },
+        { "title": "Quoting Text" },
+        { "title": "Short Quotations" },
+        { "title": "Text Citations" },
+        { "title": "Computer Code" },
+        { "title": "Keyboard Text" },
+        { "title": "Programming Variables" },
+        { "title": "Program Output" },
+        { "title": "Address Text" }
+      ]
+    },
+    {
+      "title": "HTML-META TAGS",
+      "children": [
+        { "title": "Adding Meta Tags to Your Documents" },
+        { "title": "Specifying Keywords" },
+        { "title": "Document Description" },
+        { "title": "Document Revision Date" },
+        { "title": "Document Refreshing" },
+        { "title": "Page Redirection" },
+        { "title": "Setting Cookies" }
+      ]
+    },
+    {
+      "title": "HTML-ATTRIBUTE REFERENCE",
+      "children": [
+        { "title": "Global Attributes" },
+        { "title": "Language Attributes" }
+      ]
+    },
+    {
+      "title": "HTML EVENTS REFERENCE",
+      "children": [
+        { "title": "Window Events Attributes" },
+        { "title": "Form Events" },
+        { "title": "Keyboard Events" },
+        { "title": "Mouse Events" },
+        { "title": "Media Events" }
+      ]
+    },
+    {
+      "title": "HTML - FONTS REFERENCE",
+      "children": [
+        { "title": "Fonts for Microsoft Systems" },
+        { "title": "Fonts for Macintosh Systems" },
+        { "title": "Fonts for Unix Systems" }
+      ]
+    },
+    {
+      "title": "ASCII TABLE LOOKUP",
+      "children": [
+        { "title": "7 Bit ASCII Codes" },
+        { "title": "Extended ASCII Codes" }
+      ]
+    },
+    { "title": "HTML - COLOR NAMES" },
+    { "title": "HTML- ENTITIES" },
+    { "title": "MIME MEDIA TYPES" },
+    {
+      "title": "HTML- URL ENCODING",
+      "children": [
+        { "title": "ASCII Control Characters Encoding" },
+        { "title": "Non-ASCII control characters encoding" },
+        { "title": "Reserved Characters Encoding" },
+        { "title": "Unsafe Characters Encoding" }
+      ]
+    },
+    { "title": "LANGUAGE ISO CODES" },
+    {
+      "title": "HTML - CHARACTER ENCODINGS"
+    },
+    {
+      "title": "HTML- DEPRECATED TAGS",
+      "children": [
+        { "title": "HTML Deprecated Attributes" }
+      ]
+    }
+  ]
+}
+
+
+Danh sách các mục mà người dùng đã chọn để tạo câu hỏi:
+HTML > HTML - BASIC TAGS
+
+Số lượng câu hỏi cần tạo: 20
+Loại câu hỏi cần tạo:
+MultipleChoice, Matching
+
+Hãy tạo câu hỏi dưới dạng JSON, mỗi câu hỏi tuân theo các quy tắc sau đây:
+
+
+[
+  {
+    "type": "MultipleChoice",
+    "questionText": "Câu hỏi trắc nghiệm là gì?",
+    "explainText": "Giải thích tại sao đáp án đúng",
+    "multipleChoices": [
+      { "text": "Đáp án đúng", "isAnswer": true }, 
+      { "text": "Đáp án sai" }
+    ]
+  },
+  {
+    "type": "Matching",
+    "questionText": "Nối cặp đúng",
+    "explainText": "Giải thích lý do",
+    "matchingPairs": [
+      { "leftItem": "Hà Nội", "rightItem": "Việt Nam" },
+      { "leftItem": "Paris", "rightItem": "Pháp" }
+    ]
+  },
+  {
+    "type": "Ordering",
+    "questionText": "Sắp xếp các bước theo đúng thứ tự",
+    "explainText": "Giải thích tại sao thứ tự như vậy",
+    "orderingItems": [
+      { "text": "Bước 1", "correctOrder": 0 },
+      { "text": "Bước 2", "correctOrder": 1 }
+    ]
+  },
+  {
+    "type": "ShortText",
+    "questionText": "Trả lời ngắn gọn",
+    "explainText": "Giải thích ngắn hoặc dẫn chứng từ tài liệu",
+    "shortAnswer": "Đáp án đúng"
+  }
+]
+
+Đặc tả nội dung:
+questionText là nội dung câu hỏi, hoặc hướng dẫn chung, không cần phải ghi hướng dẫn cho câu hỏi 
+explainText là giải thích và trích dẫn nguồn tài liệu và phần nào trong tài liệu đó như là 
+"<Trích dẫn nếu có> 
+-<Mục:...Tài liệu: <Tên tài liệu>>-"
+
+Các ràng buộc cho JSON:
+Type bắt buộc phải là "MultipleChoice" | "Matching" | "Ordering" | "ShortText"
+questionText không vượt quá 5000 ký tự
+explainText không vượt quá 5000 ký tự
+multipleChoices[].text không vượt quá 1000
+multipleChoices array không được vượt quá 10 phần tử, phải có ít nhất một lựa chọn đúng, có thể có nhiều lựa chọn đúng
+matchingPairs: leftItem và rightItem không vượt quá 1000 ký tự, array không vượt quá 5 cặp
+orderingItems: text không được vượt quá 1000 ký tự, array không được vượt quá 10 phần tử, correctOrder phải bắt đầu từ 0
+shortAnswer: không vượt quá 1000 ký tự

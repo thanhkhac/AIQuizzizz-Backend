@@ -246,7 +246,7 @@ public class QuestionSetEndpoints : EndpointGroupBase
         [FromQuery] string? sortBy = null
     )
     {
-        var query = new SearchPublicQuestionSetByNameQuery
+        var query = new SearchPublicQuestionSetQuery
         {
             Name = name,
             TagIds = tagIds?.ToList(),

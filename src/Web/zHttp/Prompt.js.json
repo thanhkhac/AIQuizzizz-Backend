@@ -1,0 +1,42 @@
+[
+  {
+    "type": "MultipleChoice",
+    "questionText": "Câu hỏi trắc nghiệm là gì?",
+    "explainText": "Giải thích tại sao đáp án đúng",
+    "score": 10,
+    "multipleChoices": [
+      { "text": "Đáp án đúng", "isAnswer": true }, 
+      { "text": "Đáp án sai" }
+    ]
+  },
+  {
+    "type": "Matching",
+    "questionText": "Nối cặp đúng",
+    "explainText": "Giải thích lý do",
+    "score": 10,
+    "matchingPairs": [
+      { "leftItem": "Hà Nội", "rightItem": "Việt Nam" },
+      { "leftItem": "Paris", "rightItem": "Pháp" }
+    ]
+  },
+  {
+    "type": "Ordering",
+    "questionText": "Sắp xếp các bước theo đúng thứ tự",
+    "explainText": "Giải thích tại sao thứ tự như vậy",
+    "score": 20,
+    "orderingItems": [
+      { "text": "Bước 1", "correctOrder": 0 },
+      { "text": "Bước 2", "correctOrder": 1 }
+    ]
+  },
+  {
+    "type": "ShortText",
+    "questionText": "Trả lời ngắn gọn",
+    "explainText": "Giải thích ngắn hoặc dẫn chứng từ tài liệu",
+    "score": 10,
+    "multipleChoices": [],
+    "matchingPairs": [],
+    "orderingItems": [],
+    "shortAnswer": "Đáp án đúng"
+  }
+]
