@@ -3,6 +3,7 @@ using System;
 using CleanArchitectureBase.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250730143756_UpdatePaymentCode")]
+    partial class UpdatePaymentCode
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1028,8 +1031,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .HasDefaultValue(false);
 
                     b.Property<string>("PaymentCode")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.Property<long>("TokenCount")
                         .ValueGeneratedOnAdd()
@@ -1037,9 +1039,6 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .HasDefaultValue(0L);
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PaymentCode")
-                        .IsUnique();
 
                     b.ToTable("DomainUsers");
                 });
