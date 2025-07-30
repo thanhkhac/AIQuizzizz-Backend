@@ -2433,6 +2433,49 @@
         }
       }
     },
+    "/api/QuestionSet/Recent": {
+      "get": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "summary": "Search recent question sets",
+        "operationId": "SearchRecentQuestionSets",
+        "parameters": [
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "x-position": 1
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 5
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfQuestionSetForListResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Tag": {
       "get": {
         "tags": [

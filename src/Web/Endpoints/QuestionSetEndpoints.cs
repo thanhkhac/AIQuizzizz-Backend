@@ -18,8 +18,10 @@ public class QuestionSetEndpoints : EndpointGroupBase
     public override void Map(WebApplication app)
     {
         app.MapGroup(this)
-            .MapPost(CreateQuestionSet)
             .MapGet(SearchQuestionSets, "Public")
+            .MapGet(SearchRecentQuestionSets, "/Recent")
+            .MapGet(SearchQuestionSetsOwnedOrSharedWithMe, "/SharedOrOwned")
+            .MapPost(CreateQuestionSet)
             .MapGet(GetQuestionSetDetail, ("{questionSetId}"))
             .MapGet(GetQuestions, "{questionSetId}/Questions")
             .MapPatch(UpdateQuestionSet, "{questionSetId}")
@@ -30,7 +32,6 @@ public class QuestionSetEndpoints : EndpointGroupBase
             .MapGet(GetPermissions, "{questionSetId}/Permissions")
             .MapGet(GetQuestionsForEdit, "{questionSetId}/QuestionsForEdit")
             .MapGet(GetQuestionsForCopy, "{questionSetId}/QuestionsForCopy")
-            .MapGet(SearchQuestionSetsOwnedOrSharedWithMe, "/SharedOrOwned")
             ;
     }
 
@@ -288,6 +289,29 @@ public class QuestionSetEndpoints : EndpointGroupBase
         var result = await sender.Send(query);
         return result.ToOk();
     }
+    
+    /// <summary>
+    /// Search recent question sets
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="pageNumber"></param>
+    /// <param name="pageSize"></param>
+    /// <returns></returns>
+    public async Task<Ok<ApiResponse<PaginatedList<QuestionSetForListResponseDto>>>> SearchRecentQuestionSets(
+        ISender sender,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 5
+    )
+    {
+        var query = new SearchRecentQuestionSetQuery
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+        };
+        var result = await sender.Send(query);
+        return result.ToOk();
+    }
+
 
 
 }
