@@ -129,4 +129,13 @@ public static class ErrorCodes
     public const string USER_NOT_HAVE_PERMISSION = nameof(USER_NOT_HAVE_PERMISSION);
     public const string PLAN_NOT_FOUND = nameof(PLAN_NOT_FOUND);
     public const string INSUFFICIENT_BALANCE = nameof(INSUFFICIENT_BALANCE);
+    
+    //AI
+    public const string API_KEY_NOTFOUND = nameof(API_KEY_NOTFOUND);
+    public const string UPLOAD_URI_NOTFOUND = nameof(UPLOAD_URI_NOTFOUND);
+    public const string GENERATE_URI_NOTFOUND = nameof(UPLOAD_URI_NOTFOUND);
+    public const string FILE_UPLOAD_FAILED = nameof(FILE_UPLOAD_FAILED);
+    public const string FILE_URI_NOTFOUND = nameof(FILE_URI_NOTFOUND);
+    public const string GENERATE_CONTENT_FAILED = nameof(GENERATE_CONTENT_FAILED);
+    public const string PROMPT_NOT_FOUND = nameof(PROMPT_NOT_FOUND);
 }

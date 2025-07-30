@@ -9,7 +9,7 @@ namespace CleanArchitectureBase.Application.TestTemplates.Service;
 
 public interface ITestTemplateService
 {
-    Task TryQuestionAccessForTestTemplate(List<CreateUpdateQuestionDto> question, CancellationToken cancellationToken);
+    Task TryCheckQuestionAccessForTestTemplate(List<CreateUpdateQuestionDto> question, CancellationToken cancellationToken);
     Task<bool> CanViewTesTemplate (Guid testTemplateId);
     Task<bool> CanDeleteTestTemplate (Guid testTemplateId, CancellationToken cancellationToken);
     Task<bool> CanEditTestTemplate (Guid testTemplateId, CancellationToken cancellationToken);
@@ -29,7 +29,7 @@ public class TestTemplateService : ITestTemplateService
         _identityService = identityService;
     }
 
-    public async Task TryQuestionAccessForTestTemplate(List<CreateUpdateQuestionDto> questions, CancellationToken cancellationToken)
+    public async Task TryCheckQuestionAccessForTestTemplate(List<CreateUpdateQuestionDto> questions, CancellationToken cancellationToken)
     {
         var questionIds = questions
             .Where(q => q.QuestionId.HasValue && q.QuestionId != Guid.Empty)

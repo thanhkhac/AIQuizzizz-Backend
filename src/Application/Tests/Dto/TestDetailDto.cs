@@ -5,6 +5,7 @@ namespace CleanArchitectureBase.Application.Tests.Dto;
 public class TestDetailDto
 {
     public Guid TestId { get; set; }
+    public Guid ClassId { get; set; }
     public required string Name { get; set; }
     public DateTimeOffset TimeStart { get; set; }
     public DateTimeOffset TimeEnd { get; set; }
