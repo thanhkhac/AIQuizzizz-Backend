@@ -10,7 +10,7 @@ namespace CleanArchitectureBase.Application.Comments;
 [Authorize]
 public class ReplyCommentCommand : IRequest<Guid>
 {
-    public Guid CommentId { get; set; }
+    public Guid? CommentId { get; set; }
     public required string Content { get; set; }
 }
 

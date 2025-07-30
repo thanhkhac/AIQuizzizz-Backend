@@ -124,10 +124,10 @@ public class Folder : EndpointGroupBase
     
     public async Task<Ok<ApiResponse<Guid>>> UpdateFolder(
         [FromRoute] Guid folderId,
-        [FromQuery] string name,
+        [FromBody] UpdateFolderCommand rq,
         ISender sender)
     {
-        var rq = new UpdateFolderCommand { FolderId = folderId, Name = name };
+        rq.FolderId = folderId;
         var result = await sender.Send(rq);
         return result.ToOk();
     }

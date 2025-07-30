@@ -18,7 +18,7 @@ public class CreateInviteCodeCommand : IRequest<ClassCodeDto>
     /// <summary>
     /// Id of the class want to create invite code
     /// </summary>
-    public required Guid ClassId { get; set; }
+    public Guid? ClassId { get; set; }
     public required double ExpiredTime { get; set; }
 }
 
@@ -58,7 +58,7 @@ public class CreateInviteCodeCommandHandler : IRequestHandler<CreateInviteCodeCo
         if (classById == null)
             throw new ErrorCodeException(ErrorCodes.CLASS_NOTFOUND, "Không tìm thấy class");
         
-        var isLecturerOrOwnerInClass = await _classService.IsLecturerOrOwnerInClass(rq.ClassId);
+        var isLecturerOrOwnerInClass = await _classService.IsLecturerOrOwnerInClass(rq.ClassId!.Value);
         if (!isLecturerOrOwnerInClass)
             throw new ErrorCodeException(ErrorCodes.NOT_FOUND_TEACHER_OR_OWNER_IN_CLASS, "Không phải lecturer hoặc owner của class");
 

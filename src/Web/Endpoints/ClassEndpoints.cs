@@ -105,19 +105,15 @@ public class Class : EndpointGroupBase
     /// Lecturer - Create new invitation code
     /// </summary>
     /// <param name="classId"></param>
-    /// <param name="expiredTime"></param>
+    /// <param name="rq"></param>
     /// <param name="sender"></param>
     /// <returns></returns>
     public async Task<Ok<ApiResponse<ClassCodeDto>>> CreateInviteCode(
         [FromRoute] Guid classId,
-        [FromQuery] double expiredTime,
+        [FromBody] CreateInviteCodeCommand rq,
         ISender sender)
     {
-        var rq = new CreateInviteCodeCommand
-        {
-            ClassId = classId,
-            ExpiredTime = expiredTime,
-        };
+        rq.ClassId = classId;
         var result = await sender.Send(rq);
         return result.ToOk();
     }
@@ -241,21 +237,17 @@ public class Class : EndpointGroupBase
     /// </summary>
     /// <param name="classId"></param>
     /// <param name="userId"></param>
-    /// <param name="position"></param>
+    /// <param name="rq"></param>
     /// <param name="sender"></param>
     /// <returns></returns>
     public async Task<Ok<ApiResponse<UpdatePositionDto>>> UpdatePosition(
         [FromRoute] Guid classId,
         [FromRoute] Guid userId,
-        [FromQuery] string position,
+        [FromBody] UpdatePositionCommand rq,
         ISender sender)
     {
-        var rq = new UpdatePositionCommand()
-        {
-            ClassId = classId,
-            Position = position,
-            UserId = userId
-        };
+        rq.ClassId = classId;
+        rq.UserId = userId;
         var result = await sender.Send(rq);
         return result.ToOk();
     }
@@ -264,22 +256,15 @@ public class Class : EndpointGroupBase
     /// Class onwer - Update class
     /// </summary>
     /// <param name="classId"></param>
-    /// <param name="name"></param>
-    /// <param name="topic"></param>
+    /// <param name="rq"></param>
     /// <param name="sender"></param>
     /// <returns></returns>
     public async Task<Ok<ApiResponse<Guid>>> UpdateClass(
         [FromRoute] Guid classId,
-        [FromQuery] string name,
-        [FromQuery] string? topic,
+        [FromBody] UpdateClassCommand rq,
         ISender sender)
     {
-        var rq = new UpdateClassCommand()
-        {
-            ClassId = classId,
-            Name = name,
-            Topic = topic,
-        };
+        rq.ClassId = classId;
         var result = await sender.Send(rq);
         return result.ToOk();
     }
