@@ -2433,6 +2433,42 @@
         }
       }
     },
+    "/api/QuestionSet/GenerateQuestionWithAi": {
+      "post": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "GenerateQuestionWithAi",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfString"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Tag": {
       "get": {
         "tags": [
@@ -5924,6 +5960,10 @@
           },
           "isAllowReviewAfterSubmit": {
             "type": "boolean"
+          },
+          "numberOfShuffles": {
+            "type": "integer",
+            "format": "int32"
           },
           "maxAttempt": {
             "type": "integer",
