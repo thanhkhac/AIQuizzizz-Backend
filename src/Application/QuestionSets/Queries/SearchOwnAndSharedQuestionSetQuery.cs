@@ -3,6 +3,7 @@ using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.Questions.Dtos;
+using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using CleanArchitectureBase.Application.Tags.Dto;
 using CleanArchitectureBase.Domain.Entities;
 
@@ -52,6 +53,8 @@ public class SearchOwnAndSharedQuestionSetQueryHandler : IRequestHandler<SearchO
         var userId = _user.UserId!.Value;
         var normalizedFilter = request.FilterBy;
         var keyword = request.Name?.Trim().ToLower();
+        var isFilterCreatedByMe = normalizedFilter == "CreatedByMe";
+        var isFilterSharedWithMe = normalizedFilter == "ShareWithMe";
 
         var query = _context.QuestionSets
             .Include(q => q.CreatedByUser)
@@ -59,18 +62,19 @@ public class SearchOwnAndSharedQuestionSetQueryHandler : IRequestHandler<SearchO
             .Include(q => q.AccessHistories)
             .Where(q => q.QuestionSetUsers.Any(qsu => qsu.UserId == userId));
 
-        if (normalizedFilter == "CreatedByMe")
+        if (isFilterCreatedByMe)
         {
             query = query.Where(q =>
                 q.QuestionSetUsers.Any(qsu =>
                     qsu.UserId == userId && qsu.ShareMode == QuestionSetUserShareMode.Owner));
         }
-        else if (normalizedFilter == "ShareWithMe")
+        else if (isFilterSharedWithMe)
         {
             query = query.Where(q =>
                 q.QuestionSetUsers.Any(qsu =>
                     qsu.UserId == userId && qsu.ShareMode != QuestionSetUserShareMode.Owner));
         }
+
 
         if (!string.IsNullOrEmpty(request.Name))
         {
@@ -78,7 +82,7 @@ public class SearchOwnAndSharedQuestionSetQueryHandler : IRequestHandler<SearchO
         }
 
         query = query.Include(q => q.QuestionSetTags).ThenInclude(qst => qst.Tag);
-        
+
         var projectedQuery = query
             .Select(q => new
             {
@@ -86,12 +90,21 @@ public class SearchOwnAndSharedQuestionSetQueryHandler : IRequestHandler<SearchO
                 LastAccessedAt = q.AccessHistories
                     .Where(ah => ah.UserId == userId)
                     .Select(ah => (DateTimeOffset?)ah.LastAccess)
-                    .FirstOrDefault()
+                    .FirstOrDefault(),
+                IsOwner = q.QuestionSetUsers
+                    .Any(qsu => qsu.UserId == userId && qsu.ShareMode == QuestionSetUserShareMode.Owner)
             });
-
-        if (normalizedFilter == "ShareWithMe")
+        
+        if (string.IsNullOrEmpty(normalizedFilter))
+        {
+            projectedQuery = projectedQuery.Where(x =>
+                x.IsOwner || (!x.IsOwner && x.LastAccessedAt != null));
+        }
+        else if (isFilterSharedWithMe)
+        {
             projectedQuery = projectedQuery.Where(x => x.LastAccessedAt != null);
-
+        }
+        
         if (request.SortBy == "Newest")
             projectedQuery = projectedQuery.OrderByDescending(q => q.QuestionSet.Created);
         else //RecentAccess
@@ -111,13 +124,20 @@ public class SearchOwnAndSharedQuestionSetQueryHandler : IRequestHandler<SearchO
                 CreateBy = x.QuestionSet.CreatedByUser!.FullName,
                 CreatedById = x.QuestionSet.CreatedByUser!.Id,
                 CreatedAt = x.QuestionSet.Created,
-                NumberOfQuestions = x.QuestionSet.QuestionCount,
+                TotalQuestionCount = x.QuestionSet.QuestionCount,
+
                 Tags = x.QuestionSet.QuestionSetTags.Select(t => new TagForListReponseDto
-                {
-                    Id = t.TagId,
-                    Name = t.Tag!.Name.Substring(0, 1).ToUpper() + t.Tag.Name.Substring(1),
-                }).ToList(),
-                LastAccessByMe = x.LastAccessedAt
+                    {
+                        Id = t.TagId,
+                        Name = t.Tag!.Name.Substring(0,
+                                       1)
+                                   .ToUpper() +
+                               t.Tag.Name.Substring(1),
+                    })
+                    .ToList(),
+                LastAccessByMe = x.LastAccessedAt,
+                VisibilityMode = x.QuestionSet.VisibilityMode.ToString(),
+                CompletedQuestionCount = 0
             }),
             request.PageNumber,
             request.PageSize);

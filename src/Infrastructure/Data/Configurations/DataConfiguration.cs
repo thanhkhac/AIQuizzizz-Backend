@@ -720,3 +720,22 @@ public class TestGradeConfiguration : IEntityTypeConfiguration<TestGrade>
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
+
+
+public class TransactionConfigutation : IEntityTypeConfiguration<Transaction>
+{
+    public void Configure(EntityTypeBuilder<Transaction> builder)
+    {
+        builder.HasKey(t => t.Id);
+        
+        builder.HasOne(t => t.User)
+            .WithMany()
+            .HasForeignKey(t => t.UserId)
+            .OnDelete(DeleteBehavior.Restrict); 
+            
+        builder.HasIndex(t => t.PaymentId).IsUnique();
+    }
+}
+
+
+

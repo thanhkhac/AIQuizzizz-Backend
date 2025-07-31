@@ -57,6 +57,7 @@ public class ApplicationDbContext : IdentityDbContext<UserAccount,
     public DbSet<Tag> Tags => Set<Tag>();
     public DbSet<QuestionSetTag> QuestionSetTags => Set<QuestionSetTag>();
     public DbSet<UserQuestionSetAccessHistory> UserQuestionSetAccessHistories => Set<UserQuestionSetAccessHistory>();
+    public DbSet<Transaction> Transactions => Set<Transaction>();
 
     // public override DbSet<ApplicationUserRole> UserRoles { get; set; }
     // public override DbSet<ApplicationRole> Roles { get; set; }
@@ -66,7 +67,7 @@ public class ApplicationDbContext : IdentityDbContext<UserAccount,
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        
+
         foreach (var entityType in builder.Model.GetEntityTypes())
         {
             if (typeof(CleanArchitectureBase.Domain.Common.BaseAuditableEntity).IsAssignableFrom(entityType.ClrType))
@@ -78,8 +79,7 @@ public class ApplicationDbContext : IdentityDbContext<UserAccount,
                     .OnDelete(DeleteBehavior.Restrict);
             }
         }
-        
-        builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
+        builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 }

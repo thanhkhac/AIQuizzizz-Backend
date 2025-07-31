@@ -39,6 +39,11 @@ public class UserConfig : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.IsBanned)
             .HasDefaultValue(false);
+            
+        builder.Property(u => u.PaymentCode)
+            .HasMaxLength(100);
+            
+        builder.HasIndex(u => u.PaymentCode).IsUnique();
 
         builder.Property(u => u.TokenCount)
             .HasDefaultValue(0);

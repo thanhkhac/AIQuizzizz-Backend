@@ -2,6 +2,7 @@
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.Questions.Dtos;
+using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using CleanArchitectureBase.Application.Tags.Dto;
 using CleanArchitectureBase.Domain.Entities;
 
@@ -77,28 +78,64 @@ public class SearchRecentQuestionSetQueryHandler : IRequestHandler<SearchRecentQ
                 Id = x.qs.Id,
                 Name = x.qs.Name,
                 Description = x.qs.Description,
-                NumberOfQuestions = x.qs.QuestionCount,
-                CreateBy = x.qs.CreatedByUser != null ? x.qs.CreatedByUser.FullName : string.Empty,
+                CreateBy = x.qs.CreatedByUser != null
+                    ? x.qs.CreatedByUser.FullName
+                    : string.Empty,
                 CreatedAt = x.qs.Created,
                 CreatedById = x.qs.CreatedBy,
                 RatingCount = x.qs.RatingCount,
                 RatingAverage = x.qs.RatingAverage,
                 LastAccessByMe = x.LastAccess,
+                TotalQuestionCount = x.qs.QuestionCount,
+                VisibilityMode = x.qs.VisibilityMode.ToString(),
                 Tags = x.qs.QuestionSetTags
                     .Where(tag => tag.Tag != null)
                     .Select(tag => new TagForListReponseDto
                     {
                         Id = tag.TagId,
-                        Name = tag.Tag!.Name.Substring(0, 1).ToUpper() + tag.Tag.Name.Substring(1),
+                        Name = tag.Tag!.Name.Substring(0,
+                                       1)
+                                   .ToUpper() +
+                               tag.Tag.Name.Substring(1),
                         QuestionSetCount = tag.Tag.QuestionSetCount
-                    }).ToList()
+                    })
+                    .ToList(),
+                CompletedQuestionCount = 0
             });
 
 
-        return await PaginatedList<QuestionSetForListResponseDto>.CreateAsync(
+        var result = await PaginatedList<QuestionSetForListResponseDto>.CreateAsync(
             query,
             request.PageNumber,
             request.PageSize
         );
+
+        Dictionary<Guid, int> completedQuestionsLookup = new();
+        var questionSetIds = result.Items.Select(x => x.Id).ToList();
+
+        if (questionSetIds.Any())
+        {
+            completedQuestionsLookup = await _context.UserQuestionSetHistories
+                .Where(h => h.UserId == userId)
+                .Join(_context.Questions
+                        .Where(q => !q.IsDeleted && questionSetIds.Contains(q.QuestionSetId!.Value)),
+                    h => h.QuestionId,
+                    q => q.Id,
+                    (h, q) => q.QuestionSetId!.Value)
+                .GroupBy(questionSetId => questionSetId)
+                .Select(g => new
+                {
+                    QuestionSetId = g.Key,
+                    Count = g.Count()
+                })
+                .ToDictionaryAsync(x => x.QuestionSetId, x => x.Count, cancellationToken);
+        }
+
+        foreach (var item in result.Items)
+        {
+            item.CompletedQuestionCount = completedQuestionsLookup.GetValueOrDefault(item.Id, 0);
+        }
+
+        return result;
     }
 }

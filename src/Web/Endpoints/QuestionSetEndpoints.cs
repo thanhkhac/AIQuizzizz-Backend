@@ -17,25 +17,25 @@ public class QuestionSetEndpoints : EndpointGroupBase
 
     public override void Map(WebApplication app)
     {
-        app.MapGroup(this)
-            .MapGet(SearchQuestionSets, "Public")
-            .MapGet(SearchRecentQuestionSets, "/Recent")
-            .MapGet(SearchQuestionSetsOwnedOrSharedWithMe, "/SharedOrOwned")
-            .MapPost(CreateQuestionSet)
-            .MapGet(GetQuestionSetDetail, ("{questionSetId}"))
-            .MapGet(GetQuestions, "{questionSetId}/Questions")
-            .MapPatch(UpdateQuestionSet, "{questionSetId}")
-            .MapDelete(DeleteQuestionSet, "{questionSetId}")
-            .MapGet(GetLearnQuestions, "{questionSetId}/LearnQuestions")
-            .MapPost(UpdateQuestionSetHistory, "{questionSetId}/LearnHistory")
-            .MapDelete(ResetQuestionSetHistory, "{questionSetId}/LearnHistory")
-            .MapGet(GetPermissions, "{questionSetId}/Permissions")
-            .MapGet(GetQuestionsForEdit, "{questionSetId}/QuestionsForEdit")
-            .MapGet(GetQuestionsForCopy, "{questionSetId}/QuestionsForCopy")
-            ;
+        var group = app.MapGroup(this);
 
-        app.MapGroup(this).DisableAntiforgery()
-            .MapPost(GenerateQuestionWithAi, "GenerateQuestionWithAi");
+        group.MapGet(SearchQuestionSets, "Public");
+        group.MapGet(SearchRecentQuestionSets, "/Recent");
+        group.MapGet(SearchQuestionSetsOwnedOrSharedWithMe, "/SharedOrOwned");
+        group.MapPost(CreateQuestionSet);
+        group.MapGet(GetQuestionSetDetail, "{questionSetId}");
+        group.MapGet(GetQuestions, "{questionSetId}/Questions");
+        group.MapPatch(UpdateQuestionSet, "{questionSetId}");
+        group.MapDelete(DeleteQuestionSet, "{questionSetId}");
+        group.MapGet(GetLearnQuestions, "{questionSetId}/LearnQuestions");
+        group.MapPost(UpdateQuestionSetHistory, "{questionSetId}/LearnHistory");
+        group.MapDelete(ResetQuestionSetHistory, "{questionSetId}/LearnHistory");
+        group.MapGet(GetPermissions, "{questionSetId}/Permissions");
+        group.MapGet(GetQuestionsForEdit, "{questionSetId}/QuestionsForEdit");
+        group.MapGet(GetQuestionsForCopy, "{questionSetId}/QuestionsForCopy");
+
+        group.MapPost(GenerateQuestionWithAi, "GenerateQuestionWithAi")
+            .DisableAntiforgery();
     }
 
     /// <summary>

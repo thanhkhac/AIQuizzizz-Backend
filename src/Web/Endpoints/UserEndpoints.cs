@@ -12,15 +12,13 @@ public class Users : EndpointGroupBase
 {
     public override void Map(WebApplication app)
     {
-        app.MapGroup(this)
-            .MapGet(GetAllAccount, "")
-            .MapPatch("{UserId}/Role", ChangeRole);
-            
-        app.MapGroup(this)
-            .MapPatch("/{UserId}/Active", ActiveUser);
+        var group = app.MapGroup(this);
 
-        app.MapGroup(this)
-            .MapPatch("/{UserId}/Ban", BanUser);
+        group.MapGet(GetAllAccount, "");
+
+        group.MapPatch("{UserId}/Role", ChangeRole);
+        group.MapPatch("/{UserId}/Active", ActiveUser);
+        group.MapPatch("/{UserId}/Ban", BanUser);
     }
 
 

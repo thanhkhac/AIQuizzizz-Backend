@@ -2,6 +2,7 @@
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Questions.Dtos;
+using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using CleanArchitectureBase.Application.Tags.Dto;
 using CleanArchitectureBase.Domain.Entities;
 
@@ -97,8 +98,10 @@ public class SearchPublicQuestionSetByNameQueryHandler : IRequestHandler<SearchP
                 Id = qs.Id,
                 Name = qs.Name,
                 Description = qs.Description,
-                NumberOfQuestions = qs.QuestionCount,
-                CreateBy = qs.CreatedByUser != null ? qs.CreatedByUser.FullName : string.Empty,
+                TotalQuestionCount = qs.QuestionCount,
+                CreateBy = qs.CreatedByUser != null
+                    ? qs.CreatedByUser.FullName
+                    : string.Empty,
                 RatingCount = qs.RatingCount,
                 RatingAverage = qs.RatingAverage,
                 Tags = qs.QuestionSetTags
@@ -106,10 +109,15 @@ public class SearchPublicQuestionSetByNameQueryHandler : IRequestHandler<SearchP
                     .Select(x => new TagForListReponseDto
                     {
                         Id = x.TagId,
-                        Name = x.Tag!.Name.Substring(0, 1).ToUpper() + x.Tag.Name.Substring(1),
+                        Name = x.Tag!.Name.Substring(0,
+                                       1)
+                                   .ToUpper() +
+                               x.Tag.Name.Substring(1),
                         QuestionSetCount = x.Tag.QuestionSetCount
                     })
-                    .ToList()
+                    .ToList(),
+                VisibilityMode = qs.VisibilityMode.ToString(),
+                CompletedQuestionCount = qs.QuestionCount
             }),
             request.PageNumber,
             request.PageSize
