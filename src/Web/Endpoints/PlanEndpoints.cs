@@ -11,11 +11,12 @@ public class PlanEndpoints : EndpointGroupBase
 {
     public override void Map(WebApplication app)
     {
-        app.MapGroup(this)
-            .MapGet(GetDetailPlan, "/{planId}")
-            .MapPost(CreatePlan, "")
-            .MapPost(BuyPlan, "/{planId}/Buy")
-            .MapDelete(DeletePlan, "/{planId}");
+        var group = app.MapGroup(this);
+
+        group.MapGet(GetDetailPlan, "/{planId}");
+        group.MapPost(CreatePlan, "");
+        group.MapPost(BuyPlan, "/{planId}/Buy");
+        group.MapDelete(DeletePlan, "/{planId}");
     }
     
     public async Task<Ok<ApiResponse<PlanDetailDto>>> GetDetailPlan(

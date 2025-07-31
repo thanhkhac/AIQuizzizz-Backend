@@ -1,4 +1,6 @@
-﻿namespace CleanArchitectureBase.Domain.Entities;
+﻿using CleanArchitectureBase.Domain.Constants;
+
+namespace CleanArchitectureBase.Domain.Entities;
 
 //TODO: đổi tiền về kiểu dữ liệu khác nếu muốn sử dụng quốc tế
 public class User
@@ -10,6 +12,7 @@ public class User
     public bool IsBanned { get; set; }
     public long TokenCount { get; set; }
     public long Balance { get; set; }
+    public string? PaymentCode { get; set; } = Payment.PaymentCodePrefix + Guid.NewGuid().ToString("N")[..30];
 
     // Navigation properties
     public List<UserTokenPurchase> UserTokenPurchases { get; set; } = new();

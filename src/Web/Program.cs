@@ -3,6 +3,7 @@ using CleanArchitectureBase.Infrastructure;
 using CleanArchitectureBase.Infrastructure.Data;
 using CleanArchitectureBase.Infrastructure.Settings;
 using CleanArchitectureBase.Web;
+using CleanArchitectureBase.Web.Attributes;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +15,8 @@ builder.Services.AddKeyVaultIfConfigured(builder.Configuration);
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddWebServices();
+builder.Services.AddScoped<PaymentAuthEndpointFilter>();
+
 
 var app = builder.Build();
 

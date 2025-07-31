@@ -975,7 +975,7 @@
           "Class"
         ],
         "summary": "Class onwer - Update class",
-        "operationId": "PatchApiClass",
+        "operationId": "UpdateClass",
         "parameters": [
           {
             "name": "ClassId",
@@ -1123,7 +1123,7 @@
           "Class"
         ],
         "summary": "Class onwer - Update position of members in class",
-        "operationId": "PatchApiClassMembers",
+        "operationId": "UpdatePosition",
         "parameters": [
           {
             "name": "ClassId",
@@ -1728,7 +1728,7 @@
         "tags": [
           "Folder"
         ],
-        "operationId": "PatchApiFolder",
+        "operationId": "UpdateFolder",
         "parameters": [
           {
             "name": "FolderId",
@@ -1758,6 +1758,58 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Payment/WebHook/Sepay": {
+      "post": {
+        "tags": [
+          "Payment"
+        ],
+        "operationId": "BuyPoint",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BuyPointCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Payment": {
+      "get": {
+        "tags": [
+          "Payment"
+        ],
+        "operationId": "Test",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
                 }
               }
             }
@@ -2620,7 +2672,7 @@
         "tags": [
           "Test"
         ],
-        "operationId": "PatchApiTest",
+        "operationId": "EditTest",
         "parameters": [
           {
             "name": "TestId",
@@ -3064,6 +3116,48 @@
             }
           }
         }
+      },
+      "patch": {
+        "tags": [
+          "TestTemplate"
+        ],
+        "operationId": "UpdateTestTemplate",
+        "parameters": [
+          {
+            "name": "testTemplateId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTestTemplateCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/TestTemplate/{testTemplateId}/Sharing": {
@@ -3162,51 +3256,6 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/UpdateSharingInTestTemplateCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfGuid"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/TestTemplate/{TestTemplateId}": {
-      "patch": {
-        "tags": [
-          "TestTemplate"
-        ],
-        "operationId": "PatchApiTestTemplate",
-        "parameters": [
-          {
-            "name": "TestTemplateId",
-            "x-originalName": "testTemplateId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "guid"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "x-name": "rq",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateTestTemplateCommand"
               }
             }
           },
@@ -4265,7 +4314,7 @@
             "type": "string",
             "nullable": true
           },
-          "numberOfQuestions": {
+          "totalQuestionCount": {
             "type": "integer",
             "format": "int32"
           },
@@ -4276,6 +4325,14 @@
           "ratingAverage": {
             "type": "number",
             "format": "double"
+          },
+          "visibilityMode": {
+            "type": "string",
+            "nullable": true
+          },
+          "completedQuestionCount": {
+            "type": "integer",
+            "format": "int32"
           },
           "createBy": {
             "type": "string",
@@ -4942,6 +4999,75 @@
               "type": "string",
               "format": "guid"
             }
+          }
+        }
+      },
+      "BuyPointCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Transaction ID on SePay",
+            "format": "int32",
+            "nullable": true
+          },
+          "gateway": {
+            "type": "string",
+            "description": "Brand name of the bank",
+            "nullable": true
+          },
+          "transactionDate": {
+            "type": "string",
+            "description": "Bank account number",
+            "format": "date-time",
+            "nullable": true
+          },
+          "accountNumber": {
+            "type": "string",
+            "description": "Bank account number",
+            "nullable": true
+          },
+          "subAccount": {
+            "type": "string",
+            "description": "Sub-bank account (identified account),",
+            "nullable": true
+          },
+          "code": {
+            "type": "string",
+            "description": "Payment code (sepay automatically identifies based on the configuration at Company -> General configuration)\nExample: PaymentCodePrefix + random 30 character",
+            "nullable": true
+          },
+          "content": {
+            "type": "string",
+            "description": "Transfer content. Example: Nguyen Khac Thanh chuyen tien",
+            "nullable": true
+          },
+          "transferType": {
+            "type": "string",
+            "description": "Transaction type. in is money \"in\", \"out\" is money out",
+            "nullable": true
+          },
+          "transferAmount": {
+            "type": "number",
+            "description": "Transaction amount \"transferAmount\":2277000",
+            "format": "decimal"
+          },
+          "description": {
+            "type": "string",
+            "description": "Full content of sms message",
+            "nullable": true
+          },
+          "referenceCode": {
+            "type": "string",
+            "description": "Reference code of sms message",
+            "nullable": true
+          },
+          "accumulated": {
+            "type": "number",
+            "description": "Account balance (cumulative)",
+            "format": "decimal",
+            "nullable": true
           }
         }
       },
@@ -6739,7 +6865,7 @@
     },
     "securitySchemes": {
       "JWT": {
-        "type": "http",
+        "type": "apiKey",
         "description": "Type into the textbox: Bearer {your JWT token}.",
         "name": "Authorization",
         "in": "header",

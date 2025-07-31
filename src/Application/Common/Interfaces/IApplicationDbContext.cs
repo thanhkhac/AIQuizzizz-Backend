@@ -2,8 +2,8 @@
 
 namespace CleanArchitectureBase.Application.Common.Interfaces;
 
-public interface 
-IApplicationDbContext
+public interface
+    IApplicationDbContext
 {
     DbSet<TodoList> TodoLists { get; }
 
@@ -39,6 +39,6 @@ IApplicationDbContext
     public DbSet<Tag> Tags { get; }
     public DbSet<QuestionSetTag> QuestionSetTags { get; }
     public DbSet<UserQuestionSetAccessHistory> UserQuestionSetAccessHistories { get; }
-
+    public DbSet<Transaction> Transactions { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

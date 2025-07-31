@@ -36,7 +36,7 @@ public class ErrorCodeException : Exception
     
     public ErrorCodeException(IEnumerable<ValidationFailure> validationFailures)
     {
-        Errors[ErrorCodes.COMMON_INVALID_MODEL] = new[] {"Sai model"};
+        Errors[ErrorCodes.COMMON_INVALID_MODEL] = new[] {"Invalid model"};
         ValidationErrors = validationFailures
             .GroupBy(e => e.PropertyName, e => e.ErrorMessage)
             .ToDictionary(failureGroup => failureGroup.Key, failureGroup => failureGroup.ToArray());

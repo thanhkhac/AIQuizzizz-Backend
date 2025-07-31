@@ -74,8 +74,16 @@ public class SearchQuestionSetQueryHandler : IRequestHandler<SearchQuestionSetQu
                 Id = qs.Id,
                 Name = qs.Name,
                 Description = qs.Description,
-                NumberOfQuestions = qs.Questions.Count,
-                CreateBy = qs.CreatedByUser != null ? qs.CreatedByUser.FullName : string.Empty
+                TotalQuestionCount = qs.Questions.Count,
+                CreateBy = qs.CreatedByUser != null
+                    ? qs.CreatedByUser.FullName
+                    : string.Empty,
+                CreatedAt = qs.Created,
+                VisibilityMode = qs.VisibilityMode.ToString(),
+                RatingAverage = qs.RatingAverage,
+                CreatedById = qs.CreatedBy,
+                RatingCount = qs.RatingCount,
+                CompletedQuestionCount = 0,
             }),
             rq.PageNumber,
             rq.PageSize

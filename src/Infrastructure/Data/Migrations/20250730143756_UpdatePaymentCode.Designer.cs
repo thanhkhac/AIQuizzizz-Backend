@@ -3,6 +3,7 @@ using System;
 using CleanArchitectureBase.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250730143756_UpdatePaymentCode")]
+    partial class UpdatePaymentCode
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1000,61 +1003,6 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.ToTable("TokenPackages");
                 });
 
-            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Transaction", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("AccountNumber")
-                        .HasColumnType("text");
-
-                    b.Property<decimal?>("Accumulated")
-                        .HasColumnType("numeric");
-
-                    b.Property<string>("Code")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<string>("Content")
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset?>("Created")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Gateway")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PaymentId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("SubAccount")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("TransactionDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<decimal>("TransferAmount")
-                        .HasColumnType("numeric");
-
-                    b.Property<string>("TransferType")
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PaymentId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Transactions");
-                });
-
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1083,8 +1031,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .HasDefaultValue(false);
 
                     b.Property<string>("PaymentCode")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.Property<long>("TokenCount")
                         .ValueGeneratedOnAdd()
@@ -1092,9 +1039,6 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .HasDefaultValue(0L);
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PaymentCode")
-                        .IsUnique();
 
                     b.ToTable("DomainUsers");
                 });
@@ -2002,17 +1946,6 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("CreatedByUser");
-                });
-
-            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Transaction", b =>
-                {
-                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.User", b =>
