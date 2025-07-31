@@ -12,25 +12,27 @@ public class Class : EndpointGroupBase
 {
     public override void Map(WebApplication app)
     {
-        app.MapGroup(this)
-            .MapPost(CreateClass, "")
-            .MapPost(JoinClassByCode, "Students")
-            .MapPost(CreateInviteCode, "/{ClassId}/Invitations")
-            .MapPost(AddQuestionSet, "/{ClassId}/Questionsets/{QuestionSetId}")
-            .MapGet(SearchStudent, "/{ClassId}/Students")
-            .MapGet(SearchClass, "")
-            .MapGet(SearchTest, "/{ClassId}/Tests")
-            .MapGet(GetInviteStudentCode, "/{ClassId}/Invitation-Code")
-            .MapGet(SearchQuestionSet, "/{ClassId}/Questionsets")
-            .MapGet(GetClassById, "/{ClassId}")
-            .MapGet(GetTestSchedule, "/{ClassId}/Schedule")
-            .MapDelete(DeleteClass, "/{ClassId}")
-            .MapDelete(RemoveStudent, "/{ClassId}/Members/{UserId}")
-            .MapDelete(RemoveQuestionSet, "/{ClassId}/Questionsets/{QuestionSetId}")
-            .MapPatch("/{ClassId}/Members/{UserId}", UpdatePosition);
-        
-        app.MapGroup(this)
-            .MapPatch("/{ClassId}", UpdateClass);
+        var group = app.MapGroup(this);
+
+        group.MapPost(CreateClass, "");
+        group.MapPost(JoinClassByCode, "Students");
+        group.MapPost(CreateInviteCode, "/{ClassId}/Invitations");
+        group.MapPost(AddQuestionSet, "/{ClassId}/Questionsets/{QuestionSetId}");
+
+        group.MapGet(SearchStudent, "/{ClassId}/Students");
+        group.MapGet(SearchClass, "");
+        group.MapGet(SearchTest, "/{ClassId}/Tests");
+        group.MapGet(GetInviteStudentCode, "/{ClassId}/Invitation-Code");
+        group.MapGet(SearchQuestionSet, "/{ClassId}/Questionsets");
+        group.MapGet(GetClassById, "/{ClassId}");
+        group.MapGet(GetTestSchedule, "/{ClassId}/Schedule");
+
+        group.MapDelete(DeleteClass, "/{ClassId}");
+        group.MapDelete(RemoveStudent, "/{ClassId}/Members/{UserId}");
+        group.MapDelete(RemoveQuestionSet, "/{ClassId}/Questionsets/{QuestionSetId}");
+
+        group.MapPatch(UpdatePosition, "/{ClassId}/Members/{UserId}");
+        group.MapPatch(UpdateClass, "/{ClassId}");
     }
 
     /// <summary>

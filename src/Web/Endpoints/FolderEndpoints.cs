@@ -8,48 +8,56 @@ namespace CleanArchitectureBase.Web.Endpoints;
 
 public class Folder : EndpointGroupBase
 {
-    public override void Map(WebApplication app){
-        app.MapGroup(this)
-            .MapGet(SearchFolderTest, "")
-            .MapGet(SearchTestTemplateInFolder, "/{FolderId}/TestTemplates")
-            .MapGet(GetSharingInFolder, "/{FolderId}/Sharing")
-            .MapPost(AddTestTemplateToFolder, "/{FolderId}/TestTemplate/{TestTemplateId}")
-            .MapPost(AddSharingInFolder, "/{FolderId}/Sharing")
-            .MapPost(CreateFolder, "")
-            .MapDelete(DeleteFolder, "/{FolderId}/")
-            .MapDelete(RemoveTestTestTemplateInFolder, "/{FolderId}/TestTemplate/{TestTemplateId}")
-            .MapPatch(UpdateSharingInFolder, "/{FolderId}/Sharing");
-        
-        app.MapGroup(this)
-            .MapPatch("/{FolderId}", UpdateFolder);
-}
+    public override void Map(WebApplication app)
+    {
+        var group = app.MapGroup(this);
+
+        group.MapGet(SearchFolderTest, "");
+        group.MapGet(SearchTestTemplateInFolder, "/{FolderId}/TestTemplates");
+        group.MapGet(GetSharingInFolder, "/{FolderId}/Sharing");
+        group.MapPost(AddTestTemplateToFolder, "/{FolderId}/TestTemplate/{TestTemplateId}");
+        group.MapPost(AddSharingInFolder, "/{FolderId}/Sharing");
+        group.MapPost(CreateFolder, "");
+        group.MapDelete(DeleteFolder, "/{FolderId}/");
+        group.MapDelete(RemoveTestTestTemplateInFolder, "/{FolderId}/TestTemplate/{TestTemplateId}");
+        group.MapPatch(UpdateSharingInFolder, "/{FolderId}/Sharing");
+        group.MapPatch(UpdateFolder, "/{FolderId}");
+    }
 
     public async Task<Ok<ApiResponse<Guid>>> CreateFolder([FromBody] CreateFolderCommand rq, ISender sender)
     {
         var result = await sender.Send(rq);
         return result.ToOk();
     }
-    
+
     public async Task<Ok<ApiResponse<Guid>>> AddTestTemplateToFolder(
         [FromRoute] Guid folderId,
         [FromRoute] Guid testTemplateId,
         ISender sender)
     {
-        var rq = new AddTestTemplateToFolderCommand { FolderId = folderId, TestTemplateId = testTemplateId, };
+        var rq = new AddTestTemplateToFolderCommand
+        {
+            FolderId = folderId,
+            TestTemplateId = testTemplateId,
+        };
         var result = await sender.Send(rq);
         return result.ToOk();
     }
-    
+
     public async Task<Ok<ApiResponse<Guid>>> RemoveTestTestTemplateInFolder(
         [FromRoute] Guid folderId,
         [FromRoute] Guid testTemplateId,
         ISender sender)
     {
-        var rq = new RemoveTestTemplateInFolderCommand { FolderId = folderId, TestTemplateId = testTemplateId, };
+        var rq = new RemoveTestTemplateInFolderCommand
+        {
+            FolderId = folderId,
+            TestTemplateId = testTemplateId,
+        };
         var result = await sender.Send(rq);
         return result.ToOk();
     }
-    
+
     public async Task<Ok<ApiResponse<Guid>>> AddSharingInFolder(
         [FromRoute] Guid folderId,
         [FromBody] AddSharingInFolderCommand rq,
@@ -58,8 +66,8 @@ public class Folder : EndpointGroupBase
         rq.FolderId = folderId;
         var result = await sender.Send(rq);
         return result.ToOk();
-    } 
-    
+    }
+
     public async Task<Ok<ApiResponse<PaginatedList<SearchFolderTestDto>>>> SearchFolderTest(
         [FromQuery] string? folderName,
         [FromQuery] string? shareMode,
@@ -74,12 +82,12 @@ public class Folder : EndpointGroupBase
             PageNumber = pageNumber,
             PageSize = pageSize,
         };
-        
+
         var result = await sender.Send(rq);
-        
+
         return result.ToOk();
     }
-    
+
     public async Task<Ok<ApiResponse<PaginatedList<TestTemplateDto>>>> SearchTestTemplateInFolder(
         [FromRoute] Guid folderId,
         [FromQuery] string? testTemplateName,
@@ -94,24 +102,30 @@ public class Folder : EndpointGroupBase
             PageNumber = pageNumber,
             PageSize = pageSize,
         };
-        
+
         var result = await sender.Send(rq);
-        
+
         return result.ToOk();
     }
-    
+
     public async Task<Ok<ApiResponse<ResourceShareDto>>> GetSharingInFolder([FromRoute] Guid folderId, ISender sender)
     {
-        var result = await sender.Send(new GetSharingInFolderQuery{FolderId = folderId});
+        var result = await sender.Send(new GetSharingInFolderQuery
+        {
+            FolderId = folderId
+        });
         return result.ToOk();
     }
-    
+
     public async Task<Ok<ApiResponse<Guid>>> DeleteFolder([FromRoute] Guid folderId, ISender sender)
     {
-        var result = await sender.Send(new DeleteFolderCommand{FolderId = folderId});
+        var result = await sender.Send(new DeleteFolderCommand
+        {
+            FolderId = folderId
+        });
         return result.ToOk();
     }
-    
+
     public async Task<Ok<ApiResponse<Guid>>> UpdateSharingInFolder(
         [FromRoute] Guid folderId,
         [FromBody] UpdateSharingInFolderCommand rq,
@@ -120,14 +134,18 @@ public class Folder : EndpointGroupBase
         rq.FolderId = folderId;
         var result = await sender.Send(rq);
         return result.ToOk();
-    } 
-    
+    }
+
     public async Task<Ok<ApiResponse<Guid>>> UpdateFolder(
         [FromRoute] Guid folderId,
         [FromQuery] string name,
         ISender sender)
     {
-        var rq = new UpdateFolderCommand { FolderId = folderId, Name = name };
+        var rq = new UpdateFolderCommand
+        {
+            FolderId = folderId,
+            Name = name
+        };
         var result = await sender.Send(rq);
         return result.ToOk();
     }

@@ -12,20 +12,23 @@ public class AuthenticationEndpoints : EndpointGroupBase
 {
     public override void Map(WebApplication app)
     {
-        app.MapGroup(this)
-            .MapPost(RegisterUser, "Register")
-            .MapPost(Login, "Login")
-            .MapPost(GoogleLogin, "GoogleLogin")
-            .MapPost(RefreshToken, "RefreshToken")
-            .MapPost(RevokeToken, "RevokeToken")
-            .MapPost(LogOut, "LogOut")
-            .MapPost(RequestEmailVerification, "RequestEmailVerification")
-            .MapPost(VerifyEmail, "VerifyEmail")
-            .MapPost(RequestPasswordReset, "RequestPasswordReset")
-            .MapPost(ResetPassword, "ResetPassword")
-            .MapPost(ChangePassword, "ChangePassword")
-            .MapPost(SetPassword, "SetPassword")
-            ;
+        var group = app.MapGroup(this);
+
+        group.MapPost(RegisterUser, "Register");
+        group.MapPost(Login, "Login");
+        group.MapPost(GoogleLogin, "GoogleLogin");
+        group.MapPost(RefreshToken, "RefreshToken");
+        group.MapPost(RevokeToken, "RevokeToken");
+        group.MapPost(LogOut, "LogOut");
+
+        group.MapPost(RequestEmailVerification, "RequestEmailVerification");
+        group.MapPost(VerifyEmail, "VerifyEmail");
+
+        group.MapPost(RequestPasswordReset, "RequestPasswordReset");
+        group.MapPost(ResetPassword, "ResetPassword");
+
+        group.MapPost(ChangePassword, "ChangePassword");
+        group.MapPost(SetPassword, "SetPassword");
     }
 
     public async Task<Ok<ApiResponse<string>>> RegisterUser([FromBody] RegisterUserCommand command, ISender sender)

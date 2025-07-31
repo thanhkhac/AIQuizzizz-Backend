@@ -38,11 +38,11 @@ public static class DependencyInjection
             // Add JWT    
             configure.AddSecurity("JWT", Enumerable.Empty<string>(), new OpenApiSecurityScheme
             {
-                Type = OpenApiSecuritySchemeType.Http,
+                Type = OpenApiSecuritySchemeType.ApiKey,
                 Name = "Authorization",
                 In = OpenApiSecurityApiKeyLocation.Header,
                 Description = "Type into the textbox: Bearer {your JWT token}.",
-                Scheme = "Bearer"
+                Scheme = "Api key"
             });
 
             configure.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("JWT"));
