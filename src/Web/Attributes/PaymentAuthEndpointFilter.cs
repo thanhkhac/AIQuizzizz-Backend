@@ -16,6 +16,9 @@ public class PaymentAuthEndpointFilter : IEndpointFilter
     {
         var httpContext = context.HttpContext;
         var expectedApiKey = _configuration["PaymentSettings:Apikey"];
+       
+       if(string.IsNullOrWhiteSpace(expectedApiKey))
+           throw new ErrorCodeException("INTERNAL_SERVER_ERROR"); 
 
         if (!httpContext.Request.Headers.TryGetValue("Authorization", out var apiKey) ||
             !apiKey.ToString().Equals($"Apikey {expectedApiKey}", StringComparison.OrdinalIgnoreCase))
