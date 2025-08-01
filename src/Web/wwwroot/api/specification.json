@@ -1797,19 +1797,31 @@
         }
       }
     },
-    "/api/Payment": {
-      "get": {
+    "/api/Payment/QrCode": {
+      "post": {
         "tags": [
           "Payment"
         ],
-        "operationId": "Test",
+        "operationId": "GetQrCode",
+        "parameters": [
+          {
+            "name": "amount",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponse"
+                  "$ref": "#/components/schemas/ApiResponseOfString"
                 }
               }
             }
@@ -6869,7 +6881,7 @@
         "description": "Type into the textbox: Bearer {your JWT token}.",
         "name": "Authorization",
         "in": "header",
-        "scheme": "Bearer"
+        "scheme": "Api key"
       }
     }
   },

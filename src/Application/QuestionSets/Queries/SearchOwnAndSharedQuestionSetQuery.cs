@@ -52,7 +52,6 @@ public class SearchOwnAndSharedQuestionSetQueryHandler : IRequestHandler<SearchO
     {
         var userId = _user.UserId!.Value;
         var normalizedFilter = request.FilterBy;
-        var keyword = request.Name?.Trim().ToLower();
         var isFilterCreatedByMe = normalizedFilter == "CreatedByMe";
         var isFilterSharedWithMe = normalizedFilter == "ShareWithMe";
 
@@ -78,7 +77,8 @@ public class SearchOwnAndSharedQuestionSetQueryHandler : IRequestHandler<SearchO
 
         if (!string.IsNullOrEmpty(request.Name))
         {
-            query = query.Where(x => EF.Functions.Like(x!.Name.ToLower(), keyword));
+            var keyword = $"%{request.Name}%";
+            query = query.Where(x => EF.Functions.Like(x.Name.ToLower(), keyword));
         }
 
         query = query.Include(q => q.QuestionSetTags).ThenInclude(qst => qst.Tag);

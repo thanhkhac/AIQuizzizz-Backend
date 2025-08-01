@@ -1,7 +1,7 @@
 ﻿using CleanArchitectureBase.Application.Common.Models;
+using CleanArchitectureBase.Application.Common.Settings;
 using CleanArchitectureBase.Application.Users;
 using CleanArchitectureBase.Application.Users.Common;
-using CleanArchitectureBase.Infrastructure.Settings;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
