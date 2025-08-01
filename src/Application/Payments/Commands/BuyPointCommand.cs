@@ -114,6 +114,21 @@ public class BuyPointCommandHandler : IRequestHandler<BuyPointCommand>
         if(existedTransaction != null)
             throw new ErrorCodeException(ErrorCodes.PAYMENT_TRANSACTION_EXISTED);
 
+        if(command.TransactionDate != null)
+        {
+            string timeZoneId;
+
+            if (OperatingSystem.IsWindows())
+                timeZoneId = "SE Asia Standard Time";
+            else
+                timeZoneId = "Asia/Ho_Chi_Minh";
+            var timeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+            var utcTransactionDate = TimeZoneInfo.ConvertTimeToUtc(
+                DateTime.SpecifyKind(command.TransactionDate!.Value, DateTimeKind.Unspecified),
+                timeZone);
+        }
+
+
         var transaction = new Transaction
         {
             Id = Guid.NewGuid(),
