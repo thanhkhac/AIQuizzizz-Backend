@@ -4,9 +4,9 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 using CleanArchitectureBase.Application.Common.Exceptions;
+using CleanArchitectureBase.Application.Common.Settings;
 using CleanArchitectureBase.Application.Users.Common;
 using CleanArchitectureBase.Domain.Constants;
-using CleanArchitectureBase.Infrastructure.Settings;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 

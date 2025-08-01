@@ -1,8 +1,8 @@
 ﻿using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Settings;
 using CleanArchitectureBase.Application.FunctionalTests;
 using CleanArchitectureBase.Infrastructure.Data;
 using CleanArchitectureBase.Infrastructure.Identity;
-using CleanArchitectureBase.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;

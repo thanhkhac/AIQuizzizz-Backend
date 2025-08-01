@@ -1,4 +1,4 @@
-namespace CleanArchitectureBase.Infrastructure.Settings;
+namespace CleanArchitectureBase.Application.Common.Settings;
 
 public class EmailSettings
 {
