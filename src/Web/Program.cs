@@ -1,7 +1,6 @@
 using CleanArchitectureBase.Application;
 using CleanArchitectureBase.Infrastructure;
 using CleanArchitectureBase.Infrastructure.Data;
-using CleanArchitectureBase.Infrastructure.Settings;
 using CleanArchitectureBase.Web;
 using CleanArchitectureBase.Web.Attributes;
 
