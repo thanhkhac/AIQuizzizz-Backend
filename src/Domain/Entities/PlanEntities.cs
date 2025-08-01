@@ -56,7 +56,7 @@ public class Transaction
     public string? Gateway { get; set; }    
     public string? TransferType { get; set; }
     public decimal TransferAmount { get; set; } 
-    public DateTime? TransactionDate { get; set; }
+    public DateTimeOffset? TransactionDate { get; set; }
     public string? AccountNumber { get; set; }
     public string? SubAccount { get; set; }
     public decimal? Accumulated { get; set; }
