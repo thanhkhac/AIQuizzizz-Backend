@@ -26,6 +26,7 @@ jobs:
           GOOGLESETTINGS__CLIENTID: ${{ secrets.GOOGLESETTINGS__CLIENTID }}
           GOOGLESETTINGS__CLIENTSECRET: ${{ secrets.GOOGLESETTINGS__CLIENTSECRET }}
           EMAILSETTINGS__SMTPPASS: ${{ secrets.EMAILSETTINGS__SMTPPASS }}
+          PAYMENTSETTINGS__APIKEY: ${{ secrets.PAYMENTSETTINGS__APIKEY }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
@@ -73,6 +74,7 @@ jobs:
             echo "GOOGLESETTINGS__CLIENTSECRET=$GOOGLESETTINGS__CLIENTSECRET" >> .env
             echo "GOOGLESETTINGS__CLIENTID=$GOOGLESETTINGS__CLIENTID" >> .env
             echo "EMAILSETTINGS__SMTPPASS=\"$EMAILSETTINGS__SMTPPASS\"" >> .env
+            echo "PAYMENTSETTINGS__APIKEY=\"$PAYMENTSETTINGS__APIKEY\"" >> .env
 
             echo "==> Thư mục hiện tại là: $(pwd)"
             cd $PROJECT_DIR || exit 1
