@@ -12,7 +12,7 @@ namespace CleanArchitectureBase.Application.TestTemplates;
 public class UpdateSharingInTestTemplateCommand : IRequest<Guid>
 {
     public Guid TestTemplateId { get; set; }
-    public UpsertSharing? UpdateSharing { get; set; }
+    public List<UpsertSharingModelDto> SharingModels { get; set; } = new();
     public List<Guid>? DeleteUserIds { get; set; } = new();
 }
 
@@ -23,8 +23,8 @@ public class UpdateSharingInTestTemplateCommandValidator : AbstractValidator<Upd
         RuleFor(x => x.TestTemplateId)
             .NotEmpty().WithMessage("FolderId không được trống");
         
-        RuleFor(x => x.UpdateSharing)
-            .Must(x => x == null || x.SharingModel
+        RuleFor(x => x.SharingModels)
+            .Must(x => x == null || x
                 .All(x => new[] { "Editable", "ViewOnly" }.Contains(x.ShareMode)))
             .WithMessage("SharedMode phải là Editable, ViewOnly");
     }
@@ -57,9 +57,9 @@ public class UpdateSharingInTestTemplateCommandHandler : IRequestHandler<UpdateS
             .Where(x => x.TestTemplateId.Equals(rq.TestTemplateId))
             .ToDictionaryAsync(x => x.UserId, x => x, cancellationToken);
         
-        if (rq.UpdateSharing != null)
+        if (rq.SharingModels.Count > 0)
         {
-            rq.UpdateSharing.SharingModel.ForEach(x =>
+            rq.SharingModels.ForEach(x =>
             {
                 if (x.SharingUserId == null || x.ShareMode == null) {
                     return;

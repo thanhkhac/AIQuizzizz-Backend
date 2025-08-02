@@ -13,10 +13,6 @@ public class SharingModelDto
     public string? FullName { get; set; }
 }
 
-public class UpsertSharing
-{
-    public List<UpsertSharingModelDto> SharingModel { get; set; } = new();
-}
 
 public class UpsertSharingModelDto
 {
