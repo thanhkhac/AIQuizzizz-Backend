@@ -11,6 +11,8 @@ public class QuestionSetDetailDto
     public string? VisibilityMode { get; set; }
     public int QuestionCount { get; set; }
     public bool IsDeleted { get; set; }
+    public int RatingCount { get; set; }
+    public double RatingAverage { get; set; }
     public CreatedByDto? CreatedBy { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public List<TagForListReponseDto>  Tags { get; set; } = new();
