@@ -20,25 +20,17 @@ public class Users : EndpointGroupBase
         group.MapPatch("/{UserId}/Ban", BanUser);
     }
 
-
-   
-
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="query"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<PaginatedList<UserForListDto>>>> GetAllAccount(
         ISender sender,
-        [FromQuery] string? keyword,
-        [FromQuery] string? fieldName,
-        [FromQuery] int pageNumber = 1,
-        [FromQuery] int pageSize = 5)
+        [AsParameters] SearchAllAccountQuery query)
     {
-        var rq = new GetAllAccountCommand
-        {
-            Keyword = keyword,
-            FieldName = fieldName,
-            PageNumber = pageNumber,
-            PageSize = pageSize,
-        };
-
-        var result = await sender.Send(rq);
+        var result = await sender.Send(query);
         return result.ToOk();
     }
 

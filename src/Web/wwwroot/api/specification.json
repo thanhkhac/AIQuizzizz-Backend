@@ -3332,7 +3332,7 @@
         "operationId": "GetAllAccount",
         "parameters": [
           {
-            "name": "keyword",
+            "name": "Keyword",
             "in": "query",
             "schema": {
               "type": "string",
@@ -3341,7 +3341,7 @@
             "x-position": 1
           },
           {
-            "name": "fieldName",
+            "name": "FieldName",
             "in": "query",
             "schema": {
               "type": "string",
@@ -3350,24 +3350,42 @@
             "x-position": 2
           },
           {
-            "name": "pageNumber",
+            "name": "PageNumber",
             "in": "query",
+            "required": true,
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "default": 1
+              "format": "int32"
             },
             "x-position": 3
           },
           {
-            "name": "pageSize",
+            "name": "PageSize",
             "in": "query",
+            "required": true,
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "default": 5
+              "format": "int32"
             },
             "x-position": 4
+          },
+          {
+            "name": "IsBanned",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            },
+            "x-position": 5
+          },
+          {
+            "name": "Role",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 6
           }
         ],
         "responses": {
@@ -6858,14 +6876,22 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
           "email": {
             "type": "string"
           },
-          "name": {
+          "fullName": {
             "type": "string",
             "nullable": true
           },
           "token": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "balance": {
             "type": "integer",
             "format": "int64"
           },
