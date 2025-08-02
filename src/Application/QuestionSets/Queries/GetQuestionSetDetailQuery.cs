@@ -90,6 +90,8 @@ public class GetQuestionSetDetailQueryHandler : IRequestHandler<GetQuestionSetDe
                 FullName = questionSet.CreatedByUser!.FullName,
                 Email = questionSet.CreatedByUser!.Email,
             },
+            RatingAverage = questionSet.RatingAverage,
+            RatingCount = questionSet.RatingCount,
             Tags = tags
         };
 
