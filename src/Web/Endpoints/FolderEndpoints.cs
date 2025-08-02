@@ -16,7 +16,6 @@ public class Folder : EndpointGroupBase
         group.MapGet(SearchTestTemplateInFolder, "/{FolderId}/TestTemplates");
         group.MapGet(GetSharingInFolder, "/{FolderId}/Sharing");
         group.MapPost(AddTestTemplateToFolder, "/{FolderId}/TestTemplate/{TestTemplateId}");
-        group.MapPost(AddSharingInFolder, "/{FolderId}/Sharing");
         group.MapPost(CreateFolder, "");
         group.MapDelete(DeleteFolder, "/{FolderId}/");
         group.MapDelete(RemoveTestTestTemplateInFolder, "/{FolderId}/TestTemplate/{TestTemplateId}");
@@ -58,15 +57,6 @@ public class Folder : EndpointGroupBase
         return result.ToOk();
     }
 
-    public async Task<Ok<ApiResponse<Guid>>> AddSharingInFolder(
-        [FromRoute] Guid folderId,
-        [FromBody] AddSharingInFolderCommand rq,
-        ISender sender)
-    {
-        rq.FolderId = folderId;
-        var result = await sender.Send(rq);
-        return result.ToOk();
-    }
 
     public async Task<Ok<ApiResponse<PaginatedList<SearchFolderTestDto>>>> SearchFolderTest(
         [FromQuery] string? folderName,

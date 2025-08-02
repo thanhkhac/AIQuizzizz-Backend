@@ -18,7 +18,6 @@
             group.MapGet(GetTestTemplatePermissions, "/{testTemplateId}/Permissions");
             group.MapGet(GetTestTemplateDetail, "/{testTemplateId}");
             group.MapGet(GetSharingInTestTemplate, "/{testTemplateId}/Sharing");
-            group.MapPost(AddSharingInTestTemplate, "/{testTemplateId}/Sharing");
             group.MapPost(CreateTestTemplate, "");
             group.MapDelete(DeleteTestTemplate, "/{testTemplateId}");
             group.MapPatch(UpdateTestTemplate, "/{testTemplateId}");
@@ -44,15 +43,6 @@
             return result.ToOk();
         }
         
-        public async Task<Ok<ApiResponse<Guid>>> AddSharingInTestTemplate(
-            [FromRoute] Guid testTemplateId,
-            [FromBody] AddSharingTestTemplateCommand rq,
-            ISender sender)
-        {
-            rq.TestTemplateId = testTemplateId;
-            var result = await sender.Send(rq);
-            return result.ToOk();
-        } 
         
         public async Task<Ok<ApiResponse<Guid>>> UpdateSharingInTestTemplate(
             [FromRoute] Guid testTemplateId,

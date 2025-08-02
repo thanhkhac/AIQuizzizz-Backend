@@ -324,7 +324,7 @@ public class Class : EndpointGroupBase
         [FromRoute] Guid questionSetId,
         ISender sender)
     {
-        var rq = new AddQuestionSetCommand()
+        var rq = new AddQuestionSetToClassCommand()
         {
             ClassId = classId,
             QuestionSetId = questionSetId
