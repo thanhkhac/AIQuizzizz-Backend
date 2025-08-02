@@ -618,6 +618,23 @@ public class IdentityService : IIdentityService
 
         return await _userManager.GetRolesAsync(identityUser);
     }
+    
+    public async Task<Dictionary<Guid, string>> GetFirstRolesForUsersAsync(IEnumerable<Guid> userIds)
+    {
+        var query = from ur in _dbContext.UserRoles.IgnoreQueryFilters()
+            join r in _dbContext.Roles on ur.RoleId equals r.Id
+            where userIds.Contains(ur.UserId)
+            group r by ur.UserId into g
+            select new
+            {
+                UserId = g.Key,
+                FirstRole = g.Select(x => x.Name).FirstOrDefault()
+            };
+
+        return await query.ToDictionaryAsync(x => x.UserId, x => x.FirstRole ?? "User");
+    }
+
+    
 
     private string GenerateRandomCode()
     {
