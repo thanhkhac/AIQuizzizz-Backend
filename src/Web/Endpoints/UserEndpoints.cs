@@ -23,7 +23,7 @@ public class Users : EndpointGroupBase
 
    
 
-    public async Task<Ok<ApiResponse<PaginatedList<AccountDto>>>> GetAllAccount(
+    public async Task<Ok<ApiResponse<PaginatedList<UserForListDto>>>> GetAllAccount(
         ISender sender,
         [FromQuery] string? keyword,
         [FromQuery] string? fieldName,

@@ -9,21 +9,24 @@ using CleanArchitectureBase.Application.Common.Security;
 
 namespace CleanArchitectureBase.Application.Users;
 
-public class AccountDto
+public class UserForListDto
 {
+    public Guid Id { get; set; }
     public required string Email { get; set; }
     public string? Name { get; set; }
     public long Token { get; set; }
     public bool IsBanned { get; set; }
+    public string? Role { get; set; }
 }
 
-[Authorize (Roles = Domain.Constants.Roles.Administrator)]
-public class GetAllAccountCommand : IRequest<PaginatedList<AccountDto>>
+[Authorize(Roles = Domain.Constants.Roles.Administrator)]
+public class GetAllAccountCommand : IRequest<PaginatedList<UserForListDto>>
 {
     public string? Keyword { get; set; }
     public string? FieldName { get; set; }
     public int PageNumber { get; set; } = 1;
     public int PageSize { get; set; } = 5;
+    public bool? IsBanned { get; set; }
 }
 
 public class GetAllAccountCommandValidator : AbstractValidator<GetAllAccountCommand>
@@ -37,31 +40,20 @@ public class GetAllAccountCommandValidator : AbstractValidator<GetAllAccountComm
     }
 }
 
-public class GetAllAccountCommandHandler : IRequestHandler<GetAllAccountCommand, PaginatedList<AccountDto>>
+public class GetAllAccountCommandHandler : IRequestHandler<GetAllAccountCommand, PaginatedList<UserForListDto>>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IUser _user;
     private readonly IIdentityService _identityService;
-    
-    public GetAllAccountCommandHandler(IApplicationDbContext context, IUser user, IIdentityService identityService)
+
+    public GetAllAccountCommandHandler(IApplicationDbContext context, IIdentityService identityService)
     {
         _context = context;
-        _user = user;
         _identityService = identityService;
     }
-    
-    public async Task<PaginatedList<AccountDto>> Handle(GetAllAccountCommand rq, CancellationToken cancellationToken)
-    {
-        var admins = await _identityService.GetUsersInRoleAsync();
-        
-        var user = await _context.DomainUsers
-            .Where(x => x.Id == _user.UserId && x.IsDeleted == false && x.IsBanned == false)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (user == null)
-            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {_user.UserId} not found");
 
-        var listUser = _context.DomainUsers
-            .Where(x => x.IsDeleted == false && x.Id != user.Id && !admins.Contains(x.Id));
+    public async Task<PaginatedList<UserForListDto>> Handle(GetAllAccountCommand rq, CancellationToken cancellationToken)
+    {
+        var query = _context.DomainUsers.IgnoreQueryFilters().Where(x => x.IsDeleted == false);
 
         if (!string.IsNullOrEmpty(rq.Keyword) && !string.IsNullOrEmpty(rq.FieldName))
         {
@@ -69,17 +61,38 @@ public class GetAllAccountCommandHandler : IRequestHandler<GetAllAccountCommand,
             if (property == null || property.PropertyType != typeof(string))
                 throw new ErrorCodeException(ErrorCodes.FIELD_NAME_NOT_FOUND, "Trường tìm kiếm không hợp lệ hoặc không phải kiểu string");
 
-            string query = $"{rq.FieldName}.ToLower().Contains(@0)";
-            listUser = listUser.Where(query, rq.Keyword.ToLower());
+            string stm = $"{rq.FieldName}.ToLower().Contains(@0)";
+            query = query.Where(stm, rq.Keyword.ToLower());
         }
 
-        return await PaginatedList<AccountDto>.CreateAsync(
-            listUser.Select(u => new AccountDto
+        if (rq.IsBanned != null)
+        {
+            query = query.Where(x => x.IsBanned == rq.IsBanned);
+        }
+
+
+        var pagedResult = await PaginatedList<UserForListDto>.CreateAsync(
+            query.Select(u => new UserForListDto
             {
-                Email = u.Email, Token = u.TokenCount, IsBanned = u.IsBanned, Name = u.FullName
-            }).AsQueryable(),
+                Id = u.Id,
+                Email = u.Email,
+                Token = u.TokenCount,
+                IsBanned = u.IsBanned,
+                Name = u.FullName
+            }),
             rq.PageNumber,
             rq.PageSize
         );
+
+        var userRoles = await _identityService.GetFirstRolesForUsersAsync(pagedResult.Items.Select(x => x.Id));
+
+        foreach (var user in pagedResult.Items)
+        {
+            if (userRoles.TryGetValue(user.Id, out var role))
+            {
+                user.Role = role;
+            }
+        }
+        return pagedResult;
     }
 }

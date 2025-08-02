@@ -3376,7 +3376,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfAccountDto"
+                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfUserForListDto"
                 }
               }
             }
@@ -6785,7 +6785,7 @@
           }
         }
       },
-      "ApiResponseOfPaginatedListOfAccountDto": {
+      "ApiResponseOfPaginatedListOfUserForListDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -6811,7 +6811,7 @@
             "nullable": true,
             "oneOf": [
               {
-                "$ref": "#/components/schemas/PaginatedListOfAccountDto"
+                "$ref": "#/components/schemas/PaginatedListOfUserForListDto"
               }
             ]
           },
@@ -6820,14 +6820,14 @@
           }
         }
       },
-      "PaginatedListOfAccountDto": {
+      "PaginatedListOfUserForListDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/AccountDto"
+              "$ref": "#/components/schemas/UserForListDto"
             }
           },
           "pageNumber": {
@@ -6854,7 +6854,7 @@
           }
         }
       },
-      "AccountDto": {
+      "UserForListDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -6871,6 +6871,10 @@
           },
           "isBanned": {
             "type": "boolean"
+          },
+          "role": {
+            "type": "string",
+            "nullable": true
           }
         }
       }
