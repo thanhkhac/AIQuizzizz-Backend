@@ -265,16 +265,15 @@ Content-Type: application/json
 ###
 
 
-PATCH {{Web_HostAddress}}/api/QuestionSets
+PATCH {{Web_HostAddress}}/api/QuestionSet/fd8d5667-e178-4975-95f5-ef50b7337111
 Authorization: Bearer {{BearerToken}}
 Content-Type: application/json
 
 {
-  "name": "Kiểm tra kiến thức tổng quát",
+  "name": "Toàn chức cao thủ",
   "description": "Bài kiểm tra ngắn về các chủ đề cơ bản",
-  "questions": [
+  "createUpdateQuestions": [
     {
-      "questionId": "<Id của question cần update>",
       "type": "MultipleChoice",
       "questionText": "2 + 3 bằng bao nhiêu?",
       "explainText": "Cộng hai số 2 và 3 sẽ cho kết quả là 5.",
@@ -302,7 +301,6 @@ Content-Type: application/json
       "orderingItems": [],
       "shortAnswer": ""
     }
-  ],
-  "deleteQuestionIds": ["<GUID>", "<GUID>"]
+  ]
 }
 ###
