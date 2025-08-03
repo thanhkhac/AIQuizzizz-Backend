@@ -18,11 +18,11 @@ public class UpdatePositionCommand : IRequest<UpdatePositionDto>
     /// <summary>
     /// Id of the class want to update position
     /// </summary>
-    public required Guid ClassId { get; set; }
+    public Guid? ClassId { get; set; }
     /// <summary>
     /// If UserId is not provided, the position of the user who sent the request will be updated
     /// </summary>
-    public required Guid UserId { get; set; }
+    public Guid? UserId { get; set; }
     public required string? Position { get; set; }
 }
 
@@ -82,6 +82,6 @@ public class UpdatePositionCommandHandler : IRequestHandler<UpdatePositionComman
         
         await _context.SaveChangesAsync(cancellationToken);
         
-        return new UpdatePositionDto { Position = classUser.ClassUser.ShareMode.ToString(), UserId = rq.UserId };
+        return new UpdatePositionDto { Position = classUser.ClassUser.ShareMode.ToString(), UserId = rq.UserId!.Value };
     }
 }

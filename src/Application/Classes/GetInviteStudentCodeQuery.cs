@@ -53,7 +53,9 @@ public class GetInviteStudentCodeQueryHandler : IRequestHandler<GetInviteStudent
             throw new ErrorCodeException(ErrorCodes.NOT_FOUND_TEACHER_OR_OWNER_IN_CLASS, "Không phải lecturer hoặc owner của class");
         
         var code = await _context.ClassInvitations
-            .Where(x => x.ClassId == rq.ClassId && x.IsDeleted == false)
+            .Where(x => x.ClassId == rq.ClassId
+                        && x.TimeEnd >= DateTime.UtcNow
+                        && x.IsDeleted == false)
             .FirstOrDefaultAsync(cancellationToken);
         
         return code != null ? code.Code : null;

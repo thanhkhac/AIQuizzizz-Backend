@@ -21,8 +21,8 @@ public class SearchTestTemplateInFolderQuery : IRequest<PaginatedList<TestTempla
     /// <summary>
     /// Id of the folder want to retrieve test templates
     /// </summary>
-    public required Guid FolderId { get; set; }
-    public required string? TestTemplateName { get; set; }
+    public Guid? FolderId { get; set; }
+    public required string TestTemplateName { get; set; }
     public int PageNumber { get; set; } = 1;
     public int PageSize { get; set; } = 5;
 }

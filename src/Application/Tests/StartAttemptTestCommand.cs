@@ -44,54 +44,87 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
             throw new ErrorCodeException(ErrorCodes.TEST_NOT_FOUND, "Bài test không tồn tại");
         
         await _testService.TryCheckCanAttemptTest(test);
-
-        var attemptUser = _context.Attempts
-            .Where(x => x.UserId == _user.UserId && x.TestId == rq.TestId)
-            .ToList();
-        if (attemptUser.Count > test.MaxAttempt)
-            throw new ErrorCodeException(ErrorCodes.MAX_ATTEMPT_IN_THIS_TEST, "Đã hết lượt làm bài");
         
-        var testVersionId = await _context.TestVersions
-            .Where(x => x.Test!.Id == test.Id)
-            .Select(x => x.Id)
-            .OrderBy(_ => Guid.NewGuid())
+        Dictionary<Guid, AttemptQuestion>? userAnswerDict = null;
+        
+        var attempted = await _context.Attempts
+            .Where(x => x.UserId == _user.UserId && x.TestId == rq.TestId
+                                                 && (x.TimeFinish >= DateTimeOffset.UtcNow &&
+                                                     x.TimeStart <= DateTime.UtcNow))
             .FirstOrDefaultAsync(cancellationToken);
-        
-        if (testVersionId == Guid.Empty)
+
+        if (attempted != null)
         {
-            throw new InvalidOperationException("Không tìm thấy phiên bản bài test nào.");
+                userAnswerDict = await _context.AttemptQuestions
+                .Where(x => x.AttemptId == attempted.Id)
+                .ToDictionaryAsync(a => a.QuestionId, a => a, cancellationToken);
         }
-
-        var attempt = new Attempt
-        {
-            Id = Guid.NewGuid(),
-            TestVersionId = testVersionId,
-            TimeStart = DateTime.UtcNow,
-            TimeFinish = DateTime.UtcNow.AddMinutes(test.TimeLimit),
-            Score = 0,
-            UserId = _user.UserId ?? Guid.Empty,
-            TestId = rq.TestId
-        };
-
+        
         var attemptDetail = new AttemptDetailDto
         {
-            AttemptId = attempt.Id,
+            AttemptId = attempted?.Id ?? Guid.NewGuid(),
             Name = test.Name,
             TimeStart = test.TimeStart,
             TimeEnd = test.TimeFinish,
             TimeLimit = test.TimeLimit,
+            TimeRemaining =(test.TimeFinish - DateTime.UtcNow).TotalMinutes >= test.TimeLimit ? test.TimeLimit
+                : Math.Round((test.TimeFinish - DateTime.UtcNow).TotalMinutes, 2)
         };
+        
+        if (attempted == null)
+        {
+            var attemptUser = _context.Attempts
+                .Where(x => x.UserId == _user.UserId && x.TestId == rq.TestId)
+                .ToList();
+            if (attemptUser.Count > test.MaxAttempt)
+                throw new ErrorCodeException(ErrorCodes.MAX_ATTEMPT_IN_THIS_TEST, "Đã hết lượt làm bài");
+            
+            var testVersionId = await _context.TestVersions
+                .Where(x => x.Test!.Id == test.Id)
+                .Select(x => x.Id)
+                .OrderBy(_ => Guid.NewGuid())
+                .FirstOrDefaultAsync(cancellationToken);
+        
+            if (testVersionId == Guid.Empty)
+            {
+                throw new InvalidOperationException("Không tìm thấy phiên bản bài test nào.");
+            }
+            
+            var newAttempt = new Attempt
+            {
+                Id = attemptDetail.AttemptId,
+                TestVersionId = testVersionId,
+                TimeStart = DateTime.UtcNow,
+                TimeFinish = DateTime.UtcNow.AddMinutes(test.TimeLimit),
+                Score = 0,
+                UserId = _user.UserId ?? Guid.Empty,
+                TestId = rq.TestId
+            };
 
-        var questions = _context.TestVersionQuestions
+            _context.Attempts.Add(newAttempt);
+            await _context.SaveChangesAsync(cancellationToken);
+            return attemptDetail;
+        }
+
+        var versionQuestions = await _context.TestVersionQuestions
             .Include(x => x.Question)
-            .Where(x => x.TestVersion!.Id == testVersionId)
+            .Where(x => x.TestVersion!.Id == attempted.TestVersionId)
             .OrderBy(x => x.Order)
-            .Select(q => QuestionAttemptDetailDto.Mapper.FromEntity(q.Question!));
+            .ToListAsync(cancellationToken);
+
+        attemptDetail.Questions = versionQuestions
+            .OrderBy(x => x.Order)
+            .Select(q =>
+            {
+                AttemptQuestion? ans = null;
+                if (userAnswerDict != null)
+                    userAnswerDict.TryGetValue(q.Question!.Id, out ans);
+
+                return QuestionAttemptDetailDto.Mapper.FromEntity(q.Question!, ans);
+            })
+            .ToList();
         
-        attemptDetail.Questions = questions.ToList();
-        attemptDetail.QuestionCount = questions.Count();
-        
-        _context.Attempts.Add(attempt);
+        attemptDetail.QuestionCount = versionQuestions.Count();
         
         await _context.SaveChangesAsync(cancellationToken);
         

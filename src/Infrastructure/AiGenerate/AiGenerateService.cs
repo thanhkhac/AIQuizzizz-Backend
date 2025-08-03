@@ -7,7 +7,7 @@ using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Domain.Constants;
 using Microsoft.Extensions.Configuration;
 
-namespace CleanArchitectureBase.Infrastructure;
+namespace CleanArchitectureBase.Infrastructure.AiGenerate;
 
 public class AiGenerateService : IAiGenerateService
 {
@@ -50,7 +50,6 @@ public class AiGenerateService : IAiGenerateService
 
         if (!response.IsSuccessStatusCode)
         {
-            var errorContent = await response.Content.ReadAsStringAsync();
             throw new ErrorCodeException(ErrorCodes.FILE_UPLOAD_FAILED);
         }
 
