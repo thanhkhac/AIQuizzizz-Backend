@@ -552,18 +552,20 @@
               "format": "guid"
             },
             "x-position": 1
-          },
-          {
-            "name": "expiredTime",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "number",
-              "format": "double"
-            },
-            "x-position": 2
           }
         ],
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInviteCodeCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
         "responses": {
           "200": {
             "description": "",
@@ -987,26 +989,20 @@
               "format": "guid"
             },
             "x-position": 1
-          },
-          {
-            "name": "name",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 2
-          },
-          {
-            "name": "topic",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 3
           }
         ],
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateClassCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
         "responses": {
           "200": {
             "description": "",
@@ -1146,17 +1142,20 @@
               "format": "guid"
             },
             "x-position": 2
-          },
-          {
-            "name": "position",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 3
           }
         ],
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePositionCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 3
+        },
         "responses": {
           "200": {
             "description": "",
@@ -1236,18 +1235,21 @@
               "type": "string",
               "format": "guid"
             },
-            "x-position": 1
-          },
-          {
-            "name": "content",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
             "x-position": 2
           }
         ],
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCommentCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": "",
@@ -1278,17 +1280,20 @@
               "format": "guid"
             },
             "x-position": 1
-          },
-          {
-            "name": "content",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 2
           }
         ],
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplyCommentCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
         "responses": {
           "200": {
             "description": "",
@@ -1343,24 +1348,6 @@
         "operationId": "SearchFolderTest",
         "parameters": [
           {
-            "name": "folderName",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 1
-          },
-          {
-            "name": "shareMode",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 2
-          },
-          {
             "name": "pageNumber",
             "in": "query",
             "schema": {
@@ -1368,7 +1355,7 @@
               "format": "int32",
               "default": 1
             },
-            "x-position": 3
+            "x-position": 2
           },
           {
             "name": "pageSize",
@@ -1378,9 +1365,21 @@
               "format": "int32",
               "default": 5
             },
-            "x-position": 4
+            "x-position": 3
           }
         ],
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchFolderQuery"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": "",
@@ -1444,15 +1443,6 @@
             "x-position": 1
           },
           {
-            "name": "testTemplateName",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 2
-          },
-          {
             "name": "pageNumber",
             "in": "query",
             "schema": {
@@ -1473,6 +1463,18 @@
             "x-position": 4
           }
         ],
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchTestTemplateInFolderQuery"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
         "responses": {
           "200": {
             "description": "",
@@ -1542,7 +1544,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AddSharingInFolderCommand"
+                "$ref": "#/components/schemas/UpdateSharingInFolderCommand"
               }
             }
           },
@@ -1728,7 +1730,7 @@
         "tags": [
           "Folder"
         ],
-        "operationId": "UpdateFolder",
+        "operationId": "PatchApiFolder",
         "parameters": [
           {
             "name": "FolderId",
@@ -1740,17 +1742,20 @@
               "format": "guid"
             },
             "x-position": 1
-          },
-          {
-            "name": "name",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 2
           }
         ],
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFolderCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
         "responses": {
           "200": {
             "description": "",
@@ -3203,48 +3208,6 @@
           }
         }
       },
-      "post": {
-        "tags": [
-          "TestTemplate"
-        ],
-        "operationId": "AddSharingInTestTemplate",
-        "parameters": [
-          {
-            "name": "testTemplateId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "guid"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "x-name": "rq",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AddSharingTestTemplateCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfGuid"
-                }
-              }
-            }
-          }
-        }
-      },
       "patch": {
         "tags": [
           "TestTemplate"
@@ -3966,6 +3929,22 @@
           }
         }
       },
+      "CreateInviteCodeCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "classId": {
+            "type": "string",
+            "description": "Id of the class want to create invite code",
+            "format": "guid",
+            "nullable": true
+          },
+          "expiredTime": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
       "ApiResponseOfPaginatedListOfStudentSearchResultDto": {
         "type": "object",
         "additionalProperties": false,
@@ -4574,6 +4553,46 @@
           }
         }
       },
+      "UpdatePositionCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "classId": {
+            "type": "string",
+            "description": "Id of the class want to update position",
+            "format": "guid",
+            "nullable": true
+          },
+          "userId": {
+            "type": "string",
+            "description": "If UserId is not provided, the position of the user who sent the request will be updated",
+            "format": "guid",
+            "nullable": true
+          },
+          "position": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateClassCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "classId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "topic": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "ApiResponseOfPaginatedListOfCommentDto": {
         "type": "object",
         "additionalProperties": false,
@@ -4700,6 +4719,34 @@
           }
         }
       },
+      "CreateCommentCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "questionId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
+          "content": {
+            "type": "string"
+          }
+        }
+      },
+      "ReplyCommentCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "commentId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
+          "content": {
+            "type": "string"
+          }
+        }
+      },
       "ApiResponseOfPaginatedListOfSearchFolderTestDto": {
         "type": "object",
         "additionalProperties": false,
@@ -4784,6 +4831,28 @@
           "createBy": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "SearchFolderQuery": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "folderName": {
+            "type": "string",
+            "nullable": true
+          },
+          "shareMode": {
+            "type": "string",
+            "nullable": true
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -4883,6 +4952,29 @@
           }
         }
       },
+      "SearchTestTemplateInFolderQuery": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "folderId": {
+            "type": "string",
+            "description": "Id of the folder want to retrieve test templates",
+            "format": "guid",
+            "nullable": true
+          },
+          "testTemplateName": {
+            "type": "string"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "ApiResponseOfResourceShareDto": {
         "type": "object",
         "additionalProperties": false,
@@ -4952,7 +5044,7 @@
           }
         }
       },
-      "AddSharingInFolderCommand": {
+      "UpdateSharingInFolderCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -4960,24 +5052,17 @@
             "type": "string",
             "format": "guid"
           },
-          "sharing": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/UpsertSharing"
-              }
-            ]
-          }
-        }
-      },
-      "UpsertSharing": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "sharingModel": {
+          "sharingModels": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/UpsertSharingModelDto"
+            }
+          },
+          "deleteUserIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "guid"
             }
           }
         }
@@ -4992,8 +5077,7 @@
           },
           "sharingUserId": {
             "type": "string",
-            "format": "guid",
-            "nullable": true
+            "format": "guid"
           }
         }
       },
@@ -5006,29 +5090,21 @@
           }
         }
       },
-      "UpdateSharingInFolderCommand": {
+      "UpdateFolderCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
           "folderId": {
             "type": "string",
-            "format": "guid"
+            "format": "guid",
+            "nullable": true
           },
-          "updateSharing": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/UpsertSharing"
-              }
-            ]
+          "name": {
+            "type": "string"
           },
-          "deleteUserIds": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "type": "string",
-              "format": "guid"
-            }
+          "topic": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -5373,6 +5449,14 @@
           },
           "isDeleted": {
             "type": "boolean"
+          },
+          "ratingCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ratingAverage": {
+            "type": "number",
+            "format": "double"
           },
           "createdBy": {
             "nullable": true,
@@ -5880,11 +5964,11 @@
           "name": {
             "type": "string"
           },
-          "timeStart": {
+          "startTime": {
             "type": "string",
             "format": "date-time"
           },
-          "timeEnd": {
+          "endTime": {
             "type": "string",
             "format": "date-time"
           },
@@ -6385,6 +6469,10 @@
             "type": "integer",
             "format": "int32"
           },
+          "timeRemaining": {
+            "type": "number",
+            "format": "double"
+          },
           "questions": {
             "type": "array",
             "items": {
@@ -6416,6 +6504,14 @@
           },
           "questionData": {
             "$ref": "#/components/schemas/QuestionAttemptDataDto"
+          },
+          "userAnswerDataDto": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UserAnswerDataDto"
+              }
+            ]
           }
         }
       },
@@ -6659,24 +6755,6 @@
           }
         }
       },
-      "AddSharingTestTemplateCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "testTemplateId": {
-            "type": "string",
-            "format": "guid"
-          },
-          "sharing": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/UpsertSharing"
-              }
-            ]
-          }
-        }
-      },
       "CreateTestTemplateCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -6785,13 +6863,11 @@
             "type": "string",
             "format": "guid"
           },
-          "updateSharing": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/UpsertSharing"
-              }
-            ]
+          "sharingModels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpsertSharingModelDto"
+            }
           },
           "deleteUserIds": {
             "type": "array",
