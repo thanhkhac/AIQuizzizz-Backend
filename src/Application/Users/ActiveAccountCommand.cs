@@ -46,6 +46,7 @@ public class ActiveAccountCommandHandler : IRequestHandler<ActiveAccountCommand,
         var admins = await _identityService.GetUsersInRoleAsync();
         
         var bannedUsers = await _context.DomainUsers
+            .IgnoreQueryFilters()
             .Where(x => x.IsDeleted == false 
                         && x.Id == rq.UserId 
                         && !admins.Contains(x.Id))

@@ -552,18 +552,20 @@
               "format": "guid"
             },
             "x-position": 1
-          },
-          {
-            "name": "expiredTime",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "number",
-              "format": "double"
-            },
-            "x-position": 2
           }
         ],
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInviteCodeCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
         "responses": {
           "200": {
             "description": "",
@@ -987,26 +989,20 @@
               "format": "guid"
             },
             "x-position": 1
-          },
-          {
-            "name": "name",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 2
-          },
-          {
-            "name": "topic",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 3
           }
         ],
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateClassCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
         "responses": {
           "200": {
             "description": "",
@@ -1146,17 +1142,20 @@
               "format": "guid"
             },
             "x-position": 2
-          },
-          {
-            "name": "position",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 3
           }
         ],
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePositionCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 3
+        },
         "responses": {
           "200": {
             "description": "",
@@ -1236,18 +1235,21 @@
               "type": "string",
               "format": "guid"
             },
-            "x-position": 1
-          },
-          {
-            "name": "content",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
             "x-position": 2
           }
         ],
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCommentCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": "",
@@ -1278,17 +1280,20 @@
               "format": "guid"
             },
             "x-position": 1
-          },
-          {
-            "name": "content",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 2
           }
         ],
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplyCommentCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
         "responses": {
           "200": {
             "description": "",
@@ -1740,17 +1745,20 @@
               "format": "guid"
             },
             "x-position": 1
-          },
-          {
-            "name": "name",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 2
           }
         ],
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFolderCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
         "responses": {
           "200": {
             "description": "",
@@ -3844,6 +3852,22 @@
           }
         }
       },
+      "CreateInviteCodeCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "classId": {
+            "type": "string",
+            "description": "Id of the class want to create invite code",
+            "format": "guid",
+            "nullable": true
+          },
+          "expiredTime": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
       "ApiResponseOfPaginatedListOfStudentSearchResultDto": {
         "type": "object",
         "additionalProperties": false,
@@ -4444,6 +4468,46 @@
           }
         }
       },
+      "UpdatePositionCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "classId": {
+            "type": "string",
+            "description": "Id of the class want to update position",
+            "format": "guid",
+            "nullable": true
+          },
+          "userId": {
+            "type": "string",
+            "description": "If UserId is not provided, the position of the user who sent the request will be updated",
+            "format": "guid",
+            "nullable": true
+          },
+          "position": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateClassCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "classId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "topic": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "ApiResponseOfPaginatedListOfCommentDto": {
         "type": "object",
         "additionalProperties": false,
@@ -4567,6 +4631,34 @@
           "fullName": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "CreateCommentCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "questionId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
+          "content": {
+            "type": "string"
+          }
+        }
+      },
+      "ReplyCommentCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "commentId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
+          "content": {
+            "type": "string"
           }
         }
       },
@@ -4899,6 +4991,24 @@
               "type": "string",
               "format": "guid"
             }
+          }
+        }
+      },
+      "UpdateFolderCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "folderId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "topic": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -5681,11 +5791,11 @@
           "name": {
             "type": "string"
           },
-          "timeStart": {
+          "startTime": {
             "type": "string",
             "format": "date-time"
           },
-          "timeEnd": {
+          "endTime": {
             "type": "string",
             "format": "date-time"
           },
@@ -6186,6 +6296,10 @@
             "type": "integer",
             "format": "int32"
           },
+          "timeRemaining": {
+            "type": "number",
+            "format": "double"
+          },
           "questions": {
             "type": "array",
             "items": {
@@ -6217,6 +6331,14 @@
           },
           "questionData": {
             "$ref": "#/components/schemas/QuestionAttemptDataDto"
+          },
+          "userAnswerDataDto": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UserAnswerDataDto"
+              }
+            ]
           }
         }
       },
