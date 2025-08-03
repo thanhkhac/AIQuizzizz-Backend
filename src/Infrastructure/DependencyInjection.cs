@@ -3,6 +3,7 @@ using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Comments.Service;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Mappings;
+using CleanArchitectureBase.Application.Common.Settings;
 using CleanArchitectureBase.Application.FolderTest.Service;
 using CleanArchitectureBase.Application.Plans;
 using CleanArchitectureBase.Application.Questions.Services;
@@ -17,7 +18,6 @@ using CleanArchitectureBase.Infrastructure.Data.Interceptors;
 using CleanArchitectureBase.Infrastructure.DomainServices;
 using CleanArchitectureBase.Infrastructure.File;
 using CleanArchitectureBase.Infrastructure.Identity;
-using CleanArchitectureBase.Infrastructure.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using CleanArchitectureBase.Infrastructure.Redis;
 using Microsoft.AspNetCore.Identity;
@@ -59,7 +59,8 @@ public static class DependencyInjection
         services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
         services.Configure<GoogleSettings>(configuration.GetSection("GoogleSettings"));
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
-
+        services.Configure<PaymentSettings>(configuration.GetSection("PaymentSettings"));
+        
 
         var a = configuration.GetSection("JwtSettings").Get<JwtSettings>();
         if (a == null) throw new Exception("Lỗi");

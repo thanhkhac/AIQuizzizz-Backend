@@ -48,4 +48,7 @@ public interface IIdentityService
     
     Task<IList<string>> GetUserRolesAsync(Guid userId);
 
+    Task<PaginatedList<UserForListDto>> SearchUserWithRole(SearchUserDto dto);
+    
+    
 }

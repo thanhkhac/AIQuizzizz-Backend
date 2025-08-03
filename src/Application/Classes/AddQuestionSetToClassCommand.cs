@@ -8,7 +8,7 @@ using CleanArchitectureBase.Domain.Entities;
 namespace CleanArchitectureBase.Application.Classes;
 
 [Authorize]
-public class AddQuestionSetCommand : IRequest<Guid>
+public class AddQuestionSetToClassCommand : IRequest<Guid>
 {
     /// <summary>
     /// Id of the class want to add question set
@@ -20,9 +20,9 @@ public class AddQuestionSetCommand : IRequest<Guid>
     public required Guid QuestionSetId { get; set; } 
 }
 
-public class AddQuestionSetCommandValidator : AbstractValidator<AddQuestionSetCommand>
+public class AddQuestionSetToClassCommanddValidator : AbstractValidator<AddQuestionSetToClassCommand>
 {
-    public AddQuestionSetCommandValidator()
+    public AddQuestionSetToClassCommanddValidator()
     {
         RuleFor(x => x.ClassId)
             .NotEmpty().WithMessage("ClassId không thể trống");
@@ -31,13 +31,13 @@ public class AddQuestionSetCommandValidator : AbstractValidator<AddQuestionSetCo
     }
 }
 
-public class AddQuestionSetCommandHandler : IRequestHandler<AddQuestionSetCommand, Guid>
+public class AddQuestionSetToClassCommandHandler : IRequestHandler<AddQuestionSetToClassCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
     private readonly IUser _user;
     
-    public AddQuestionSetCommandHandler(
+    public AddQuestionSetToClassCommandHandler(
         IApplicationDbContext context,
         IClassService classService,
         IUser user)
@@ -52,7 +52,7 @@ public class AddQuestionSetCommandHandler : IRequestHandler<AddQuestionSetComman
     /// </summary>
     /// <param name="rq">Request contains ClassId and QuestionSetId information</param>
     /// <param name="cancellationToken">Token to cancel the task</param>
-    public async Task<Guid> Handle(AddQuestionSetCommand rq, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(AddQuestionSetToClassCommand rq, CancellationToken cancellationToken)
     {
         var classById = await _context.Classes
             .Where(x => x.Id == rq.ClassId)

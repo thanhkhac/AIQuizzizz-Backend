@@ -10,11 +10,12 @@ public class CommentEndpoints : EndpointGroupBase
 {
     public override void Map(WebApplication app)
     {
-        app.MapGroup(this)
-            .MapGet(GetComment, "Question/{questionId}")
-            .MapPost(CreateComment, "Question/{questionId}")
-            .MapPost(ReplyComment, "{commentId}/Reply")
-            .MapDelete(DeleteComment, "{commentId}");
+        var group = app.MapGroup(this);
+
+        group.MapGet(GetComment, "Question/{questionId}");
+        group.MapPost(CreateComment, "Question/{questionId}");
+        group.MapPost(ReplyComment, "{commentId}/Reply");
+        group.MapDelete(DeleteComment, "{commentId}");
     }
     
     public async Task<Ok<ApiResponse<PaginatedList<CommentDto>>>> GetComment(

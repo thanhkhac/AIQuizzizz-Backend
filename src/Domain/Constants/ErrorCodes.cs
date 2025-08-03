@@ -40,6 +40,12 @@ public static class ErrorCodes
     //ROLE
     public const string ROLE_NOTFOUND  = nameof(ROLE_NOTFOUND ); 
     
+    //USER
+    public const string USER_NOTFOUND  = nameof(USER_NOTFOUND );
+    
+    //PAYMENT
+    public const string PAYMENT_TRANSACTION_EXISTED  = nameof(PAYMENT_TRANSACTION_EXISTED );
+    
     
     //IDENTITY OVERRIDE ERROR DESCRIBER
     public const string IDENTITY_DEFAULT_ERROR = nameof(IDENTITY_DEFAULT_ERROR);

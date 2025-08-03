@@ -12,17 +12,18 @@ public class Test : EndpointGroupBase
 {
     public override void Map(WebApplication app)
     {
-        app.MapGroup(this)
-            .MapGet(GetTestDetail, "/{TestId}")
-            .MapGet(GetTestResultOfClass, "/{TestId}/Class/Result")
-            .MapGet(GetHistoryTest, "/{TestId}/History")
-            .MapPost(CreateTest, "")
-            .MapPost(SubmitTestAttempt, "/Submit")
-            .MapPost(StartAttemptTestTestAttempt, "/{TestId}/Attempt")
-            .MapDelete(DeleteTest, "/{TestId}/");
+        var group = app.MapGroup(this);
 
-        app.MapGroup(this)
-            .MapPatch("/{TestId}", EditTest);
+        group.MapGet(GetTestDetail, "/{TestId}");
+        group.MapGet(GetTestResultOfClass, "/{TestId}/Class/Result");
+        group.MapGet(GetHistoryTest, "/{TestId}/History");
+
+        group.MapPost(CreateTest, "");
+        group.MapPost(SubmitTestAttempt, "/Submit");
+        group.MapPost(StartAttemptTestTestAttempt, "/{TestId}/Attempt");
+
+        group.MapDelete(DeleteTest, "/{TestId}/");
+        group.MapPatch(EditTest, "/{TestId}");
     }
     
     public async Task<Ok<ApiResponse<TestDetailDto>>> GetTestDetail([FromRoute] Guid testId, ISender sender)

@@ -2,7 +2,7 @@ using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
 using CleanArchitectureBase.Application.Common.Interfaces;
-using CleanArchitectureBase.Infrastructure.Settings;
+using CleanArchitectureBase.Application.Common.Settings;
 using Microsoft.Extensions.Options;
 
 namespace CleanArchitectureBase.Infrastructure

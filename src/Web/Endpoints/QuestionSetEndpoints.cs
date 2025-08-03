@@ -17,24 +17,25 @@ public class QuestionSetEndpoints : EndpointGroupBase
 
     public override void Map(WebApplication app)
     {
-        app.MapGroup(this)
-            .MapPost(CreateQuestionSet)
-            .MapGet(SearchQuestionSets, "Public")
-            .MapGet(GetQuestionSetDetail, ("{questionSetId}"))
-            .MapGet(GetQuestions, "{questionSetId}/Questions")
-            .MapPatch(UpdateQuestionSet, "{questionSetId}")
-            .MapDelete(DeleteQuestionSet, "{questionSetId}")
-            .MapGet(GetLearnQuestions, "{questionSetId}/LearnQuestions")
-            .MapPost(UpdateQuestionSetHistory, "{questionSetId}/LearnHistory")
-            .MapDelete(ResetQuestionSetHistory, "{questionSetId}/LearnHistory")
-            .MapGet(GetPermissions, "{questionSetId}/Permissions")
-            .MapGet(GetQuestionsForEdit, "{questionSetId}/QuestionsForEdit")
-            .MapGet(GetQuestionsForCopy, "{questionSetId}/QuestionsForCopy")
-            .MapGet(SearchQuestionSetsOwnedOrSharedWithMe, "/SharedOrOwned")
-            ;
+        var group = app.MapGroup(this);
 
-        app.MapGroup(this).DisableAntiforgery()
-            .MapPost(GenerateQuestionWithAi, "GenerateQuestionWithAi");
+        group.MapGet(SearchQuestionSets, "Public");
+        group.MapGet(SearchRecentQuestionSets, "/Recent");
+        group.MapGet(SearchQuestionSetsOwnedOrSharedWithMe, "/SharedOrOwned");
+        group.MapPost(CreateQuestionSet);
+        group.MapGet(GetQuestionSetDetail, "{questionSetId}");
+        group.MapGet(GetQuestions, "{questionSetId}/Questions");
+        group.MapPatch(UpdateQuestionSet, "{questionSetId}");
+        group.MapDelete(DeleteQuestionSet, "{questionSetId}");
+        group.MapGet(GetLearnQuestions, "{questionSetId}/LearnQuestions");
+        group.MapPost(UpdateQuestionSetHistory, "{questionSetId}/LearnHistory");
+        group.MapDelete(ResetQuestionSetHistory, "{questionSetId}/LearnHistory");
+        group.MapGet(GetPermissions, "{questionSetId}/Permissions");
+        group.MapGet(GetQuestionsForEdit, "{questionSetId}/QuestionsForEdit");
+        group.MapGet(GetQuestionsForCopy, "{questionSetId}/QuestionsForCopy");
+
+        group.MapPost(GenerateQuestionWithAi, "GenerateQuestionWithAi")
+            .DisableAntiforgery();
     }
 
     /// <summary>
@@ -249,7 +250,7 @@ public class QuestionSetEndpoints : EndpointGroupBase
         [FromQuery] string? sortBy = null
     )
     {
-        var query = new SearchPublicQuestionSetByNameQuery
+        var query = new SearchPublicQuestionSetQuery
         {
             Name = name,
             TagIds = tagIds?.ToList(),
@@ -308,4 +309,26 @@ public class QuestionSetEndpoints : EndpointGroupBase
         });
         return result.ToOk();
     }
+    /// <summary>
+    /// Search recent question sets
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="pageNumber"></param>
+    /// <param name="pageSize"></param>
+    /// <returns></returns>
+    public async Task<Ok<ApiResponse<PaginatedList<QuestionSetForListResponseDto>>>> SearchRecentQuestionSets(
+        ISender sender,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 5
+    )
+    {
+        var query = new SearchRecentQuestionSetQuery
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+        };
+        var result = await sender.Send(query);
+        return result.ToOk();
+    }
+
 }

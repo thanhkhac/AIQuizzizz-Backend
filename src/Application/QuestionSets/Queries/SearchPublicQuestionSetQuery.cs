@@ -2,12 +2,14 @@
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Questions.Dtos;
+using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using CleanArchitectureBase.Application.Tags.Dto;
+using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.QuestionSets.Queries;
 
 
-public class SearchPublicQuestionSetByNameQuery : IRequest<PaginatedList<QuestionSetForListResponseDto>>
+public class SearchPublicQuestionSetQuery : IRequest<PaginatedList<QuestionSetForListResponseDto>>
 {
     public string? Name { get; set; }
     public List<Guid>? TagIds { get; set; } = new();
@@ -16,7 +18,7 @@ public class SearchPublicQuestionSetByNameQuery : IRequest<PaginatedList<Questio
     public string? SortBy { get; set; }
 }
 
-public class SearchPublicQuestionSetByNameQueryValidator : AbstractValidator<SearchPublicQuestionSetByNameQuery>
+public class SearchPublicQuestionSetByNameQueryValidator : AbstractValidator<SearchPublicQuestionSetQuery>
 {
     public SearchPublicQuestionSetByNameQueryValidator()
     {
@@ -35,7 +37,7 @@ public class SearchPublicQuestionSetByNameQueryValidator : AbstractValidator<Sea
     }
 }
 
-public class SearchPublicQuestionSetByNameQueryHandler : IRequestHandler<SearchPublicQuestionSetByNameQuery, PaginatedList<QuestionSetForListResponseDto>>
+public class SearchPublicQuestionSetByNameQueryHandler : IRequestHandler<SearchPublicQuestionSetQuery, PaginatedList<QuestionSetForListResponseDto>>
 {
 
     private readonly IApplicationDbContext _context;
@@ -44,7 +46,7 @@ public class SearchPublicQuestionSetByNameQueryHandler : IRequestHandler<SearchP
         _context = context;
     }
 
-    public async Task<PaginatedList<QuestionSetForListResponseDto>> Handle(SearchPublicQuestionSetByNameQuery request, CancellationToken cancellationToken)
+    public async Task<PaginatedList<QuestionSetForListResponseDto>> Handle(SearchPublicQuestionSetQuery request, CancellationToken cancellationToken)
     {
         //Ngưỡng tin cậy
         const int m = 5;
@@ -63,7 +65,8 @@ public class SearchPublicQuestionSetByNameQueryHandler : IRequestHandler<SearchP
 
 
         var query = _context.QuestionSets
-            .Include(x => x.CreatedByUser).AsQueryable();
+            .Include(x => x.CreatedByUser)
+            .Where(x => x.VisibilityMode == QuestionSetVisibilityMode.Public).AsQueryable();
             
         if (request.TagIds != null && request.TagIds.Any())
         {
@@ -95,8 +98,10 @@ public class SearchPublicQuestionSetByNameQueryHandler : IRequestHandler<SearchP
                 Id = qs.Id,
                 Name = qs.Name,
                 Description = qs.Description,
-                NumberOfQuestions = qs.QuestionCount,
-                CreateBy = qs.CreatedByUser != null ? qs.CreatedByUser.FullName : string.Empty,
+                TotalQuestionCount = qs.QuestionCount,
+                CreateBy = qs.CreatedByUser != null
+                    ? qs.CreatedByUser.FullName
+                    : string.Empty,
                 RatingCount = qs.RatingCount,
                 RatingAverage = qs.RatingAverage,
                 Tags = qs.QuestionSetTags
@@ -104,10 +109,15 @@ public class SearchPublicQuestionSetByNameQueryHandler : IRequestHandler<SearchP
                     .Select(x => new TagForListReponseDto
                     {
                         Id = x.TagId,
-                        Name = x.Tag!.Name.Substring(0, 1).ToUpper() + x.Tag.Name.Substring(1),
+                        Name = x.Tag!.Name.Substring(0,
+                                       1)
+                                   .ToUpper() +
+                               x.Tag.Name.Substring(1),
                         QuestionSetCount = x.Tag.QuestionSetCount
                     })
-                    .ToList()
+                    .ToList(),
+                VisibilityMode = qs.VisibilityMode.ToString(),
+                CompletedQuestionCount = qs.QuestionCount
             }),
             request.PageNumber,
             request.PageSize

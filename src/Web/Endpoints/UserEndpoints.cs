@@ -1,7 +1,6 @@
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Users;
 using CleanArchitectureBase.Application.Users.Common;
-using CleanArchitectureBase.Infrastructure.Settings;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -12,36 +11,26 @@ public class Users : EndpointGroupBase
 {
     public override void Map(WebApplication app)
     {
-        app.MapGroup(this)
-            .MapGet(GetAllAccount, "")
-            .MapPatch("{UserId}/Role", ChangeRole);
-            
-        app.MapGroup(this)
-            .MapPatch("/{UserId}/Active", ActiveUser);
+        var group = app.MapGroup(this);
 
-        app.MapGroup(this)
-            .MapPatch("/{UserId}/Ban", BanUser);
+        group.MapGet(GetAllAccount, "");
+
+        group.MapPatch("{UserId}/Role", ChangeRole);
+        group.MapPatch("/{UserId}/Active", ActiveUser);
+        group.MapPatch("/{UserId}/Ban", BanUser);
     }
 
-
-   
-
-    public async Task<Ok<ApiResponse<PaginatedList<AccountDto>>>> GetAllAccount(
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="query"></param>
+    /// <returns></returns>
+    public async Task<Ok<ApiResponse<PaginatedList<UserForListDto>>>> GetAllAccount(
         ISender sender,
-        [FromQuery] string? keyword,
-        [FromQuery] string? fieldName,
-        [FromQuery] int pageNumber = 1,
-        [FromQuery] int pageSize = 5)
+        [AsParameters] SearchAllAccountQuery query)
     {
-        var rq = new GetAllAccountCommand
-        {
-            Keyword = keyword,
-            FieldName = fieldName,
-            PageNumber = pageNumber,
-            PageSize = pageSize,
-        };
-
-        var result = await sender.Send(rq);
+        var result = await sender.Send(query);
         return result.ToOk();
     }
 

@@ -552,20 +552,18 @@
               "format": "guid"
             },
             "x-position": 1
+          },
+          {
+            "name": "expiredTime",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "x-position": 2
           }
         ],
-        "requestBody": {
-          "x-name": "rq",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateInviteCodeCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
         "responses": {
           "200": {
             "description": "",
@@ -977,7 +975,7 @@
           "Class"
         ],
         "summary": "Class onwer - Update class",
-        "operationId": "PatchApiClass",
+        "operationId": "UpdateClass",
         "parameters": [
           {
             "name": "ClassId",
@@ -989,20 +987,26 @@
               "format": "guid"
             },
             "x-position": 1
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "topic",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
           }
         ],
-        "requestBody": {
-          "x-name": "rq",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateClassCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
         "responses": {
           "200": {
             "description": "",
@@ -1119,7 +1123,7 @@
           "Class"
         ],
         "summary": "Class onwer - Update position of members in class",
-        "operationId": "PatchApiClassMembers",
+        "operationId": "UpdatePosition",
         "parameters": [
           {
             "name": "ClassId",
@@ -1142,20 +1146,17 @@
               "format": "guid"
             },
             "x-position": 2
+          },
+          {
+            "name": "position",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 3
           }
         ],
-        "requestBody": {
-          "x-name": "rq",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdatePositionCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 3
-        },
         "responses": {
           "200": {
             "description": "",
@@ -1235,21 +1236,18 @@
               "type": "string",
               "format": "guid"
             },
+            "x-position": 1
+          },
+          {
+            "name": "content",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
             "x-position": 2
           }
         ],
-        "requestBody": {
-          "x-name": "rq",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateCommentCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
         "responses": {
           "200": {
             "description": "",
@@ -1280,20 +1278,17 @@
               "format": "guid"
             },
             "x-position": 1
+          },
+          {
+            "name": "content",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 2
           }
         ],
-        "requestBody": {
-          "x-name": "rq",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ReplyCommentCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
         "responses": {
           "200": {
             "description": "",
@@ -1733,7 +1728,7 @@
         "tags": [
           "Folder"
         ],
-        "operationId": "PatchApiFolder",
+        "operationId": "UpdateFolder",
         "parameters": [
           {
             "name": "FolderId",
@@ -1745,20 +1740,17 @@
               "format": "guid"
             },
             "x-position": 1
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 2
           }
         ],
-        "requestBody": {
-          "x-name": "rq",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateFolderCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
         "responses": {
           "200": {
             "description": "",
@@ -1766,6 +1758,70 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Payment/WebHook/Sepay": {
+      "post": {
+        "tags": [
+          "Payment"
+        ],
+        "operationId": "BuyPoint",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BuyPointCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Payment/QrCode": {
+      "post": {
+        "tags": [
+          "Payment"
+        ],
+        "operationId": "GetQrCode",
+        "parameters": [
+          {
+            "name": "amount",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfString"
                 }
               }
             }
@@ -1899,39 +1955,6 @@
         }
       }
     },
-    "/api/QuestionSet": {
-      "post": {
-        "tags": [
-          "QuestionSet"
-        ],
-        "summary": "Create new question set",
-        "operationId": "CreateQuestionSet",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateQuestionSetCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfGuid"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/QuestionSet/Public": {
       "get": {
         "tags": [
@@ -2002,6 +2025,153 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfQuestionSetForListResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/QuestionSet/Recent": {
+      "get": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "summary": "Search recent question sets",
+        "operationId": "SearchRecentQuestionSets",
+        "parameters": [
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "x-position": 1
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 5
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfQuestionSetForListResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/QuestionSet/SharedOrOwned": {
+      "get": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "SearchQuestionSetsOwnedOrSharedWithMe",
+        "parameters": [
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "x-position": 1
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 5
+            },
+            "x-position": 2
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "\"RecentAccess\"(default) or \"Newest\"",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "filterBy",
+            "in": "query",
+            "description": "\"ShareWithMe\" or \"CreatedByMe\" (default)",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfQuestionSetForListResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/QuestionSet": {
+      "post": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "summary": "Create new question set",
+        "operationId": "CreateQuestionSet",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateQuestionSetCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
                 }
               }
             }
@@ -2370,77 +2540,6 @@
         }
       }
     },
-    "/api/QuestionSet/SharedOrOwned": {
-      "get": {
-        "tags": [
-          "QuestionSet"
-        ],
-        "operationId": "SearchQuestionSetsOwnedOrSharedWithMe",
-        "parameters": [
-          {
-            "name": "pageNumber",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 1
-            },
-            "x-position": 1
-          },
-          {
-            "name": "pageSize",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 5
-            },
-            "x-position": 2
-          },
-          {
-            "name": "name",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 3
-          },
-          {
-            "name": "sortBy",
-            "in": "query",
-            "description": "\"RecentAccess\"(default) or \"Newest\"",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 4
-          },
-          {
-            "name": "filterBy",
-            "in": "query",
-            "description": "\"ShareWithMe\" or \"CreatedByMe\" (default)",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 5
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfQuestionSetForListResponseDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/QuestionSet/GenerateQuestionWithAi": {
       "post": {
         "tags": [
@@ -2585,7 +2684,7 @@
         "tags": [
           "Test"
         ],
-        "operationId": "PatchApiTest",
+        "operationId": "EditTest",
         "parameters": [
           {
             "name": "TestId",
@@ -3029,6 +3128,48 @@
             }
           }
         }
+      },
+      "patch": {
+        "tags": [
+          "TestTemplate"
+        ],
+        "operationId": "UpdateTestTemplate",
+        "parameters": [
+          {
+            "name": "testTemplateId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTestTemplateCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/TestTemplate/{testTemplateId}/Sharing": {
@@ -3147,51 +3288,6 @@
         }
       }
     },
-    "/api/TestTemplate/{TestTemplateId}": {
-      "patch": {
-        "tags": [
-          "TestTemplate"
-        ],
-        "operationId": "PatchApiTestTemplate",
-        "parameters": [
-          {
-            "name": "TestTemplateId",
-            "x-originalName": "testTemplateId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "guid"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "x-name": "rq",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateTestTemplateCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfGuid"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/TestTemplate/ImportFile": {
       "post": {
         "tags": [
@@ -3236,7 +3332,7 @@
         "operationId": "GetAllAccount",
         "parameters": [
           {
-            "name": "keyword",
+            "name": "Keyword",
             "in": "query",
             "schema": {
               "type": "string",
@@ -3245,7 +3341,7 @@
             "x-position": 1
           },
           {
-            "name": "fieldName",
+            "name": "FieldName",
             "in": "query",
             "schema": {
               "type": "string",
@@ -3254,24 +3350,42 @@
             "x-position": 2
           },
           {
-            "name": "pageNumber",
+            "name": "PageNumber",
             "in": "query",
+            "required": true,
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "default": 1
+              "format": "int32"
             },
             "x-position": 3
           },
           {
-            "name": "pageSize",
+            "name": "PageSize",
             "in": "query",
+            "required": true,
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "default": 5
+              "format": "int32"
             },
             "x-position": 4
+          },
+          {
+            "name": "IsBanned",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            },
+            "x-position": 5
+          },
+          {
+            "name": "Role",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 6
           }
         ],
         "responses": {
@@ -3280,7 +3394,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfAccountDto"
+                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfUserForListDto"
                 }
               }
             }
@@ -3852,22 +3966,6 @@
           }
         }
       },
-      "CreateInviteCodeCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "classId": {
-            "type": "string",
-            "description": "Id of the class want to create invite code",
-            "format": "guid",
-            "nullable": true
-          },
-          "expiredTime": {
-            "type": "number",
-            "format": "double"
-          }
-        }
-      },
       "ApiResponseOfPaginatedListOfStudentSearchResultDto": {
         "type": "object",
         "additionalProperties": false,
@@ -4246,7 +4344,7 @@
             "type": "string",
             "nullable": true
           },
-          "numberOfQuestions": {
+          "totalQuestionCount": {
             "type": "integer",
             "format": "int32"
           },
@@ -4257,6 +4355,14 @@
           "ratingAverage": {
             "type": "number",
             "format": "double"
+          },
+          "visibilityMode": {
+            "type": "string",
+            "nullable": true
+          },
+          "completedQuestionCount": {
+            "type": "integer",
+            "format": "int32"
           },
           "createBy": {
             "type": "string",
@@ -4468,46 +4574,6 @@
           }
         }
       },
-      "UpdatePositionCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "classId": {
-            "type": "string",
-            "description": "Id of the class want to update position",
-            "format": "guid",
-            "nullable": true
-          },
-          "userId": {
-            "type": "string",
-            "description": "If UserId is not provided, the position of the user who sent the request will be updated",
-            "format": "guid",
-            "nullable": true
-          },
-          "position": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "UpdateClassCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "classId": {
-            "type": "string",
-            "format": "guid",
-            "nullable": true
-          },
-          "name": {
-            "type": "string"
-          },
-          "topic": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
       "ApiResponseOfPaginatedListOfCommentDto": {
         "type": "object",
         "additionalProperties": false,
@@ -4631,34 +4697,6 @@
           "fullName": {
             "type": "string",
             "nullable": true
-          }
-        }
-      },
-      "CreateCommentCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "questionId": {
-            "type": "string",
-            "format": "guid",
-            "nullable": true
-          },
-          "content": {
-            "type": "string"
-          }
-        }
-      },
-      "ReplyCommentCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "commentId": {
-            "type": "string",
-            "format": "guid",
-            "nullable": true
-          },
-          "content": {
-            "type": "string"
           }
         }
       },
@@ -4994,20 +5032,71 @@
           }
         }
       },
-      "UpdateFolderCommand": {
+      "BuyPointCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "folderId": {
-            "type": "string",
-            "format": "guid",
+          "id": {
+            "type": "integer",
+            "description": "Transaction ID on SePay",
+            "format": "int32",
             "nullable": true
           },
-          "name": {
-            "type": "string"
-          },
-          "topic": {
+          "gateway": {
             "type": "string",
+            "description": "Brand name of the bank",
+            "nullable": true
+          },
+          "transactionDate": {
+            "type": "string",
+            "description": "Bank account number",
+            "format": "date-time",
+            "nullable": true
+          },
+          "accountNumber": {
+            "type": "string",
+            "description": "Bank account number",
+            "nullable": true
+          },
+          "subAccount": {
+            "type": "string",
+            "description": "Sub-bank account (identified account),",
+            "nullable": true
+          },
+          "code": {
+            "type": "string",
+            "description": "Payment code (sepay automatically identifies based on the configuration at Company -> General configuration)\nExample: PaymentCodePrefix + random 30 character",
+            "nullable": true
+          },
+          "content": {
+            "type": "string",
+            "description": "Transfer content. Example: Nguyen Khac Thanh chuyen tien",
+            "nullable": true
+          },
+          "transferType": {
+            "type": "string",
+            "description": "Transaction type. in is money \"in\", \"out\" is money out",
+            "nullable": true
+          },
+          "transferAmount": {
+            "type": "number",
+            "description": "Transaction amount \"transferAmount\":2277000",
+            "format": "decimal"
+          },
+          "description": {
+            "type": "string",
+            "description": "Full content of sms message",
+            "nullable": true
+          },
+          "referenceCode": {
+            "type": "string",
+            "description": "Reference code of sms message",
+            "nullable": true
+          },
+          "accumulated": {
+            "type": "number",
+            "description": "Account balance (cumulative)",
+            "format": "decimal",
             "nullable": true
           }
         }
@@ -5791,11 +5880,11 @@
           "name": {
             "type": "string"
           },
-          "startTime": {
+          "timeStart": {
             "type": "string",
             "format": "date-time"
           },
-          "endTime": {
+          "timeEnd": {
             "type": "string",
             "format": "date-time"
           },
@@ -6296,10 +6385,6 @@
             "type": "integer",
             "format": "int32"
           },
-          "timeRemaining": {
-            "type": "number",
-            "format": "double"
-          },
           "questions": {
             "type": "array",
             "items": {
@@ -6331,14 +6416,6 @@
           },
           "questionData": {
             "$ref": "#/components/schemas/QuestionAttemptDataDto"
-          },
-          "userAnswerDataDto": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/UserAnswerDataDto"
-              }
-            ]
           }
         }
       },
@@ -6726,7 +6803,7 @@
           }
         }
       },
-      "ApiResponseOfPaginatedListOfAccountDto": {
+      "ApiResponseOfPaginatedListOfUserForListDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -6752,7 +6829,7 @@
             "nullable": true,
             "oneOf": [
               {
-                "$ref": "#/components/schemas/PaginatedListOfAccountDto"
+                "$ref": "#/components/schemas/PaginatedListOfUserForListDto"
               }
             ]
           },
@@ -6761,14 +6838,14 @@
           }
         }
       },
-      "PaginatedListOfAccountDto": {
+      "PaginatedListOfUserForListDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/AccountDto"
+              "$ref": "#/components/schemas/UserForListDto"
             }
           },
           "pageNumber": {
@@ -6795,14 +6872,18 @@
           }
         }
       },
-      "AccountDto": {
+      "UserForListDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
           "email": {
             "type": "string"
           },
-          "name": {
+          "fullName": {
             "type": "string",
             "nullable": true
           },
@@ -6810,19 +6891,27 @@
             "type": "integer",
             "format": "int64"
           },
+          "balance": {
+            "type": "integer",
+            "format": "int64"
+          },
           "isBanned": {
             "type": "boolean"
+          },
+          "role": {
+            "type": "string",
+            "nullable": true
           }
         }
       }
     },
     "securitySchemes": {
       "JWT": {
-        "type": "http",
+        "type": "apiKey",
         "description": "Type into the textbox: Bearer {your JWT token}.",
         "name": "Authorization",
         "in": "header",
-        "scheme": "Bearer"
+        "scheme": "Api key"
       }
     }
   },

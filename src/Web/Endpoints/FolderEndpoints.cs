@@ -52,7 +52,7 @@ public class Folder : EndpointGroupBase
     
     public async Task<Ok<ApiResponse<Guid>>> AddSharingInFolder(
         [FromRoute] Guid folderId,
-        [FromBody] AddSharingInFolderCommand rq,
+        [FromBody] UpdateSharingInFolderCommand rq,
         ISender sender)
     {
         rq.FolderId = folderId;
