@@ -12,6 +12,7 @@ using CleanArchitectureBase.Application.Tests.Service;
 using CleanArchitectureBase.Application.TestTemplates.Service;
 using CleanArchitectureBase.Application.UserQuestionSetHistories.Services;
 using CleanArchitectureBase.Domain.Constants;
+using CleanArchitectureBase.Infrastructure.AiGenerate;
 using CleanArchitectureBase.Infrastructure.Data;
 using CleanArchitectureBase.Infrastructure.Data.Interceptors;
 using CleanArchitectureBase.Infrastructure.DomainServices;

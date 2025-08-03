@@ -7,8 +7,8 @@ public class TestDetailDto
     public Guid TestId { get; set; }
     public Guid ClassId { get; set; }
     public required string Name { get; set; }
-    public DateTimeOffset TimeStart { get; set; }
-    public DateTimeOffset TimeEnd { get; set; }
+    public DateTimeOffset StartTime { get; set; }
+    public DateTimeOffset EndTime { get; set; }
     public int TimeLimit { get; set; }
     public int QuestionCount { get; set; }
     public string? GradeAttemptMethod { get; set; }

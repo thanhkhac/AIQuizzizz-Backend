@@ -23,6 +23,41 @@ public static class Serializer
             _ => throw new InvalidDataException($"Invalid question type: {dto.Type}")
         };
     }
+
+    public static UserAnswerDataDto? DeSerialize(string type, string json)
+    {
+        if (string.IsNullOrEmpty(json))
+        {
+            return null;
+        }
+        
+        UserAnswerDataDto? questionData = type switch
+        {
+            nameof(QuestionType.MultipleChoice) => new UserAnswerDataDto()
+            {
+                MultipleChoice = JsonSerializer.Deserialize<List<Guid>>(json),
+                Type = type,
+            },
+            nameof(QuestionType.Matching) => new UserAnswerDataDto()
+            {
+                Matching = JsonSerializer.Deserialize<List<UserMatchingAnswerDto>>(json),
+                Type = type
+            },
+            nameof(QuestionType.Ordering) => new UserAnswerDataDto()
+            {
+                Ordering = JsonSerializer.Deserialize<List<UserOrderingAnswerDto>>(json),
+                Type = type
+            },
+            nameof(QuestionType.ShortText) => new UserAnswerDataDto()
+            {
+                ShortText = JsonSerializer.Deserialize<string>(json),
+                Type = type
+            },
+            _ => throw new InvalidDataException($"Invalid question type: {json}")
+        };
+        
+        return questionData;
+    }
 }
 
 public static class CheckUserAnswer
