@@ -61,20 +61,11 @@ public class Folder : EndpointGroupBase
     } 
     
     public async Task<Ok<ApiResponse<PaginatedList<SearchFolderTestDto>>>> SearchFolderTest(
-        [FromQuery] string? folderName,
-        [FromQuery] string? shareMode,
+        [FromBody] SearchFolderQuery rq,
         ISender sender,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
-        var rq = new SearchFolderQuery
-        {
-            ShareMode = shareMode,
-            FolderName = folderName,
-            PageNumber = pageNumber,
-            PageSize = pageSize,
-        };
-        
         var result = await sender.Send(rq);
         
         return result.ToOk();
@@ -82,18 +73,14 @@ public class Folder : EndpointGroupBase
     
     public async Task<Ok<ApiResponse<PaginatedList<TestTemplateDto>>>> SearchTestTemplateInFolder(
         [FromRoute] Guid folderId,
-        [FromQuery] string? testTemplateName,
+        [FromBody] SearchTestTemplateInFolderQuery rq,
         ISender sender,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
-        var rq = new SearchTestTemplateInFolderQuery
-        {
-            FolderId = folderId,
-            TestTemplateName = testTemplateName,
-            PageNumber = pageNumber,
-            PageSize = pageSize,
-        };
+        rq.FolderId = folderId;
+        rq.PageNumber = pageNumber;
+        rq.PageSize = pageSize;
         
         var result = await sender.Send(rq);
         
