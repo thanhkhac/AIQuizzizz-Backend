@@ -48,11 +48,10 @@ public class ActiveAccountCommandHandler : IRequestHandler<ActiveAccountCommand,
         var bannedUsers = await _context.DomainUsers
             .Where(x => x.IsDeleted == false 
                         && x.Id == rq.UserId 
-                        && x.IsDeleted == false
                         && !admins.Contains(x.Id))
             .FirstOrDefaultAsync(cancellationToken);
         if (bannedUsers == null)
-            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {_user.UserId} not found");
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND);
 
         bannedUsers.IsBanned = false;
         await _identityService.ActiveUser(rq.UserId);

@@ -95,7 +95,9 @@ public class Class : EndpointGroupBase
     /// <param name="classId"></param>
     /// <param name="sender"></param>
     /// <returns></returns>
-    public async Task<Ok<ApiResponse<string?>>> GetInviteStudentCode([FromRoute] Guid classId, ISender sender)
+    public async Task<Ok<ApiResponse<string?>>> GetInviteStudentCode(
+        [FromRoute] Guid classId,
+        ISender sender)
     {
         var result = await sender.Send(new GetInviteStudentCodeQuery{ClassId = classId});
         return result.ToOk();

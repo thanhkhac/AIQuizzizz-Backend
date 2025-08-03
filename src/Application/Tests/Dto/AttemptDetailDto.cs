@@ -12,6 +12,7 @@ public class AttemptDetailDto
     public DateTimeOffset? TimeStart { get; set; }
     public DateTimeOffset? TimeEnd { get; set; }
     public int TimeLimit { get; set; }
+    public double TimeRemaining { get; set; }
     public List<QuestionAttemptDetailDto> Questions { get; set; } = new();
 }
 
@@ -23,10 +24,11 @@ public class QuestionAttemptDetailDto
     public string QuestionText { get; set; } = null!;
     public float Score { get; set; }
     public QuestionAttemptDataDto QuestionData { get; set; } = null!;
+    public UserAnswerDataDto? UserAnswerDataDto { get; set; }
     
     public static class Mapper
     {
-        public static QuestionAttemptDetailDto FromEntity(Question question)
+        public static QuestionAttemptDetailDto FromEntity(Question question, AttemptQuestion? userAnswer)
         {
             return new QuestionAttemptDetailDto
             {
@@ -35,7 +37,10 @@ public class QuestionAttemptDetailDto
                 TextFormat = question.TextFormat,
                 QuestionText = question.QuestionText ?? string.Empty,
                 Score = question.Score,
-                QuestionData = QuestionAttemptDataDto.Deserializer.FromJson(question.Type, question.DataJson)
+                QuestionData = QuestionAttemptDataDto.Deserializer.FromJson(question.Type, question.DataJson),
+                UserAnswerDataDto = userAnswer != null 
+                    ? Serializer.DeSerialize(question.Type.ToString(), userAnswer.DataJson)
+                    : null
             };
         }
     }
