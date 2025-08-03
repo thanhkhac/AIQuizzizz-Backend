@@ -17,5 +17,5 @@ public class SharingModelDto
 public class UpsertSharingModelDto
 {
     public string? ShareMode { get; set; }
-    public Guid? SharingUserId { get; set; }
+    public Guid SharingUserId { get; set; }
 }

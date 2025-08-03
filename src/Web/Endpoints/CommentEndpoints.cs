@@ -30,11 +30,11 @@ public class CommentEndpoints : EndpointGroupBase
     }
     
     public async Task<Ok<ApiResponse<Guid>>> CreateComment(
+        [FromBody] CreateCommentCommand rq,
         [FromRoute] Guid questionId,
-        [FromQuery] string content,
         ISender sender)
     {    
-        var rq = new CreateCommentCommand { QuestionId = questionId, Content = content, };
+        rq.QuestionId = questionId;
         var result = await sender.Send(rq);
         return result.ToOk();
     }
@@ -50,10 +50,10 @@ public class CommentEndpoints : EndpointGroupBase
     
     public async Task<Ok<ApiResponse<Guid>>> ReplyComment(
         [FromRoute] Guid commentId,
-        [FromQuery] string content,
+        [FromBody] ReplyCommentCommand rq,
         ISender sender)
     {    
-        var rq = new ReplyCommentCommand { CommentId = commentId, Content = content};
+        rq.CommentId = commentId;
         var result = await sender.Send(rq);
         return result.ToOk();
     }

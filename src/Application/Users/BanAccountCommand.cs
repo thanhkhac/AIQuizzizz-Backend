@@ -46,9 +46,9 @@ public class BanAccountCommandHandler : IRequestHandler<BanAccountCommand, Guid>
         var admins = await _identityService.GetUsersInRoleAsync();
         
         var bannedUsers = await _context.DomainUsers
+            .IgnoreQueryFilters()
             .Where(x => x.IsDeleted == false 
                         && x.Id == rq.UserId 
-                        && x.IsDeleted == false
                         && !admins.Contains(x.Id))
             .FirstOrDefaultAsync(cancellationToken);
         if (bannedUsers == null)

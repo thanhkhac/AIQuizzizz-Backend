@@ -9,7 +9,7 @@ namespace CleanArchitectureBase.Application.Classes;
 [Authorize]
 public class UpdateClassCommand : IRequest<Guid>
 {
-    public Guid ClassId { get; set; }
+    public Guid? ClassId { get; set; }
     public required string Name { get; set; }
     public string? Topic { get; set; }
 }
@@ -42,7 +42,7 @@ public class UpdateClassCommandHandler : IRequestHandler<UpdateClassCommand, Gui
     public async Task<Guid> Handle(UpdateClassCommand rq, CancellationToken cancellationToken)
     {
         var (isOwner, classExists) = await _classService
-            .GetClassOwnerAccess(rq.ClassId, cancellationToken);
+            .GetClassOwnerAccess(rq.ClassId!.Value, cancellationToken);
         
         var classByName = await _context.Classes
             .Where(x => x.Name == rq.Name && x.CreatedBy == _user.UserId)

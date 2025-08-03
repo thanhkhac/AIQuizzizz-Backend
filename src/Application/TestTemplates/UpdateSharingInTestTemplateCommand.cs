@@ -61,16 +61,13 @@ public class UpdateSharingInTestTemplateCommandHandler : IRequestHandler<UpdateS
         {
             rq.SharingModels.ForEach(x =>
             {
-                if (x.SharingUserId == null || x.ShareMode == null) {
-                    return;
-                }
                 var shareMode = Enum.Parse<TestTemplateUserShareMode>(x.ShareMode!);
                 
-                if (!userTemplateExits.ContainsKey(x.SharingUserId.Value))
+                if (!userTemplateExits.ContainsKey(x.SharingUserId))
                     throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND,
-                        $"UserId {x.SharingUserId.Value} không tồn tại trong folder");
+                        $"UserId {x.SharingUserId} không tồn tại trong folder");
                 
-                userTemplateExits[x.SharingUserId.Value].ShareMode = shareMode;
+                userTemplateExits[x.SharingUserId].ShareMode = shareMode;
             });
         }
         

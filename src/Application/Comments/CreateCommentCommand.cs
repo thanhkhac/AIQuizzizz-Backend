@@ -10,7 +10,7 @@ namespace CleanArchitectureBase.Application.Comments;
 [Authorize]
 public class CreateCommentCommand : IRequest<Guid>
 {
-    public Guid QuestionId { get; set; }
+    public Guid? QuestionId { get; set; }
     public required string Content { get; set; }
 }
 
@@ -58,7 +58,7 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
         {
             Id = Guid.NewGuid(),
             Content = rq.Content,
-            QuestionId = rq.QuestionId,
+            QuestionId = rq.QuestionId!.Value,
             IsDeleted = false,
         };
         
