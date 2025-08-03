@@ -76,8 +76,7 @@ public class UpdateSharingInFolderCommandHandler : IRequestHandler<UpdateSharing
 
         //Xử lý lấy ra những Id 
         var sharingModelDict = rq.SharingModels
-            .Where(x => x.SharingUserId.HasValue)
-            .GroupBy(x => x.SharingUserId!.Value)
+            .GroupBy(x => x.SharingUserId)
             .ToDictionary(g => g.Key, g => g.Last().ShareMode);
 
         var existingUserIds = await _context.DomainUsers
@@ -98,6 +97,8 @@ public class UpdateSharingInFolderCommandHandler : IRequestHandler<UpdateSharing
             //Đã tồn tại
             if (entity != null)
             {
+                if(entity.ShareMode == FolderShareMode.Owner)
+                    continue;
                 entity.ShareMode = Enum.Parse<FolderShareMode>(model.Value!);
             }
             else //chưa tồn tại
