@@ -97,8 +97,8 @@ public class QuestionAttemptDataDto
             var items = JsonSerializer.Deserialize<List<QTypeMatching>>(dataJson);
             if (items == null) return null;
 
-            var leftItems = items.Where(x => string.IsNullOrEmpty(x.AnswerId)).ToList();
-            var rightItems = items.Where(x => !string.IsNullOrEmpty(x.AnswerId)).ToList();
+            var leftItems = items.Where(x => !string.IsNullOrEmpty(x.AnswerId)).ToList();
+            var rightItems = items.Where(x => string.IsNullOrEmpty(x.AnswerId)).ToList();
 
             return new MatchingAttemptDataDto
             {

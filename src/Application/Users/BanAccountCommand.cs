@@ -1,4 +1,5 @@
-﻿using CleanArchitectureBase.Application.Common.Exceptions;
+﻿using System.Text.Json.Serialization;
+using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
@@ -10,8 +11,9 @@ public class BanAccountCommand : IRequest<Guid>
 {
     /// <summary>
     /// Id of the user want to ban
-    /// </summary>   
-    public required Guid UserId { get; set; }
+    /// </summary>
+    [JsonIgnore]
+    public Guid UserId { get; set; }
 
     public bool IsBanned { get; set; }
 }
