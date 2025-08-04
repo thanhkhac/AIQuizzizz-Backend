@@ -40,10 +40,8 @@ public interface IIdentityService
     
     Task ChangePasswordAsync(Guid userId, string currentPassword, string newPassword);
 
-    Task BanUser(Guid userId);
-    
-    Task ActiveUser(Guid userId);
-    
+    Task BanUser(Guid userId, bool isBan);
+        
     Task<bool> IsInAnyRoleAsync(Guid userId, params string[] roles);
     
     Task<IList<string>> GetUserRolesAsync(Guid userId);

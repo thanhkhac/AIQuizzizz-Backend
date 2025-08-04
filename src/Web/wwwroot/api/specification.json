@@ -1901,13 +1901,13 @@
         "tags": [
           "Plan"
         ],
-        "operationId": "CreatePlan",
+        "operationId": "CreateUpdatePlan",
         "requestBody": {
           "x-name": "rq",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreatePlanCommand"
+                "$ref": "#/components/schemas/CreateUpdatePlanCommand"
               }
             }
           },
@@ -3407,12 +3407,12 @@
         }
       }
     },
-    "/api/Users/{UserId}/Active": {
+    "/api/Users/{UserId}/Ban": {
       "patch": {
         "tags": [
           "Users"
         ],
-        "operationId": "PatchApiUsersActive",
+        "operationId": "PatchApiUsersBan",
         "parameters": [
           {
             "name": "UserId",
@@ -3440,21 +3440,19 @@
         }
       }
     },
-    "/api/Users/{UserId}/Ban": {
-      "patch": {
+    "/api/Users/ForSelection": {
+      "get": {
         "tags": [
           "Users"
         ],
-        "operationId": "PatchApiUsersBan",
+        "operationId": "GetApiUsersForSelection",
         "parameters": [
           {
-            "name": "UserId",
-            "x-originalName": "userId",
-            "in": "path",
+            "name": "email",
+            "in": "query",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "guid"
+              "type": "string"
             },
             "x-position": 1
           }
@@ -3465,7 +3463,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                  "$ref": "#/components/schemas/ApiResponseOfListOfUserForSelectionDto"
                 }
               }
             }
@@ -5225,10 +5223,14 @@
             "nullable": true
           },
           "price": {
-            "type": "number",
-            "format": "decimal"
+            "type": "integer",
+            "format": "int32"
           },
-          "dayDuration": {
+          "duration": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unit": {
             "type": "string",
             "nullable": true
           },
@@ -5240,23 +5242,34 @@
           },
           "canCopyOrImportQuestionSet": {
             "type": "boolean"
+          },
+          "isActive": {
+            "type": "boolean"
           }
         }
       },
-      "CreatePlanCommand": {
+      "CreateUpdatePlanCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "planId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
           "name": {
             "type": "string"
           },
           "price": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "dayDuration": {
             "type": "integer",
             "format": "int32"
+          },
+          "duration": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unit": {
+            "type": "string"
           },
           "canLearn": {
             "type": "boolean"
@@ -5265,6 +5278,9 @@
             "type": "boolean"
           },
           "canCopyOrImportQuestionSet": {
+            "type": "boolean"
+          },
+          "isActive": {
             "type": "boolean"
           }
         }
@@ -6975,6 +6991,58 @@
             "type": "boolean"
           },
           "role": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ApiResponseOfListOfUserForSelectionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/UserForSelectionDto"
+            }
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UserForSelectionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "fullName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
             "type": "string",
             "nullable": true
           }
