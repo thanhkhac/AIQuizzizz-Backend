@@ -67,9 +67,12 @@ public class SubmitTestAttemptCommandHandler : IRequestHandler<SubmitTestAttempt
         if (attempt.UserId != _user.UserId)
             throw new ErrorCodeException(ErrorCodes.ERROR_ATTEMPT_USER, "Người làm bài không phải student đã attempt");
         
-        attempt.TimeFinish = DateTime.UtcNow;
-        
         await _testService.TryCheckCanAttemptTest(attempt.Test);
+
+        if (attempt.TimeFinish >= attempt.TimeStart)
+        {
+            throw new ErrorCodeException(ErrorCodes.ATTEMPT_ALREADY_SUBMIT);
+        }
 
         var questionsInTest = await _context.TestVersionQuestions
             .Include(x => x.Question)
@@ -140,6 +143,8 @@ public class SubmitTestAttemptCommandHandler : IRequestHandler<SubmitTestAttempt
 
         if (rq.IsSubmit)
         {
+            attempt.TimeFinish = DateTime.UtcNow;
+            
             var userGrade = await _context.TestGrades
                 .Where(x => x.UserId == _user.UserId && x.TestId == attempt.TestId)
                 .FirstOrDefaultAsync(cancellationToken);

@@ -20,9 +20,10 @@ public class QuestionAttemptDetailDto
 {
     public Guid Id { get; set; }
     public string Type { get; set; } = null!;
-    public TextFormat TextFormat { get; set; }
+    public string? TextFormat { get; set; }
     public string QuestionText { get; set; } = null!;
     public float Score { get; set; }
+    public int? CorrectMultipleChoiceCount { get; set; }
     public QuestionAttemptDataDto QuestionData { get; set; } = null!;
     public UserAnswerDataDto? UserAnswerDataDto { get; set; }
     
@@ -34,9 +35,11 @@ public class QuestionAttemptDetailDto
             {
                 Id = question.Id,
                 Type = question.Type.ToString(),
-                TextFormat = question.TextFormat,
+                TextFormat = question.TextFormat.ToString(),
                 QuestionText = question.QuestionText ?? string.Empty,
                 Score = question.Score,
+                CorrectMultipleChoiceCount = question.Type.Equals("MultipleChoice")
+                    ? QuestionAttemptDataDto.CorrectMultipleChoiceCount(question) : null,
                 QuestionData = QuestionAttemptDataDto.Deserializer.FromJson(question.Type, question.DataJson),
                 UserAnswerDataDto = userAnswer != null 
                     ? Serializer.DeSerialize(question.Type.ToString(), userAnswer.DataJson)
@@ -80,7 +83,7 @@ public class QuestionAttemptDataDto
             return result;
         }
         
-        private static List<MultipleChoiceAttemptItemDto>? DeserializeMultipleChoiceForAttempt(string dataJson)
+        public static List<MultipleChoiceAttemptItemDto>? DeserializeMultipleChoiceForAttempt(string dataJson)
         {
             var items = JsonSerializer.Deserialize<List<QTypeMultipleChoice>>(dataJson);
             return items?
@@ -92,7 +95,7 @@ public class QuestionAttemptDataDto
             }).ToList();
         }
         
-        private static MatchingAttemptDataDto? DeserializeMatchingForAttempt(string dataJson)
+        public static MatchingAttemptDataDto? DeserializeMatchingForAttempt(string dataJson)
         {
             var items = JsonSerializer.Deserialize<List<QTypeMatching>>(dataJson);
             if (items == null) return null;
@@ -119,7 +122,7 @@ public class QuestionAttemptDataDto
             };
         }
         
-        private static List<OrderingAttemptItemDto>? DeserializeOrderingForAttempt(string dataJson)
+        public static List<OrderingAttemptItemDto>? DeserializeOrderingForAttempt(string dataJson)
         {
             var items = JsonSerializer.Deserialize<List<QTypeOrderingItem>>(dataJson);
             return items?
@@ -130,6 +133,13 @@ public class QuestionAttemptDataDto
                 Text = item.Text,
             }).ToList();
         }
+    }
+
+    public static int? CorrectMultipleChoiceCount(Question question)
+    {
+        var multipleChoice = QuestionDataDto.Deserializer.DeserializeMultipleChoice(question.DataJson!);
+        
+        return multipleChoice?.Count(x => x.IsAnswer);
     }
 }
 
