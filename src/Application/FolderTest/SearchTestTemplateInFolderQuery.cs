@@ -22,7 +22,7 @@ public class SearchTestTemplateInFolderQuery : IRequest<PaginatedList<TestTempla
     /// Id of the folder want to retrieve test templates
     /// </summary>
     public Guid? FolderId { get; set; }
-    public required string TestTemplateName { get; set; }
+    public string? TestTemplateName { get; set; }
     public int PageNumber { get; set; } = 1;
     public int PageSize { get; set; } = 5;
 }

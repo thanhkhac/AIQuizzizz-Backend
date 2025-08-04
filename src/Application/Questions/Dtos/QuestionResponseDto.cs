@@ -128,8 +128,8 @@ public class QuestionDataDto
                     }).ToList(),
                 Matches = leftItems.Select(item => new MatchDto
                 {
-                    LeftId = Guid.Parse(item.AnswerId!),
-                    RightId = item.Id
+                    LeftId = item.Id,
+                    RightId = Guid.Parse(item.AnswerId!)
                 }).ToList()
             };
         }
