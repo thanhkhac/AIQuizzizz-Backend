@@ -125,6 +125,7 @@ public static class ErrorCodes
     
     //Attempt
     public const string ERROR_ATTEMPT_USER = nameof(ERROR_ATTEMPT_USER);
+    public const string ATTEMPT_ALREADY_SUBMIT = nameof(ATTEMPT_ALREADY_SUBMIT);
     
     //Comment
     public const string QUESTION_CAN_NOT_COMMENT = nameof(QUESTION_CAN_NOT_COMMENT);
