@@ -38,7 +38,7 @@ public class QuestionAttemptDetailDto
                 TextFormat = question.TextFormat.ToString(),
                 QuestionText = question.QuestionText ?? string.Empty,
                 Score = question.Score,
-                CorrectMultipleChoiceCount = question.Type.Equals("MultipleChoice")
+                CorrectMultipleChoiceCount = question.Type == QuestionType.MultipleChoice
                     ? QuestionAttemptDataDto.CorrectMultipleChoiceCount(question) : null,
                 QuestionData = QuestionAttemptDataDto.Deserializer.FromJson(question.Type, question.DataJson),
                 UserAnswerDataDto = userAnswer != null 
