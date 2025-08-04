@@ -87,7 +87,7 @@ public class QuestionDataDto
             return result;
         }
 
-        public static List<MultipleChoiceItemDto>? DeserializeMultipleChoice(string dataJson)
+        private static List<MultipleChoiceItemDto>? DeserializeMultipleChoice(string dataJson)
         {
             var items = JsonSerializer.Deserialize<List<QTypeMultipleChoice>>(dataJson);
             return items?
@@ -100,7 +100,7 @@ public class QuestionDataDto
                 }).ToList();
         }
 
-        public static MatchingDataDto? DeserializeMatching(string dataJson)
+        private static MatchingDataDto? DeserializeMatching(string dataJson, bool shuffle = true)
         {
             var items = JsonSerializer.Deserialize<List<QTypeMatching>>(dataJson);
             if (items == null) return null;
@@ -134,7 +134,7 @@ public class QuestionDataDto
             };
         }
 
-        public static List<OrderingItemDto>? DeserializeOrdering(string dataJson)
+        private static List<OrderingItemDto>? DeserializeOrdering(string dataJson, bool shuffle = true)
         {
             var items = JsonSerializer.Deserialize<List<QTypeOrderingItem>>(dataJson);
             if (items == null) return null;
@@ -152,7 +152,8 @@ public class QuestionDataDto
                 }).ToList();
         }
 
-        public static string? DeserializeShortText(string dataJson)
+
+        private static string? DeserializeShortText(string dataJson)
         {
             var answer = JsonSerializer.Deserialize<QTypeShortAnswer>(dataJson);
             return answer?.Answer;
