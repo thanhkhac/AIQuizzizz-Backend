@@ -2,12 +2,13 @@
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Questions.Dtos;
+using CleanArchitectureBase.Application.Questions.Services;
 using CleanArchitectureBase.Application.QuestionSets.Dtos;
+using CleanArchitectureBase.Application.QuestionSets.Services;
 using CleanArchitectureBase.Application.Tags.Dto;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.QuestionSets.Queries;
-
 
 public class SearchPublicQuestionSetQuery : IRequest<PaginatedList<QuestionSetForListResponseDto>>
 {
@@ -39,88 +40,25 @@ public class SearchPublicQuestionSetByNameQueryValidator : AbstractValidator<Sea
 
 public class SearchPublicQuestionSetByNameQueryHandler : IRequestHandler<SearchPublicQuestionSetQuery, PaginatedList<QuestionSetForListResponseDto>>
 {
-
-    private readonly IApplicationDbContext _context;
-    public SearchPublicQuestionSetByNameQueryHandler(IApplicationDbContext context)
+    private readonly IQuestionSetService _questionSetService;
+    public SearchPublicQuestionSetByNameQueryHandler(IQuestionSetService questionSetService)
     {
-        _context = context;
+        _questionSetService = questionSetService;
     }
 
     public async Task<PaginatedList<QuestionSetForListResponseDto>> Handle(SearchPublicQuestionSetQuery request, CancellationToken cancellationToken)
     {
-        //Ngưỡng tin cậy
-        const int m = 5;
-
-        double globalAverage = 0;
-
-        var ratedQuestionSets = _context.QuestionSets
-            .Include(x => x.QuestionSetTags)
-            .ThenInclude(y => y.Tag)
-            .Where(q => q.RatingCount > 0);
-
-        if (await ratedQuestionSets.AnyAsync(cancellationToken))
-        {
-            globalAverage = await ratedQuestionSets.AverageAsync(q => q.RatingAverage, cancellationToken);
-        }
-
-
-        var query = _context.QuestionSets
-            .Include(x => x.CreatedByUser)
-            .Where(x => x.VisibilityMode == QuestionSetVisibilityMode.Public).AsQueryable();
-            
-        if (request.TagIds != null && request.TagIds.Any())
-        {
-            query = query.Where(x => x.QuestionSetTags.Any(y => request.TagIds.Contains(y.TagId)));
-        }
-        
-        if (!string.IsNullOrEmpty(request.Name))
-        {
-            var keyword = $"%{request.Name}%";
-            query = query.Where(x => EF.Functions.Like(x.Name.ToLower(), keyword));
-        }
-
-        if (request.SortBy?.ToLower() == "newest")
-        {
-            query = query.OrderByDescending(q => q.Created);
-        }
-        else // để mặc định là rating
-        {
-            query = query.OrderByDescending(q =>
-                (q.RatingCount + m) == 0
-                    ? 0
-                    : (q.RatingCount / (double)(q.RatingCount + m)) * q.RatingAverage +
-                      (m / (double)(q.RatingCount + m)) * globalAverage);
-        }
-
-        return await PaginatedList<QuestionSetForListResponseDto>.CreateAsync(
-            query.Select(qs => new QuestionSetForListResponseDto
-            {
-                Id = qs.Id,
-                Name = qs.Name,
-                Description = qs.Description,
-                TotalQuestionCount = qs.QuestionCount,
-                CreateBy = qs.CreatedByUser != null
-                    ? qs.CreatedByUser.FullName
-                    : string.Empty,
-                RatingCount = qs.RatingCount,
-                RatingAverage = qs.RatingAverage,
-                Tags = qs.QuestionSetTags
-                    .Where(x => x.Tag != null)
-                    .Select(x => new TagForListReponseDto
-                    {
-                        Id = x.TagId,
-                        Name = x.Tag!.Name.Substring(0,
-                                       1)
-                                   .ToUpper() +
-                               x.Tag.Name.Substring(1),
-                        QuestionSetCount = x.Tag.QuestionSetCount
-                    })
-                    .ToList(),
-                VisibilityMode = qs.VisibilityMode.ToString(),
-                CompletedQuestionCount = qs.QuestionCount
-            }),
-            request.PageNumber,
-            request.PageSize
+        var result = await _questionSetService.SearchPublicQuestionSetsAsync
+        (
+            name: request.Name,
+            tagIds: request.TagIds,
+            pageNumber: request.PageNumber,
+            pageSize: request.PageSize,
+            sortBy: request.SortBy,
+            cancellationToken: cancellationToken,
+            confidenceFactor: 5
         );
+
+        return result;
     }
 }

@@ -1,7 +1,7 @@
 ﻿using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Domain.Entities;
 
-namespace CleanArchitectureBase.Application.Plans;
+namespace CleanArchitectureBase.Application.Plans.Service;
 
 public interface IPlanService
 {
@@ -19,35 +19,48 @@ public class PlanService : IPlanService
         _context = context;
     }
 
-    private async Task<bool> HasActiveSubscriptionWithFeature(Guid userId, Func<Plan, bool> featureSelector)
-    {
-        var activeSubscription = await _context.UserSubscriptions
-            .Include(us => us.Plan)
-            .Where(us => us.UserId == userId
-                         && us.IsActive
-                         && us.DateStart <= DateTimeOffset.UtcNow
-                         && us.DateFinish >= DateTimeOffset.UtcNow)
-            .OrderByDescending(us => us.DateFinish) 
-            .FirstOrDefaultAsync();
-
-        if (activeSubscription == null)
-            return false;
-
-        return featureSelector(activeSubscription.Plan);
-    }
-
     public Task<bool> CanLearn(Guid userId)
     {
-        return HasActiveSubscriptionWithFeature(userId, plan => plan.CanLearn);
+        var now = DateTimeOffset.UtcNow;
+
+        return _context.UserSubscriptions
+            .IgnoreQueryFilters()
+            .Include(us => us.Plan)
+            .AnyAsync(us =>
+                us.UserId == userId &&
+                us.IsActive &&
+                us.DateStart <= now &&
+                us.DateFinish >= now &&
+                us.Plan.CanLearn);
     }
 
     public Task<bool> CanOpenTest(Guid userId)
     {
-        return HasActiveSubscriptionWithFeature(userId, plan => plan.CanOpenTest);
+        var now = DateTimeOffset.UtcNow;
+
+        return _context.UserSubscriptions
+        .IgnoreQueryFilters()
+            .Include(us => us.Plan)
+            .AnyAsync(us =>
+                us.UserId == userId &&
+                us.IsActive &&
+                us.DateStart <= now &&
+                us.DateFinish >= now &&
+                us.Plan.CanOpenTest);
     }
 
     public Task<bool> CanCopyOrImportQuestionSet(Guid userId)
     {
-        return HasActiveSubscriptionWithFeature(userId, plan => plan.CanCopyOrImportQuestionSet);
+        var now = DateTimeOffset.UtcNow;
+
+        return _context.UserSubscriptions
+            .IgnoreQueryFilters()
+            .Include(us => us.Plan)
+            .AnyAsync(us =>
+                us.UserId == userId &&
+                us.IsActive &&
+                us.DateStart <= now &&
+                us.DateFinish >= now &&
+                us.Plan.CanCopyOrImportQuestionSet);
     }
 }

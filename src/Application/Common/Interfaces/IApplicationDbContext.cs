@@ -11,8 +11,6 @@ public interface
 
     DbSet<User> DomainUsers { get; }
     public DbSet<Plan> Plans { get; }
-    public DbSet<TokenPackage> TokenPackages { get; }
-    public DbSet<UserTokenPurchase> UserTokenPurchases { get; }
     public DbSet<UserSubscription> UserSubscriptions { get; }
     public DbSet<Question> Questions { get; }
     public DbSet<QuestionSet> QuestionSets { get; }
@@ -40,5 +38,6 @@ public interface
     public DbSet<QuestionSetTag> QuestionSetTags { get; }
     public DbSet<UserQuestionSetAccessHistory> UserQuestionSetAccessHistories { get; }
     public DbSet<Transaction> Transactions { get; }
+    public DbSet<PlanPriceHistory> PlanPriceHistories { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

@@ -3,7 +3,7 @@ using CleanArchitectureBase.Application.Common.Security;
 
 namespace CleanArchitectureBase.Application.Users;
 
-[Authorize (Roles = Domain.Constants.Roles.Administrator)]
+[Authorize(Roles = Domain.Constants.Roles.Administrator)]
 public class ChangeAccountRoleCommand : IRequest<Guid>
 {
     /// <summary>
@@ -11,9 +11,10 @@ public class ChangeAccountRoleCommand : IRequest<Guid>
     /// </summary>   
     public required Guid UserId { get; set; }
     public required string Role { get; set; }
-    
+
 }
 
+//TODO: chưa validate role
 public class ChangeAccountRoleCommandValidator : AbstractValidator<ChangeAccountRoleCommand>
 {
     public ChangeAccountRoleCommandValidator()
@@ -22,6 +23,10 @@ public class ChangeAccountRoleCommandValidator : AbstractValidator<ChangeAccount
             .NotEmpty().WithMessage("UserId không được trống");
         RuleFor(x => x.Role)
             .NotEmpty().WithMessage("Role không được trống");
+        RuleFor(x => x.Role)
+            .NotEmpty().WithMessage("Role không được trống")
+            .Must(role => role == Domain.Constants.Roles.User || role == Domain.Constants.Roles.Administrator)
+            .WithMessage("Role không hợp lệ. Chỉ được phép: 'Moderator' hoặc 'User'");
     }
 }
 
@@ -30,14 +35,14 @@ public class ChangeAccountRoleCommandHandler : IRequestHandler<ChangeAccountRole
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     private readonly IIdentityService _identityService;
-    
+
     public ChangeAccountRoleCommandHandler(IApplicationDbContext context, IUser user, IIdentityService identityService)
     {
         _context = context;
         _user = user;
         _identityService = identityService;
     }
-    
+
     /// <summary>
     /// The function changes the role of a user account and returns the user ID
     /// </summary>

@@ -43,10 +43,12 @@ public class GetDetailPlanQueryHandler : IRequestHandler<GetDetailPlanQuery, Pla
             Id = rq.PlanId,
             Name = plan.Name,
             Price = plan.Price,
-            DayDuration = DateDurationConverter.ConvertToDurationString(plan.DayDuration),
+            Duration = plan.Duration,
+            Unit = plan.Unit,
             CanCopyOrImportQuestionSet = plan.CanCopyOrImportQuestionSet,
             CanLearn = plan.CanLearn,
-            CanOpenTest = plan.CanOpenTest
+            CanOpenTest = plan.CanOpenTest,
+            IsActive = plan.IsActive
         };
     }
 }

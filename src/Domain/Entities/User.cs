@@ -15,7 +15,6 @@ public class User
     public string? PaymentCode { get; set; } = Payment.PaymentCodePrefix + Guid.NewGuid().ToString("N")[..30];
 
     // Navigation properties
-    public List<UserTokenPurchase> UserTokenPurchases { get; set; } = new();
     public List<UserSubscription> UserSubscriptions { get; set; } = new();
     public List<QuestionSetUser> QuestionSetUsers { get; set; } = new();
     public List<Comment> Comments { get; set; } = new();
