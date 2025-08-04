@@ -87,7 +87,7 @@ public class QuestionDataDto
             return result;
         }
 
-        private static List<MultipleChoiceItemDto>? DeserializeMultipleChoice(string dataJson)
+        public static List<MultipleChoiceItemDto>? DeserializeMultipleChoice(string dataJson)
         {
             var items = JsonSerializer.Deserialize<List<QTypeMultipleChoice>>(dataJson);
             return items?
