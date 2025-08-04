@@ -1,6 +1,7 @@
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Users;
 using CleanArchitectureBase.Application.Users.Common;
+using CleanArchitectureBase.Application.Users.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -14,10 +15,9 @@ public class Users : EndpointGroupBase
         var group = app.MapGroup(this);
 
         group.MapGet(GetAllAccount, "");
-
         group.MapPatch("{UserId}/Role", ChangeRole);
-        group.MapPatch("/{UserId}/Active", ActiveUser);
         group.MapPatch("/{UserId}/Ban", BanUser);
+        group.MapGet("/ForSelection", SearchUserForSelection);
     }
 
     /// <summary>
@@ -45,16 +45,6 @@ public class Users : EndpointGroupBase
         return result.ToOk();
     }
 
-    public async Task<Ok<ApiResponse<Guid>>> ActiveUser([FromRoute] Guid userId, ISender sender)
-    {
-        var rq = new ActiveAccountCommand()
-        {
-            UserId = userId,
-        };
-
-        var result = await sender.Send(rq);
-        return result.ToOk();
-    }
 
     public async Task<Ok<ApiResponse<Guid>>> ChangeRole(
         [FromRoute] Guid userId,
@@ -70,4 +60,19 @@ public class Users : EndpointGroupBase
         var result = await sender.Send(rq);
         return result.ToOk();
     }
+
+
+    public async Task<Ok<ApiResponse<List<UserForSelectionDto>>>> SearchUserForSelection(
+        [FromQuery] string email,
+        ISender sender)
+    {
+        var rq = new SearchUserForSelectionQuery()
+        {
+            Email = email
+        };
+
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+
 }

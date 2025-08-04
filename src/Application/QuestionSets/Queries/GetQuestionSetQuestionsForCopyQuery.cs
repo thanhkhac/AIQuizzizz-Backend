@@ -1,12 +1,12 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
-using CleanArchitectureBase.Application.Plans;
+using CleanArchitectureBase.Application.Plans.Service;
 using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using CleanArchitectureBase.Application.QuestionSets.Services;
 using CleanArchitectureBase.Domain.Constants;
 
-namespace CleanArchitectureBase.Application.QuestionSets;
+namespace CleanArchitectureBase.Application.QuestionSets.Queries;
 
 [Authorize]
 public class GetQuestionSetQuestionsForCopyQuery : IRequest<List<CreateUpdateQuestionDto>>

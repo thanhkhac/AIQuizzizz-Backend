@@ -19,7 +19,10 @@ public class PlanConfiguration : IEntityTypeConfiguration<Plan>
             .HasColumnType("numeric(18,2)")
             .IsRequired();
 
-        builder.Property(p => p.DayDuration)
+        builder.Property(p => p.Duration)
+            .IsRequired();
+            
+        builder.Property(p => p.Unit)
             .IsRequired();
 
         builder.Property(p => p.CanLearn)
@@ -36,43 +39,36 @@ public class PlanConfiguration : IEntityTypeConfiguration<Plan>
     }
 }
 
-public class TokenPackageConfiguration : IEntityTypeConfiguration<TokenPackage>
+
+public class PlanPriceHistoryConfiguration : IEntityTypeConfiguration<PlanPriceHistory>
 {
-    public void Configure(EntityTypeBuilder<TokenPackage> builder)
+    public void Configure(EntityTypeBuilder<PlanPriceHistory> builder)
     {
-        //Cấu hình thuộc tính
-        builder.Property(tp => tp.Name)
-            .IsRequired()
-            .HasMaxLength(100);
+        builder.HasKey(p => p.Id);
 
-        builder.Property(tp => tp.Price)
-            .HasColumnType("numeric(18,2)")
+        builder.Property(p => p.Id)
             .IsRequired();
 
-        builder.Property(tp => tp.TokenCount)
+        builder.Property(p => p.PlanId)
             .IsRequired();
 
-        builder.Property(tp => tp.IsDeleted)
-            .HasDefaultValue(false);
+        builder.Property(p => p.Price)
+            .IsRequired();
+
+        builder.Property(p => p.DateStart)
+            .IsRequired();
+
+        builder.Property(p => p.DateFinish);
+
+
+        builder.HasOne(p => p.Plan)
+            .WithMany(p => p.PriceHistories)
+            .HasForeignKey(p => p.PlanId)
+            .OnDelete(DeleteBehavior.Restrict); 
+
     }
 }
 
-//Cấu hình bảng trung gian giữa User và Token Package
-public class UserTokenPurchaseConfiguration : IEntityTypeConfiguration<UserTokenPurchase>
-{
-    public void Configure(EntityTypeBuilder<UserTokenPurchase> builder)
-    {
-        builder.HasOne(utp => utp.TokenPackage)
-            .WithMany()
-            .HasForeignKey(utp => utp.TokenPackageId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasOne(utp => utp.User)
-            .WithMany(u => u.UserTokenPurchases)
-            .HasForeignKey(utp => utp.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
-    }
-}
 
 //Cấu hình bảng trung gian giữa người dùng và Plan
 public class UserSubscriptionConfiguration : IEntityTypeConfiguration<UserSubscription>

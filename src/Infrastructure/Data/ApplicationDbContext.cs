@@ -29,8 +29,6 @@ public class ApplicationDbContext : IdentityDbContext<UserAccount,
 
     public DbSet<User> DomainUsers => Set<User>();
     public DbSet<Plan> Plans => Set<Plan>();
-    public DbSet<TokenPackage> TokenPackages => Set<TokenPackage>();
-    public DbSet<UserTokenPurchase> UserTokenPurchases => Set<UserTokenPurchase>();
     public DbSet<UserSubscription> UserSubscriptions => Set<UserSubscription>();
     public DbSet<Question> Questions => Set<Question>();
     public DbSet<QuestionSet> QuestionSets => Set<QuestionSet>();
@@ -58,6 +56,7 @@ public class ApplicationDbContext : IdentityDbContext<UserAccount,
     public DbSet<QuestionSetTag> QuestionSetTags => Set<QuestionSetTag>();
     public DbSet<UserQuestionSetAccessHistory> UserQuestionSetAccessHistories => Set<UserQuestionSetAccessHistory>();
     public DbSet<Transaction> Transactions => Set<Transaction>();
+    public DbSet<PlanPriceHistory> PlanPriceHistories => Set<PlanPriceHistory>();
 
     // public override DbSet<ApplicationUserRole> UserRoles { get; set; }
     // public override DbSet<ApplicationRole> Roles { get; set; }

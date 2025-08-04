@@ -29,7 +29,7 @@ public class QuestionResponseDto
                 ExplainText = question.ExplainText,
                 Score = question.Score,
                 IsCorrect = isCorrect,
-                QuestionData = QuestionDataDto.Deserializer.FromJson(question.Type, question.DataJson)
+                QuestionData = QuestionDataDto.Deserializer.FromJson(question.Type, question.DataJson, shuffle: false)
             };
         }
     }
@@ -45,7 +45,7 @@ public class QuestionDataDto
 
     public static class Deserializer
     {
-        public static QuestionDataDto FromJson(QuestionType type, string? dataJson)
+        public static QuestionDataDto FromJson(QuestionType type, string? dataJson, bool shuffle)
         {
             if (string.IsNullOrEmpty(dataJson))
                 return new QuestionDataDto();
@@ -80,14 +80,14 @@ public class QuestionDataDto
             return items?
                 .OrderBy(x => x.ShuffleOrder)
                 .Select(item => new MultipleChoiceItemDto
-            {
-                Id = item.Id,
-                Text = item.Text,
-                IsAnswer = item.IsAnswer
-            }).ToList();
+                {
+                    Id = item.Id,
+                    Text = item.Text,
+                    IsAnswer = item.IsAnswer
+                }).ToList();
         }
 
-        private static MatchingDataDto? DeserializeMatching(string dataJson)
+        private static MatchingDataDto? DeserializeMatching(string dataJson, bool shuffle = true)
         {
             var items = JsonSerializer.Deserialize<List<QTypeMatching>>(dataJson);
             if (items == null) return null;
@@ -100,17 +100,17 @@ public class QuestionDataDto
                 LeftItems = leftItems
                     .OrderBy(x => x.ShuffleOrder)
                     .Select(item => new MatchingItemDto
-                {
-                    Id = item.Id,
-                    Text = item.Text
-                }).ToList(),
+                    {
+                        Id = item.Id,
+                        Text = item.Text
+                    }).ToList(),
                 RightItems = rightItems
                     .OrderBy(x => x.ShuffleOrder)
                     .Select(item => new MatchingItemDto
-                {
-                    Id = item.Id,
-                    Text = item.Text
-                }).ToList(),
+                    {
+                        Id = item.Id,
+                        Text = item.Text
+                    }).ToList(),
                 Matches = rightItems.Select(item => new MatchDto
                 {
                     LeftId = Guid.Parse(item.AnswerId!),
@@ -125,11 +125,11 @@ public class QuestionDataDto
             return items?
                 .OrderBy(x => x.ShuffleOrder)
                 .Select(item => new OrderingItemDto
-            {
-                Id = item.Id,
-                Text = item.Text,
-                CorrectOrder = item.CorrectOrder
-            }).ToList();
+                {
+                    Id = item.Id,
+                    Text = item.Text,
+                    CorrectOrder = item.CorrectOrder
+                }).ToList();
         }
 
         private static string? DeserializeShortText(string dataJson)

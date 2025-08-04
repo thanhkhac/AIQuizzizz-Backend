@@ -19,8 +19,8 @@ public static class InitialiserExtensions
         var initialiser = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitialiser>();
 
         await initialiser.InitialiseAsync();
-        
-        await initialiser.SeedAsync();
+
+        // await initialiser.SeedAsync();
         await Task.CompletedTask;
     }
 }
@@ -82,19 +82,43 @@ public class ApplicationDbContextInitialiser
         // Default roles
         var administratorRole = new ApplicationRole(Roles.Administrator);
         var moderatorRole = new ApplicationRole(Roles.Moderator);
+        var userRole = new ApplicationRole(Roles.User);
 
         if (_roleManager.Roles.All(r => r.Name != administratorRole.Name))
         {
             await _roleManager.CreateAsync(administratorRole);
         }
-        
+
         if (_roleManager.Roles.All(r => r.Name != moderatorRole.Name))
         {
             await _roleManager.CreateAsync(moderatorRole);
         }
 
+        if (_roleManager.Roles.All(r => r.Name != userRole.Name))
+        {
+            await _roleManager.CreateAsync(userRole);
+        }
+
+        var users = _userManager.Users.ToList(); // hoặc dùng ToListAsync() nếu có AsQueryable()
+
+        foreach (var i in users)
+        {
+            var roles = await _userManager.GetRolesAsync(i);
+            if (!roles.Contains(Roles.User))
+            {
+                await _userManager.AddToRoleAsync(i, Roles.User);
+            }
+        }
+
+
         // Default users
-        var user = new User { Id = Guid.Parse("77777777-7777-7777-7777-777777777777"), FullName = "Admin", Email = "sa@gmail.com", IsBanned = false };
+        var user = new User
+        {
+            Id = Guid.Parse("77777777-7777-7777-7777-777777777777"),
+            FullName = "Admin",
+            Email = "sa@gmail.com",
+            IsBanned = false
+        };
         var administrator = new UserAccount
         {
             Id = user.Id,
@@ -110,7 +134,10 @@ public class ApplicationDbContextInitialiser
             await _userManager.CreateAsync(administrator, "Sa@1234");
             if (!string.IsNullOrWhiteSpace(administratorRole.Name))
             {
-                await _userManager.AddToRolesAsync(administrator, new[] { administratorRole.Name });
+                await _userManager.AddToRolesAsync(administrator, new[]
+                {
+                    administratorRole.Name
+                });
             }
         }
 
@@ -123,10 +150,22 @@ public class ApplicationDbContextInitialiser
                 Title = "Todo List",
                 Items =
                 {
-                    new TodoItem { Title = "Make a todo list 📃" },
-                    new TodoItem { Title = "Check off the first item ✅" },
-                    new TodoItem { Title = "Realise you've already done two things on the list! 🤯" },
-                    new TodoItem { Title = "Reward yourself with a nice, long nap 🏆" },
+                    new TodoItem
+                    {
+                        Title = "Make a todo list 📃"
+                    },
+                    new TodoItem
+                    {
+                        Title = "Check off the first item ✅"
+                    },
+                    new TodoItem
+                    {
+                        Title = "Realise you've already done two things on the list! 🤯"
+                    },
+                    new TodoItem
+                    {
+                        Title = "Reward yourself with a nice, long nap 🏆"
+                    },
                 }
             });
 
@@ -139,9 +178,10 @@ public class ApplicationDbContextInitialiser
             var plan1 = new Plan
             {
                 Id = Guid.NewGuid(),
-                Name = "Gói Cơ Bản",
+                Name = "AIQ Plus",
                 Price = 0,
-                DayDuration = 30,
+                Duration = 10,
+                Unit = "year",
                 CanLearn = true,
                 CanOpenTest = false,
                 CanCopyOrImportQuestionSet = false,
@@ -150,9 +190,10 @@ public class ApplicationDbContextInitialiser
             var plan2 = new Plan
             {
                 Id = Guid.NewGuid(),
-                Name = "Gói Nâng Cao",
+                Name = "AIQ Pro",
                 Price = 199000,
-                DayDuration = 90,
+                Duration = 90,
+                Unit = "month",
                 CanLearn = true,
                 CanOpenTest = true,
                 CanCopyOrImportQuestionSet = true,
@@ -162,45 +203,8 @@ public class ApplicationDbContextInitialiser
             await _context.SaveChangesAsync();
         }
 
-        // Seed TokenPackage
-        if (!_context.Set<TokenPackage>().Any())
-        {
-            var package1 = new TokenPackage
-            {
-                Id = Guid.NewGuid(),
-                Name = "Gói 10 Token",
-                Price = 10000,
-                TokenCount = 10,
-                IsDeleted = false
-            };
-            var package2 = new TokenPackage
-            {
-                Id = Guid.NewGuid(),
-                Name = "Gói 50 Token",
-                Price = 45000,
-                TokenCount = 50,
-                IsDeleted = false
-            };
-            _context.Set<TokenPackage>().AddRange(package1, package2);
-            await _context.SaveChangesAsync();
-        }
-
         // Seed UserTokenPurchase (ví dụ cho admin)
         var adminUser = await _userManager.FindByEmailAsync("sa@gmail.com");
-        var tokenPackage = _context.Set<TokenPackage>().FirstOrDefault();
-        if (adminUser != null && tokenPackage != null && !_context.Set<UserTokenPurchase>().Any())
-        {
-            var purchase = new UserTokenPurchase
-            {
-                Id = Guid.NewGuid(),
-                UserId = adminUser.Id,
-                TokenPackageId = tokenPackage.Id,
-                TokenPackage = tokenPackage,
-                User = adminUser.User
-            };
-            _context.Set<UserTokenPurchase>().Add(purchase);
-            await _context.SaveChangesAsync();
-        }
 
         // Seed UserSubscription (ví dụ cho admin)
         var plan = _context.Set<Plan>().FirstOrDefault();
@@ -212,7 +216,7 @@ public class ApplicationDbContextInitialiser
                 UserId = adminUser.Id,
                 PlanId = plan.Id,
                 DateStart = DateTimeOffset.UtcNow,
-                DateFinish = DateTimeOffset.UtcNow.AddDays(plan.DayDuration),
+                DateFinish = DateTimeOffset.UtcNow.AddDays(plan.Duration),
                 IsActive = true,
                 User = adminUser.User,
                 Plan = plan
