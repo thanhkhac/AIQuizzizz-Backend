@@ -143,6 +143,12 @@ public class CreateUpdateQuestionDto
 
     public static class Serializer
     {
+        /// <summary>
+        /// Convert CreateUpdateQuestionDto to JSON
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidDataException"></exception>
         public static string Serialize(CreateUpdateQuestionDto dto)
         {
             return dto.Type switch
@@ -158,7 +164,10 @@ public class CreateUpdateQuestionDto
             };
         }
     }
-
+    
+    /// <summary>
+    /// Convert Question entity to CreateUpdateQuestionDto
+    /// </summary>
     public static class Deserializer
     {
         public static CreateUpdateQuestionDto Deserialize(Question question)
