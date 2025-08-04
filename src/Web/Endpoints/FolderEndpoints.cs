@@ -89,14 +89,15 @@ public class Folder : EndpointGroupBase
 
     public async Task<Ok<ApiResponse<PaginatedList<TestTemplateDto>>>> SearchTestTemplateInFolder(
         [FromRoute] Guid folderId,
-        [FromBody] SearchTestTemplateInFolderQuery rq,
+        [FromQuery] string? testTemplateName,
         ISender sender,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
-        rq.FolderId = folderId;
-        rq.PageNumber = pageNumber;
-        rq.PageSize = pageSize;
+        var rq = new SearchTestTemplateInFolderQuery
+        {
+            FolderId = folderId, PageNumber = pageNumber, PageSize = pageSize, TestTemplateName = testTemplateName
+        };
 
         var result = await sender.Send(rq);
 
