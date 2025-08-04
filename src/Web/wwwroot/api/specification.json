@@ -3426,6 +3426,18 @@
             "x-position": 1
           }
         ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BanAccountCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
         "responses": {
           "200": {
             "description": "",
@@ -6993,6 +7005,15 @@
           "role": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "BanAccountCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "isBanned": {
+            "type": "boolean"
           }
         }
       },

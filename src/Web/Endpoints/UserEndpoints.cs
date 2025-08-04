@@ -34,11 +34,14 @@ public class Users : EndpointGroupBase
         return result.ToOk();
     }
 
-    public async Task<Ok<ApiResponse<Guid>>> BanUser([FromRoute] Guid userId, ISender sender)
+    public async Task<Ok<ApiResponse<Guid>>> BanUser([FromRoute] Guid userId,
+        [FromBody] BanAccountCommand command
+        , ISender sender)
     {
         var rq = new BanAccountCommand()
         {
             UserId = userId,
+            IsBanned = command.IsBanned
         };
 
         var result = await sender.Send(rq);
