@@ -14,43 +14,61 @@ public class PlanEndpoints : EndpointGroupBase
         var group = app.MapGroup(this);
 
         group.MapGet(GetDetailPlan, "/{planId}");
-        group.MapPost(CreatePlan, "");
+        group.MapPost(CreateUpdatePlan, "");
         group.MapPost(BuyPlan, "/{planId}/Buy");
         group.MapDelete(DeletePlan, "/{planId}");
     }
-    
+
     public async Task<Ok<ApiResponse<PlanDetailDto>>> GetDetailPlan(
         [FromRoute] Guid planId,
         ISender sender)
     {
-        var rq = new GetDetailPlanQuery { PlanId = planId};
+        var rq = new GetDetailPlanQuery
+        {
+            PlanId = planId
+        };
         var result = await sender.Send(rq);
         return result.ToOk();
     }
-    
+
     public async Task<Ok<ApiResponse<Guid>>> BuyPlan(
         [FromRoute] Guid planId,
         ISender sender)
     {
-        var rq = new BuyPlanCommand { PlanId = planId};
+        var rq = new BuyPlanCommand
+        {
+            PlanId = planId
+        };
         var result = await sender.Send(rq);
         return result.ToOk();
     }
-    
+
     public async Task<Ok<ApiResponse<Guid>>> DeletePlan(
         [FromRoute] Guid planId,
         ISender sender)
     {
-        var rq = new DeletePlanCommand { PlanId = planId};
+        var rq = new DeletePlanCommand
+        {
+            PlanId = planId
+        };
         var result = await sender.Send(rq);
         return result.ToOk();
     }
-    
-    public async Task<Ok<ApiResponse<Guid>>> CreatePlan(
-        [FromBody] CreatePlanCommand rq,
+
+    public async Task<Ok<ApiResponse<Guid>>> CreateUpdatePlan(
+        [FromBody] CreateUpdatePlanCommand rq,
         ISender sender)
     {
         var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+
+    public async Task<Ok<ApiResponse<List<PlanDetailDto>>>> SearchPlan(
+        [AsParameters] SearchPlanQuery query,
+        ISender sender
+    )
+    {
+        var result = await sender.Send(query);
         return result.ToOk();
     }
 }

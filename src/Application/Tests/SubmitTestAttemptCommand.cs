@@ -78,7 +78,7 @@ public class SubmitTestAttemptCommandHandler : IRequestHandler<SubmitTestAttempt
             .Include(x => x.Question)
             .Include(x => x.TestVersion)
             .Where(t => t.TestVersion!.Id == attempt.TestVersionId)
-            .Select(x => QuestionResponseDto.Mapper.FromEntity(x.Question!,true))
+            .Select(x => QuestionResponseDto.Mapper.FromEntity(x.Question!,true, true))
             .ToListAsync(cancellationToken);
         
         var userAnswers  = rq.UserAnswers.ToDictionary(q => q.QuestionId, q => q); 

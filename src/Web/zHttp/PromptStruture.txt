@@ -24,7 +24,9 @@ Trả về kết quả dưới dạng JSON dạng cây như sau:
         {
           "title": "",
           "children": [
-            { "title": "" }
+            { "title": "" ,
+                children:
+            }
           ]
         }
       ]

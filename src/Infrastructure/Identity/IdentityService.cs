@@ -111,10 +111,16 @@ public class IdentityService : IIdentityService
             EmailConfirmed = emailConfirmed
         };
 
+
         IdentityResult result = password != null
             ? await _userManager.CreateAsync(userAccount, password)
             : await _userManager.CreateAsync(userAccount);
-
+            
+        await _userManager.AddToRolesAsync(userAccount, new[]
+        {
+            Roles.User
+        });
+        
         if (!result.Succeeded)
             throw new ErrorCodeException(ErrorCodes.COMMON_SERVER_INTERNAL_ERROR);
 
@@ -397,6 +403,12 @@ public class IdentityService : IIdentityService
         };
 
         var result = await _userManager.CreateAsync(userAccount);
+        
+        await _userManager.AddToRolesAsync(userAccount, new[]
+        {
+            Roles.User
+        });
+
 
         if (!result.Succeeded)
             throw new ErrorCodeException(ErrorCodes.COMMON_SERVER_INTERNAL_ERROR, $"Error at change password");
@@ -578,25 +590,16 @@ public class IdentityService : IIdentityService
         }
     }
 
-    public async Task BanUser(Guid userId)
+    public async Task BanUser(Guid userId, bool isBanned)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id  {userId} not found");
 
-        user.IsBanned = true;
+        user.IsBanned = isBanned;
 
         await _userManager.UpdateAsync(user);
     }
 
-    public async Task ActiveUser(Guid userId)
-    {
-        var user = await _userManager.FindByIdAsync(userId.ToString());
-        if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id  {userId} not found");
-
-        user.IsBanned = true;
-
-        await _userManager.UpdateAsync(user);
-    }
     //TODO: Thêm navigation để truy vấn ngắn hơn
     public async Task<bool> IsInAnyRoleAsync(Guid userId, params string[] roles)
     {
@@ -656,14 +659,7 @@ public class IdentityService : IIdentityService
 
         if (!string.IsNullOrWhiteSpace(dto.Role))
         {
-            if (dto.Role == "User")
-            {
-                query = query.Where(x => x.RoleName == null);
-            }
-            else
-            {
-                query = query.Where(x => x.RoleName == dto.Role);
-            }
+            query = query.Where(x => x.RoleName == dto.Role);
         }
 
         var projected = query.Select(x => new UserForListDto
@@ -673,7 +669,8 @@ public class IdentityService : IIdentityService
             FullName = x.domain.FullName,
             IsBanned = x.domain.IsBanned,
             Token = x.domain.TokenCount,
-            Role = x.RoleName ?? "User"
+            Role = x.RoleName ?? "User",
+            Balance = x.domain.Balance
         });
         return await PaginatedList<UserForListDto>.CreateAsync(projected.AsNoTracking(), dto.PageNumber, dto.PageSize);
     }

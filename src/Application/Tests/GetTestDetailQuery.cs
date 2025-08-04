@@ -51,7 +51,7 @@ public class GetTestDetailQueryHandler : IRequestHandler<GetTestDetailQuery, Tes
             .ThenInclude(x => x!.Test)
             .Include(x => x.Question)
             .Where(q => q.TestVersion!.Test!.Id == rq.TestId && q.TestVersion.No == 0)
-            .Select(qs => QuestionResponseDto.Mapper.FromEntity(qs.Question!, true))
+            .Select(qs => QuestionResponseDto.Mapper.FromEntity(qs.Question!, true, true))
             .ToList();
 
         return new TestDetailDto

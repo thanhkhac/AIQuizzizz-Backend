@@ -1,17 +1,21 @@
-﻿using CleanArchitectureBase.Application.Common.Exceptions;
+﻿using System.Text.Json.Serialization;
+using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.Users;
 
-[Authorize (Roles = Domain.Constants.Roles.Administrator)]
+[Authorize(Roles = Domain.Constants.Roles.Administrator)]
 public class BanAccountCommand : IRequest<Guid>
 {
     /// <summary>
     /// Id of the user want to ban
-    /// </summary>   
-    public required Guid UserId { get; set; }
+    /// </summary>
+    [JsonIgnore]
+    public Guid UserId { get; set; }
+
+    public bool IsBanned { get; set; }
 }
 
 public class BanAccountCommandValidator : AbstractValidator<BanAccountCommand>
@@ -28,14 +32,14 @@ public class BanAccountCommandHandler : IRequestHandler<BanAccountCommand, Guid>
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     private readonly IIdentityService _identityService;
-    
+
     public BanAccountCommandHandler(IApplicationDbContext context, IUser user, IIdentityService identityService)
     {
         _context = context;
         _user = user;
         _identityService = identityService;
     }
-    
+
     /// <summary>
     /// The function bans a user account by setting the ban status, returning the user ID
     /// </summary>
@@ -44,18 +48,18 @@ public class BanAccountCommandHandler : IRequestHandler<BanAccountCommand, Guid>
     public async Task<Guid> Handle(BanAccountCommand rq, CancellationToken cancellationToken)
     {
         var admins = await _identityService.GetUsersInRoleAsync();
-        
+
         var bannedUsers = await _context.DomainUsers
             .IgnoreQueryFilters()
-            .Where(x => x.IsDeleted == false 
-                        && x.Id == rq.UserId 
+            .Where(x => x.IsDeleted == false
+                        && x.Id == rq.UserId
                         && !admins.Contains(x.Id))
             .FirstOrDefaultAsync(cancellationToken);
         if (bannedUsers == null)
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {_user.UserId} not found");
 
-        bannedUsers.IsBanned = true;
-        await _identityService.BanUser(rq.UserId);
+        bannedUsers.IsBanned = rq.IsBanned;
+        await _identityService.BanUser(rq.UserId,  rq.IsBanned);
         await _context.SaveChangesAsync(cancellationToken);
         return bannedUsers.Id;
     }
