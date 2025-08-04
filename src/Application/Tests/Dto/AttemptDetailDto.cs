@@ -18,7 +18,7 @@ public class AttemptDetailDto
 
 public class QuestionAttemptDetailDto
 {
-    public Guid QuestionId { get; set; }
+    public Guid Id { get; set; }
     public string Type { get; set; } = null!;
     public TextFormat TextFormat { get; set; }
     public string QuestionText { get; set; } = null!;
@@ -32,7 +32,7 @@ public class QuestionAttemptDetailDto
         {
             return new QuestionAttemptDetailDto
             {
-                QuestionId = question.Id,
+                Id = question.Id,
                 Type = question.Type.ToString(),
                 TextFormat = question.TextFormat,
                 QuestionText = question.QuestionText ?? string.Empty,
