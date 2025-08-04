@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+﻿﻿using System.Text.Json;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Questions.Dtos;
@@ -87,7 +87,7 @@ public class QuestionDataDto
             return result;
         }
 
-        public static List<MultipleChoiceItemDto>? DeserializeMultipleChoice(string dataJson)
+        private static List<MultipleChoiceItemDto>? DeserializeMultipleChoice(string dataJson)
         {
             var items = JsonSerializer.Deserialize<List<QTypeMultipleChoice>>(dataJson);
             return items?
