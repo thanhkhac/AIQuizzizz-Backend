@@ -1,5 +1,7 @@
 ﻿using System.Text.Json;
+using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Questions.Dtos;
+using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Tests.Dto;
@@ -34,7 +36,7 @@ public class QuestionAttemptDetailDto
             return new QuestionAttemptDetailDto
             {
                 Id = question.Id,
-                Type = question.Type.ToString(),
+                Type = question.Type.ToString(),    
                 TextFormat = question.TextFormat.ToString(),
                 QuestionText = question.QuestionText ?? string.Empty,
                 Score = question.Score,
@@ -78,6 +80,11 @@ public class QuestionAttemptDataDto
                 case QuestionType.Ordering:
                     result.Ordering = DeserializeOrderingForAttempt(dataJson);
                     break;
+                case QuestionType.ShortText:
+                    result.ShortText = JsonSerializer.Deserialize<QTypeShortAnswer>(dataJson)!.Answer;
+                        break;
+                default:
+                    throw new ErrorCodeException(ErrorCodes.INVALID_QUESTION_TYPE);
             }
 
             return result;
