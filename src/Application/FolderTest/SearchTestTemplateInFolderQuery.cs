@@ -9,6 +9,7 @@ namespace CleanArchitectureBase.Application.FolderTest;
 public class TestTemplateDto
 {
     public Guid TestTemplateId { get; set; }
+    public string? FolderName { get; set; }
     public string? Name { get; set; }
     public int NumberOfQuestion { get; set; }
     public DateTime? DateCreated { get; set; }
@@ -70,6 +71,7 @@ public class SearchTestTemplateInFolderQueryHandler : IRequestHandler<SearchTest
             {
                 TestTemplateId = ft.TestTemplate!.Id,
                 Name = ft.TestTemplate.Name,
+                FolderName = ft.Folder!.Name,
                 NumberOfQuestion = ft.TestTemplate.TestTemplateQuestions.Count(),
                 DateCreated = ft.TestTemplate.Created.UtcDateTime,
                 CreatedBy = ft.TestTemplate.CreatedByUser!.FullName,

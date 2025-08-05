@@ -4968,6 +4968,10 @@
             "type": "string",
             "format": "guid"
           },
+          "folderName": {
+            "type": "string",
+            "nullable": true
+          },
           "name": {
             "type": "string",
             "nullable": true
