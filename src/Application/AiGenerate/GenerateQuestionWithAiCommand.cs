@@ -36,6 +36,8 @@ public class GenerateQuestionWithAiCommandHandler : IRequestHandler<GenerateQues
     
     public Task<string> Handle(GenerateQuestionWithAiCommand rq, CancellationToken cancellationToken)
     {
-        return _aiGenerateService.SendPromptWithFileAsync(rq.FileData);
+        // return _aiGenerateService.SendPromptWithFileAsync(rq.FileData);
+        throw new NotImplementedException();
     }
+    
 }

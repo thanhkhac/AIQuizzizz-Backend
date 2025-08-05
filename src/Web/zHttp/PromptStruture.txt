@@ -1,19 +1,21 @@
-Bạn là một chuyên gia phân tích tài liệu
-Tôi sẽ cung cấp nội dung văn bản trích từ một tài liệu PDF. Tài liệu có thể có hoặc không có từ “Chương”, “Phần”, v.v.
+Bối cảnh:
+- Bạn là một chuyên gia phân tích tài liệu
+- Tôi sẽ cung cấp nội dung văn bản trích từ một tài liệu PDF. 
+- Tài liệu có thể có hoặc không có từ “Chương”, “Phần”, v.v.
 
 Yêu cầu:
+- Chỉ trả về kết quả JSON, không thêm giải thích, chú thích hoặc văn bản khác.
 - Hãy phân tích và trích xuất các tiêu đề chính của tài liệu, tương đương các mục lớn trong cấu trúc học thuật
 - Trích xuất theo dạng cây phân cấp tối đa 3 cấp, nhưng không bắt buộc phải đủ 3 cấp.
 - Bao gồm các tiêu đề thường xuất hiện đầu dòng như:
   - “I.”, “II.”, “III.” (La Mã)
   - “1.”, “2.”, “3.” (số thường)
   - Dòng viết hoa toàn bộ, đứng riêng
-- Nếu KHÔNG có “Chương”, hãy coi “I.” hoặc dòng viết hoa nổi bật là cấp cao nhất
 - Bỏ qua các tiêu đề nhỏ như “a)”, “Ví dụ”, chú thích, trích dẫn
+
+Yêu cầu:
 - Không tạo thêm cấp nếu không có thông tin rõ ràng để phân cấp.
 - Không lấy tên tài liệu
-- Chỉ trả về kết quả JSON, không thêm giải thích, chú thích hoặc văn bản khác.
-
 
 Trả về kết quả dưới dạng JSON dạng cây như sau:
 {
@@ -33,6 +35,7 @@ Trả về kết quả dưới dạng JSON dạng cây như sau:
     }
   ]
 }
+
 Nếu không phát hiện được bất kỳ tiêu đề hợp lệ nào, hoặc tài liệu vô nghĩa, hãy trả về JSON sau
 { "errorCode": "NO_STRUCTURE_FOUND" }
 

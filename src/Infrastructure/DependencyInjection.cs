@@ -175,17 +175,17 @@ public static class DependencyInjection
         services.AddAutoMapper(typeof(AutoMapperProfile));
 
         services.AddSingleton(TimeProvider.System);
-        services.AddTransient<IIdentityService, IdentityService>();
-        services.AddTransient<IQuestionService, QuestionService>();
-        services.AddTransient<IQuestionSetService, QuestionSetService>();
-        services.AddTransient<IUserQuestionSetHistoryService, UserQuestionSetHistoryService>();
-        services.AddTransient<IPlanService, PlanService>();
-        services.AddTransient<IClassService, ClassService>();
-        services.AddTransient<ITestService, TestService>();
-        services.AddTransient<ITestTemplateService, TestTemplateService>();
-        services.AddTransient<IFolderTestService, FolderTestService>();
-        services.AddTransient<ICommentService, CommentService>();
-        services.AddTransient<IAiGenerateService, AiGenerateService>();
+        services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<IQuestionService, QuestionService>();
+        services.AddScoped<IQuestionSetService, QuestionSetService>();
+        services.AddScoped<IUserQuestionSetHistoryService, UserQuestionSetHistoryService>();
+        services.AddScoped<IPlanService, PlanService>();
+        services.AddScoped<IClassService, ClassService>();
+        services.AddScoped<ITestService, TestService>();
+        services.AddScoped<ITestTemplateService, TestTemplateService>();
+        services.AddScoped<IFolderTestService, FolderTestService>();
+        services.AddScoped<ICommentService, CommentService>();
+        services.AddScoped<IAiGenerateService, AiGenerateService>();
         services.AddSingleton<IRedisService, RedisService>();
         services.AddSingleton<IFileService, FileService>();
 

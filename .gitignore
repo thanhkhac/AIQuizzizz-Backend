@@ -483,3 +483,4 @@ $RECYCLE.BIN/
 /src/Web/.env
 .env
 /document
+src/Web/zHttp/play-ground.http
