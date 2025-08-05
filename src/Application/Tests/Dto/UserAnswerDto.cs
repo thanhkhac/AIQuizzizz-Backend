@@ -50,7 +50,7 @@ public static class Serializer
             },
             nameof(QuestionType.ShortText) => new UserAnswerDataDto()
             {
-                ShortText = JsonSerializer.Deserialize<string>(json),
+                ShortText = !json.Equals("[]") ? JsonSerializer.Deserialize<string?>(json) : null,
                 Type = type
             },
             _ => throw new InvalidDataException($"Invalid question type: {json}")
