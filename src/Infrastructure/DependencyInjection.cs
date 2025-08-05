@@ -61,6 +61,7 @@ public static class DependencyInjection
         services.Configure<GoogleSettings>(configuration.GetSection("GoogleSettings"));
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
         services.Configure<PaymentSettings>(configuration.GetSection("PaymentSettings"));
+        services.Configure<GeminiSettings>(configuration.GetSection("GeminiSettings"));
         
 
         var a = configuration.GetSection("JwtSettings").Get<JwtSettings>();

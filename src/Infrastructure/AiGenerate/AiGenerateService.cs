@@ -15,7 +15,6 @@ public class AiGenerateService : IAiGenerateService
     private readonly string _apiKey;
     private readonly string _uploadApiUrl;
     private readonly string _generateContentApiUrl;
-    private readonly Dictionary<string, string> _defaultPrompts;
 
     public AiGenerateService(IConfiguration configuration, HttpClient httpClient)
     {
@@ -23,8 +22,6 @@ public class AiGenerateService : IAiGenerateService
         _apiKey = configuration["GeminiApi:ApiKey"] ?? throw new ErrorCodeException(ErrorCodes.API_KEY_NOTFOUND);
         _uploadApiUrl = configuration["GeminiApi:UploadFileUri"] ?? throw new ErrorCodeException(ErrorCodes.API_KEY_NOTFOUND);
         _generateContentApiUrl = configuration["GeminiApi:GenerateUri"] ?? throw new ErrorCodeException(ErrorCodes.GENERATE_URI_NOTFOUND);
-        _defaultPrompts = configuration.GetSection("GeminiApi:DefaultPrompts")
-            .Get<Dictionary<string, string>>() ?? new Dictionary<string, string>();
 
     }
 

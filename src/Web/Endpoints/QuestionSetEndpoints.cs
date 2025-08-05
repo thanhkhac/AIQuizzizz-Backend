@@ -1,4 +1,5 @@
-﻿using CleanArchitectureBase.Application.Common.Models;
+﻿using CleanArchitectureBase.Application.AiGenerate;
+using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Questions.Dtos;
 using CleanArchitectureBase.Application.QuestionSets;
 using CleanArchitectureBase.Application.QuestionSets.Commands;
