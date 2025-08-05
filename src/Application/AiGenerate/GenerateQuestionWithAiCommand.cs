@@ -1,7 +1,7 @@
 ﻿using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
 
-namespace CleanArchitectureBase.Application.QuestionSets.Commands;
+namespace CleanArchitectureBase.Application.AiGenerate;
 
 public class GenerateQuestionWithAiCommand : IRequest<string>
 {
@@ -10,6 +10,8 @@ public class GenerateQuestionWithAiCommand : IRequest<string>
 
 public class GenerateQuestionWithAiCommandValidator : AbstractValidator<GenerateQuestionWithAiCommand>
 {
+    private const long MaxFileSizeInBytes = 50 * 1024 * 1024; // 50MB
+
     public GenerateQuestionWithAiCommandValidator()
     {
         RuleFor(x => x.FileData)
@@ -17,7 +19,9 @@ public class GenerateQuestionWithAiCommandValidator : AbstractValidator<Generate
 
         RuleFor(x => x.FileData.Data)
             .NotNull().WithMessage("Dữ liệu stream không được trống")
-            .Must(stream => stream!.Length > 0).WithMessage("Stream không được rỗng");
+            .Must(stream => stream!.Length > 0).WithMessage("Stream không được rỗng")
+            .Must(stream => stream!.Length <= MaxFileSizeInBytes)
+            .WithMessage("Dung lượng tệp không được vượt quá 50MB");
     }
 }
 
@@ -32,6 +36,8 @@ public class GenerateQuestionWithAiCommandHandler : IRequestHandler<GenerateQues
     
     public Task<string> Handle(GenerateQuestionWithAiCommand rq, CancellationToken cancellationToken)
     {
-        return _aiGenerateService.SendPromptWithFileAsync(rq.FileData);
+        // return _aiGenerateService.SendPromptWithFileAsync(rq.FileData);
+        throw new NotImplementedException();
     }
+    
 }
