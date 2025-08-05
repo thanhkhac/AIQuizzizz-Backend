@@ -74,59 +74,58 @@ public class UpdateSharingInFolderCommandHandler : IRequestHandler<UpdateSharing
         if (!await _folderTestService.IsOwnerOrEditor(rq.FolderId, cancellationToken))
             throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_FOLDER, "User không có quyền trong folder");
 
-        //Xử lý lấy ra những Id 
-        var sharingModelDict = rq.SharingModels
-            .GroupBy(x => x.SharingUserId)
-            .ToDictionary(g => g.Key, g => g.Last().ShareMode);
+
+        var ownerId = folder.CreatedBy!.Value;
+        var sharingModels = rq.SharingModels;
+        sharingModels.RemoveAll(x => x.SharingUserId == ownerId);
+        var sharingModelIds = sharingModels.Select(x => x.SharingUserId).ToList();
 
         var existingUserIds = await _context.DomainUsers
-            .Where(u => sharingModelDict.Select(x => x.Key).Contains(u.Id))
+            .Where(u => sharingModelIds.Contains(u.Id))
             .Select(u => u.Id)
             .ToListAsync(cancellationToken);
 
-        var invalidUserIds = sharingModelDict.Keys.Except(existingUserIds).ToList();
+        var invalidUserIds = sharingModelIds.Except(existingUserIds).ToList();
 
-        if (invalidUserIds.Any())
-            throw new ErrorCodeException(ErrorCodes.USER_NOTFOUND, $"UserId không tồn tại: {string.Join(", ", invalidUserIds)}");
 
-        var existingFolderUsers = await _context.FolderUsers.Where(x => sharingModelDict.ContainsKey(x.UserId)).ToListAsync(cancellationToken);
+        var existedQuestionSetUser =
+            await _context.FolderUsers
+                .Where(x => x.FolderId == rq.FolderId && sharingModelIds.Contains(x.UserId))
+                .ToListAsync(cancellationToken);
 
-        foreach (var model in sharingModelDict)
+
+        foreach (var model in sharingModels)
         {
-            var entity = existingFolderUsers.Find(x => x.UserId == model.Key);
+            var entity = existedQuestionSetUser.Find(x => x.UserId == model.SharingUserId);
+            var newShareMode = Enum.Parse<FolderShareMode>(model.ShareMode!);
             //Đã tồn tại
             if (entity != null)
             {
-                if(entity.ShareMode == FolderShareMode.Owner)
+                if (entity.ShareMode == FolderShareMode.Owner)
                     continue;
-                entity.ShareMode = Enum.Parse<FolderShareMode>(model.Value!);
+                entity.ShareMode = newShareMode;
             }
             else //chưa tồn tại
             {
                 var newFolderUser = new FolderUser
                 {
                     FolderId = rq.FolderId,
-                    UserId = model.Key,
-                    ShareMode = Enum.Parse<FolderShareMode>(model.Value!)
+                    UserId = model.SharingUserId,
+                    ShareMode = newShareMode
                 };
                 _context.FolderUsers.Add(newFolderUser);
             }
         }
 
+
         var deleteIds = rq.DeleteUserIds;
-        if (deleteIds.Count > 0)
-        {
-            if (rq.DeleteUserIds.Contains(folder.CreatedBy!.Value))
-                throw new ErrorCodeException(ErrorCodes.CAN_NOT_DELETE_OWNER, "Không thể xóa owner");
+        deleteIds.Remove(ownerId);
 
-            var deleteEntities = _context.FolderUsers
-                .Where(x => deleteIds.Contains(x.UserId)
-                            && x.FolderId == rq.FolderId);
-            ;
+        var deleteEntities = _context.FolderUsers
+            .Where(x => deleteIds.Contains(x.UserId)
+                        && x.FolderId == rq.FolderId);
 
-            _context.FolderUsers.RemoveRange(deleteEntities);
-        }
-
+        _context.FolderUsers.RemoveRange(deleteEntities);
         await _context.SaveChangesAsync(cancellationToken);
 
         return rq.FolderId;
