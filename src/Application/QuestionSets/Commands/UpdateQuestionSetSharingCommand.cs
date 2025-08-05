@@ -157,7 +157,7 @@ public class UpdateQuestionSetSharingCommandHandler : IRequestHandler<UpdateQues
                 var newQuestionSetUser = new QuestionSetUser
                 {
                     QuestionSetId = questionSetId,
-                    UserId = userId,
+                    UserId = model.SharingUserId,
                     ShareMode = newShareMode
                 };
                 _context.QuestionSetUsers.Add(newQuestionSetUser);
