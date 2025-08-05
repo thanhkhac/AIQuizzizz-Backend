@@ -53,11 +53,17 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
                                                      x.TimeStart <= DateTime.UtcNow))
             .FirstOrDefaultAsync(cancellationToken);
 
+        double timeRemaining = 0;
+        
         if (attempted != null)
         {
                 userAnswerDict = await _context.AttemptQuestions
                 .Where(x => x.AttemptId == attempted.Id)
                 .ToDictionaryAsync(a => a.QuestionId, a => a, cancellationToken);
+                
+                timeRemaining = Math.Floor(
+                    (test.TimeLimit - (DateTime.UtcNow - attempted.TimeStart).TotalMinutes) * 100
+                ) / 100;
         }
         
         var attemptDetail = new AttemptDetailDto
@@ -67,7 +73,7 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
             TimeStart = attempted != null ? attempted.TimeStart : DateTime.UtcNow,
             TimeEnd = attempted != null ? attempted.TimeFinish : DateTime.UtcNow.AddMinutes(-test.TimeLimit),
             TimeLimit = test.TimeLimit,
-            TimeRemaining =(test.TimeFinish - DateTime.UtcNow).TotalMinutes >= test.TimeLimit ? test.TimeLimit
+            TimeRemaining =(DateTime.UtcNow - DateTime.UtcNow).TotalMinutes >= test.TimeLimit ? test.TimeLimit
                 : Math.Round((test.TimeFinish - DateTime.UtcNow).TotalMinutes, 2)
         };
         
@@ -104,8 +110,12 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
 
             testVersionId = testVersion.Id;
             
+            timeRemaining = test.TimeLimit;
+            
             _context.Attempts.Add(newAttempt);
         }
+        
+        attemptDetail.TimeRemaining = timeRemaining;
         
         var versionQuestions = await _context.TestVersionQuestions
             .Include(x => x.Question)
@@ -121,7 +131,7 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
                 if (userAnswerDict != null)
                     userAnswerDict.TryGetValue(q.Question!.Id, out ans);
 
-                return QuestionAttemptDetailDto.Mapper.FromEntity(q.Question!, ans);
+                return QuestionAttemptDetailDto.Mapper.FromEntity(q.Question!, !ans!.DataJson.Equals("[]") ? ans : null);
             })
             .ToList();
         
