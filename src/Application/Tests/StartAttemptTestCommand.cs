@@ -49,7 +49,7 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
         
         var attempted = await _context.Attempts
             .Where(x => x.UserId == _user.UserId && x.TestId == rq.TestId
-                                                 && (x.TimeFinish >= DateTimeOffset.UtcNow &&
+                                                 && (x.TimeFinish < x.TimeStart &&
                                                      x.TimeStart <= DateTime.UtcNow))
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -64,14 +64,16 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
         {
             AttemptId = attempted?.Id ?? Guid.NewGuid(),
             Name = test.Name,
-            TimeStart = test.TimeStart,
-            TimeEnd = test.TimeFinish,
+            TimeStart = attempted != null ? attempted.TimeStart : DateTime.UtcNow,
+            TimeEnd = attempted != null ? attempted.TimeFinish : DateTime.UtcNow.AddMinutes(-test.TimeLimit),
             TimeLimit = test.TimeLimit,
             TimeRemaining =(test.TimeFinish - DateTime.UtcNow).TotalMinutes >= test.TimeLimit ? test.TimeLimit
                 : Math.Round((test.TimeFinish - DateTime.UtcNow).TotalMinutes, 2)
         };
         
-        if (attempted == null)
+        var testVersionId = attempted?.TestVersionId ?? Guid.Empty;
+        
+        if (attempted == null || attempted.TimeFinish >= attempted.TimeStart)
         {
             var attemptUser = _context.Attempts
                 .Where(x => x.UserId == _user.UserId && x.TestId == rq.TestId)
@@ -79,39 +81,38 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
             if (attemptUser.Count > test.MaxAttempt)
                 throw new ErrorCodeException(ErrorCodes.MAX_ATTEMPT_IN_THIS_TEST, "Đã hết lượt làm bài");
             
-            var testVersionId = await _context.TestVersions
+            var testVersion = await _context.TestVersions
                 .Where(x => x.Test!.Id == test.Id)
-                .Select(x => x.Id)
                 .OrderBy(_ => Guid.NewGuid())
                 .FirstOrDefaultAsync(cancellationToken);
-        
-            if (testVersionId == Guid.Empty)
+            
+            if (testVersion == null)
             {
-                throw new InvalidOperationException("Không tìm thấy phiên bản bài test nào.");
+                throw new ErrorCodeException(ErrorCodes.TEST_NOT_FOUND);
             }
             
             var newAttempt = new Attempt
             {
                 Id = attemptDetail.AttemptId,
-                TestVersionId = testVersionId,
+                TestVersionId = testVersion!.Id,
                 TimeStart = DateTime.UtcNow,
-                TimeFinish = DateTime.UtcNow.AddMinutes(test.TimeLimit),
+                TimeFinish = DateTime.UtcNow.AddMinutes(-test.TimeLimit),
                 Score = 0,
                 UserId = _user.UserId ?? Guid.Empty,
                 TestId = rq.TestId
             };
 
+            testVersionId = testVersion.Id;
+            
             _context.Attempts.Add(newAttempt);
-            await _context.SaveChangesAsync(cancellationToken);
-            return attemptDetail;
         }
-
+        
         var versionQuestions = await _context.TestVersionQuestions
             .Include(x => x.Question)
-            .Where(x => x.TestVersion!.Id == attempted.TestVersionId)
+            .Where(x => x.TestVersion!.Id == testVersionId)
             .OrderBy(x => x.Order)
             .ToListAsync(cancellationToken);
-
+            
         attemptDetail.Questions = versionQuestions
             .OrderBy(x => x.Order)
             .Select(q =>

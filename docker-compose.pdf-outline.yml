@@ -1,0 +1,12 @@
+#docker-compose.yml
+services:
+  pdf-outline-app:
+    image: ${DOCKER_USERNAME}/backend:${TAG:-latest}
+    build:
+      context: ./pdf-outline-app
+      dockerfile: Dockerfile
+    container_name: pdf-outline-app
+    ports:
+      - "1234:1234"
+    volumes:
+      - ./pdf-outline-app:/app

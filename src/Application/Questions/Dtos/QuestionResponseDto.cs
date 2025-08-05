@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+﻿﻿﻿using System.Text.Json;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Questions.Dtos;
@@ -87,7 +87,7 @@ public class QuestionDataDto
             return result;
         }
 
-        private static List<MultipleChoiceItemDto>? DeserializeMultipleChoice(string dataJson)
+        public static List<MultipleChoiceItemDto>? DeserializeMultipleChoice(string dataJson)
         {
             var items = JsonSerializer.Deserialize<List<QTypeMultipleChoice>>(dataJson);
             return items?
@@ -100,7 +100,7 @@ public class QuestionDataDto
                 }).ToList();
         }
 
-        private static MatchingDataDto? DeserializeMatching(string dataJson, bool shuffle = true)
+        public static MatchingDataDto? DeserializeMatching(string dataJson, bool shuffle = true)
         {
             var items = JsonSerializer.Deserialize<List<QTypeMatching>>(dataJson);
             if (items == null) return null;
@@ -134,7 +134,7 @@ public class QuestionDataDto
             };
         }
 
-        private static List<OrderingItemDto>? DeserializeOrdering(string dataJson, bool shuffle = true)
+        public static List<OrderingItemDto>? DeserializeOrdering(string dataJson, bool shuffle = true)
         {
             var items = JsonSerializer.Deserialize<List<QTypeOrderingItem>>(dataJson);
             if (items == null) return null;
