@@ -157,7 +157,7 @@ public class TestService : ITestService
             throw new ErrorCodeException(ErrorCodes.TEST_IS_OVERDUE, "Hết hạn làm bài");
         
         var student = await _context.ClassUsers
-            .Where(u => u.UserId == _user.UserId && u.ClassId == test.ClassId && ClassShareMode.Student == u.ShareMode)
+            .Where(u => u.UserId == _user.UserId && u.ClassId == test.ClassId)
             .FirstOrDefaultAsync();
 
         if (student == null)

@@ -131,7 +131,7 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
                 if (userAnswerDict != null)
                     userAnswerDict.TryGetValue(q.Question!.Id, out ans);
 
-                return QuestionAttemptDetailDto.Mapper.FromEntity(q.Question!, !ans!.DataJson.Equals("[]") ? ans : null);
+                return QuestionAttemptDetailDto.Mapper.FromEntity(q.Question!, ans!=null && !ans.DataJson.Equals("[]") ? ans : null);
             })
             .ToList();
         
