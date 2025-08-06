@@ -92,7 +92,8 @@ public static class ErrorCodes
     public const string QUESTION_SET_NOT_FOUND = nameof(QUESTION_SET_NOT_FOUND);
     public const string QUESTION_SET_NOT_FOUND_IN_CLASS = nameof(QUESTION_SET_NOT_FOUND_IN_CLASS);
     public const string USER_NOT_ACCESS_TO_QUESTION_SET = nameof(USER_NOT_ACCESS_TO_QUESTION_SET);
-    
+    public const string INVALID_NUMBER_OF_QUESTIONS = nameof(INVALID_NUMBER_OF_QUESTIONS);
+    public const string INVALID_NUMBER_OF_TYPE_OF_QUESTIONS = nameof(INVALID_NUMBER_OF_TYPE_OF_QUESTIONS);
     public const string PLAN_REQUIRE_PLAN = nameof(PLAN_REQUIRE_PLAN);
     
     //Folder
