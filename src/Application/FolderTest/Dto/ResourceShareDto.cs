@@ -3,6 +3,7 @@
 public class ResourceShareDto
 {
     public Guid Id { get; set; }
+    public string? VisibilityMode { get; set; }
     public List<SharingModelDto> SharingModel { get; set; } = new();
 }
 

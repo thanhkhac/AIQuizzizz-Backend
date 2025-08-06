@@ -1,4 +1,5 @@
 ﻿using CleanArchitectureBase.Application.Common.Models;
+using CleanArchitectureBase.Application.FolderTest.Dto;
 using CleanArchitectureBase.Application.Questions.Dtos;
 using CleanArchitectureBase.Application.QuestionSets;
 using CleanArchitectureBase.Application.QuestionSets.Commands;
@@ -25,6 +26,8 @@ public class QuestionSetEndpoints : EndpointGroupBase
         group.MapPost(CreateQuestionSet);
         group.MapGet(GetQuestionSetDetail, "{questionSetId}");
         group.MapGet(GetQuestions, "{questionSetId}/Questions");
+        group.MapGet(GetSharingInQuestionSetQuery, "{questionSetId}/Sharing");
+        group.MapGet(GetTestFromQuestionSet, "{questionSetId}/Test");
         group.MapPatch(UpdateQuestionSet, "{questionSetId}");
         group.MapDelete(DeleteQuestionSet, "{questionSetId}");
         group.MapGet(GetLearnQuestions, "{questionSetId}/LearnQuestions");
@@ -142,6 +145,36 @@ public class QuestionSetEndpoints : EndpointGroupBase
         var query = new GetQuestionSetDetailQuery
         {
             QuestionSetId = questionSetId
+        };
+        var result = await sender.Send(query);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<List<QuestionResponseDto>>>> GetTestFromQuestionSet(
+        [FromRoute] Guid questionSetId,
+        [FromQuery] int numberOfQuestion,
+        [FromQuery] string questionTypes,
+        ISender sender)
+    {
+        var questionTypeList = questionTypes?.Split(',')
+                .Select(x => x.Trim()).ToList() ?? new List<string>();
+        var query = new GetTestFromQuestionSetQuery
+        {
+            QuestionSetId = questionSetId,
+            NumberOfQuestion = numberOfQuestion,
+            QuestionTypes = questionTypeList
+        };
+        var result = await sender.Send(query);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<ResourceShareDto>>> GetSharingInQuestionSetQuery(
+        [FromRoute] Guid questionSetId,
+        ISender sender)
+    {
+        var query = new GetSharingInQuestionSetQuery
+        {
+            QuestionSetId = questionSetId,
         };
         var result = await sender.Send(query);
         return result.ToOk();
