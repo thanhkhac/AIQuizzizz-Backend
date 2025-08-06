@@ -4,6 +4,8 @@ namespace CleanArchitectureBase.Application.Common.Interfaces;
 
 public interface IAiGenerateService
 {
-    Task<string> SendPromptWithFileAsync(FileStreamData fileData);
-    
+    public Task<string> SendPromptWithFileAsync(
+        FileStreamData fileData,
+        string prompt,
+        CancellationToken cancellationToken = default);
 }

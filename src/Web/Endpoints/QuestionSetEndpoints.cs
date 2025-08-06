@@ -1,4 +1,5 @@
-﻿using CleanArchitectureBase.Application.Common.Models;
+using CleanArchitectureBase.Application.AiGenerate;
+using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.FolderTest.Dto;
 using CleanArchitectureBase.Application.Questions.Dtos;
 using CleanArchitectureBase.Application.QuestionSets;
@@ -36,9 +37,6 @@ public class QuestionSetEndpoints : EndpointGroupBase
         group.MapGet(GetPermissions, "{questionSetId}/Permissions");
         group.MapGet(GetQuestionsForEdit, "{questionSetId}/QuestionsForEdit");
         group.MapGet(GetQuestionsForCopy, "{questionSetId}/QuestionsForCopy");
-
-        group.MapPost(GenerateQuestionWithAi, "GenerateQuestionWithAi")
-            .DisableAntiforgery();
     }
 
     /// <summary>
@@ -326,22 +324,7 @@ public class QuestionSetEndpoints : EndpointGroupBase
         return result.ToOk();
     }
     
-    public async Task<Ok<ApiResponse<string>>> GenerateQuestionWithAi(
-        [FromForm] IFormFile file,
-        ISender sender)
-    {
-        var rq = new FileStreamData()
-        {
-            Data = file.OpenReadStream(),
-            ContentType = file.ContentType,
-            FileName = file.FileName,
-        };
-        var result = await sender.Send(new GenerateQuestionWithAiCommand
-        {
-            FileData = rq
-        });
-        return result.ToOk();
-    }
+
     /// <summary>
     /// Search recent question sets
     /// </summary>

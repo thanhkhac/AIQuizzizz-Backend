@@ -26,6 +26,78 @@
         }
       }
     },
+    "/api/AiGenerate/GenerateQuestion": {
+      "post": {
+        "tags": [
+          "AiGenerate"
+        ],
+        "operationId": "GenerateQuestionWithAi",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfString"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AiGenerate/GenerateDocumentStructure": {
+      "post": {
+        "tags": [
+          "AiGenerate"
+        ],
+        "operationId": "GenerateDocumentStructure",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfDocumentStructureDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Authentication/Register": {
       "post": {
         "tags": [
@@ -1524,49 +1596,6 @@
           }
         }
       },
-      "post": {
-        "tags": [
-          "Folder"
-        ],
-        "operationId": "AddSharingInFolder",
-        "parameters": [
-          {
-            "name": "FolderId",
-            "x-originalName": "folderId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "guid"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "x-name": "rq",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateSharingInFolderCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfGuid"
-                }
-              }
-            }
-          }
-        }
-      },
       "patch": {
         "tags": [
           "Folder"
@@ -2541,42 +2570,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfListOfCreateUpdateQuestionDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/QuestionSet/GenerateQuestionWithAi": {
-      "post": {
-        "tags": [
-          "QuestionSet"
-        ],
-        "operationId": "GenerateQuestionWithAi",
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "file": {
-                    "type": "string",
-                    "format": "binary",
-                    "nullable": true
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfString"
                 }
               }
             }
@@ -3585,6 +3578,57 @@
           },
           "success": {
             "type": "boolean"
+          }
+        }
+      },
+      "ApiResponseOfDocumentStructureDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/DocumentStructureDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DocumentStructureDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DocumentStructureDto"
+            }
           }
         }
       },
@@ -4924,6 +4968,10 @@
             "type": "string",
             "format": "guid"
           },
+          "folderName": {
+            "type": "string",
+            "nullable": true
+          },
           "name": {
             "type": "string",
             "nullable": true
@@ -5012,6 +5060,15 @@
           }
         }
       },
+      "CreateFolderCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "folderName": {
+            "type": "string"
+          }
+        }
+      },
       "UpdateSharingInFolderCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -5046,15 +5103,6 @@
           "sharingUserId": {
             "type": "string",
             "format": "guid"
-          }
-        }
-      },
-      "CreateFolderCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "folderName": {
-            "type": "string"
           }
         }
       },
@@ -6863,7 +6911,6 @@
           },
           "deleteUserIds": {
             "type": "array",
-            "nullable": true,
             "items": {
               "type": "string",
               "format": "guid"
