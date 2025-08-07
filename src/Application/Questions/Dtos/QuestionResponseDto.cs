@@ -11,7 +11,7 @@ public class QuestionResponseDto
     public Guid Id { get; set; }
     public Guid QuestionSetId { get; set; } = Guid.Empty;
     public string Type { get; set; } = null!;
-    public TextFormat TextFormat { get; set; }
+    public string? TextFormat { get; set; }
     public string QuestionText { get; set; } = null!;
     public string? ExplainText { get; set; }
     public float Score { get; set; }
@@ -30,7 +30,7 @@ public class QuestionResponseDto
                 Id = question.Id,
                 QuestionSetId = question.QuestionSetId ?? Guid.Empty,
                 Type = question.Type.ToString(),
-                TextFormat = question.TextFormat,
+                TextFormat = question.TextFormat.ToString(),
                 QuestionText = question.QuestionText ?? string.Empty,
                 ExplainText = question.ExplainText,
                 Score = question.Score,

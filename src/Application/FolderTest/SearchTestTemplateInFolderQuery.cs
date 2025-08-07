@@ -16,8 +16,14 @@ public class TestTemplateDto
     public string? CreatedBy { get; set; }
 }
 
+public class SearchTestTemplateInFolderDto
+{
+    public string? FolderName { get; set; }
+    public PaginatedList<TestTemplateDto> TestTemplates { get; set; } = null!;
+}
+
 [Authorize]
-public class SearchTestTemplateInFolderQuery : IRequest<PaginatedList<TestTemplateDto>>
+public class SearchTestTemplateInFolderQuery : IRequest<SearchTestTemplateInFolderDto>
 {
     /// <summary>
     /// Id of the folder want to retrieve test templates
@@ -37,7 +43,7 @@ public class SearchTestTemplateInFolderQueryValidator : AbstractValidator<Search
     }
 }
 
-public class SearchTestTemplateInFolderQueryHandler : IRequestHandler<SearchTestTemplateInFolderQuery, PaginatedList<TestTemplateDto>>
+public class SearchTestTemplateInFolderQueryHandler : IRequestHandler<SearchTestTemplateInFolderQuery, SearchTestTemplateInFolderDto>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
@@ -53,9 +59,10 @@ public class SearchTestTemplateInFolderQueryHandler : IRequestHandler<SearchTest
     /// </summary>
     /// <param name="rq">Request contains FolderId, TestTemplateName, SharedMode, PageNumber, and PageSize information</param>
     /// <param name="cancellationToken">Token to cancel the task</param>
-    public async Task<PaginatedList<TestTemplateDto>> Handle(SearchTestTemplateInFolderQuery rq, CancellationToken cancellationToken)
+    public async Task<SearchTestTemplateInFolderDto> Handle(SearchTestTemplateInFolderQuery rq, CancellationToken cancellationToken)
     {
         var accessUser = await _context.FolderUsers
+            .Include(x => x.Folder)
             .Where(x => x.FolderId == rq.FolderId && x.UserId == _user.UserId)
             .FirstOrDefaultAsync(cancellationToken);
         if (accessUser == null)
@@ -77,10 +84,15 @@ public class SearchTestTemplateInFolderQueryHandler : IRequestHandler<SearchTest
                 CreatedBy = ft.TestTemplate.CreatedByUser!.FullName,
             });
 
-        return await PaginatedList<TestTemplateDto>.CreateAsync(
+        var pageTestTemplates = await PaginatedList<TestTemplateDto>.CreateAsync(
             testTemplates,
             rq.PageNumber,
             rq.PageSize
         );
+        return new SearchTestTemplateInFolderDto
+        {
+            FolderName = accessUser.Folder!.Name,
+            TestTemplates = pageTestTemplates
+        };
     }
 }
