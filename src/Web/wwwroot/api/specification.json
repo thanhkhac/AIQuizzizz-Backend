@@ -2419,6 +2419,134 @@
         }
       }
     },
+    "/api/QuestionSet/{questionSetId}/Sharing": {
+      "get": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "summary": "Retrieves sharing details for a specific question set",
+        "operationId": "GetSharingInQuestionSetQuery",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfResourceShareDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "UpdateQuestionSetSharing",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateQuestionSetSharingCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/QuestionSet/{questionSetId}/Test": {
+      "get": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "summary": "Retrieves a test with a specified number of questions from a question set, filtered by question types",
+        "operationId": "GetTestFromQuestionSet",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "description": "The ",
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "numberOfQuestion",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "questionTypes",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfQuestionResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/QuestionSet/{questionSetId}/LearnQuestions": {
       "get": {
         "tags": [
@@ -2533,92 +2661,6 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfQuestionResponseDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/QuestionSet/{questionSetId}/Sharing": {
-      "get": {
-        "tags": [
-          "QuestionSet"
-        ],
-        "summary": "Retrieves sharing details for a specific question set",
-        "operationId": "GetSharingInQuestionSetQuery",
-        "parameters": [
-          {
-            "name": "questionSetId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "guid"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfResourceShareDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/QuestionSet/{questionSetId}/Test": {
-      "get": {
-        "tags": [
-          "QuestionSet"
-        ],
-        "summary": "Retrieves a test with a specified number of questions from a question set, filtered by question types",
-        "operationId": "GetTestFromQuestionSet",
-        "parameters": [
-          {
-            "name": "questionSetId",
-            "in": "path",
-            "required": true,
-            "description": "The ",
-            "schema": {
-              "type": "string",
-              "format": "guid"
-            },
-            "x-position": 1
-          },
-          {
-            "name": "numberOfQuestion",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 2
-          },
-          {
-            "name": "questionTypes",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 3
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfUnit"
                 }
               }
@@ -2719,50 +2761,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfListOfCreateUpdateQuestionDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/QuestionSet/{questionSetId}/Sharing": {
-      "patch": {
-        "tags": [
-          "QuestionSet"
-        ],
-        "operationId": "UpdateQuestionSetSharing",
-        "parameters": [
-          {
-            "name": "questionSetId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "guid"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateQuestionSetSharingCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfGuid"
                 }
               }
             }
