@@ -2356,6 +2356,89 @@
         }
       }
     },
+    "/api/QuestionSet/{questionSetId}/Sharing": {
+      "get": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "GetSharingInQuestionSetQuery",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfResourceShareDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/QuestionSet/{questionSetId}/Test": {
+      "get": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "GetTestFromQuestionSet",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "numberOfQuestion",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "questionTypes",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfQuestionResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/QuestionSet/{questionSetId}/LearnQuestions": {
       "get": {
         "tags": [
@@ -5033,6 +5116,10 @@
           "id": {
             "type": "string",
             "format": "guid"
+          },
+          "visibilityMode": {
+            "type": "string",
+            "nullable": true
           },
           "sharingModel": {
             "type": "array",
