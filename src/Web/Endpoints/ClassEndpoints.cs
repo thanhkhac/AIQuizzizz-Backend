@@ -26,6 +26,7 @@ public class Class : EndpointGroupBase
         group.MapGet(SearchQuestionSet, "/{ClassId}/Questionsets");
         group.MapGet(GetClassById, "/{ClassId}");
         group.MapGet(GetTestSchedule, "/{ClassId}/Schedule");
+        group.MapGet(GetUserPermissionQuery, "/{ClassId}/Permissions");
 
         group.MapDelete(DeleteClass, "/{ClassId}");
         group.MapDelete(RemoveStudent, "/{ClassId}/Members/{UserId}");
@@ -269,6 +270,20 @@ public class Class : EndpointGroupBase
         ISender sender)
     {
         rq.ClassId = classId;
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    /// <summary>
+    /// Retrieves the user's permission for a specific class
+    /// </summary>
+    /// <param name="classId"></param>
+    /// <param name="sender"></param>
+    public async Task<Ok<ApiResponse<string?>>> GetUserPermissionQuery(
+        [FromRoute] Guid classId,
+        ISender sender)
+    {
+        var rq = new GetUserPermissionInClassQuery { ClassId = classId };
         var result = await sender.Send(rq);
         return result.ToOk();
     }
