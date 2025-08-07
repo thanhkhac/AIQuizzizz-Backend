@@ -22,7 +22,7 @@ public class SearchPlanQueryHandler : IRequestHandler<SearchPlanQuery, List<Plan
             .Where(x => x.IsDeleted == false);
         if (request.IsActive.HasValue)
         {
-            query.Where(x => x.IsActive ==  request.IsActive.Value);
+            query = query.Where(x => x.IsActive ==  request.IsActive.Value);
         }
 
         query = query.OrderBy(x => x.Price);
