@@ -76,7 +76,7 @@ public class Folder : EndpointGroupBase
         return result.ToOk();
     }
 
-    public async Task<Ok<ApiResponse<PaginatedList<TestTemplateDto>>>> SearchTestTemplateInFolder(
+    public async Task<Ok<ApiResponse<SearchTestTemplateInFolderDto>>> SearchTestTemplateInFolder(
         [FromRoute] Guid folderId,
         [FromQuery] string? testTemplateName,
         ISender sender,

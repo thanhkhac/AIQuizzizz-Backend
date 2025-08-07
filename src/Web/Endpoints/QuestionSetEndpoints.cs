@@ -149,6 +149,14 @@ public class QuestionSetEndpoints : EndpointGroupBase
         return result.ToOk();
     }
     
+   /// <summary>
+    /// Retrieves a test with a specified number of questions from a question set, filtered by question types
+    /// </summary>
+    /// <param name="questionSetId">The </param>
+    /// <param name="numberOfQuestion"></param>
+    /// <param name="questionTypes"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<List<QuestionResponseDto>>>> GetTestFromQuestionSet(
         [FromRoute] Guid questionSetId,
         [FromQuery] int numberOfQuestion,
@@ -167,6 +175,12 @@ public class QuestionSetEndpoints : EndpointGroupBase
         return result.ToOk();
     }
     
+    /// <summary>
+    /// Retrieves sharing details for a specific question set
+    /// </summary>
+    /// <param name="questionSetId"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<ResourceShareDto>>> GetSharingInQuestionSetQuery(
         [FromRoute] Guid questionSetId,
         ISender sender)
