@@ -1,4 +1,5 @@
-﻿using CleanArchitectureBase.Application.Common.Interfaces;
+﻿using CleanArchitectureBase.Application.AiGenerate.Services;
+using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
 
 namespace CleanArchitectureBase.Application.AiGenerate;

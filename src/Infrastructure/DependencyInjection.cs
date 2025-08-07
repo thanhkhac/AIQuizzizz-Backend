@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using CleanArchitectureBase.Application.AiGenerate.Services;
 using CleanArchitectureBase.Application.Classes.Service;
 using CleanArchitectureBase.Application.Comments.Service;
 using CleanArchitectureBase.Application.Common.Interfaces;
@@ -18,9 +19,11 @@ using CleanArchitectureBase.Infrastructure.Data;
 using CleanArchitectureBase.Infrastructure.Data.Interceptors;
 using CleanArchitectureBase.Infrastructure.DomainServices;
 using CleanArchitectureBase.Infrastructure.File;
+using CleanArchitectureBase.Infrastructure.Google;
 using CleanArchitectureBase.Infrastructure.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using CleanArchitectureBase.Infrastructure.Redis;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -62,7 +65,6 @@ public static class DependencyInjection
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
         services.Configure<PaymentSettings>(configuration.GetSection("PaymentSettings"));
         services.Configure<GeminiSettings>(configuration.GetSection("GeminiSettings"));
-        
 
         var a = configuration.GetSection("JwtSettings").Get<JwtSettings>();
         if (a == null) throw new Exception("Lỗi");
@@ -188,7 +190,12 @@ public static class DependencyInjection
         services.AddScoped<IAiGenerateService, AiGenerateService>();
         services.AddSingleton<IRedisService, RedisService>();
         services.AddSingleton<IFileService, FileService>();
-
+        
+        services.AddSingleton<IGoogleAccessTokenProvider>(provider =>
+        {
+            var json = Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS_JSON");
+            return new GoogleAccessTokenProvider(json!);
+        });
         // Register Google Auth Service
         services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();
 
