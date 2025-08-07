@@ -1992,6 +1992,35 @@
             }
           }
         }
+      },
+      "get": {
+        "tags": [
+          "Plan"
+        ],
+        "operationId": "SearchPlan",
+        "parameters": [
+          {
+            "name": "IsActive",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfPlanDetailDto"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/Plan/{planId}/Buy": {
@@ -2690,6 +2719,50 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfListOfCreateUpdateQuestionDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/QuestionSet/{questionSetId}/Sharing": {
+      "patch": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "UpdateQuestionSetSharing",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateQuestionSetSharingCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
                 }
               }
             }
@@ -3592,6 +3665,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfListOfUserForSelectionDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PlayGround/Test": {
+      "get": {
+        "tags": [
+          "PlayGround"
+        ],
+        "operationId": "Test",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfString"
                 }
               }
             }
@@ -5440,6 +5533,40 @@
           }
         }
       },
+      "ApiResponseOfListOfPlanDetailDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/PlanDetailDto"
+            }
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
       "CreateQuestionSetCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -6035,6 +6162,29 @@
           },
           "success": {
             "type": "boolean"
+          }
+        }
+      },
+      "UpdateQuestionSetSharingCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "visibilityMode": {
+            "type": "string",
+            "nullable": true
+          },
+          "sharingModels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpsertSharingModelDto"
+            }
+          },
+          "deleteUserIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "guid"
+            }
           }
         }
       },
