@@ -1,6 +1,6 @@
 ﻿namespace CleanArchitectureBase.Domain.Constants;
 
-public class Roles
+public static class Roles
 {
     public const string Administrator = nameof(Administrator);
     public const string Moderator = nameof(Moderator);

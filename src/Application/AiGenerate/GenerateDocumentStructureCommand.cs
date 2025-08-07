@@ -2,6 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using CleanArchitectureBase.Application.AiGenerate.Dtos;
+using CleanArchitectureBase.Application.AiGenerate.Services;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
@@ -41,7 +42,7 @@ public class GenerateDocumentStructureCommandHandler : IRequestHandler<GenerateD
 
     public async Task<DocumentStructureDto> Handle(GenerateDocumentStructureCommand request, CancellationToken cancellationToken)
     {
-        var prompt = @"
+        var systemInstruction = @"
             Bối cảnh:
             - Bạn là một chuyên gia phân tích tài liệu
             - Tôi sẽ cung cấp nội dung văn bản trích từ một tài liệu PDF. 
@@ -86,7 +87,8 @@ public class GenerateDocumentStructureCommandHandler : IRequestHandler<GenerateD
 
         var result = await _aiGenerateService.SendPromptWithFileAsync(
             fileData: request.FileData,
-            prompt: prompt,
+            systemInstruction: systemInstruction,
+            "",
             cancellationToken: cancellationToken);
 
         //Xử lý chuỗi

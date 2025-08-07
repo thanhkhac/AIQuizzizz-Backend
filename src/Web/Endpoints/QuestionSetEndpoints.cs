@@ -34,6 +34,7 @@ public class QuestionSetEndpoints : EndpointGroupBase
         group.MapGet(GetPermissions, "{questionSetId}/Permissions");
         group.MapGet(GetQuestionsForEdit, "{questionSetId}/QuestionsForEdit");
         group.MapGet(GetQuestionsForCopy, "{questionSetId}/QuestionsForCopy");
+        group.MapPatch(UpdateQuestionSetSharing, "{questionSetId}/Sharing");
     }
 
     /// <summary>
@@ -228,7 +229,6 @@ public class QuestionSetEndpoints : EndpointGroupBase
     }
 
 
-
     /// <summary>
     /// Use for search question by name/ search questionset by tag/ Recommend by tag
     /// </summary>
@@ -290,7 +290,7 @@ public class QuestionSetEndpoints : EndpointGroupBase
         var result = await sender.Send(query);
         return result.ToOk();
     }
-    
+
 
     /// <summary>
     /// Search recent question sets
@@ -311,6 +311,18 @@ public class QuestionSetEndpoints : EndpointGroupBase
             PageSize = pageSize,
         };
         var result = await sender.Send(query);
+        return result.ToOk();
+    }
+
+
+    public async Task<Ok<ApiResponse<Guid>>> UpdateQuestionSetSharing(
+        ISender sender,
+        [FromRoute] Guid questionSetId,
+        [FromBody] UpdateQuestionSetSharingCommand command
+    )
+    {
+        command.QuestionSetId = questionSetId;
+        var result = await sender.Send(command);
         return result.ToOk();
     }
 

@@ -116,7 +116,7 @@ public class CreatePlanCommandHandler : IRequestHandler<CreateUpdatePlanCommand,
             _context.Plans.Add(plan);
             _context.PlanPriceHistories.Add(newPlanPriceHistory);
             await _context.SaveChangesAsync(cancellationToken);
-    
+
             return plan.Id;
         }
     }
