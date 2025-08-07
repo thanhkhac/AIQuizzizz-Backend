@@ -16,7 +16,6 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddWebServices();
 builder.Services.AddScoped<PaymentAuthEndpointFilter>();
 
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

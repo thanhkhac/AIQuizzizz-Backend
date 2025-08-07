@@ -8,7 +8,7 @@ using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.QuestionSets.Commands;
 
-public class UpdateQuestionSetSharingCommand : IRequest
+public class UpdateQuestionSetSharingCommand : IRequest<Guid>
 {
     [JsonIgnore]
     public Guid QuestionSetId { get; set; }
@@ -58,7 +58,7 @@ public class UpdateQuestionSetSharingCommandValidator : AbstractValidator<Update
     }
 }
 
-public class UpdateQuestionSetSharingCommandHandler : IRequestHandler<UpdateQuestionSetSharingCommand>
+public class UpdateQuestionSetSharingCommandHandler : IRequestHandler<UpdateQuestionSetSharingCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
     private readonly IQuestionSetService _questionSetService;
@@ -70,7 +70,7 @@ public class UpdateQuestionSetSharingCommandHandler : IRequestHandler<UpdateQues
         _user = user;
     }
 
-    public async Task Handle(UpdateQuestionSetSharingCommand request, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(UpdateQuestionSetSharingCommand request, CancellationToken cancellationToken)
     {
         var questionSetId = request.QuestionSetId;
         var userId = _user.UserId!.Value;
@@ -89,7 +89,6 @@ public class UpdateQuestionSetSharingCommandHandler : IRequestHandler<UpdateQues
             var unauthorizedClassLinks = await (
                 from cqs in _context.ClassQuestionSets
                 join cls in _context.Classes on cqs.ClassId equals cls.Id
-                
                 join cu in _context.ClassUsers on new
                 {
                     cqs.ClassId,
@@ -104,7 +103,7 @@ public class UpdateQuestionSetSharingCommandHandler : IRequestHandler<UpdateQues
                       && (cu == null || cu.ShareMode != ClassShareMode.Owner && cu.ShareMode != ClassShareMode.Teacher)
                 select cqs
             ).ToListAsync(cancellationToken);
-            
+
             _context.ClassQuestionSets.RemoveRange(unauthorizedClassLinks);
         }
 
@@ -173,5 +172,6 @@ public class UpdateQuestionSetSharingCommandHandler : IRequestHandler<UpdateQues
 
         _context.QuestionSetUsers.RemoveRange(deleteEntities);
         await _context.SaveChangesAsync(cancellationToken);
+        return questionSetId;
     }
 }

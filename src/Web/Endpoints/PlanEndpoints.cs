@@ -17,6 +17,7 @@ public class PlanEndpoints : EndpointGroupBase
         group.MapPost(CreateUpdatePlan, "");
         group.MapPost(BuyPlan, "/{planId}/Buy");
         group.MapDelete(DeletePlan, "/{planId}");
+        group.MapGet(SearchPlan);
     }
 
     public async Task<Ok<ApiResponse<PlanDetailDto>>> GetDetailPlan(
