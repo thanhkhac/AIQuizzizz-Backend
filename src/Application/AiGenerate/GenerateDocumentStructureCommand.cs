@@ -6,10 +6,13 @@ using CleanArchitectureBase.Application.AiGenerate.Services;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
+using CleanArchitectureBase.Application.Common.Security;
+using CleanArchitectureBase.Application.Common.Settings;
 using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.AiGenerate;
 
+[Authorize]
 public class GenerateDocumentStructureCommand : IRequest<DocumentStructureDto>
 {
     public required FileStreamData FileData { get; set; }
@@ -35,108 +38,141 @@ public class GenerateDocumentStructureCommandValidator : AbstractValidator<Gener
 public class GenerateDocumentStructureCommandHandler : IRequestHandler<GenerateDocumentStructureCommand, DocumentStructureDto>
 {
     private readonly IAiGenerateService _aiGenerateService;
-    public GenerateDocumentStructureCommandHandler(IAiGenerateService aiGenerateService)
+    private readonly IApplicationDbContext _context;
+    private readonly IUser _user;
+    public GenerateDocumentStructureCommandHandler(IAiGenerateService aiGenerateService, IApplicationDbContext context, IUser user)
     {
         _aiGenerateService = aiGenerateService;
+        _context = context;
+        _user = user;
     }
 
     public async Task<DocumentStructureDto> Handle(GenerateDocumentStructureCommand request, CancellationToken cancellationToken)
     {
-        var systemInstruction = @"
-            Bối cảnh:
-            - Bạn là một chuyên gia phân tích tài liệu
-            - Tôi sẽ cung cấp nội dung văn bản trích từ một tài liệu PDF. 
-            - Tài liệu có thể có hoặc không có từ “Chương”, “Phần”, v.v.
-
-            Yêu cầu:
-            - Chỉ trả về kết quả JSON, không thêm giải thích, chú thích hoặc văn bản khác.
-            - Hãy phân tích và trích xuất các tiêu đề chính của tài liệu, tương đương các mục lớn trong cấu trúc học thuật
-            - Trích xuất theo dạng cây phân cấp tối đa 3 cấp, nhưng không bắt buộc phải đủ 3 cấp.
-            - Bao gồm các tiêu đề thường xuất hiện đầu dòng như:
-              - “I.”, “II.”, “III.” (La Mã)
-              - “1.”, “2.”, “3.” (số thường)
-              - Dòng viết hoa toàn bộ, đứng riêng
-            - Bỏ qua các tiêu đề nhỏ như “a)”, “Ví dụ”, chú thích, trích dẫn
-
-            Yêu cầu:
-            - Không tạo thêm cấp nếu không có thông tin rõ ràng để phân cấp.
-            - Không lấy tên tài liệu
-
-            Trả về kết quả dưới dạng JSON dạng cây như sau:
-            {
-              ""children"": [
-                {
-                  ""title"": """",
-                  ""children"": [
-                    {
-                      ""title"": """",
-                      ""children"": [
-                        { ""title"": """" ,
-                            children:
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-
-            Nếu không phát hiện được bất kỳ tiêu đề hợp lệ nào, hoặc tài liệu vô nghĩa, hãy trả về JSON sau
-            { ""errorCode"": ""NO_STRUCTURE_FOUND"" }
-        ";
-
-        var result = await _aiGenerateService.SendPromptWithFileAsync(
-            fileData: request.FileData,
-            systemInstruction: systemInstruction,
-            "",
-            cancellationToken: cancellationToken);
-
-        //Xử lý chuỗi
-        int startIndex = result.IndexOf('{');
-        int endIndex = result.LastIndexOf('}');
-
-        string normalizedResult = (startIndex >= 0 && endIndex >= 0 && endIndex > startIndex)
-            ? result.Substring(startIndex, endIndex - startIndex + 1)
-            : string.Empty;
+        var uploadResult = await _aiGenerateService.UploadFileAsync(request.FileData, cancellationToken);
+        var systemInstruction = PromptProvider.GetGenerateDocumentStructureSystemInstructionPrompt();
+        var currentUser = await _context.DomainUsers.FindAsync(_user.UserId!.Value, cancellationToken);
 
 
+        if (currentUser!.IsPaymentLocked == true)
+            throw new ErrorCodeException(ErrorCodes.PAYMENT_IN_PROGRESS);
+
+        currentUser.IsPaymentLocked = true;
+        await _context.SaveChangesAsync(cancellationToken);
         try
         {
-            var jsonDoc = JsonDocument.Parse(normalizedResult);
-            if (jsonDoc.RootElement.TryGetProperty("errorCode", out var errorCode))
+            //Đếm token của prompt
+            var minimumExpectedTokens = await _aiGenerateService.CountTokenWithFileAsync(
+                fileUri: uploadResult.FileUri,
+                systemInstruction: systemInstruction,
+                prompt: "",
+                cancellationToken: cancellationToken);
+
+            if (minimumExpectedTokens > SystemSettings.MaxInputToken)
+                throw new ErrorCodeException(ErrorCodes.AI_FILE_TOO_LARGE);
+
+            var apiInputCost = (double)minimumExpectedTokens / 1_000_000 * SystemSettings.InputCostPerMillionTokens;
+            var apiMaxOutputCost = (double)SystemSettings.MaxOutputToken / 1_000_000 * SystemSettings.OutputCostPerMillionTokens;
+            var minimumTotalPoint = (int)Math.Round(apiInputCost + apiMaxOutputCost + SystemSettings.FixedSystemFee);
+
+
+            if (currentUser!.Balance < minimumTotalPoint)
+                throw new ErrorCodeException(ErrorCodes.INSUFFICIENT_BALANCE,
+                    $"minimumTotalPoint: {minimumTotalPoint}, tokenCount: {minimumExpectedTokens}");
+
+
+
+
+            var result = await _aiGenerateService.SendPromptWithFileAsync(
+                fileUri: uploadResult.FileUri,
+                systemInstruction: systemInstruction,
+                "",
+                cancellationToken: cancellationToken);
+
+            currentUser.Balance -= (int)Math.Round(apiInputCost + SystemSettings.FixedSystemFee);
+
+            _context.DomainUsers.Update(currentUser);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            if (result != "")
             {
-                if (errorCode.GetString() == "NO_STRUCTURE_FOUND")
+                var outputToken = await _aiGenerateService.CountToken(
+                    text1: "",
+                    text2: result,
+                    cancellationToken
+                );
+
+                var apiOutputCost = (double)outputToken / 1_000_000 * SystemSettings.OutputCostPerMillionTokens;
+                var totalPoint = (int)Math.Round(apiOutputCost);
+                currentUser.IsPaymentLocked = false;
+                _context.DomainUsers.Update(currentUser);
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+
+
+            //Xử lý chuỗi
+            int startIndex = result.IndexOf('{');
+            int endIndex = result.LastIndexOf('}');
+
+            string normalizedResult = (startIndex >= 0 && endIndex >= 0 && endIndex > startIndex)
+                ? result.Substring(startIndex, endIndex - startIndex + 1)
+                : string.Empty;
+
+            try
+            {
+                var jsonDoc = JsonDocument.Parse(normalizedResult);
+                if (jsonDoc.RootElement.TryGetProperty("errorCode", out var errorCode))
                 {
-                    throw new ErrorCodeException(ErrorCodes.NO_STRUCTURE_FOUND);
+                    if (errorCode.GetString() == "NO_STRUCTURE_FOUND")
+                    {
+                        throw new ErrorCodeException(ErrorCodes.NO_STRUCTURE_FOUND);
+                    }
                 }
+            }
+            catch (JsonException)
+            {
+            }
+
+
+            try
+            {
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+                var document = JsonSerializer.Deserialize<DocumentStructureDto>(normalizedResult, options);
+                if (document == null)
+                {
+                    throw new ErrorCodeException(ErrorCodes.GENERATE_CONTENT_FAILED);
+                }
+                Console.WriteLine(JsonSerializer.Serialize(document, new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                }));
+
+                return document;
+            }
+            catch (Exception ex)
+            {
+                throw new ErrorCodeException(ErrorCodes.GENERATE_CONTENT_FAILED, $"Lỗi giải mã JSON: {ex.Message}");
             }
         }
-        catch (JsonException) { }
-
-
-        try
+        catch (ErrorCodeException)
         {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
-            var document = JsonSerializer.Deserialize<DocumentStructureDto>(normalizedResult, options);
-            if (document == null)
-            {
-                throw new ErrorCodeException(ErrorCodes.GENERATE_CONTENT_FAILED);
-            }
-            Console.WriteLine(JsonSerializer.Serialize(document, new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-            }));
-
-            return document;
+            throw;
         }
         catch (Exception)
         {
             throw new ErrorCodeException(ErrorCodes.GENERATE_CONTENT_FAILED);
+        }
+        finally
+        {
+            currentUser!.IsPaymentLocked = false;
+            _context.DomainUsers.Update(currentUser);
+            await _context.SaveChangesAsync(cancellationToken);
+            await _aiGenerateService.DeleteFileAsync(uploadResult.FileName);
         }
     }
 }

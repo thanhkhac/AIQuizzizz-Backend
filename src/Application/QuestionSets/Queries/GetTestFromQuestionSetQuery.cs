@@ -58,7 +58,7 @@ public class GetTestFromQuestionSetQueryHandler : IRequestHandler<GetTestFromQue
         if (questionSet == null)
             throw new ErrorCodeException(ErrorCodes.QUESTION_SET_NOT_FOUND);
         
-        var canView = await _questionSetService.CanUserViewQuestionSet(_user!.UserId, questionSet);
+        var canView = await _questionSetService.CanUserViewQuestionSet(_user.UserId, questionSet);
         if (!canView)
             throw new ErrorCodeException(ErrorCodes.USER_NOT_ACCESS_TO_QUESTION_SET);
 

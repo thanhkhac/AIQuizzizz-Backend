@@ -26,28 +26,23 @@
         }
       }
     },
-    "/api/AiGenerate/GenerateQuestion": {
+    "/api/AiGenerate/Question": {
       "post": {
         "tags": [
           "AiGenerate"
         ],
         "operationId": "GenerateQuestionWithAi",
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "file": {
-                    "type": "string",
-                    "format": "binary",
-                    "nullable": true
-                  }
-                }
-              }
-            }
+        "parameters": [
+          {
+            "name": "form",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/GenerateQuestionWithAiForm"
+            },
+            "x-position": 1
           }
-        },
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -62,7 +57,7 @@
         }
       }
     },
-    "/api/AiGenerate/GenerateDocumentStructure": {
+    "/api/AiGenerate/DocumentStructure": {
       "post": {
         "tags": [
           "AiGenerate"
@@ -91,6 +86,42 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfDocumentStructureDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AiGenerate/DocumentStructure/CostToGenerate": {
+      "post": {
+        "tags": [
+          "AiGenerate"
+        ],
+        "operationId": "GetCostToGenerateDocument",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAiMinimumCostDto"
                 }
               }
             }
@@ -2385,6 +2416,131 @@
         }
       }
     },
+    "/api/QuestionSet/{questionSetId}/Sharing": {
+      "get": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "GetSharingInQuestionSetQuery",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfResourceShareDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "UpdateQuestionSetSharing",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateQuestionSetSharingCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/QuestionSet/{questionSetId}/Test": {
+      "get": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "GetTestFromQuestionSet",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "numberOfQuestion",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "questionTypes",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfQuestionResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/QuestionSet/{questionSetId}/LearnQuestions": {
       "get": {
         "tags": [
@@ -2599,50 +2755,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfListOfCreateUpdateQuestionDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/QuestionSet/{questionSetId}/Sharing": {
-      "patch": {
-        "tags": [
-          "QuestionSet"
-        ],
-        "operationId": "UpdateQuestionSetSharing",
-        "parameters": [
-          {
-            "name": "questionSetId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "guid"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateQuestionSetSharingCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfGuid"
                 }
               }
             }
@@ -3674,6 +3786,65 @@
           }
         }
       },
+      "GenerateQuestionWithAiForm": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary"
+          },
+          "isGenerateExplain": {
+            "type": "boolean"
+          },
+          "language": {
+            "type": "string",
+            "nullable": true
+          },
+          "questionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "questionTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "documentStructure": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/DocumentStructureDto"
+              }
+            ]
+          },
+          "selectedParts": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/DocumentStructureDto"
+              }
+            ]
+          }
+        }
+      },
+      "DocumentStructureDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DocumentStructureDto"
+            }
+          }
+        }
+      },
       "ApiResponseOfDocumentStructureDto": {
         "type": "object",
         "additionalProperties": false,
@@ -3709,19 +3880,52 @@
           }
         }
       },
-      "DocumentStructureDto": {
+      "ApiResponseOfAiMinimumCostDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "title": {
-            "type": "string",
-            "nullable": true
-          },
-          "children": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DocumentStructureDto"
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AiMinimumCostDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AiMinimumCostDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "miniumPointToGenerate": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tokenCount": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -5126,6 +5330,10 @@
           "id": {
             "type": "string",
             "format": "guid"
+          },
+          "visibilityMode": {
+            "type": "string",
+            "nullable": true
           },
           "sharingModel": {
             "type": "array",
