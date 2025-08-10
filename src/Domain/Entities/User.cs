@@ -13,7 +13,7 @@ public class User
     public long TokenCount { get; set; }
     public long Balance { get; set; }
     public string? PaymentCode { get; set; } = Payment.PaymentCodePrefix + Guid.NewGuid().ToString("N")[..30];
-
+    public bool IsPaymentLocked { get; set; }
     // Navigation properties
     public List<UserSubscription> UserSubscriptions { get; set; } = new();
     public List<QuestionSetUser> QuestionSetUsers { get; set; } = new();

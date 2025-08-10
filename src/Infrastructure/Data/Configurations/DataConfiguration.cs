@@ -169,6 +169,31 @@ public class QuestionSetConfiguration : IEntityTypeConfiguration<QuestionSet>
     }
 }
 
+public class QuestionSetRatingConfiguration : IEntityTypeConfiguration<QuestionSetRating>
+{
+
+    public void Configure(EntityTypeBuilder<QuestionSetRating> builder)
+    {
+        builder.HasKey(qsr => new
+        {
+            qsr.QuestionSetId,
+            qsr.CreatedBy
+        });
+        
+        builder.Property(qsr => qsr.Rating)
+            .IsRequired();
+            
+            
+        builder.HasOne(qsr => qsr.QuestionSet)
+            .WithMany(qs => qs.QuestionSetRatings) 
+            .HasForeignKey(qsr => qsr.QuestionSetId)
+            .OnDelete(DeleteBehavior.Cascade);
+    }
+}
+
+
+
+
 public class QuestionSetTagConfiguration : IEntityTypeConfiguration<QuestionSetTag>
 {
     public void Configure(EntityTypeBuilder<QuestionSetTag> builder)

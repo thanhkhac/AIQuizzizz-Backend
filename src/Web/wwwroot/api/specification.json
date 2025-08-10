@@ -26,28 +26,23 @@
         }
       }
     },
-    "/api/AiGenerate/GenerateQuestion": {
+    "/api/AiGenerate/Question": {
       "post": {
         "tags": [
           "AiGenerate"
         ],
         "operationId": "GenerateQuestionWithAi",
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "file": {
-                    "type": "string",
-                    "format": "binary",
-                    "nullable": true
-                  }
-                }
-              }
-            }
+        "parameters": [
+          {
+            "name": "form",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/GenerateQuestionWithAiForm"
+            },
+            "x-position": 1
           }
-        },
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -62,7 +57,7 @@
         }
       }
     },
-    "/api/AiGenerate/GenerateDocumentStructure": {
+    "/api/AiGenerate/DocumentStructure": {
       "post": {
         "tags": [
           "AiGenerate"
@@ -91,6 +86,42 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfDocumentStructureDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/AiGenerate/DocumentStructure/CostToGenerate": {
+      "post": {
+        "tags": [
+          "AiGenerate"
+        ],
+        "operationId": "GetCostToGenerateDocument",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAiMinimumCostDto"
                 }
               }
             }
@@ -1143,40 +1174,6 @@
         }
       }
     },
-    "/api/Class/{ClassId}/Permissions": {
-      "get": {
-        "tags": [
-          "Class"
-        ],
-        "summary": "Retrieves the user's permission for a specific class",
-        "operationId": "GetUserPermissionQuery",
-        "parameters": [
-          {
-            "name": "ClassId",
-            "x-originalName": "classId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "guid"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfString"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/Class/{ClassId}/Members/{UserId}": {
       "delete": {
         "tags": [
@@ -1590,7 +1587,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfSearchTestTemplateInFolderDto"
+                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfTestTemplateDto"
                 }
               }
             }
@@ -2424,7 +2421,6 @@
         "tags": [
           "QuestionSet"
         ],
-        "summary": "Retrieves sharing details for a specific question set",
         "operationId": "GetSharingInQuestionSetQuery",
         "parameters": [
           {
@@ -2499,14 +2495,12 @@
         "tags": [
           "QuestionSet"
         ],
-        "summary": "Retrieves a test with a specified number of questions from a question set, filtered by question types",
         "operationId": "GetTestFromQuestionSet",
         "parameters": [
           {
             "name": "questionSetId",
             "in": "path",
             "required": true,
-            "description": "The ",
             "schema": {
               "type": "string",
               "format": "guid"
@@ -3792,6 +3786,65 @@
           }
         }
       },
+      "GenerateQuestionWithAiForm": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary"
+          },
+          "isGenerateExplain": {
+            "type": "boolean"
+          },
+          "language": {
+            "type": "string",
+            "nullable": true
+          },
+          "questionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "questionTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "documentStructure": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/DocumentStructureDto"
+              }
+            ]
+          },
+          "selectedParts": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/DocumentStructureDto"
+              }
+            ]
+          }
+        }
+      },
+      "DocumentStructureDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DocumentStructureDto"
+            }
+          }
+        }
+      },
       "ApiResponseOfDocumentStructureDto": {
         "type": "object",
         "additionalProperties": false,
@@ -3827,19 +3880,52 @@
           }
         }
       },
-      "DocumentStructureDto": {
+      "ApiResponseOfAiMinimumCostDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "title": {
-            "type": "string",
-            "nullable": true
-          },
-          "children": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DocumentStructureDto"
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AiMinimumCostDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AiMinimumCostDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "miniumPointToGenerate": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tokenCount": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -5102,7 +5188,7 @@
           }
         }
       },
-      "ApiResponseOfSearchTestTemplateInFolderDto": {
+      "ApiResponseOfPaginatedListOfTestTemplateDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -5128,25 +5214,12 @@
             "nullable": true,
             "oneOf": [
               {
-                "$ref": "#/components/schemas/SearchTestTemplateInFolderDto"
+                "$ref": "#/components/schemas/PaginatedListOfTestTemplateDto"
               }
             ]
           },
           "success": {
             "type": "boolean"
-          }
-        }
-      },
-      "SearchTestTemplateInFolderDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "folderName": {
-            "type": "string",
-            "nullable": true
-          },
-          "testTemplates": {
-            "$ref": "#/components/schemas/PaginatedListOfTestTemplateDto"
           }
         }
       },
@@ -5842,8 +5915,7 @@
             "type": "string"
           },
           "textFormat": {
-            "type": "string",
-            "nullable": true
+            "$ref": "#/components/schemas/TextFormat"
           },
           "questionText": {
             "type": "string"
@@ -5864,6 +5936,20 @@
             "$ref": "#/components/schemas/QuestionDataDto"
           }
         }
+      },
+      "TextFormat": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "MarkDown",
+          "PlainText",
+          "Html"
+        ],
+        "enum": [
+          0,
+          1,
+          2
+        ]
       },
       "QuestionDataDto": {
         "type": "object",
@@ -6961,41 +7047,6 @@
           }
         }
       },
-      "ApiResponseOfPaginatedListOfTestTemplateDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "errors": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "validationErrors": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "data": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/PaginatedListOfTestTemplateDto"
-              }
-            ]
-          },
-          "success": {
-            "type": "boolean"
-          }
-        }
-      },
       "ApiResponseOfTestTemplatePermissionsDto": {
         "type": "object",
         "additionalProperties": false,
@@ -7093,18 +7144,6 @@
           "questionCount": {
             "type": "integer",
             "format": "int32"
-          },
-          "createBy": {
-            "type": "string",
-            "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "createAt": {
-            "type": "string",
-            "format": "date-time"
           },
           "questions": {
             "type": "array",
