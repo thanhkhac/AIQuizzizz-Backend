@@ -1,8 +1,10 @@
-﻿using CleanArchitectureBase.Application.Common.Interfaces;
+﻿using CleanArchitectureBase.Application.Common.Exceptions;
+using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using CleanArchitectureBase.Application.QuestionSets.Services;
 using CleanArchitectureBase.Application.Tags.Dto;
+using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -50,7 +52,8 @@ public class QuestionSetService : IQuestionSetService
         if (questionSet.VisibilityMode == QuestionSetVisibilityMode.Public)
             return true;
 
-        if (userId == null) return false;
+        if (userId == null) 
+            throw new ErrorCodeException(ErrorCodes.COMMON_UNAUTHORIZED);
 
         if (await _identityService.IsInAnyRoleAsync(userId.Value, Domain.Constants.Roles.Administrator, Domain.Constants.Roles.Moderator))
             return true;

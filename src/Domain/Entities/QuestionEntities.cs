@@ -129,7 +129,7 @@ public class QuestionSet : BaseAuditableEntity
     public int QuestionCount { get; set; }
     public List<Question> Questions { get; set; } = new();
     public bool IsDeleted { get; set; }
-    
+
     public int RatingCount { get; set; }
     public int RatingSum { get; set; }
     public double RatingAverage { get; set; }
@@ -139,6 +139,7 @@ public class QuestionSet : BaseAuditableEntity
     public List<QuestionSetTag> QuestionSetTags { get; set; } = new();
     public List<ClassQuestionSet> ClassQuestionSets { get; set; } = new();
     public List<UserQuestionSetAccessHistory> AccessHistories { get; set; } = new();
+    public List<QuestionSetRating>  QuestionSetRatings { get; set; } = new();
 }
 
 public class QuestionSetUser : BaseAuditableEntity
@@ -149,6 +150,13 @@ public class QuestionSetUser : BaseAuditableEntity
     public QuestionSetUserShareMode ShareMode { get; set; }
 
     public User? User { get; set; }
+    public QuestionSet? QuestionSet { get; set; }
+}
+
+public class QuestionSetRating : BaseAuditableEntity
+{
+    public required Guid QuestionSetId { get; set; }
+    public int Rating { get; set; }
     public QuestionSet? QuestionSet { get; set; }
 }
 
@@ -188,14 +196,13 @@ public class UserQuestionSetAccessHistory : BaseEntity
     public QuestionSet? QuestionSet { get; set; }
 }
 
-
 public class TestTemplate : BaseAuditableEntity
 {
     public required Guid Id { get; set; }
     public required string Name { get; set; }
     public bool IsDeleted { get; set; }
     public string? Description { get; set; }
-    
+
     // Navigation properties
     public List<TestTemplateQuestion> TestTemplateQuestions { get; set; } = new();
     public List<TestTemplateUser> TestTemplateUsers { get; set; } = new();
@@ -278,17 +285,17 @@ public class Test : BaseAuditableEntity
     public required Guid ClassId { get; set; }
     public required DateTimeOffset TimeStart { get; set; }
     public required DateTimeOffset TimeFinish { get; set; }
-    public int MaxAttempt { get; set; } 
+    public int MaxAttempt { get; set; }
     public required int TimeLimit { get; set; }
     public required int QuestionCount { get; set; }
-    public float PassingScore{ get; set; }
+    public float PassingScore { get; set; }
     public required GradeAttemptMethod GradeAttemptMethod { get; set; }
     public required GradeQuestionMethod GradeQuestionMethod { get; set; }
     public bool IsShowCorrectAnswerInReview { get; set; }
-    public bool IsAllowReviewAfterSubmit { get; set; }    
-    
-    public bool IsDeleted { get; set; }    
-    
+    public bool IsAllowReviewAfterSubmit { get; set; }
+
+    public bool IsDeleted { get; set; }
+
     public List<TestGrade> TestGrades { get; set; } = new();
     public List<TestVersion> TestVersions { get; set; } = new();
     public List<Attempt> Attempts { get; set; } = new();
