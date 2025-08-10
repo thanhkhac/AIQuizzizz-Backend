@@ -77,6 +77,8 @@ jobs:
             echo "GOOGLESETTINGS__CLIENTID=$GOOGLESETTINGS__CLIENTID" >> .env
             echo "EMAILSETTINGS__SMTPPASS=\"$EMAILSETTINGS__SMTPPASS\"" >> .env
             echo "PAYMENTSETTINGS__APIKEY=\"$PAYMENTSETTINGS__APIKEY\"" >> .env
+            echo "GEMINISETTINGS__APIKEY=\"GEMINISETTINGS__APIKEY\"" >> .env
+            echo "GOOGLE_APPLICATION_CREDENTIALS_JSON=$GOOGLE_APPLICATION_CREDENTIALS_JSON" >> .env
 
             echo "==> Thư mục hiện tại là: $(pwd)"
             cd $PROJECT_DIR || exit 1
