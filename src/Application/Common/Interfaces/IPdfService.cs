@@ -4,5 +4,6 @@ namespace CleanArchitectureBase.Application.Common.Interfaces;
 
 public interface IPdfService
 {
-    public List<DocumentStructureDto> ExtractStructure(Stream pdfStream);
+    public Task<DocumentStructureDto> ExtractStructure(Stream pdfStream);
+    public void TrValidatePdf(Stream pdfStream, int maxPageCount);
 }

@@ -21,9 +21,13 @@ public class GenerateDocumentStructureCommand : IRequest<DocumentStructureDto>
 public class GenerateDocumentStructureCommandValidator : AbstractValidator<GenerateDocumentStructureCommand>
 {
     private const long MaxFileSizeInBytes = 50 * 1024 * 1024; // 50MB
+    
+    private const int MaxPageCount = 1000;
 
-    public GenerateDocumentStructureCommandValidator()
+    public GenerateDocumentStructureCommandValidator(IPdfService pdfService)
     {
+        IPdfService pdfService1 = pdfService;
+        
         RuleFor(x => x.FileData)
             .NotNull().WithMessage("FileData không được trống");
 
@@ -31,7 +35,18 @@ public class GenerateDocumentStructureCommandValidator : AbstractValidator<Gener
             .NotNull().WithMessage("Dữ liệu stream không được trống")
             .Must(stream => stream!.Length > 0).WithMessage("Stream không được rỗng")
             .Must(stream => stream!.Length <= MaxFileSizeInBytes)
-            .WithMessage("Dung lượng tệp không được vượt quá 50MB");
+            .WithMessage("Dung lượng tệp không được vượt quá 50MB")
+            .Custom((stream, context) =>
+            {
+                try
+                {
+                    pdfService1.TrValidatePdf(stream!, MaxPageCount);
+                }
+                catch (ArgumentException ex)
+                {
+                    context.AddFailure(ex.Message);
+                }
+            });;
     }
 }
 
@@ -129,8 +144,13 @@ public class GenerateDocumentStructureCommandHandler : IRequestHandler<GenerateD
                     }
                 }
             }
-            catch (JsonException)
+            catch(ErrorCodeException)
             {
+                throw;
+            }
+            catch (Exception)
+            {
+                // ignored
             }
 
 

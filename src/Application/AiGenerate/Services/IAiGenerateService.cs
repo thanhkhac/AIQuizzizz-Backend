@@ -8,11 +8,15 @@ public interface IAiGenerateService
         string fileUri,
         string systemInstruction,
         string prompt,
+        double temperature = 0,
+        double topP = 1,
         CancellationToken cancellationToken = default);
         
     public Task<string> SendPromptAsync(
         string systemInstruction,
         string prompt,
+        double temperature = 0,
+        double topP = 1,
         CancellationToken cancellationToken = default);
 
     public Task<int> CountTokenWithFileAsync(

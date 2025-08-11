@@ -34,13 +34,14 @@ public class AiGenerateService : IAiGenerateService
         string fileUri,
         string systemInstruction,
         string prompt,
+        double temperature = 0,
+        double topP = 1,
         CancellationToken cancellationToken = default)
     {
         _httpClient.DefaultRequestHeaders.Authorization = null;
 
         var requestBody = new
         {
-        
             system_instruction = new
             {
                 parts = new object[]
@@ -74,7 +75,8 @@ public class AiGenerateService : IAiGenerateService
             },
             generation_config = new
             {
-                temperature = 0.7,
+                temperature = temperature,
+                topP = 1,
             }
         };
 
@@ -88,7 +90,7 @@ public class AiGenerateService : IAiGenerateService
             throw new ErrorCodeException(ErrorCodes.GENERATE_CONTENT_FAILED);
 
 
-        var responseJson = await response.Content.ReadAsStringAsync();
+        var responseJson = await response.Content.ReadAsStringAsync(cancellationToken);
         using var doc = JsonDocument.Parse(responseJson);
 
         var result = doc.RootElement
@@ -100,7 +102,14 @@ public class AiGenerateService : IAiGenerateService
 
         return result ?? throw new ErrorCodeException(ErrorCodes.GENERATE_CONTENT_FAILED);
     }
-    public async Task<string> SendPromptAsync(string systemInstruction, string prompt, CancellationToken cancellationToken = default)
+
+
+    public async Task<string> SendPromptAsync(
+        string systemInstruction,
+        string prompt,
+        double temperature = 0.7,
+        double topP = 1,
+        CancellationToken cancellationToken = default)
     {
         _httpClient.DefaultRequestHeaders.Authorization = null;
 
@@ -199,11 +208,10 @@ public class AiGenerateService : IAiGenerateService
     // }
 
 
-
     public async Task<(string FileUri, string FileName)> UploadFileAsync(FileStreamData fileData, CancellationToken cancellationToken = default)
     {
         _httpClient.DefaultRequestHeaders.Authorization = null;
-
+    
         var content = new StreamContent(fileData.Data!);
 
         var uploadUri = $"{_geminiSettings.UploadFileUri}?key={_geminiSettings.ApiKey}";
@@ -235,7 +243,6 @@ public class AiGenerateService : IAiGenerateService
 
         return (fileUri, fileName);
     }
-
 
 
     public async Task<int> CountToken(string text1, string text2, CancellationToken cancellationToken = default)

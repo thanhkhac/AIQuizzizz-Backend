@@ -25,6 +25,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>-->
     <PackageReference Include="ExcelDataReader" />
+    <PackageReference Include="UglyToad.PdfPig" />
   </ItemGroup>
 
   <ItemGroup>
