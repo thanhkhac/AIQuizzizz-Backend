@@ -9,7 +9,6 @@ public class UpdateFolderCommand : IRequest<Guid>
 {
     public Guid? FolderId { get; set; }
     public required string Name { get; set; }
-    public string? Topic { get; set; }
 }
 
 public class UpdateFolderCommandValidator : AbstractValidator<UpdateFolderCommand>
@@ -44,7 +43,7 @@ public class UpdateFolderCommandHandler : IRequestHandler<UpdateFolderCommand, G
         if (folder == null)
             throw new ErrorCodeException(ErrorCodes.FOLDER_NOT_FOUND, "Không tìm thấy folder");
         
-        var canDelete = await _folderTestService.CanDeleteOrEditFolderTest(rq.FolderId!.Value, cancellationToken);
+        var canDelete = await _folderTestService.IsOwnerOrEditor(rq.FolderId!.Value, cancellationToken);
         if(!canDelete)
             throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_FOLDER,
                 "User không có quyền edit folder");

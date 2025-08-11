@@ -8,7 +8,7 @@ namespace CleanArchitectureBase.Application.Questions.Dtos;
 /// </summary>
 public class QuestionResponseDto
 {
-    public Guid Id { get; set; }
+    public Guid QuestionId { get; set; }
     public Guid QuestionSetId { get; set; } = Guid.Empty;
     public string Type { get; set; } = null!;
     public string? TextFormat { get; set; }
@@ -27,7 +27,7 @@ public class QuestionResponseDto
         {
             return new QuestionResponseDto
             {
-                Id = question.Id,
+                QuestionId = question.Id,
                 QuestionSetId = question.QuestionSetId ?? Guid.Empty,
                 Type = question.Type.ToString(),
                 TextFormat = question.TextFormat.ToString(),
