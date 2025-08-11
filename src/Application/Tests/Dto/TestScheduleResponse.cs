@@ -1,4 +1,4 @@
-﻿namespace CleanArchitectureBase.Application.Classes.Dto;
+﻿namespace CleanArchitectureBase.Application.Tests.Dto;
 
 public class TestScheduleResponse
 {
