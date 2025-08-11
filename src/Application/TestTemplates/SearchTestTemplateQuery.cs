@@ -63,7 +63,7 @@ public class SearchTestTemplateQueryHandler : IRequestHandler<SearchTestTemplate
                 Name = t.TestTemplate.Name,
                 NumberOfQuestion = t.TestTemplate.TestTemplateQuestions.Count(),
                 DateCreated = t.TestTemplate.Created.UtcDateTime,
-                CreatedBy = t.TestTemplate.CreatedByUser!.FullName,
+                CreateBy = t.TestTemplate.CreatedByUser!.FullName,
             });
         
         return await PaginatedList<TestTemplateDto>.CreateAsync(
