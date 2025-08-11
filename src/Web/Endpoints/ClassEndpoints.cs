@@ -1,7 +1,5 @@
 ﻿using CleanArchitectureBase.Application.Classes;
-using CleanArchitectureBase.Application.Classes.Dto;
 using CleanArchitectureBase.Application.Common.Models;
-using CleanArchitectureBase.Application.Questions.Dtos;
 using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -25,7 +23,7 @@ public class Class : EndpointGroupBase
         group.MapGet(GetInviteStudentCode, "/{ClassId}/Invitation-Code");
         group.MapGet(SearchQuestionSet, "/{ClassId}/Questionsets");
         group.MapGet(GetClassById, "/{ClassId}");
-        group.MapGet(GetTestSchedule, "/{ClassId}/Schedule");
+        group.MapGet(GetUserPermissionQuery, "/{ClassId}/Permissions");
 
         group.MapDelete(DeleteClass, "/{ClassId}");
         group.MapDelete(RemoveStudent, "/{ClassId}/Members/{UserId}");
@@ -70,26 +68,6 @@ public class Class : EndpointGroupBase
         var result = await sender.Send(new GetClassByIdQuery{ClassId = classId});
         return result.ToOk();
     } 
-    
-    /// <summary>
-    /// Retrieves the test schedule for a specified class, optionally filtered by month and year
-    /// </summary>
-    /// <param name="classId"></param>
-    /// <param name="month"></param>
-    /// <param name="year"></param>
-    /// <param name="sender"></param>
-    /// <returns></returns>
-    public async Task<Ok<ApiResponse<List<TestScheduleResponse>>>> GetTestSchedule(
-        [FromRoute] Guid classId,
-        [FromQuery] int? month,
-        [FromQuery] int? year,
-        ISender sender)
-    {
-        var rq = new GetTestScheduleQuery() { ClassId = classId, Month = month, Year = year };
-        var result = await sender.Send(rq);
-        return result.ToOk();
-        
-    }
     
     /// <summary>
     /// Lecturer - Get class invitation code for view
@@ -269,6 +247,20 @@ public class Class : EndpointGroupBase
         ISender sender)
     {
         rq.ClassId = classId;
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    /// <summary>
+    /// Retrieves the user's permission for a specific class
+    /// </summary>
+    /// <param name="classId"></param>
+    /// <param name="sender"></param>
+    public async Task<Ok<ApiResponse<string?>>> GetUserPermissionQuery(
+        [FromRoute] Guid classId,
+        ISender sender)
+    {
+        var rq = new GetUserPermissionInClassQuery { ClassId = classId };
         var result = await sender.Send(rq);
         return result.ToOk();
     }

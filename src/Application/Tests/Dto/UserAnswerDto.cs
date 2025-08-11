@@ -68,7 +68,7 @@ public static class CheckUserAnswer
             return 0;
 
         var correctAnswers = question.QuestionData.MultipleChoice
-            .Where(x => x.IsAnswer)
+            .Where(x => x.IsAnswer!.Value)
             .Select(x => x.Id)
             .ToHashSet();
 
@@ -85,7 +85,7 @@ public static class CheckUserAnswer
         if(question.QuestionData.Matching == null || userAnswer.UserAnswerData.Matching == null)
             return 0;
 
-        var answers = question.QuestionData.Matching.Matches
+        var answers = question.QuestionData.Matching.Matches!
             .Select(x => new HashSet<Guid>{x.LeftId, x.RightId})
             .ToList();
         

@@ -27,6 +27,7 @@ public class GetTestFromQuestionSetQueryValidator : AbstractValidator<GetTestFro
             .LessThan(50).WithMessage("NumberOfQuestion giới hạn là 50");
         RuleFor(x => x.QuestionTypes)
             .NotEmpty().WithMessage("QuestionTypes không được bỏ trống")
+            .Must(x => x.Count > 0).WithMessage("Số lượng type lớn hơn 0")
             .ForEach(type =>
                 type.Must(x => new[] {"MultipleChoice", "Matching", "Ordering", "ShortText"}.Contains(x))
                     .WithMessage($"Loại câu hỏi phải là MultipleChoice, Matching, Ordering, ShortText"));
@@ -64,9 +65,6 @@ public class GetTestFromQuestionSetQueryHandler : IRequestHandler<GetTestFromQue
 
         if (rq.NumberOfQuestion > questionSet.Questions.Count)
             throw new ErrorCodeException(ErrorCodes.INVALID_NUMBER_OF_QUESTIONS);
-        
-        if (rq.QuestionTypes.Count == 0)
-            throw new ErrorCodeException(ErrorCodes.INVALID_NUMBER_OF_TYPE_OF_QUESTIONS);
         
         var typeToQuestions = new Dictionary<string, List<Question>>
         {

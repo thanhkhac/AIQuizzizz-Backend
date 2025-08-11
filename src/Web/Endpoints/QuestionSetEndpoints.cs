@@ -27,7 +27,8 @@ public class QuestionSetEndpoints : EndpointGroupBase
         group.MapPost(CreateQuestionSet);
         group.MapGet(GetQuestionSetDetail, "{questionSetId}");
         group.MapGet(GetQuestions, "{questionSetId}/Questions");
-        group.MapGet(GetSharingInQuestionSetQuery, "{questionSetId}/Sharing");
+        group.MapGet(GetSharingInQuestionSet, "{questionSetId}/Sharing");
+        group.MapGet(GetClassesHaveQuestionSet, "{questionSetId}/Classes");
         group.MapGet(GetTestFromQuestionSet, "{questionSetId}/Test");
         group.MapPatch(UpdateQuestionSet, "{questionSetId}");
         group.MapDelete(DeleteQuestionSet, "{questionSetId}");
@@ -149,6 +150,14 @@ public class QuestionSetEndpoints : EndpointGroupBase
         return result.ToOk();
     }
     
+   /// <summary>
+    /// Retrieves a test with a specified number of questions from a question set, filtered by question types
+    /// </summary>
+    /// <param name="questionSetId">The </param>
+    /// <param name="numberOfQuestion"></param>
+    /// <param name="questionTypes"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
     public async Task<Ok<ApiResponse<List<QuestionResponseDto>>>> GetTestFromQuestionSet(
         [FromRoute] Guid questionSetId,
         [FromQuery] int numberOfQuestion,
@@ -167,11 +176,29 @@ public class QuestionSetEndpoints : EndpointGroupBase
         return result.ToOk();
     }
     
-    public async Task<Ok<ApiResponse<ResourceShareDto>>> GetSharingInQuestionSetQuery(
+    /// <summary>
+    /// Retrieves sharing details for a specific question set
+    /// </summary>
+    /// <param name="questionSetId"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
+    public async Task<Ok<ApiResponse<ResourceShareDto>>> GetSharingInQuestionSet(
         [FromRoute] Guid questionSetId,
         ISender sender)
     {
         var query = new GetSharingInQuestionSetQuery
+        {
+            QuestionSetId = questionSetId,
+        };
+        var result = await sender.Send(query);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<List<GetClassesHaveQuestionSetDto>>>> GetClassesHaveQuestionSet(
+        [FromRoute] Guid questionSetId,
+        ISender sender)
+    {
+        var query = new GetClassesHaveQuestionSetQuery
         {
             QuestionSetId = questionSetId,
         };

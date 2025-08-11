@@ -72,13 +72,15 @@ public class GetTestTemplatePermissionsQueryHandler : IRequestHandler<GetTestTem
         
         var shareMode = await _context.TestTemplateUsers
             .Where(x => x.TestTemplateId == rq.TestTemplateId && x.UserId == _user.UserId)
-            .Select(x => x.ShareMode)
             .FirstOrDefaultAsync(cancellationToken);
+
+        if (shareMode == null)
+            throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE);
         
-            return new TestTemplatePermissionsDto
+        return new TestTemplatePermissionsDto
             {
-                CanEdit = shareMode == TestTemplateUserShareMode.Owner || shareMode == TestTemplateUserShareMode.Editable,
-                CanDelete = shareMode == TestTemplateUserShareMode.Owner
+                CanEdit = shareMode.ShareMode == TestTemplateUserShareMode.Owner || shareMode.ShareMode == TestTemplateUserShareMode.Editable,
+                CanDelete = shareMode.ShareMode == TestTemplateUserShareMode.Owner
             };
         }
     }

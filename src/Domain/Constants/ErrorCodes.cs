@@ -93,7 +93,6 @@ public static class ErrorCodes
     public const string QUESTION_SET_NOT_FOUND_IN_CLASS = nameof(QUESTION_SET_NOT_FOUND_IN_CLASS);
     public const string USER_NOT_ACCESS_TO_QUESTION_SET = nameof(USER_NOT_ACCESS_TO_QUESTION_SET);
     public const string INVALID_NUMBER_OF_QUESTIONS = nameof(INVALID_NUMBER_OF_QUESTIONS);
-    public const string INVALID_NUMBER_OF_TYPE_OF_QUESTIONS = nameof(INVALID_NUMBER_OF_TYPE_OF_QUESTIONS);
     public const string PLAN_REQUIRE_PLAN = nameof(PLAN_REQUIRE_PLAN);
     
     //Folder
@@ -114,6 +113,8 @@ public static class ErrorCodes
     public const string USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE = nameof(USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE);
     public const string USER_NOT_HAVE_PERMISSION_IN_TEST = nameof(USER_NOT_HAVE_PERMISSION_IN_TEST);
     public const string NOT_YET_TIME_TO_OPEN_TEST = nameof(NOT_YET_TIME_TO_OPEN_TEST);
+    public const string STUDENT_CAN_REVIEW_THIS_TEST = nameof(STUDENT_CAN_REVIEW_THIS_TEST);
+    public const string TEST_ALREADY_OPEN = nameof(TEST_ALREADY_OPEN);
     
     //TestTemplate
     public const string TEST_TEMPLATE_NOT_FOUND = nameof(TEST_TEMPLATE_NOT_FOUND);
@@ -127,6 +128,7 @@ public static class ErrorCodes
     //Attempt
     public const string ERROR_ATTEMPT_USER = nameof(ERROR_ATTEMPT_USER);
     public const string ATTEMPT_ALREADY_SUBMIT = nameof(ATTEMPT_ALREADY_SUBMIT);
+    public const string ATTEMPT_NOT_FOUND = nameof(ATTEMPT_NOT_FOUND);
     
     //Comment
     public const string QUESTION_CAN_NOT_COMMENT = nameof(QUESTION_CAN_NOT_COMMENT);

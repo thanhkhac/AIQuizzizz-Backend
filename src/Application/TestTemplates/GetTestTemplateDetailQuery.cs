@@ -54,6 +54,7 @@ public class GetTestTemplateDetailQueryHandler : IRequestHandler<GetTestTemplate
             throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE, "User không có quyền xem test template này");
         
         var result = await _context.TestTemplates
+            .Include(x => x.CreatedByUser)
             .Include(t => t.TestTemplateQuestions)
             .ThenInclude(t => t.Question)
             .Where(t => t.Id == rq.TestTemplateId)
@@ -62,9 +63,12 @@ public class GetTestTemplateDetailQueryHandler : IRequestHandler<GetTestTemplate
                 TestTemplateId = t.Id,
                 Name = t.Name,
                 QuestionCount = t.TestTemplateQuestions.Count,
+                Description = t.Description,
+                CreateBy = t.CreatedByUser!.FullName,
+                CreateAt = t.Created,
                 Questions = t.TestTemplateQuestions
                     .Where(tq => tq.Question != null)
-                    .Select(tq => QuestionResponseDto.Mapper.FromEntity(tq.Question!, true, false))
+                    .Select(tq => QuestionResponseDto.Mapper.FromEntity(tq.Question!, true, false, true))
                     .ToList()
             }).FirstOrDefaultAsync(cancellationToken);
         
