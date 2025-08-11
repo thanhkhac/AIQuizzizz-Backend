@@ -14,6 +14,8 @@ public class GoogleAccessTokenProvider : IGoogleAccessTokenProvider
         if (string.IsNullOrEmpty(credentialJson))
             throw new ArgumentNullException(nameof(credentialJson), "Credential JSON is required");
 
+        credentialJson = credentialJson.Trim('\'');
+
         _credential = GoogleCredential
             .FromJson(credentialJson)
             .CreateScoped("https://www.googleapis.com/auth/cloud-platform");

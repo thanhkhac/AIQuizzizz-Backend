@@ -31,33 +31,154 @@ public class AiGenerateService : IAiGenerateService
     }
 
     public async Task<string> SendPromptWithFileAsync(
-        FileStreamData fileData,
+        string fileUri,
+        string systemInstruction,
         string prompt,
         CancellationToken cancellationToken = default)
     {
-        var uploadResult = await UploadFileAsync(fileData);
+        _httpClient.DefaultRequestHeaders.Authorization = null;
 
-        try
+        var requestBody = new
         {
-            var result = await SendPromptWithFileUriAsync(uploadResult.FileUri, prompt, cancellationToken);
-            return result;
-        }
-        finally
+        
+            system_instruction = new
+            {
+                parts = new object[]
+                {
+                    new
+                    {
+                        text = systemInstruction
+                    }
+                }
+            },
+            contents = new[]
+            {
+                new
+                {
+                    role = "user",
+                    parts = new object[]
+                    {
+                        new
+                        {
+                            fileData = new
+                            {
+                                fileUri
+                            }
+                        },
+                        new
+                        {
+                            text = prompt
+                        }
+                    }
+                }
+            },
+            generation_config = new
+            {
+                temperature = 0.7,
+            }
+        };
+
+        var json = JsonSerializer.Serialize(requestBody);
+        var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var requestUri = $"{_geminiSettings.GenerateUri}?key={_geminiSettings.ApiKey}";
+        var response = await _httpClient.PostAsync(requestUri, requestContent, cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+            throw new ErrorCodeException(ErrorCodes.GENERATE_CONTENT_FAILED);
+
+
+        var responseJson = await response.Content.ReadAsStringAsync();
+        using var doc = JsonDocument.Parse(responseJson);
+
+        var result = doc.RootElement
+            .GetProperty("candidates")[0]
+            .GetProperty("content")
+            .GetProperty("parts")[0]
+            .GetProperty("text")
+            .GetString();
+
+        return result ?? throw new ErrorCodeException(ErrorCodes.GENERATE_CONTENT_FAILED);
+    }
+    public async Task<string> SendPromptAsync(string systemInstruction, string prompt, CancellationToken cancellationToken = default)
+    {
+        _httpClient.DefaultRequestHeaders.Authorization = null;
+
+        var requestBody = new
         {
-            await DeleteFileAsync(uploadResult.FileName);
-        }
+            system_instruction = new
+            {
+                parts = new object[]
+                {
+                    new
+                    {
+                        text = systemInstruction
+                    }
+                }
+            },
+            contents = new[]
+            {
+                new
+                {
+                    role = "user",
+                    parts = new object[]
+                    {
+                        new
+                        {
+                            text = prompt
+                        }
+                    }
+                }
+            },
+            generation_config = new
+            {
+                temperature = 0.7,
+            }
+        };
+
+        var json = JsonSerializer.Serialize(requestBody);
+        var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var requestUri = $"{_geminiSettings.GenerateUri}?key={_geminiSettings.ApiKey}";
+        var response = await _httpClient.PostAsync(requestUri, requestContent, cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+            throw new ErrorCodeException(ErrorCodes.GENERATE_CONTENT_FAILED);
+
+
+        var responseJson = await response.Content.ReadAsStringAsync();
+        using var doc = JsonDocument.Parse(responseJson);
+
+        var result = doc.RootElement
+            .GetProperty("candidates")[0]
+            .GetProperty("content")
+            .GetProperty("parts")[0]
+            .GetProperty("text")
+            .GetString();
+
+        return result ?? throw new ErrorCodeException(ErrorCodes.GENERATE_CONTENT_FAILED);
     }
 
-    private async Task DeleteFileAsync(string fileUri)
+
+    public async Task DeleteFileAsync(string fileName)
     {
-        var fileId = fileUri.Replace("files/", "");
+        var fileId = fileName.Replace("files/", "");
 
         var deleteUri = $"https://generativelanguage.googleapis.com/v1beta/files/{fileId}?key={_geminiSettings.ApiKey}";
+        using var httpClient = new HttpClient();
 
-        var response = await _httpClient.DeleteAsync(deleteUri);
+        var response = await httpClient.DeleteAsync(deleteUri);
         if (!response.IsSuccessStatusCode)
         {
-            Console.WriteLine("ERROR");
+            var errorContent = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("ERROR:");
+            Console.WriteLine($"Status Code: {response.StatusCode}");
+            Console.WriteLine($"Reason: {response.ReasonPhrase}");
+            Console.WriteLine($"Details: {errorContent}");
+        }
+        else
+        {
+            Console.WriteLine("File deleted successfully!");
         }
     }
 
@@ -76,20 +197,25 @@ public class AiGenerateService : IAiGenerateService
     //         "source" : "UPLOADED"
     //     }
     // }
-    private async Task<(string FileUri, string FileName)> UploadFileAsync(FileStreamData fileData)
+
+
+
+    public async Task<(string FileUri, string FileName)> UploadFileAsync(FileStreamData fileData, CancellationToken cancellationToken = default)
     {
+        _httpClient.DefaultRequestHeaders.Authorization = null;
+
         var content = new StreamContent(fileData.Data!);
 
         var uploadUri = $"{_geminiSettings.UploadFileUri}?key={_geminiSettings.ApiKey}";
 
-        var response = await _httpClient.PostAsync(uploadUri, content);
+        var response = await _httpClient.PostAsync(uploadUri, content, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
         {
             throw new ErrorCodeException(ErrorCodes.FILE_UPLOAD_FAILED);
         }
 
-        var responseContent = await response.Content.ReadAsStringAsync();
+        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
         using var doc = JsonDocument.Parse(responseContent);
 
         var fileUri = doc.RootElement
@@ -110,20 +236,16 @@ public class AiGenerateService : IAiGenerateService
         return (fileUri, fileName);
     }
 
-    private async Task<string> SendPromptWithFileUriAsync(string fileUri, string prompt, CancellationToken cancellationToken)
+
+
+    public async Task<int> CountToken(string text1, string text2, CancellationToken cancellationToken = default)
     {
+        _httpClient.DefaultRequestHeaders.Authorization = null;
+
+        _httpClient.DefaultRequestHeaders.Authorization = null;
+
         var requestBody = new
         {
-            system_instruction = new
-            {
-                parts = new object[]
-                {
-                    new
-                    {
-                        text = prompt
-                    }
-                }
-            },
             contents = new[]
             {
                 new
@@ -133,108 +255,92 @@ public class AiGenerateService : IAiGenerateService
                     {
                         new
                         {
-                            fileData = new
-                            {
-                                fileUri
-                            }
+                            text = text2
+                        },
+                        new
+                        {
+                            text = text1
                         }
                     }
                 }
             },
-            generation_config = new
-            {
-                temperature = 0.7,
-            }
         };
 
         var json = JsonSerializer.Serialize(requestBody);
         var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
+        var requestUri =
+            "https://aiplatform.googleapis.com/v1/projects/aiquizizz-ai/locations/global/publishers/google/models/gemini-2.5-flash-lite:countTokens";
+        var googleAccesstoken = await _googleAccessTokenProvider.GetAccessTokenAsync();
 
-        var requestUri = $"{_geminiSettings.GenerateUri}?key={_geminiSettings.ApiKey}";
+        _httpClient.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", googleAccesstoken);
+
         var response = await _httpClient.PostAsync(requestUri, requestContent, cancellationToken);
-
         if (!response.IsSuccessStatusCode)
         {
-            throw new ErrorCodeException(ErrorCodes.GENERATE_CONTENT_FAILED);
+            throw new ErrorCodeException(ErrorCodes.COMMON_SERVER_INTERNAL_ERROR);
         }
 
-        var responseJson = await response.Content.ReadAsStringAsync();
+        var responseJson = await response.Content.ReadAsStringAsync(cancellationToken);
         using var doc = JsonDocument.Parse(responseJson);
-
-        var result = doc.RootElement
-            .GetProperty("candidates")[0]
-            .GetProperty("content")
-            .GetProperty("parts")[0]
-            .GetProperty("text")
-            .GetString();
-
-        return result ?? "No summary found.";
+        int totalTokens = doc.RootElement.GetProperty("totalTokens").GetInt32();
+        return totalTokens;
     }
 
-
-    public Task<string> SendPromptWithFileAsync(FileStreamData fileData, string systemInstruction, string prompt,
+    public async Task<int> CountTokenWithFileAsync(string fileUri, string systemInstruction, string prompt,
         CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
-    }
+        _httpClient.DefaultRequestHeaders.Authorization = null;
 
-    public async Task<int> CountTokenAsync(FileStreamData fileData, string systemInstruction, string content,
-        CancellationToken cancellationToken = default)
-    {
-        var uploadResult = await UploadFileAsync(fileData);
-
-        try
+        var requestBody = new
         {
-            var requestBody = new
+            contents = new[]
             {
-                contents = new[]
+                new
                 {
-                    new
+                    role = "user",
+                    parts = new object[]
                     {
-                        role = "user",
-                        parts = new object[]
+                        new
                         {
-                            new
+                            file_data = new
                             {
-                                file_data = new
-                                {
-                                    file_uri = uploadResult.FileUri
-                                }
-                            },
-                            new
-                            {
-                                text = content
-                            },
-                            new
-                            {
-                                text = systemInstruction
+                                file_uri = fileUri,
+                                mime_type = "application/pdf"
                             }
+                        },
+                        new
+                        {
+                            text = prompt
+                        },
+                        new
+                        {
+                            text = systemInstruction
                         }
                     }
-                },
-            };
+                }
+            },
+        };
 
-            var json = JsonSerializer.Serialize(requestBody);
-            var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
-            var requestUri =
-                "https://aiplatform.googleapis.com/v1/projects/aiquizizz-ai/locations/global/publishers/google/models/gemini-2.5-flash-lite:countTokens";
+        var json = JsonSerializer.Serialize(requestBody);
+        var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
+        var requestUri =
+            "https://aiplatform.googleapis.com/v1/projects/aiquizizz-ai/locations/global/publishers/google/models/gemini-2.5-flash-lite:countTokens";
+        var googleAccesstoken = await _googleAccessTokenProvider.GetAccessTokenAsync();
 
-            var response = await _httpClient.PostAsync(requestUri, requestContent, cancellationToken);
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new ErrorCodeException(ErrorCodes.COMMON_SERVER_INTERNAL_ERROR);
-            }
+        _httpClient.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", googleAccesstoken);
 
-            var responseJson = await response.Content.ReadAsStringAsync(cancellationToken);
-            using var doc = JsonDocument.Parse(responseJson);
-            int totalTokens = doc.RootElement.GetProperty("totalTokens").GetInt32();
-            return totalTokens;
-        }
-        finally
+        var response = await _httpClient.PostAsync(requestUri, requestContent, cancellationToken);
+        if (!response.IsSuccessStatusCode)
         {
-            await DeleteFileAsync(uploadResult.FileName);
+            throw new ErrorCodeException(ErrorCodes.COMMON_SERVER_INTERNAL_ERROR);
         }
 
+        var responseJson = await response.Content.ReadAsStringAsync(cancellationToken);
+        using var doc = JsonDocument.Parse(responseJson);
+        int totalTokens = doc.RootElement.GetProperty("totalTokens").GetInt32();
+        return totalTokens;
     }
 
 

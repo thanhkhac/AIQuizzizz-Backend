@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="AiGenerate\Ultils\" />
     <Folder Include="Classes\Dto\" />
     <Folder Include="zExample\" />
   </ItemGroup>

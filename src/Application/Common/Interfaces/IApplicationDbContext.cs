@@ -39,5 +39,7 @@ public interface
     public DbSet<UserQuestionSetAccessHistory> UserQuestionSetAccessHistories { get; }
     public DbSet<Transaction> Transactions { get; }
     public DbSet<PlanPriceHistory> PlanPriceHistories { get; }
+    public DbSet<QuestionSetRating> QuestionSetRatings { get; }
+    
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

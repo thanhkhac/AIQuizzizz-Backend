@@ -147,7 +147,10 @@ public static class ErrorCodes
     public const string FILE_UPLOAD_FAILED = nameof(FILE_UPLOAD_FAILED);
     public const string FILE_URI_NOTFOUND = nameof(FILE_URI_NOTFOUND);
     public const string GENERATE_CONTENT_FAILED = nameof(GENERATE_CONTENT_FAILED);
+    public const string AI_FILE_TOO_LARGE = nameof(AI_FILE_TOO_LARGE);
     
     public const string NO_STRUCTURE_FOUND = nameof(NO_STRUCTURE_FOUND);
+    public const string PAYMENT_IN_PROGRESS = nameof(PAYMENT_IN_PROGRESS);
+    
     
 }    

@@ -29,7 +29,7 @@ public class CreateUpdateQuestionDto
     public string? Type { get; set; }
     public string? QuestionText { get; set; }
     public string? ExplainText { get; set; } //TODO: Thêm trường explain cho entity
-    public required float Score { get; set; }
+    public float Score { get; set; } = 10;
     public List<CreateMultipleChoiceDto>? MultipleChoices { get; set; }
     public List<CreateMatchingPairDto>? MatchingPairs { get; set; }
     public List<CreateOrderingItemDto>? OrderingItems { get; set; }

@@ -57,6 +57,7 @@ public class ApplicationDbContext : IdentityDbContext<UserAccount,
     public DbSet<UserQuestionSetAccessHistory> UserQuestionSetAccessHistories => Set<UserQuestionSetAccessHistory>();
     public DbSet<Transaction> Transactions => Set<Transaction>();
     public DbSet<PlanPriceHistory> PlanPriceHistories => Set<PlanPriceHistory>();
+    public DbSet<QuestionSetRating> QuestionSetRatings => Set<QuestionSetRating>();
 
     // public override DbSet<ApplicationUserRole> UserRoles { get; set; }
     // public override DbSet<ApplicationRole> Roles { get; set; }
