@@ -15,6 +15,7 @@ public class TestDetailDto
     public string? GradeQuestionValue { get; set; }
     public bool IsShowCorrectAnswerInReview { get; set; }
     public bool IsAllowReviewAfterSubmit { get; set; }
+    public int NumberOfShuffles { get; set; }
     public int MaxAttempt { get; set; }
     public double PassScore { get; set; }
     public List<QuestionResponseDto> Questions { get; set; } = new();

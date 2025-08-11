@@ -303,7 +303,7 @@ public class CreateUpdateQuestionDto
         public static bool CompareMatchingQuestion(MatchingDataDto? matchingItems,
             List<CreateMatchingPairDto> matchingItemsDto)
         {
-            if (matchingItems == null || matchingItems.Matches.Count != matchingItemsDto.Count)
+            if (matchingItems == null || matchingItems.Matches!.Count != matchingItemsDto.Count)
                 return false;
 
             var leftItems = matchingItems.LeftItems.ToDictionary(x => x.Id, x => x.Text);

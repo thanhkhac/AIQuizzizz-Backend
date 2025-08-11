@@ -37,6 +37,7 @@ public class GetTestDetailQueryHandler : IRequestHandler<GetTestDetailQuery, Tes
     public async Task<TestDetailDto> Handle(GetTestDetailQuery rq, CancellationToken cancellationToken)
     {
         var test = await _context.Tests
+            .Include(x => x.TestVersions)
             .Where(x => x.Id == rq.TestId && x.IsDeleted == false)
             .FirstOrDefaultAsync(cancellationToken);
         if (test == null)
@@ -51,7 +52,7 @@ public class GetTestDetailQueryHandler : IRequestHandler<GetTestDetailQuery, Tes
             .ThenInclude(x => x!.Test)
             .Include(x => x.Question)
             .Where(q => q.TestVersion!.Test!.Id == rq.TestId && q.TestVersion.No == 0)
-            .Select(qs => QuestionResponseDto.Mapper.FromEntity(qs.Question!, true, true))
+            .Select(qs => QuestionResponseDto.Mapper.FromEntity(qs.Question!, true, true, true))
             .ToList();
 
         return new TestDetailDto
@@ -69,6 +70,7 @@ public class GetTestDetailQueryHandler : IRequestHandler<GetTestDetailQuery, Tes
             IsAllowReviewAfterSubmit = test.IsAllowReviewAfterSubmit,
             IsShowCorrectAnswerInReview = test.IsShowCorrectAnswerInReview,
             QuestionCount = test.QuestionCount,
+            NumberOfShuffles = test.TestVersions.Count,
             Questions = questions
         };
     }

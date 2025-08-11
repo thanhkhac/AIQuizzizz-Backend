@@ -27,6 +27,7 @@ public class UpdateTestCommand : IRequest<Guid>
     public bool IsShowCorrectAnswerInReview { get; set; }
     public bool IsAllowReviewAfterSubmit { get; set; }
     public int MaxAttempt { get; set; } = 1;
+    public int NumberOfShuffles { get; set; } = 1;
     public int PassingScore { get; set; } = 0;
     public List<CreateUpdateQuestionDto> CreateUpdateQuestions { get; set; } = new ();
     public List<Guid> DeleteQuestionIds { get; set; } = new();
@@ -100,6 +101,9 @@ public class UpdateTestCommandHandler : IRequestHandler<UpdateTestCommand, Guid>
         var canUpdate = await _testService.CanViewOrEditTest(test.ClassId, cancellationToken);
         if (!canUpdate)
             throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST, "Không có quyền sửa");
+
+        if (test.TimeStart < DateTimeOffset.UtcNow)
+            throw new ErrorCodeException(ErrorCodes.TEST_ALREADY_OPEN);
         
         test.Name = rq.Name;
         test.TimeFinish = rq.EndTime;
@@ -114,8 +118,9 @@ public class UpdateTestCommandHandler : IRequestHandler<UpdateTestCommand, Guid>
 
         var testVersion = await _context.TestVersions
             .Where(x => x.TestId.Equals(test.Id))
-            .Select(x => x.Id)
             .ToListAsync(cancellationToken);
+        
+        
         
         if (rq.CreateUpdateQuestions.Count > 100)
             throw new ErrorCodeException(ErrorCodes.NUMBER_OF_QUESTION_EXCEED_LIMIT,
@@ -194,7 +199,7 @@ public class UpdateTestCommandHandler : IRequestHandler<UpdateTestCommand, Guid>
             {
                 var testVersionQuestion = new TestVersionQuestion
                 {
-                    Id = Guid.NewGuid(), QuestionId = question.Id, Order = order, TestVersionId = version
+                    Id = Guid.NewGuid(), QuestionId = question.Id, Order = order, TestVersionId = version.Id
                 };
                 
                 listTestVersionQuestions.Add(testVersionQuestion);
