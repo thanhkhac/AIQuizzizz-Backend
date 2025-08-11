@@ -1,24 +1,31 @@
 ﻿using CleanArchitectureBase.Application.AiGenerate.Dtos;
 using CleanArchitectureBase.Application.AiGenerate.Services;
 using CleanArchitectureBase.Application.Common.Exceptions;
+using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Common.Settings;
 using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.AiGenerate;
 
-public class CountDocumentTokenQuery : IRequest<AiMinimumCostDto>
+public class GetCostToGenerateDocumentStructureQuery : IRequest<AiMinimumCostDto>
 {
     public required FileStreamData FileData { get; set; }
 
 }
 
-public class CountDocumentTokenQueryValidator : AbstractValidator<GenerateDocumentStructureCommand>
+public class CountDocumentTokenQueryValidator : AbstractValidator<GetCostToGenerateDocumentStructureQuery>
 {
     private const long MaxFileSizeInBytes = 50 * 1024 * 1024; // 50MB
 
-    public CountDocumentTokenQueryValidator()
+    private const int MaxPageCount = 1000;
+
+
+
+    public CountDocumentTokenQueryValidator(IPdfService pdfService)
     {
+        IPdfService pdfService1 = pdfService;
+        
         RuleFor(x => x.FileData)
             .NotNull().WithMessage("FileData không được trống");
 
@@ -26,11 +33,22 @@ public class CountDocumentTokenQueryValidator : AbstractValidator<GenerateDocume
             .NotNull().WithMessage("Dữ liệu stream không được trống")
             .Must(stream => stream!.Length > 0).WithMessage("Stream không được rỗng")
             .Must(stream => stream!.Length <= MaxFileSizeInBytes)
-            .WithMessage("Dung lượng tệp không được vượt quá 50MB");
+            .WithMessage("Dung lượng tệp không được vượt quá 50MB")
+            .Custom((stream, context) =>
+            {
+                try
+                {
+                    pdfService1.TrValidatePdf(stream!, MaxPageCount);
+                }
+                catch (ArgumentException ex)
+                {
+                    context.AddFailure(ex.Message);
+                }
+            });;
     }
 }
 
-public class CountDocumentTokenQueryHandler : IRequestHandler<CountDocumentTokenQuery, AiMinimumCostDto>
+public class CountDocumentTokenQueryHandler : IRequestHandler<GetCostToGenerateDocumentStructureQuery, AiMinimumCostDto>
 {
     private readonly IAiGenerateService _aiGenerateService;
 
@@ -40,7 +58,7 @@ public class CountDocumentTokenQueryHandler : IRequestHandler<CountDocumentToken
     }
 
 
-    public async Task<AiMinimumCostDto> Handle(CountDocumentTokenQuery request, CancellationToken cancellationToken)
+    public async Task<AiMinimumCostDto> Handle(GetCostToGenerateDocumentStructureQuery request, CancellationToken cancellationToken)
     {
         var uploadResult = await _aiGenerateService.UploadFileAsync(request.FileData, cancellationToken);
         var systemInstruction = PromptProvider.GetGenerateDocumentStructureSystemInstructionPrompt();
