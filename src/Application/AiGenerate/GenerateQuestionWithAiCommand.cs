@@ -6,13 +6,15 @@ using CleanArchitectureBase.Application.AiGenerate.Services;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.Common.Settings;
 using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.AiGenerate;
 
-public class GenerateQuestionWithAiCommand : IRequest<string>
+[Authorize]
+public class GenerateQuestionWithAiCommand : IRequest<List<CreateUpdateQuestionDto>>
 {
     [JsonIgnore]
     public required FileStreamData FileData { get; set; }
@@ -29,8 +31,13 @@ public class GenerateQuestionWithAiCommandValidator : AbstractValidator<Generate
 {
     private const long MaxFileSizeInBytes = 50 * 1024 * 1024; // 50MB
 
-    public GenerateQuestionWithAiCommandValidator()
+    private const int MaxPageCount = 1000;
+
+
+    public GenerateQuestionWithAiCommandValidator(IPdfService pdfService)
     {
+        IPdfService pdfService1 = pdfService;
+
         RuleFor(x => x.FileData)
             .NotNull().WithMessage("FileData không được trống");
 
@@ -38,11 +45,23 @@ public class GenerateQuestionWithAiCommandValidator : AbstractValidator<Generate
             .NotNull().WithMessage("Dữ liệu stream không được trống")
             .Must(stream => stream!.Length > 0).WithMessage("Stream không được rỗng")
             .Must(stream => stream!.Length <= MaxFileSizeInBytes)
-            .WithMessage("Dung lượng tệp không được vượt quá 50MB");
+            .WithMessage("Dung lượng tệp không được vượt quá 50MB")
+            .Custom((stream, context) =>
+            {
+                try
+                {
+                    pdfService1.TrValidatePdf(stream!, MaxPageCount);
+                }
+                catch (ArgumentException ex)
+                {
+                    context.AddFailure(ex.Message);
+                }
+            });
+        ;
     }
 }
 
-public class GenerateQuestionWithAiCommandHandler : IRequestHandler<GenerateQuestionWithAiCommand, string>
+public class GenerateQuestionWithAiCommandHandler : IRequestHandler<GenerateQuestionWithAiCommand, List<CreateUpdateQuestionDto>>
 {
     private readonly IAiGenerateService _aiGenerateService;
     private readonly IApplicationDbContext _context;
@@ -54,7 +73,7 @@ public class GenerateQuestionWithAiCommandHandler : IRequestHandler<GenerateQues
         _context = context;
     }
 
-    public async Task<string> Handle(GenerateQuestionWithAiCommand request, CancellationToken cancellationToken)
+    public async Task<List<CreateUpdateQuestionDto>> Handle(GenerateQuestionWithAiCommand request, CancellationToken cancellationToken)
     {
         var uploadResult = await _aiGenerateService.UploadFileAsync(request.FileData, cancellationToken);
         var systemInstruction = PromptProvider.GetGenerateQuestionInstructionSystemPrompt(request.IsGenerateExplain, request.Language!);
@@ -98,7 +117,9 @@ public class GenerateQuestionWithAiCommandHandler : IRequestHandler<GenerateQues
             var result = await _aiGenerateService.SendPromptWithFileAsync(
                 fileUri: uploadResult.FileUri,
                 systemInstruction: systemInstruction,
-                "",
+                prompt: prompt,
+                temperature: 0.7,
+                topP: 0.8,
                 cancellationToken: cancellationToken);
 
             currentUser.Balance -= (int)Math.Round(apiInputCost + SystemSettings.FixedSystemFee);
@@ -123,12 +144,13 @@ public class GenerateQuestionWithAiCommandHandler : IRequestHandler<GenerateQues
 
 
             //Xử lý chuỗi
-            int startIndex = result.IndexOf('{');
-            int endIndex = result.LastIndexOf('}');
+            int startIndex = result.IndexOf('[');
+            int endIndex = result.LastIndexOf(']');
 
             string normalizedResult = (startIndex >= 0 && endIndex >= 0 && endIndex > startIndex)
                 ? result.Substring(startIndex, endIndex - startIndex + 1)
                 : string.Empty;
+
 
             try
             {
@@ -141,36 +163,39 @@ public class GenerateQuestionWithAiCommandHandler : IRequestHandler<GenerateQues
                     }
                 }
             }
-            catch (JsonException)
+            catch (ErrorCodeException)
             {
+                throw;
+            }
+            catch (Exception)
+            {
+                // ignored
             }
 
-            return normalizedResult;
+            try
+            {
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+                var document = JsonSerializer.Deserialize<List<CreateUpdateQuestionDto>>(normalizedResult, options);
+                if (document == null)
+                {
+                    throw new ErrorCodeException(ErrorCodes.GENERATE_CONTENT_FAILED);
+                }
+                Console.WriteLine(JsonSerializer.Serialize(document, new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                }));
 
-            // try
-            // {
-            //     var options = new JsonSerializerOptions
-            //     {
-            //         PropertyNameCaseInsensitive = true
-            //     };
-            //     var document = JsonSerializer.Deserialize<List<CreateUpdateQuestionDto>>(normalizedResult, options);
-            //     if (document == null)
-            //     {
-            //         throw new ErrorCodeException(ErrorCodes.GENERATE_CONTENT_FAILED);
-            //     }
-            //     Console.WriteLine(JsonSerializer.Serialize(document, new JsonSerializerOptions
-            //     {
-            //         WriteIndented = true,
-            //         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            //         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-            //     }));
-            //
-            //     return document;
-            // }
-            // catch (Exception ex)
-            // {
-            //     throw new ErrorCodeException(ErrorCodes.GENERATE_CONTENT_FAILED, $"Lỗi giải mã JSON: {ex.Message}");
-            // }
+                return document;
+            }
+            catch (Exception ex)
+            {
+                throw new ErrorCodeException(ErrorCodes.GENERATE_CONTENT_FAILED, $" {ex.Message}");
+            }
         }
         catch (ErrorCodeException)
         {

@@ -189,7 +189,10 @@ public static class DependencyInjection
         services.AddScoped<ICommentService, CommentService>();
         services.AddScoped<IAiGenerateService, AiGenerateService>();
         services.AddSingleton<IRedisService, RedisService>();
+        
         services.AddSingleton<IFileService, FileService>();
+        
+        services.AddScoped<IPdfService, PdfService>();
         
         services.AddSingleton<IGoogleAccessTokenProvider>(provider =>
         {

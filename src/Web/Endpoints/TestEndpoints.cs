@@ -17,6 +17,9 @@ public class Test : EndpointGroupBase
         group.MapGet(GetTestDetail, "/{TestId}");
         group.MapGet(GetTestResultOfClass, "/{TestId}/Class/Result");
         group.MapGet(GetHistoryTest, "/{TestId}/History");
+        group.MapGet(GetTestSchedule, "/Schedule");
+        group.MapGet(GetReviewTest, "/{AttemptId}/Review");
+
 
         group.MapPost(CreateTest, "");
         group.MapPost(SubmitTestAttempt, "/Submit");
@@ -40,6 +43,16 @@ public class Test : EndpointGroupBase
         [FromQuery] int pageSize = 5)
     {
         var rq = new GetTestResultOfClassQuery { TestId = testId, PageNumber = pageNumber, PageSize = pageSize };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<ReviewTestDto>>> GetReviewTest(
+        [FromRoute] Guid attemptId,
+        ISender sender
+        )
+    {
+        var rq = new GetReviewTestQuery { AttemptId = attemptId};
         var result = await sender.Send(rq);
         return result.ToOk();
     }
@@ -102,5 +115,23 @@ public class Test : EndpointGroupBase
         rq.TestId = testId;
         var result = await sender.Send(rq);
         return result.ToOk();
+    }
+    
+    /// <summary>
+    /// Retrieves the test schedule for a specified class, optionally filtered by month and year
+    /// </summary>
+    /// <param name="month"></param>
+    /// <param name="year"></param>
+    /// <param name="sender"></param>
+    /// <returns></returns>
+    public async Task<Ok<ApiResponse<List<TestScheduleResponse>>>> GetTestSchedule(
+        [FromQuery] int? month,
+        [FromQuery] int? year,
+        ISender sender)
+    {
+        var rq = new GetTestScheduleQuery() { Month = month, Year = year };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+        
     }
 }

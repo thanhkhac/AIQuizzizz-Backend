@@ -78,7 +78,7 @@ public class SubmitTestAttemptCommandHandler : IRequestHandler<SubmitTestAttempt
             .Include(x => x.Question)
             .Include(x => x.TestVersion)
             .Where(t => t.TestVersion!.Id == attempt.TestVersionId)
-            .Select(x => QuestionResponseDto.Mapper.FromEntity(x.Question!,true, true))
+            .Select(x => QuestionResponseDto.Mapper.FromEntity(x.Question!,true, true, true))
             .ToListAsync(cancellationToken);
         
         var userAnswers  = rq.UserAnswers.ToDictionary(q => q.QuestionId, q => q); 
@@ -87,29 +87,25 @@ public class SubmitTestAttemptCommandHandler : IRequestHandler<SubmitTestAttempt
         
         float totalScore = 0;
         
-        var attemptedQuestions = new List<AttemptQuestion>();
-
-        if (!rq.IsSubmit)
-        {
-            attemptedQuestions = await _context.AttemptQuestions
+        var attemptedQuestions = await _context.AttemptQuestions
                 .Where(x => x.AttemptId.Equals(rq.AttemptId))
                 .ToListAsync(cancellationToken);
-        }
+        
         
         foreach (var question in questionsInTest)
         {
-            var attemptQuestion = attemptedQuestions.FirstOrDefault(x => x.QuestionId == question.Id);
+            var attemptQuestion = attemptedQuestions.FirstOrDefault(x => x.QuestionId == question.QuestionId);
             
             var newAttemptQuestion = new AttemptQuestion
             {
                 Id = Guid.NewGuid(),
                 AttemptId = rq.AttemptId,
-                QuestionId = question.Id,
+                QuestionId = question.QuestionId,
                 DataJson = "[]",
                 Score = 0
             };
             
-            if (!userAnswers.TryGetValue(question.Id, out var userAnswer))
+            if (!userAnswers.TryGetValue(question.QuestionId, out var userAnswer))
             {
                 if (attemptQuestion == null)
                 {

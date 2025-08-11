@@ -68,7 +68,7 @@ public class GetTestTemplateDetailQueryHandler : IRequestHandler<GetTestTemplate
                 CreateAt = t.Created,
                 Questions = t.TestTemplateQuestions
                     .Where(tq => tq.Question != null)
-                    .Select(tq => QuestionResponseDto.Mapper.FromEntity(tq.Question!, true, false))
+                    .Select(tq => QuestionResponseDto.Mapper.FromEntity(tq.Question!, true, false, true))
                     .ToList()
             }).FirstOrDefaultAsync(cancellationToken);
         

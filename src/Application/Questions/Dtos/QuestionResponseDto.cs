@@ -8,7 +8,7 @@ namespace CleanArchitectureBase.Application.Questions.Dtos;
 /// </summary>
 public class QuestionResponseDto
 {
-    public Guid Id { get; set; }
+    public Guid QuestionId { get; set; }
     public Guid QuestionSetId { get; set; } = Guid.Empty;
     public string Type { get; set; } = null!;
     public string? TextFormat { get; set; }
@@ -23,11 +23,11 @@ public class QuestionResponseDto
     /// </summary>
     public static class Mapper
     {
-        public static QuestionResponseDto FromEntity(Question question, bool? isCorrect, bool shuffle = true)
+        public static QuestionResponseDto FromEntity(Question question, bool? isCorrect, bool shuffle = true, bool isShowAnswer = true)
         {
             return new QuestionResponseDto
             {
-                Id = question.Id,
+                QuestionId = question.Id,
                 QuestionSetId = question.QuestionSetId ?? Guid.Empty,
                 Type = question.Type.ToString(),
                 TextFormat = question.TextFormat.ToString(),
@@ -35,7 +35,7 @@ public class QuestionResponseDto
                 ExplainText = question.ExplainText,
                 Score = question.Score,
                 IsCorrect = isCorrect,
-                QuestionData = QuestionDataDto.Deserializer.FromJson(question.Type, question.DataJson, shuffle: shuffle)
+                QuestionData = QuestionDataDto.Deserializer.FromJson(question.Type, question.DataJson, shuffle: shuffle, isShowAnswer)
             };
         }
     }
@@ -57,8 +57,9 @@ public class QuestionDataDto
         /// <param name="type"></param>
         /// <param name="dataJson"></param>
         /// <param name="shuffle"></param>
+        /// <param name="isShowAnswer"></param>
         /// <returns></returns>
-        public static QuestionDataDto FromJson(QuestionType type, string? dataJson, bool shuffle)
+        public static QuestionDataDto FromJson(QuestionType type, string? dataJson, bool shuffle, bool isShowAnswer)
         {
             if (string.IsNullOrEmpty(dataJson))
                 return new QuestionDataDto();
@@ -68,26 +69,26 @@ public class QuestionDataDto
             switch (type)
             {
                 case QuestionType.MultipleChoice:
-                    result.MultipleChoice = DeserializeMultipleChoice(dataJson);
+                    result.MultipleChoice = DeserializeMultipleChoice(dataJson, isShowAnswer);
                     break;
 
                 case QuestionType.Matching:
-                    result.Matching = DeserializeMatching(dataJson, shuffle);
+                    result.Matching = DeserializeMatching(dataJson, shuffle, isShowAnswer);
                     break;
 
                 case QuestionType.Ordering:
-                    result.Ordering = DeserializeOrdering(dataJson, shuffle);
+                    result.Ordering = DeserializeOrdering(dataJson, shuffle ,isShowAnswer);
                     break;
 
                 case QuestionType.ShortText:
-                    result.ShortText = DeserializeShortText(dataJson);
+                    result.ShortText = DeserializeShortText(dataJson, isShowAnswer);
                     break;
             }
 
             return result;
         }
 
-        public static List<MultipleChoiceItemDto>? DeserializeMultipleChoice(string dataJson)
+        public static List<MultipleChoiceItemDto>? DeserializeMultipleChoice(string dataJson, bool isShowAnswer = true)
         {
             var items = JsonSerializer.Deserialize<List<QTypeMultipleChoice>>(dataJson);
             return items?
@@ -96,11 +97,11 @@ public class QuestionDataDto
                 {
                     Id = item.Id,
                     Text = item.Text,
-                    IsAnswer = item.IsAnswer
+                    IsAnswer = isShowAnswer ? item.IsAnswer : null
                 }).ToList();
         }
 
-        public static MatchingDataDto? DeserializeMatching(string dataJson, bool shuffle = true)
+        public static MatchingDataDto? DeserializeMatching(string dataJson, bool shuffle = true, bool isShowAnswer = true)
         {
             var items = JsonSerializer.Deserialize<List<QTypeMatching>>(dataJson);
             if (items == null) return null;
@@ -126,15 +127,15 @@ public class QuestionDataDto
                         Id = item.Id,
                         Text = item.Text
                     }).ToList(),
-                Matches = leftItems.Select(item => new MatchDto
+                Matches = isShowAnswer ? leftItems.Select(item => new MatchDto
                 {
                     LeftId = item.Id,
                     RightId = Guid.Parse(item.AnswerId!)
-                }).ToList()
+                }).ToList() : null
             };
         }
 
-        public static List<OrderingItemDto>? DeserializeOrdering(string dataJson, bool shuffle = true)
+        public static List<OrderingItemDto>? DeserializeOrdering(string dataJson, bool shuffle = true, bool isShowAnswer = true)
         {
             var items = JsonSerializer.Deserialize<List<QTypeOrderingItem>>(dataJson);
             if (items == null) return null;
@@ -148,31 +149,37 @@ public class QuestionDataDto
                 {
                     Id = item.Id,
                     Text = item.Text,
-                    CorrectOrder = item.CorrectOrder
+                    CorrectOrder = isShowAnswer ? item.CorrectOrder : null
                 }).ToList();
         }
 
 
-        private static string? DeserializeShortText(string dataJson)
+        private static string? DeserializeShortText(string dataJson,  bool isShowAnswer = true)
         {
             var answer = JsonSerializer.Deserialize<QTypeShortAnswer>(dataJson);
-            return answer?.Answer;
+            return isShowAnswer ? answer?.Answer : null;
         }
     }
+              public static int? CorrectMultipleChoiceCount(Question question)
+      {
+          var multipleChoice = QuestionDataDto.Deserializer.DeserializeMultipleChoice(question.DataJson!);
+          
+          return multipleChoice?.Count(x => x.IsAnswer!.Value);
+      }
 }
 
 public class MultipleChoiceItemDto
 {
     public Guid Id { get; set; }
     public string Text { get; set; } = null!;
-    public bool IsAnswer { get; set; }
+    public bool? IsAnswer { get; set; }
 }
 
 public class MatchingDataDto
 {
     public List<MatchingItemDto> LeftItems { get; set; } = new();
     public List<MatchingItemDto> RightItems { get; set; } = new();
-    public List<MatchDto> Matches { get; set; } = new();
+    public List<MatchDto>? Matches { get; set; } = new();
 }
 
 public class MatchingItemDto
@@ -191,5 +198,5 @@ public class OrderingItemDto
 {
     public Guid Id { get; set; }
     public string Text { get; set; } = null!;
-    public int CorrectOrder { get; set; }
+    public int? CorrectOrder { get; set; }
 }

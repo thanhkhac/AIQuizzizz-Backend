@@ -13,7 +13,7 @@ public class TestTemplateDto
     public string? Name { get; set; }
     public int NumberOfQuestion { get; set; }
     public DateTime? DateCreated { get; set; }
-    public string? CreatedBy { get; set; }
+    public string? CreateBy { get; set; }
 }
 
 public class SearchTestTemplateInFolderDto
@@ -72,7 +72,7 @@ public class SearchTestTemplateInFolderQueryHandler : IRequestHandler<SearchTest
             .Include(ft => ft.TestTemplate)
             .ThenInclude(t => t!.TestTemplateQuestions)
             .Include(t => t.TestTemplate!.CreatedByUser)
-            .Where(ft => ft.FolderId == rq.FolderId && ft.Folder != null && ft.Folder.IsDeleted == false
+            .Where(ft => ft.FolderId == rq.FolderId && ft.Folder != null && ft.Folder.IsDeleted == false && ft.TestTemplate!.IsDeleted == false
             && (string.IsNullOrEmpty(rq.TestTemplateName) || ft.TestTemplate!.Name.ToLower().Contains(rq.TestTemplateName.ToLower())))
             .Select(ft => new TestTemplateDto
             {
@@ -81,7 +81,7 @@ public class SearchTestTemplateInFolderQueryHandler : IRequestHandler<SearchTest
                 FolderName = ft.Folder!.Name,
                 NumberOfQuestion = ft.TestTemplate.TestTemplateQuestions.Count(),
                 DateCreated = ft.TestTemplate.Created.UtcDateTime,
-                CreatedBy = ft.TestTemplate.CreatedByUser!.FullName,
+                CreateBy = ft.TestTemplate.CreatedByUser!.FullName,
             });
 
         var pageTestTemplates = await PaginatedList<TestTemplateDto>.CreateAsync(

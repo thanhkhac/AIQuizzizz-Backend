@@ -16,6 +16,7 @@ public interface ITestService
     Task<bool> CanViewHistoryOfTest(Guid testId, CancellationToken cancellationToken);
     Task<bool> CanCreateTest(Guid classId);
     Task TryCheckCanAttemptTest(Test test);
+    Task<ClassShareMode?> GetRoleUserInTest(Test test);
 }
 
 public class TestService : ITestService
@@ -162,5 +163,17 @@ public class TestService : ITestService
 
         if (student == null)
             throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Chỉ student trong lớp mới có thể attempt test");
+    }
+
+    public async Task<ClassShareMode?> GetRoleUserInTest(Test test)
+    {
+        var user = await _context.ClassUsers
+            .Where(x => x.UserId.Equals(_user.UserId) && x.ClassId.Equals(test.ClassId))
+            .FirstOrDefaultAsync();
+
+        if (user == null)
+            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_USER_IN_CLASS);
+        
+        return user.ShareMode;
     }
 }

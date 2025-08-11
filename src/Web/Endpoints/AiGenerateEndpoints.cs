@@ -1,6 +1,8 @@
-﻿using CleanArchitectureBase.Application.AiGenerate;
+﻿using System.Text.Json;
+using CleanArchitectureBase.Application.AiGenerate;
 using CleanArchitectureBase.Application.AiGenerate.Dtos;
 using CleanArchitectureBase.Application.Common.Models;
+using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,11 +32,53 @@ public class AiGenerateEndpoints : EndpointGroupBase
         public string? Language { get; set; }
         public int QuestionCount { get; set; }
         public List<string> QuestionTypes { get; set; } = new();
-        public DocumentStructureDto? DocumentStructure { get; set; }
-        public DocumentStructureDto? SelectedParts { get; set; }
+        public string? DocumentStructureJson { get; set; }
+        public string? SelectedPartJson { get; set; }
+        
+        public DocumentStructureDto? DocumentStructure
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(DocumentStructureJson))
+                    return null;
+                try
+                {
+                    return JsonSerializer.Deserialize<DocumentStructureDto>(DocumentStructureJson);
+                }
+                catch
+                {
+                    return null; 
+                }
+            }
+            set
+            {
+                DocumentStructureJson = value == null ? null : JsonSerializer.Serialize(value);
+            }
+        }
+
+        public DocumentStructureDto? SelectedPart
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(SelectedPartJson))
+                    return null;
+                try
+                {
+                    return JsonSerializer.Deserialize<DocumentStructureDto>(SelectedPartJson);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+            set
+            {
+                SelectedPartJson = value == null ? null : JsonSerializer.Serialize(value);
+            }
+        }
     }
     
-    public async Task<Ok<ApiResponse<string>>> GenerateQuestionWithAi(
+    public async Task<Ok<ApiResponse<List<CreateUpdateQuestionDto>>>> GenerateQuestionWithAi(
         [FromForm] GenerateQuestionWithAiForm form,
         ISender sender)
     {
@@ -45,7 +89,8 @@ public class AiGenerateEndpoints : EndpointGroupBase
             ContentType = form.File.ContentType,
             FileName = form.File.FileName
         };
-
+        Console.WriteLine(form.DocumentStructure);
+        Console.WriteLine(form.SelectedPart);
         var result = await sender.Send(new GenerateQuestionWithAiCommand
         {
             FileData = rq,
@@ -54,7 +99,7 @@ public class AiGenerateEndpoints : EndpointGroupBase
             QuestionCount = form.QuestionCount,
             QuestionTypes = form.QuestionTypes,
             DocumentStructure = form.DocumentStructure,
-            SelectedParts = form.SelectedParts
+            SelectedParts = form.SelectedPart
         });
 
         return result.ToOk();
@@ -89,7 +134,7 @@ public class AiGenerateEndpoints : EndpointGroupBase
             ContentType = file.ContentType,
             FileName = file.FileName,
         };
-        var result = await sender.Send(new CountDocumentTokenQuery()
+        var result = await sender.Send(new GetCostToGenerateDocumentStructureQuery()
         {
             FileData = rq
         });
