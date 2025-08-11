@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 using CleanArchitectureBase.Application.AiGenerate;
 using CleanArchitectureBase.Application.AiGenerate.Dtos;
 using CleanArchitectureBase.Application.Common.Models;
@@ -35,6 +36,7 @@ public class AiGenerateEndpoints : EndpointGroupBase
         public string? DocumentStructureJson { get; set; }
         public string? SelectedPartJson { get; set; }
         
+        [JsonIgnore]
         public DocumentStructureDto? DocumentStructure
         {
             get
@@ -43,19 +45,21 @@ public class AiGenerateEndpoints : EndpointGroupBase
                     return null;
                 try
                 {
-                    return JsonSerializer.Deserialize<DocumentStructureDto>(DocumentStructureJson);
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+                    var result = JsonSerializer.Deserialize<DocumentStructureDto>(DocumentStructureJson, options);
+                    return result;
                 }
                 catch
                 {
                     return null; 
                 }
             }
-            set
-            {
-                DocumentStructureJson = value == null ? null : JsonSerializer.Serialize(value);
-            }
         }
-
+        
+        [JsonIgnore]
         public DocumentStructureDto? SelectedPart
         {
             get
@@ -64,16 +68,18 @@ public class AiGenerateEndpoints : EndpointGroupBase
                     return null;
                 try
                 {
-                    return JsonSerializer.Deserialize<DocumentStructureDto>(SelectedPartJson);
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+                
+                    var result = JsonSerializer.Deserialize<DocumentStructureDto>(SelectedPartJson, options);
+                    return result;
                 }
                 catch
                 {
                     return null;
                 }
-            }
-            set
-            {
-                SelectedPartJson = value == null ? null : JsonSerializer.Serialize(value);
             }
         }
     }
@@ -89,9 +95,8 @@ public class AiGenerateEndpoints : EndpointGroupBase
             ContentType = form.File.ContentType,
             FileName = form.File.FileName
         };
-        Console.WriteLine(form.DocumentStructure);
-        Console.WriteLine(form.SelectedPart);
-        var result = await sender.Send(new GenerateQuestionWithAiCommand
+        
+        var command = new GenerateQuestionWithAiCommand
         {
             FileData = rq,
             IsGenerateExplain = form.IsGenerateExplain,
@@ -100,7 +105,9 @@ public class AiGenerateEndpoints : EndpointGroupBase
             QuestionTypes = form.QuestionTypes,
             DocumentStructure = form.DocumentStructure,
             SelectedParts = form.SelectedPart
-        });
+        };
+        
+        var result = await sender.Send(command);
 
         return result.ToOk();
     }
