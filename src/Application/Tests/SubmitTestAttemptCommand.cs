@@ -94,18 +94,18 @@ public class SubmitTestAttemptCommandHandler : IRequestHandler<SubmitTestAttempt
         
         foreach (var question in questionsInTest)
         {
-            var attemptQuestion = attemptedQuestions.FirstOrDefault(x => x.QuestionId == question.QuestionId);
+            var attemptQuestion = attemptedQuestions.FirstOrDefault(x => x.QuestionId == question.Id);
             
             var newAttemptQuestion = new AttemptQuestion
             {
                 Id = Guid.NewGuid(),
                 AttemptId = rq.AttemptId,
-                QuestionId = question.QuestionId,
+                QuestionId = question.Id,
                 DataJson = "[]",
                 Score = 0
             };
             
-            if (!userAnswers.TryGetValue(question.QuestionId, out var userAnswer))
+            if (!userAnswers.TryGetValue(question.Id, out var userAnswer))
             {
                 if (attemptQuestion == null)
                 {
