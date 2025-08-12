@@ -12,14 +12,18 @@ public class IdentityService_GetUserNameAsyncTests : IdentityServiceTestBase
     public async Task GetUserNameAsync_UserExists_ReturnsUserName()
     {
         var userId = Guid.Parse("00000000-0000-0000-0000-000000000000");
-        var user = new UserAccount { Id = userId, UserName = "testuser" };
+        var user = new UserAccount
+        {
+            Id = userId,
+            UserName = "testuser"
+        };
         _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString())).ReturnsAsync(user);
 
         var result = await _service.GetUserNameAsync(userId);
 
         Assert.That(result, Is.EqualTo("testuser"));
     }
-    
+
 
     [Test]
     public async Task GetUserNameAsync_UserNotFound_ReturnsNull()
@@ -31,4 +35,4 @@ public class IdentityService_GetUserNameAsyncTests : IdentityServiceTestBase
 
         Assert.That(result, Is.Null);
     }
-} 
+}

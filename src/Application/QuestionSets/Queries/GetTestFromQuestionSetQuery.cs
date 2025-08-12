@@ -63,9 +63,7 @@ public class GetTestFromQuestionSetQueryHandler : IRequestHandler<GetTestFromQue
         if (!canView)
             throw new ErrorCodeException(ErrorCodes.USER_NOT_ACCESS_TO_QUESTION_SET);
 
-        if (rq.NumberOfQuestion > questionSet.Questions.Count)
-            throw new ErrorCodeException(ErrorCodes.INVALID_NUMBER_OF_QUESTIONS);
-        
+       
         var typeToQuestions = new Dictionary<string, List<Question>>
         {
             ["MultipleChoice"] = questionSet.Questions.Where(q => q.Type == QuestionType.MultipleChoice).ToList(),

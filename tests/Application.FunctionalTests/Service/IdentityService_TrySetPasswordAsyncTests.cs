@@ -25,7 +25,11 @@ public class IdentityService_TrySetPasswordAsyncTests : IdentityServiceTestBase
     public async Task TrySetPasswordAsync_Success()
     {
         var userId = Guid.Parse("00000000-0000-0000-0000-000000000000");
-        var user = new UserAccount { Id = userId, Email = "user@example.com" };
+        var user = new UserAccount
+        {
+            Id = userId,
+            Email = "user@example.com"
+        };
         _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString())).ReturnsAsync(user);
         _userManagerMock.Setup(x => x.GeneratePasswordResetTokenAsync(user)).ReturnsAsync("token");
         _userManagerMock.Setup(x => x.ResetPasswordAsync(user, "token", "newpass")).ReturnsAsync(IdentityResult.Success);
@@ -38,7 +42,11 @@ public class IdentityService_TrySetPasswordAsyncTests : IdentityServiceTestBase
     public void TrySetPasswordAsync_ResetPasswordFailed_ThrowsInternalError()
     {
         var userId = Guid.Parse("00000000-0000-0000-0000-000000000000");
-        var user = new UserAccount { Id = userId, Email = "user2@example.com" };
+        var user = new UserAccount
+        {
+            Id = userId,
+            Email = "user2@example.com"
+        };
         _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString())).ReturnsAsync(user);
         _userManagerMock.Setup(x => x.GeneratePasswordResetTokenAsync(user)).ReturnsAsync("token");
         _userManagerMock.Setup(x => x.ResetPasswordAsync(user, "token", "newpass")).ReturnsAsync(IdentityResult.Failed());
@@ -51,11 +59,15 @@ public class IdentityService_TrySetPasswordAsyncTests : IdentityServiceTestBase
     public void TrySetPasswordAsync_UserAlreadyHasPassword_ThrowsUserAlreadyHasPassword()
     {
         var userId = Guid.Parse("00000000-0000-0000-0000-000000000000");
-        var user = new UserAccount { Id = userId, Email = "user3@example.com" };
+        var user = new UserAccount
+        {
+            Id = userId,
+            Email = "user3@example.com"
+        };
         _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString())).ReturnsAsync(user);
         _userManagerMock.Setup(x => x.HasPasswordAsync(user)).ReturnsAsync(true);
 
         var ex = Assert.ThrowsAsync<ErrorCodeException>(() => _service.TrySetPasswordAsync(userId, "newpass"));
         Assert.That(ex.Errors, Does.ContainKey(ErrorCodes.IDENTITY_USER_ALREADY_HAS_PASSWORD));
     }
-} 
+}

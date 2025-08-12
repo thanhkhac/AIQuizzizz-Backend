@@ -29,7 +29,10 @@ public class IdentityService_IsInAnyRoleAsyncTests : IdentityServiceTestDatabase
         // Tạo role nếu chưa có
         if (!await roleManager.RoleExistsAsync("Admin"))
         {
-            await roleManager.CreateAsync(new ApplicationRole { Name = "Admin" });
+            await roleManager.CreateAsync(new ApplicationRole
+            {
+                Name = "Admin"
+            });
         }
 
         // Tạo user nếu chưa có
@@ -67,7 +70,10 @@ public class IdentityService_IsInAnyRoleAsyncTests : IdentityServiceTestDatabase
         // Tạo role nếu chưa có
         if (!await roleManager.RoleExistsAsync("Admin"))
         {
-            await roleManager.CreateAsync(new ApplicationRole { Name = "Admin" });
+            await roleManager.CreateAsync(new ApplicationRole
+            {
+                Name = "Admin"
+            });
         }
 
         // Tạo user nếu chưa có
@@ -86,7 +92,7 @@ public class IdentityService_IsInAnyRoleAsyncTests : IdentityServiceTestDatabase
         var result = await _service.IsInAnyRoleAsync(userId, "Admin");
         Assert.That(result, Is.False);
     }
-    
+
     [Test]
     public async Task IsInAnyRoleAsync_UserDoesNotExist_ReturnsFalse()
     {

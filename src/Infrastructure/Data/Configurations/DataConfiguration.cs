@@ -323,7 +323,7 @@ public class UserQuestionSetHistoryConfiguration : IEntityTypeConfiguration<User
 {
     public void Configure(EntityTypeBuilder<UserQuestionSetHistory> builder)
     {
-        builder.HasKey(uqsh => uqsh.Id);
+        builder.HasKey(h => new { h.UserId, h.QuestionId }); 
 
         builder.Property(uqsh => uqsh.IsCorrect)
             .IsRequired();

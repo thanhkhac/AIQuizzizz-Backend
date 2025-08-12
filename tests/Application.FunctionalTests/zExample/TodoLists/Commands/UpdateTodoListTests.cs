@@ -13,7 +13,11 @@ public class UpdateTodoListTests : BaseTestFixture
     [Test]
     public async Task ShouldRequireValidTodoListId()
     {
-        var command = new UpdateTodoListCommand { Id = 99, Title = "New Title" };
+        var command = new UpdateTodoListCommand
+        {
+            Id = 99,
+            Title = "New Title"
+        };
         await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<NotFoundException>();
     }
 
@@ -37,9 +41,9 @@ public class UpdateTodoListTests : BaseTestFixture
         };
 
         (await FluentActions.Invoking(() =>
-            SendAsync(command))
+                    SendAsync(command))
                 .Should().ThrowAsync<ValidationException>().Where(ex => ex.Errors.ContainsKey("Title")))
-                .And.Errors["Title"].Should().Contain("'Title' must be unique.");
+            .And.Errors["Title"].Should().Contain("'Title' must be unique.");
     }
 
     [Test]

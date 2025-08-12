@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.FolderTest.Dto;
 using CleanArchitectureBase.Application.QuestionSets.Services;
 using CleanArchitectureBase.Domain.Constants;
@@ -8,6 +9,7 @@ using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.QuestionSets.Commands;
 
+[Authorize]
 public class UpdateQuestionSetSharingCommand : IRequest<Guid>
 {
     [JsonIgnore]
@@ -82,7 +84,12 @@ public class UpdateQuestionSetSharingCommandHandler : IRequestHandler<UpdateQues
             throw new ErrorCodeException(ErrorCodes.COMMON_FORBIDDEN);
         var ownerId = questionSet.CreatedBy!.Value;
 
-        var newVisibility = Enum.Parse<QuestionSetVisibilityMode>(request.VisibilityMode!);
+        var newVisibility = questionSet.VisibilityMode;
+
+        if(request.VisibilityMode != null )
+        {
+            newVisibility = Enum.Parse<QuestionSetVisibilityMode>(request.VisibilityMode!);
+        }
 
         if (questionSet.VisibilityMode == QuestionSetVisibilityMode.Public && newVisibility == QuestionSetVisibilityMode.OnlyClass)
         {

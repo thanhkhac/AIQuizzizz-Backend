@@ -47,6 +47,7 @@ public class GetQuestionSetQuestionsForCopyQueryHandler : IRequestHandler<GetQue
 
         var questions = await _context.Questions
             .Where(q => q.QuestionSetId == request.QuestionSetId && q.IsDeleted == false)
+            .OrderBy(x => x.Created)
             .ToListAsync(cancellationToken);
 
         // Chuyển đổi Questions thành CreateUpdateQuestionDto

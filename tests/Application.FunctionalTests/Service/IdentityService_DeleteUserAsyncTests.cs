@@ -10,7 +10,10 @@ public class IdentityService_DeleteUserAsyncTests : IdentityServiceTestBase
     public async Task DeleteUserAsync_UserExists_ReturnsResult()
     {
         var userId = Guid.Parse("00000000-0000-0000-0000-000000000000");
-        var user = new UserAccount { Id = userId };
+        var user = new UserAccount
+        {
+            Id = userId
+        };
         _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString())).ReturnsAsync(user);
         _userManagerMock.Setup(x => x.UpdateAsync(user)).ReturnsAsync(IdentityResult.Success);
 
@@ -29,4 +32,4 @@ public class IdentityService_DeleteUserAsyncTests : IdentityServiceTestBase
 
         Assert.That(result.Succeeded, Is.True);
     }
-} 
+}

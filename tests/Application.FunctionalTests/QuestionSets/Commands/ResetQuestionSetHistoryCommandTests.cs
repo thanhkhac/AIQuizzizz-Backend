@@ -13,7 +13,11 @@ namespace CleanArchitectureBase.Application.Command.UnitTests.QuestionSets
         public async Task ShouldResetHistory_WhenValidRequest()
         {
             var userId = await RunAsDefaultUserAsync();
-            var questionSet = new QuestionSet { Id = Guid.NewGuid(), Name = "Test Question Set" };
+            var questionSet = new QuestionSet
+            {
+                Id = Guid.NewGuid(),
+                Name = "Test Question Set"
+            };
             await AddAsync(questionSet);
 
             var question = new Question
@@ -27,12 +31,21 @@ namespace CleanArchitectureBase.Application.Command.UnitTests.QuestionSets
             };
             await AddAsync(question);
 
-            var command = new ResetQuestionSetHistoryCommand { QuestionSetId = questionSet.Id };
-            await AddAsync(new UserQuestionSetHistory { UserId = userId, QuestionId = question.Id, IsCorrect = true });
+            var command = new ResetQuestionSetHistoryCommand
+            {
+                QuestionSetId = questionSet.Id
+            };
+            await AddAsync(new UserQuestionSetHistory
+            {
+                UserId = userId,
+                QuestionId = question.Id,
+                IsCorrect = true
+            });
 
             await SendAsync(command);
 
-            var histories = await QueryListAsync<UserQuestionSetHistory>(h => h.Where(x => x.UserId == userId) );;
+            var histories = await QueryListAsync<UserQuestionSetHistory>(h => h.Where(x => x.UserId == userId));
+            ;
             histories.Should().BeEmpty();
         }
 
@@ -40,7 +53,10 @@ namespace CleanArchitectureBase.Application.Command.UnitTests.QuestionSets
         public async Task ShouldThrowError_WhenQuestionSetNotFound()
         {
             var userId = await RunAsDefaultUserAsync();
-            var command = new ResetQuestionSetHistoryCommand { QuestionSetId = Guid.NewGuid() };
+            var command = new ResetQuestionSetHistoryCommand
+            {
+                QuestionSetId = Guid.NewGuid()
+            };
             var ex = await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ErrorCodeException>();
             ex.Which.Errors.Should().ContainKey(ErrorCodes.QUESTION_SET_NOT_FOUND);
         }
@@ -49,7 +65,12 @@ namespace CleanArchitectureBase.Application.Command.UnitTests.QuestionSets
         public async Task ShouldThrowError_WhenUserCannotViewQuestionSet()
         {
             var userId = await RunAsDefaultUserAsync();
-            var questionSet = new QuestionSet { Id = Guid.NewGuid(), Name = "Test Question Set", VisibilityMode = QuestionSetVisibilityMode.Private};
+            var questionSet = new QuestionSet
+            {
+                Id = Guid.NewGuid(),
+                Name = "Test Question Set",
+                VisibilityMode = QuestionSetVisibilityMode.Private
+            };
             await AddAsync(questionSet);
             var question = new Question
             {
@@ -62,8 +83,16 @@ namespace CleanArchitectureBase.Application.Command.UnitTests.QuestionSets
             };
             await AddAsync(question);
 
-            var command = new ResetQuestionSetHistoryCommand { QuestionSetId = questionSet.Id };
-            await AddAsync(new UserQuestionSetHistory { UserId = userId, QuestionId = question.Id, IsCorrect = true });
+            var command = new ResetQuestionSetHistoryCommand
+            {
+                QuestionSetId = questionSet.Id
+            };
+            await AddAsync(new UserQuestionSetHistory
+            {
+                UserId = userId,
+                QuestionId = question.Id,
+                IsCorrect = true
+            });
 
             var ex = await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ErrorCodeException>();
             ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_FORBIDDEN);

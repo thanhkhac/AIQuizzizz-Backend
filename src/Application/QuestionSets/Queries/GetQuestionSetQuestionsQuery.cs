@@ -1,12 +1,11 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
-using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Questions.Dtos;
 using CleanArchitectureBase.Application.Questions.Services;
 using CleanArchitectureBase.Application.QuestionSets.Services;
 using CleanArchitectureBase.Domain.Constants;
 
-namespace CleanArchitectureBase.Application.QuestionSets;
+namespace CleanArchitectureBase.Application.QuestionSets.Queries;
 
 public class GetQuestionSetQuestionsQuery : IRequest<List<QuestionResponseDto>>
 {
@@ -38,7 +37,7 @@ public class GetQuestionSetQuestionsQueryHandler : IRequestHandler<GetQuestionSe
         var canView = await _questionSetService.CanUserViewQuestionSet(_user.UserId, questionSet);
         if (canView == false) throw new ErrorCodeException(ErrorCodes.COMMON_FORBIDDEN, "You are not allowed to view this question set");
 
-        var result = await _questionService.GetQuestionsBySetIdForDetailAsync(request.QuestionSetId, _user.UserId);
+        var result = await _questionService.GetQuestionsBySetIdForDetailAsync(request.QuestionSetId, _user.UserId, cancellationToken);
         return result;
     }
 }
