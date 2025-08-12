@@ -132,9 +132,9 @@ public class GetQuestionSetLearnQuestionsQueryTests : BaseTestFixture
         result.CompletedQuestionCount.Should().Be(2);
         result.TotalQuestionCount.Should().Be(5);
         result.Questions.Should().HaveCount(3);
-        result.Questions.Should().Contain(q => q.QuestionId == q3.Id);
-        result.Questions.Should().Contain(q => q.QuestionId == q4.Id);
-        result.Questions.Should().Contain(q => q.QuestionId == q5.Id);
+        result.Questions.Should().Contain(q => q.Id == q3.Id);
+        result.Questions.Should().Contain(q => q.Id == q4.Id);
+        result.Questions.Should().Contain(q => q.Id == q5.Id);
     }
 
     //abnormal
