@@ -41,7 +41,7 @@ public class QuestionService : IQuestionService
         }
         {
             var query = from q in _context.Questions
-                where q.QuestionSetId == questionSetId
+                where q.QuestionSetId == questionSetId && q.IsDeleted == false
                 join h in _context.UserQuestionSetHistories
                     on new
                     {

@@ -33,3 +33,5 @@ Web/Program.cs
 Infrastructure/DependencyInjection.cs
 Web/DependencyInjection.cs
 Domain/GlobalUsings.cs
+Application/zPlayGround
+Web/Endpoints/zPlayGround
