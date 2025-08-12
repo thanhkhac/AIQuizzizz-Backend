@@ -24,7 +24,10 @@ public class IdentityService_ChangeRoleAsyncTests : IdentityServiceTestBase
     public void ChangeRoleAsync_RoleNotExists_ThrowsRoleNotFound()
     {
         var userId = Guid.Parse("00000000-0000-0000-0000-000000000000");
-        var user = new UserAccount { Id = userId };
+        var user = new UserAccount
+        {
+            Id = userId
+        };
 
         _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString()))
             .ReturnsAsync(user);
@@ -35,13 +38,16 @@ public class IdentityService_ChangeRoleAsyncTests : IdentityServiceTestBase
         var ex = Assert.ThrowsAsync<ErrorCodeException>(() => _service.ChangeRoleAsync(userId, "Admin"));
         Assert.That(ex.Errors, Does.ContainKey(ErrorCodes.ROLE_NOTFOUND));
     }
-    
-    
+
+
     [Test]
     public async Task ChangeRoleAsync_UserHasDifferentRole_ChangesRoleSuccessfully()
     {
         var userId = Guid.Parse("00000000-0000-0000-0000-000000000000");
-        var user = new UserAccount { Id = userId };
+        var user = new UserAccount
+        {
+            Id = userId
+        };
 
         _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString()))
             .ReturnsAsync(user);
@@ -50,7 +56,10 @@ public class IdentityService_ChangeRoleAsyncTests : IdentityServiceTestBase
             .ReturnsAsync(true);
 
         _userManagerMock.Setup(x => x.GetRolesAsync(user))
-            .ReturnsAsync(new[] { "User" });
+            .ReturnsAsync(new[]
+            {
+                "User"
+            });
 
         _userManagerMock.Setup(x => x.RemoveFromRoleAsync(user, "User"))
             .ReturnsAsync(IdentityResult.Success);
@@ -69,13 +78,16 @@ public class IdentityService_ChangeRoleAsyncTests : IdentityServiceTestBase
         _userManagerMock.Verify(x => x.AddToRoleAsync(user, "Admin"), Times.Once);
         _userManagerMock.Verify(x => x.UpdateSecurityStampAsync(user), Times.Once);
     }
-    
+
     [Test]
     public async Task ChangeRoleAsync_UserHasNoRole_AssignsNewRole()
     {
         // Arrange
         var userId = Guid.Parse("00000000-0000-0000-0000-000000000000");
-        var user = new UserAccount { Id = userId };
+        var user = new UserAccount
+        {
+            Id = userId
+        };
         var newRole = "Admin";
 
         _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString()))
@@ -103,8 +115,5 @@ public class IdentityService_ChangeRoleAsyncTests : IdentityServiceTestBase
         _userManagerMock.Verify(x => x.UpdateSecurityStampAsync(user), Times.Once);
     }
 
-    
-    
 
-
-} 
+}

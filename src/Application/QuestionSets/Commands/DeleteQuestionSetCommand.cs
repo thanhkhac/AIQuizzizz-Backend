@@ -4,7 +4,7 @@ using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.QuestionSets.Services;
 using CleanArchitectureBase.Domain.Constants;
 
-namespace CleanArchitectureBase.Application.QuestionSets;
+namespace CleanArchitectureBase.Application.QuestionSets.Commands;
 
 [Authorize]
 public class DeleteQuestionSetCommand : IRequest<Unit>

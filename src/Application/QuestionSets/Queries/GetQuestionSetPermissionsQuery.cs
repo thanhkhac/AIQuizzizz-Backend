@@ -2,7 +2,7 @@
 using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using CleanArchitectureBase.Application.QuestionSets.Services;
 
-namespace CleanArchitectureBase.Application.QuestionSets;
+namespace CleanArchitectureBase.Application.QuestionSets.Queries;
 
 public record GetQuestionSetPermissionsQuery : IRequest<QuestionSetPermissionsDto>
 {

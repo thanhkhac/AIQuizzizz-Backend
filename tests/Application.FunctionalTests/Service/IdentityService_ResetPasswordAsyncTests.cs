@@ -70,7 +70,7 @@ public class IdentityService_ResetPasswordAsyncTests : IdentityServiceTestBase
 
         _userManagerMock.Verify(x => x.UpdateAsync(user), Times.AtLeastOnce);
     }
-    
+
     [Test]
     public void ResetPasswordAsync_UserLockedOut_ThrowsTooManyAttempts()
     {
@@ -92,15 +92,15 @@ public class IdentityService_ResetPasswordAsyncTests : IdentityServiceTestBase
         var ex = Assert.ThrowsAsync<ErrorCodeException>(() => _service.ResetPasswordAsync(dto));
         Assert.That(ex.Errors, Does.ContainKey(ErrorCodes.PASSWORD_RESET_CODE_FAILED_TOO_MANY));
     }
-    
-    
+
+
     [Test]
     public void ResetPasswordAsync_LockoutExpired_ResetFailCount()
     {
         var dto = new ResetPasswordDto
         {
             Email = "user@example.com",
-            ResetCode = "wrong", 
+            ResetCode = "wrong",
             NewPassword = "newpass"
         };
         var user = new UserAccount
@@ -108,7 +108,7 @@ public class IdentityService_ResetPasswordAsyncTests : IdentityServiceTestBase
             Email = dto.Email,
             PasswordResetCode = "123456",
             PasswordResetCodeExpiryTime = DateTimeOffset.UtcNow.AddMinutes(5),
-            PasswordResetLockoutEnd = DateTimeOffset.UtcNow.AddMinutes(-1), 
+            PasswordResetLockoutEnd = DateTimeOffset.UtcNow.AddMinutes(-1),
             FailedPasswordResetAttempts = 3
         };
         _userManagerMock.Setup(x => x.FindByEmailAsync(dto.Email)).ReturnsAsync(user);
@@ -116,11 +116,10 @@ public class IdentityService_ResetPasswordAsyncTests : IdentityServiceTestBase
 
         var ex = Assert.ThrowsAsync<ErrorCodeException>(() => _service.ResetPasswordAsync(dto));
         Assert.That(ex.Errors, Does.ContainKey(ErrorCodes.ACCOUNT_INVALID_RESET_CODE));
-        Assert.That(user.FailedPasswordResetAttempts, Is.EqualTo(1)); 
+        Assert.That(user.FailedPasswordResetAttempts, Is.EqualTo(1));
     }
-    
-    
-    
+
+
     [Test]
     public void ResetPasswordAsync_CodeExpired_ThrowsInvalidResetCode()
     {
@@ -134,7 +133,7 @@ public class IdentityService_ResetPasswordAsyncTests : IdentityServiceTestBase
         {
             Email = dto.Email,
             PasswordResetCode = "123456",
-            PasswordResetCodeExpiryTime = DateTimeOffset.UtcNow.AddMinutes(-1), 
+            PasswordResetCodeExpiryTime = DateTimeOffset.UtcNow.AddMinutes(-1),
             FailedPasswordResetAttempts = 0
         };
         _userManagerMock.Setup(x => x.FindByEmailAsync(dto.Email)).ReturnsAsync(user);
@@ -142,7 +141,7 @@ public class IdentityService_ResetPasswordAsyncTests : IdentityServiceTestBase
 
         var ex = Assert.ThrowsAsync<ErrorCodeException>(() => _service.ResetPasswordAsync(dto));
         Assert.That(ex.Errors, Does.ContainKey(ErrorCodes.ACCOUNT_INVALID_RESET_CODE));
-        Assert.That(user.FailedPasswordResetAttempts, Is.EqualTo(1)); 
+        Assert.That(user.FailedPasswordResetAttempts, Is.EqualTo(1));
     }
 
 

@@ -40,7 +40,9 @@ public class PostgreSQLTestcontainersTestDatabase : ITestDatabase
 
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseNpgsql(_connectionString)
-            .ConfigureWarnings(warnings => warnings.Log(RelationalEventId.MigrationsNotApplied)) //JasonTaylordev: PendingModelChangesWarning, tuy nhiên mã sự kiện này chỉ có ở EF của .NET 9
+            .ConfigureWarnings(warnings =>
+                warnings.Log(RelationalEventId
+                    .MigrationsNotApplied)) //JasonTaylordev: PendingModelChangesWarning, tuy nhiên mã sự kiện này chỉ có ở EF của .NET 9
             .Options;
 
         var context = new ApplicationDbContext(options);

@@ -32,7 +32,6 @@
                 .MaximumLength(200).WithMessage("Tên bộ câu hỏi không được vượt quá 200 ký tự");
 
             RuleFor(x => x.Description)
-                .NotEmpty().WithMessage("Mô tả bộ câu hỏi không được để trống")
                 .MaximumLength(500).WithMessage("Mô tả không được vượt quá 500 ký tự");
 
             RuleFor(x => x.CreateUpdateQuestions)
@@ -42,6 +41,10 @@
             RuleFor(x => x.DeleteQuestionIds)
                 .Must(q => q.Count <= 500)
                 .WithMessage("Không thể xóa toàn bộ câu hỏi");
+
+            RuleFor(x => x)
+                .Must(x => x.CreateUpdateQuestions.Any() || x.DeleteQuestionIds.Any())
+                .WithMessage("Phải có ít nhất một câu hỏi được thêm/cập nhật hoặc xóa.");
 
             RuleForEach(x => x.CreateUpdateQuestions)
                 .SetValidator((command, question) => new CreateUpdateQuestionDto.QuestionCreateDtoValidator());
@@ -108,11 +111,14 @@
                 .Where(q => request.DeleteQuestionIds.Contains(q.Id))
                 .ToList();
 
+            var questionCountAdd = 0;
+
             foreach (var question in questionsToDelete)
+            {
+                questionCountAdd--;
                 question.IsDeleted = true;
+            }
 
-
-            var questionCountAdd = 0 - questionsToDelete.Count;
             // Thêm hoặc cập nhật câu hỏi
             foreach (var dto in request.CreateUpdateQuestions)
             {
@@ -210,7 +216,13 @@
                 });
             }
 
-            questionSet.QuestionCount = questionSet.QuestionCount + questionCountAdd;
+            questionSet.QuestionCount += questionCountAdd;
+            
+            if(questionSet.QuestionCount > 500)
+            {
+                throw new ErrorCodeException(ErrorCodes.NUMBER_OF_QUESTION_EXCEED_LIMIT, "Vượt quá 500 câu hỏi");
+            }
+            
             try
             {
                 await _dbContext.SaveChangesAsync(cancellationToken);

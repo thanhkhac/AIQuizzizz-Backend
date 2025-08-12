@@ -38,7 +38,7 @@ public static class IdentityTestHelpers
             new Mock<IUserConfirmation<TUser>>().Object);
         return signInManagerMock;
     }
-    
+
     public static Mock<RoleManager<TRole>> MockRoleManager<TRole>() where TRole : class
     {
         var store = new Mock<IRoleStore<TRole>>();
@@ -48,11 +48,11 @@ public static class IdentityTestHelpers
             new Mock<ILookupNormalizer>().Object,
             new Mock<IdentityErrorDescriber>().Object,
             new Mock<ILogger<RoleManager<TRole>>>().Object);
-    
+
         return roleManager;
     }
 
-    
+
     public static Mock<DbSet<T>> CreateMockDbSet<T>(IEnumerable<T> data) where T : class
     {
         var queryable = data.AsQueryable();
@@ -74,6 +74,7 @@ public static class IdentityTestHelpers
 
         return mockSet;
     }
+
     public class TestAsyncEnumerator<T> : IAsyncEnumerator<T>
     {
         private readonly IEnumerator<T> _inner;

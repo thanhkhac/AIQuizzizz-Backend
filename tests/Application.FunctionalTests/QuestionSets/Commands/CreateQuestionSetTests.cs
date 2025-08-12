@@ -44,15 +44,13 @@ public class CreateQuestionSetTests : BaseTestFixture
 
     public static IEnumerable<TestCaseData> InvalidQuestions()
     {
-        // --- Chung ---
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
             Type = null,
             QuestionText = "Câu hỏi",
             Score = 1,
             ShortAnswer = "Đáp án"
-        }).SetName("Type null") // [abnormal]
-        ;
+        }).SetName("Type null");
 
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
@@ -60,8 +58,7 @@ public class CreateQuestionSetTests : BaseTestFixture
             QuestionText = "Câu hỏi",
             Score = 1,
             ShortAnswer = "Đáp án"
-        }).SetName("Type invalid") // [abnormal]
-        ;
+        }).SetName("Type invalid");
 
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
@@ -70,18 +67,15 @@ public class CreateQuestionSetTests : BaseTestFixture
             QuestionText = "Câu hỏi",
             Score = 1,
             ShortAnswer = "Đáp án"
-        }).SetName("QuestionId empty") // [abnormal]
-        ;
+        }).SetName("QuestionId empty");
 
-        // --- MultipleChoice ---
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
             Type = "MultipleChoice",
             QuestionText = "Câu hỏi",
             Score = 1,
             MultipleChoices = null
-        }).SetName("MultipleChoice null choices") // [abnormal]
-        ;
+        }).SetName("MultipleChoice null choices");
 
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
@@ -89,8 +83,7 @@ public class CreateQuestionSetTests : BaseTestFixture
             QuestionText = "Câu hỏi",
             Score = 1,
             MultipleChoices = new List<CreateMultipleChoiceDto>()
-        }).SetName("MultipleChoice empty choices") // [abnormal]
-        ;
+        }).SetName("MultipleChoice empty choices");
 
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
@@ -99,11 +92,18 @@ public class CreateQuestionSetTests : BaseTestFixture
             Score = 1,
             MultipleChoices = new List<CreateMultipleChoiceDto>
             {
-                new() { Text = "A", IsAnswer = false },
-                new() { Text = "B", IsAnswer = false }
+                new()
+                {
+                    Text = "A",
+                    IsAnswer = false
+                },
+                new()
+                {
+                    Text = "B",
+                    IsAnswer = false
+                }
             }
-        }).SetName("MultipleChoice no correct answer") // [abnormal]
-        ;
+        }).SetName("MultipleChoice no correct answer");
 
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
@@ -112,11 +112,18 @@ public class CreateQuestionSetTests : BaseTestFixture
             Score = 1,
             MultipleChoices = new List<CreateMultipleChoiceDto>
             {
-                new() { Text = null, IsAnswer = true },
-                new() { Text = "B", IsAnswer = false }
+                new()
+                {
+                    Text = null,
+                    IsAnswer = true
+                },
+                new()
+                {
+                    Text = "B",
+                    IsAnswer = false
+                }
             }
-        }).SetName("MultipleChoice null text") // [abnormal]
-        ;
+        }).SetName("MultipleChoice null text");
 
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
@@ -125,11 +132,18 @@ public class CreateQuestionSetTests : BaseTestFixture
             Score = 1,
             MultipleChoices = new List<CreateMultipleChoiceDto>
             {
-                new() { Text = "", IsAnswer = true },
-                new() { Text = "B", IsAnswer = false }
+                new()
+                {
+                    Text = "",
+                    IsAnswer = true
+                },
+                new()
+                {
+                    Text = "B",
+                    IsAnswer = false
+                }
             }
-        }).SetName("MultipleChoice empty text") // [abnormal]
-        ;
+        }).SetName("MultipleChoice empty text");
 
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
@@ -138,21 +152,26 @@ public class CreateQuestionSetTests : BaseTestFixture
             Score = 1,
             MultipleChoices = new List<CreateMultipleChoiceDto>
             {
-                new() { Text = new string('a', 1001), IsAnswer = true },
-                new() { Text = "B", IsAnswer = false }
+                new()
+                {
+                    Text = new string('a', 1001),
+                    IsAnswer = true
+                },
+                new()
+                {
+                    Text = "B",
+                    IsAnswer = false
+                }
             }
-        }).SetName("MultipleChoice text too long") // [boundary]
-        ;
+        }).SetName("MultipleChoice text too long");
 
-        // --- Matching ---
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
             Type = "Matching",
             QuestionText = "Ghép đôi",
             Score = 1,
             MatchingPairs = null
-        }).SetName("Matching null pairs") // [abnormal]
-        ;
+        }).SetName("Matching null pairs");
 
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
@@ -160,8 +179,7 @@ public class CreateQuestionSetTests : BaseTestFixture
             QuestionText = "Ghép đôi",
             Score = 1,
             MatchingPairs = new List<CreateMatchingPairDto>()
-        }).SetName("Matching empty pairs") // [abnormal]
-        ;
+        }).SetName("Matching empty pairs");
 
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
@@ -170,10 +188,13 @@ public class CreateQuestionSetTests : BaseTestFixture
             Score = 1,
             MatchingPairs = new List<CreateMatchingPairDto>
             {
-                new() { LeftItem = "A", RightItem = "B" }
+                new()
+                {
+                    LeftItem = "A",
+                    RightItem = "B"
+                }
             }
-        }).SetName("Matching only one pair") // [boundary]
-        ;
+        }).SetName("Matching only one pair");
 
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
@@ -182,11 +203,18 @@ public class CreateQuestionSetTests : BaseTestFixture
             Score = 1,
             MatchingPairs = new List<CreateMatchingPairDto>
             {
-                new() { LeftItem = null, RightItem = "B" },
-                new() { LeftItem = "A", RightItem = "B" }
+                new()
+                {
+                    LeftItem = null,
+                    RightItem = "B"
+                },
+                new()
+                {
+                    LeftItem = "A",
+                    RightItem = "B"
+                }
             }
-        }).SetName("Matching null left") // [abnormal]
-        ;
+        }).SetName("Matching null left");
 
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
@@ -195,11 +223,18 @@ public class CreateQuestionSetTests : BaseTestFixture
             Score = 1,
             MatchingPairs = new List<CreateMatchingPairDto>
             {
-                new() { LeftItem = "A", RightItem = null },
-                new() { LeftItem = "B", RightItem = "C" }
+                new()
+                {
+                    LeftItem = "A",
+                    RightItem = null
+                },
+                new()
+                {
+                    LeftItem = "B",
+                    RightItem = "C"
+                }
             }
-        }).SetName("Matching null right") // [abnormal]
-        ;
+        }).SetName("Matching null right");
 
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
@@ -208,11 +243,18 @@ public class CreateQuestionSetTests : BaseTestFixture
             Score = 1,
             MatchingPairs = new List<CreateMatchingPairDto>
             {
-                new() { LeftItem = new string('a', 1001), RightItem = "B" },
-                new() { LeftItem = "A", RightItem = "B" }
+                new()
+                {
+                    LeftItem = new string('a', 1001),
+                    RightItem = "B"
+                },
+                new()
+                {
+                    LeftItem = "A",
+                    RightItem = "B"
+                }
             }
-        }).SetName("Matching left too long") // [boundary]
-        ;
+        }).SetName("Matching left too long");
 
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
@@ -221,21 +263,26 @@ public class CreateQuestionSetTests : BaseTestFixture
             Score = 1,
             MatchingPairs = new List<CreateMatchingPairDto>
             {
-                new() { LeftItem = "A", RightItem = new string('b', 1001) },
-                new() { LeftItem = "B", RightItem = "C" }
+                new()
+                {
+                    LeftItem = "A",
+                    RightItem = new string('b', 1001)
+                },
+                new()
+                {
+                    LeftItem = "B",
+                    RightItem = "C"
+                }
             }
-        }).SetName("Matching right too long") // [boundary]
-        ;
+        }).SetName("Matching right too long");
 
-        // --- Ordering ---
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
             Type = "Ordering",
             QuestionText = "Sắp xếp",
             Score = 1,
             OrderingItems = null
-        }).SetName("Ordering null items") // [abnormal]
-        ;
+        }).SetName("Ordering null items");
 
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
@@ -243,8 +290,7 @@ public class CreateQuestionSetTests : BaseTestFixture
             QuestionText = "Sắp xếp",
             Score = 1,
             OrderingItems = new List<CreateOrderingItemDto>()
-        }).SetName("Ordering empty items") // [abnormal]
-        ;
+        }).SetName("Ordering empty items");
 
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
@@ -253,10 +299,13 @@ public class CreateQuestionSetTests : BaseTestFixture
             Score = 1,
             OrderingItems = new List<CreateOrderingItemDto>
             {
-                new() { Text = "A", CorrectOrder = 0 }
+                new()
+                {
+                    Text = "A",
+                    CorrectOrder = 0
+                }
             }
-        }).SetName("Ordering only one item") // [boundary]
-        ;
+        }).SetName("Ordering only one item");
 
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
@@ -265,11 +314,18 @@ public class CreateQuestionSetTests : BaseTestFixture
             Score = 1,
             OrderingItems = new List<CreateOrderingItemDto>
             {
-                new() { Text = "A", CorrectOrder = 0 },
-                new() { Text = "B", CorrectOrder = 0 }
+                new()
+                {
+                    Text = "A",
+                    CorrectOrder = 0
+                },
+                new()
+                {
+                    Text = "B",
+                    CorrectOrder = 0
+                }
             }
-        }).SetName("Ordering duplicate order") // [abnormal]
-        ;
+        }).SetName("Ordering duplicate order");
 
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
@@ -278,11 +334,18 @@ public class CreateQuestionSetTests : BaseTestFixture
             Score = 1,
             OrderingItems = new List<CreateOrderingItemDto>
             {
-                new() { Text = null, CorrectOrder = 0 },
-                new() { Text = "B", CorrectOrder = 1 }
+                new()
+                {
+                    Text = null,
+                    CorrectOrder = 0
+                },
+                new()
+                {
+                    Text = "B",
+                    CorrectOrder = 1
+                }
             }
-        }).SetName("Ordering null text") // [abnormal]
-        ;
+        }).SetName("Ordering null text");
 
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
@@ -291,11 +354,18 @@ public class CreateQuestionSetTests : BaseTestFixture
             Score = 1,
             OrderingItems = new List<CreateOrderingItemDto>
             {
-                new() { Text = "", CorrectOrder = 0 },
-                new() { Text = "B", CorrectOrder = 1 }
+                new()
+                {
+                    Text = "",
+                    CorrectOrder = 0
+                },
+                new()
+                {
+                    Text = "B",
+                    CorrectOrder = 1
+                }
             }
-        }).SetName("Ordering empty text") // [abnormal]
-        ;
+        }).SetName("Ordering empty text");
 
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
@@ -304,11 +374,18 @@ public class CreateQuestionSetTests : BaseTestFixture
             Score = 1,
             OrderingItems = new List<CreateOrderingItemDto>
             {
-                new() { Text = new string('a', 1001), CorrectOrder = 0 },
-                new() { Text = "B", CorrectOrder = 1 }
+                new()
+                {
+                    Text = new string('a', 1001),
+                    CorrectOrder = 0
+                },
+                new()
+                {
+                    Text = "B",
+                    CorrectOrder = 1
+                }
             }
-        }).SetName("Ordering text too long") // [boundary]
-        ;
+        }).SetName("Ordering text too long");
 
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
@@ -317,11 +394,18 @@ public class CreateQuestionSetTests : BaseTestFixture
             Score = 1,
             OrderingItems = new List<CreateOrderingItemDto>
             {
-                new() { Text = "A", CorrectOrder = -1 },
-                new() { Text = "B", CorrectOrder = 1 }
+                new()
+                {
+                    Text = "A",
+                    CorrectOrder = -1
+                },
+                new()
+                {
+                    Text = "B",
+                    CorrectOrder = 1
+                }
             }
-        }).SetName("Ordering negative order") // [boundary]
-        ;
+        }).SetName("Ordering negative order");
 
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
@@ -330,30 +414,34 @@ public class CreateQuestionSetTests : BaseTestFixture
             Score = 1,
             OrderingItems = new List<CreateOrderingItemDto>
             {
-                new() { Text = "A", CorrectOrder = 0 },
-                new() { Text = "B", CorrectOrder = 5 }
+                new()
+                {
+                    Text = "A",
+                    CorrectOrder = 0
+                },
+                new()
+                {
+                    Text = "B",
+                    CorrectOrder = 5
+                }
             }
-        }).SetName("Ordering order out of range") // [boundary]
-        ;
+        }).SetName("Ordering order out of range");
 
-        // --- ShortText ---
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
             Type = "ShortText",
             QuestionText = "Câu hỏi",
             Score = 1,
             ShortAnswer = ""
-        }).SetName("ShortText empty answer") // [abnormal]
-        ;
-        
+        }).SetName("ShortText empty answer");
+
         yield return new TestCaseData(new CreateUpdateQuestionDto
-            {
-                Type = "ShortText",
-                QuestionText = "Câu hỏi",
-                Score = 1,
-                ShortAnswer = ""
-            }).SetName("ShortText null answer") // [abnormal]
-            ;
+        {
+            Type = "ShortText",
+            QuestionText = "Câu hỏi",
+            Score = 1,
+            ShortAnswer = ""
+        }).SetName("ShortText null answer");
 
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
@@ -361,10 +449,8 @@ public class CreateQuestionSetTests : BaseTestFixture
             QuestionText = "Câu hỏi",
             Score = 1,
             ShortAnswer = new string('x', 1001)
-        }).SetName("ShortText answer too long") // [boundary]
-        ;
+        }).SetName("ShortText answer too long");
 
-        // QuestionText validation
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
             Type = "ShortText",
@@ -378,25 +464,21 @@ public class CreateQuestionSetTests : BaseTestFixture
             QuestionText = new string('c', 5001),
             Score = 1,
             ShortAnswer = "Đáp án"
-        }).SetName("QuestionText too long"); // [boundary]
-
-        // Score validation
+        }).SetName("QuestionText too long");
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
             Type = "ShortText",
             QuestionText = "Câu hỏi",
             Score = -1,
             ShortAnswer = "Đáp án"
-        }).SetName("Negative score");// [boundary]
-
+        }).SetName("Negative score");
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
             Type = "ShortText",
             QuestionText = "Câu hỏi",
             Score = 1001,
             ShortAnswer = "Đáp án"
-        }).SetName("Score too high");// [boundary]
-
+        }).SetName("Score too high");
 
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
@@ -411,8 +493,7 @@ public class CreateQuestionSetTests : BaseTestFixture
                     IsAnswer = true
                 }
             }
-        }).SetName("MultipleChoice only one choice");// [boundary]
-
+        }).SetName("MultipleChoice only one choice");
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
             Type = "MultipleChoice",
@@ -425,7 +506,6 @@ public class CreateQuestionSetTests : BaseTestFixture
             }).ToList()
         }).SetName("MultipleChoice too many choices");
 
-        // Matching validation
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
             Type = "Matching",
@@ -462,7 +542,6 @@ public class CreateQuestionSetTests : BaseTestFixture
         }).SetName("Matching less than 2 pairs");
 
 
-
         yield return new TestCaseData(new CreateUpdateQuestionDto
         {
             Type = "Ordering",
@@ -477,10 +556,8 @@ public class CreateQuestionSetTests : BaseTestFixture
                 }
             }
         }).SetName("Ordering less than 2 items");
-
     }
-    
-    // --- VALID CASES ---
+
     [Test]
     public async Task ShouldCreateValidAllQuestionTypes()
     {
@@ -494,8 +571,16 @@ public class CreateQuestionSetTests : BaseTestFixture
                 Score = 2,
                 MultipleChoices = new List<CreateMultipleChoiceDto>
                 {
-                    new CreateMultipleChoiceDto { Text = "A", IsAnswer = true },
-                    new CreateMultipleChoiceDto { Text = "B", IsAnswer = false }
+                    new CreateMultipleChoiceDto
+                    {
+                        Text = "A",
+                        IsAnswer = true
+                    },
+                    new CreateMultipleChoiceDto
+                    {
+                        Text = "B",
+                        IsAnswer = false
+                    }
                 }
             },
             new CreateUpdateQuestionDto
@@ -505,8 +590,16 @@ public class CreateQuestionSetTests : BaseTestFixture
                 Score = 3,
                 MatchingPairs = new List<CreateMatchingPairDto>
                 {
-                    new CreateMatchingPairDto { LeftItem = "Trái 1", RightItem = "Phải 1" },
-                    new CreateMatchingPairDto { LeftItem = "Trái 2", RightItem = "Phải 2" }
+                    new CreateMatchingPairDto
+                    {
+                        LeftItem = "Trái 1",
+                        RightItem = "Phải 1"
+                    },
+                    new CreateMatchingPairDto
+                    {
+                        LeftItem = "Trái 2",
+                        RightItem = "Phải 2"
+                    }
                 }
             },
             new CreateUpdateQuestionDto
@@ -516,8 +609,16 @@ public class CreateQuestionSetTests : BaseTestFixture
                 Score = 4,
                 OrderingItems = new List<CreateOrderingItemDto>
                 {
-                    new CreateOrderingItemDto { Text = "Bước 1", CorrectOrder = 0 },
-                    new CreateOrderingItemDto { Text = "Bước 2", CorrectOrder = 1 }
+                    new CreateOrderingItemDto
+                    {
+                        Text = "Bước 1",
+                        CorrectOrder = 0
+                    },
+                    new CreateOrderingItemDto
+                    {
+                        Text = "Bước 2",
+                        CorrectOrder = 1
+                    }
                 }
             },
             new CreateUpdateQuestionDto
@@ -534,7 +635,7 @@ public class CreateQuestionSetTests : BaseTestFixture
             Description = "desc",
             Questions = questions
         };
-        
+
         PrintJson(command.Questions);
 
         var id = await SendAsync(command);
@@ -547,7 +648,6 @@ public class CreateQuestionSetTests : BaseTestFixture
         set.Questions.Any(q => q.QuestionText == "Điền đáp án ngắn").Should().BeTrue();
     }
 
-    // --- VALIDATION: General ---
     [Test]
     public async Task ShouldRequireName()
     {
@@ -560,48 +660,12 @@ public class CreateQuestionSetTests : BaseTestFixture
                 ValidShortText()
             }
         };
-        
-        
+
+
         var ex = await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ErrorCodeException>();
         ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
     }
 
-    [Test]
-    public async Task ShouldNotAllowNameExceedMaxLength()
-    {
-        await RunAsDefaultUserAsync();
-        var command = new CreateQuestionSetCommand
-        {
-            Name = new string('a', 201),
-            Description = "Mô tả",
-            Questions = new List<CreateUpdateQuestionDto>
-            {
-                ValidShortText()
-            }
-        };
-        PrintJson(command);
-        var ex = await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ErrorCodeException>();
-        ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
-    }
-
-
-    [Test]
-    public async Task ShouldNotAllowDescriptionExceedMaxLength()
-    {
-        await RunAsDefaultUserAsync();
-        var command = new CreateQuestionSetCommand
-        {
-            Name = "Tên",
-            Description = new string('b', 501),
-            Questions = new List<CreateUpdateQuestionDto>
-            {
-                ValidShortText()
-            }
-        };
-        PrintJson(command);
-        var ex = await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ErrorCodeException>();
-        ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
-    }
 
     [Test]
     public async Task ShouldRequireAtLeastOneQuestion()
@@ -618,29 +682,138 @@ public class CreateQuestionSetTests : BaseTestFixture
         ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
     }
 
+
     [Test]
-    public async Task ShouldNotAllowMoreThan500Questions()
+    [TestCaseSource(nameof(InvalidCreateQuestionSetCommandData))]
+    public async Task ShouldRejectInvalidCreateQuestionSetCommand(CreateQuestionSetCommand invalidCommand, string expectedErrorCode)
     {
         await RunAsDefaultUserAsync();
-        var questions = Enumerable.Range(1, 501).Select(i => ValidShortText()).ToList();
-        var command = new CreateQuestionSetCommand
-        {
-            Name = "Tên",
-            Description = "Mô tả",
-            Questions = questions
-        };
-        PrintJson(command);
-        var ex = await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ErrorCodeException>();
-        ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
+
+        Console.WriteLine("=== Invalid Command Input ===");
+        Console.WriteLine($"\n=== TEST CASE: {TestContext.CurrentContext.Test.Name}");
+        PrintJson(invalidCommand);
+
+        var ex = await FluentActions.Invoking(() => SendAsync(invalidCommand))
+            .Should().ThrowAsync<ErrorCodeException>();
+
+        ex.Which.Errors.Should().ContainKey(expectedErrorCode);
     }
 
+    public static IEnumerable<TestCaseData> InvalidCreateQuestionSetCommandData()
+    {
+        yield return new TestCaseData(
+            new CreateQuestionSetCommand
+            {
+                Name = "",
+                Description = "Mô tả",
+                Questions = new List<CreateUpdateQuestionDto>
+                {
+                    ValidShortText()
+                }
+            },
+            ErrorCodes.COMMON_INVALID_MODEL
+        ).SetName("Name empty");
 
+        yield return new TestCaseData(
+            new CreateQuestionSetCommand
+            {
+                Name = new string('a', 201),
+                Description = "Mô tả",
+                Questions = new List<CreateUpdateQuestionDto>
+                {
+                    ValidShortText()
+                }
+            },
+            ErrorCodes.COMMON_INVALID_MODEL
+        ).SetName("Name too long");
 
+        yield return new TestCaseData(
+            new CreateQuestionSetCommand
+            {
+                Name = "Tên",
+                Description = new string('b', 501),
+                Questions = new List<CreateUpdateQuestionDto>
+                {
+                    ValidShortText()
+                }
+            },
+            ErrorCodes.COMMON_INVALID_MODEL
+        ).SetName("Description too long");
+
+        yield return new TestCaseData(
+            new CreateQuestionSetCommand
+            {
+                Name = "Tên",
+                Description = "Mô tả",
+                Questions = new List<CreateUpdateQuestionDto>()
+            },
+            ErrorCodes.COMMON_INVALID_MODEL
+        ).SetName("Questions empty");
+
+        yield return new TestCaseData(
+            new CreateQuestionSetCommand
+            {
+                Name = "Tên",
+                Description = "Mô tả",
+                Questions = Enumerable.Range(1, 501).Select(i => ValidShortText()).ToList()
+            },
+            ErrorCodes.COMMON_INVALID_MODEL
+        ).SetName("Questions too many");
+
+        yield return new TestCaseData(
+            new CreateQuestionSetCommand
+            {
+                Name = "Tên",
+                Description = "Mô tả",
+                Questions = new List<CreateUpdateQuestionDto>
+                {
+                    ValidShortText()
+                },
+                Tags = Enumerable.Range(1, 11).Select(i => $"tag{i}").ToList()
+            },
+            ErrorCodes.COMMON_INVALID_MODEL
+        ).SetName("Tags too many");
+
+        yield return new TestCaseData(
+            new CreateQuestionSetCommand
+            {
+                Name = "Tên",
+                Description = "Mô tả",
+                Questions = new List<CreateUpdateQuestionDto>
+                {
+                    ValidShortText()
+                },
+                Tags = new List<string>
+                {
+                    "validtag",
+                    ""
+                }
+            },
+            ErrorCodes.COMMON_INVALID_MODEL
+        ).SetName("Tag empty");
+
+        yield return new TestCaseData(
+            new CreateQuestionSetCommand
+            {
+                Name = "Tên",
+                Description = "Mô tả",
+                Questions = new List<CreateUpdateQuestionDto>
+                {
+                    ValidShortText()
+                },
+                Tags = new List<string>
+                {
+                    "validtag",
+                    new string('t', 51)
+                }
+            },
+            ErrorCodes.COMMON_INVALID_MODEL
+        ).SetName("Tag too long");
+    }
 
     [Test]
     public async Task ShouldThrowErrorCodeExceptionWhenNotLoggedIn()
     {
-        // Không gọi RunAsDefaultUserAsync();
         var command = new CreateQuestionSetCommand
         {
             Name = "Tên",
@@ -660,8 +833,7 @@ public class CreateQuestionSetTests : BaseTestFixture
         ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_UNAUTHORIZED);
     }
 
-    // --- Helper ---
-    private CreateUpdateQuestionDto ValidShortText() => new CreateUpdateQuestionDto
+    private static CreateUpdateQuestionDto ValidShortText() => new CreateUpdateQuestionDto
     {
         Type = "ShortText",
         QuestionText = "Câu hỏi hợp lệ",

@@ -23,12 +23,11 @@ public class IdentityServiceTestDatabaseContainerBase : BaseTestFixture
     [SetUp]
     public override async Task TestSetUp()
     {
-
         await base.TestSetUp();
-        
+
         if (_scopeFactory == null)
             throw new InvalidOperationException("_scopeFactory is not initialized. Ensure Testing.OneTimeSetUp is completed.");
-            
+
         _scope = CreateScope();
 
         _dbContext = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -52,18 +51,18 @@ public class IdentityServiceTestDatabaseContainerBase : BaseTestFixture
         var _emailServiceMock = new Mock<IEmailService>();
 
         _service = new IdentityService(
-            _userManager, 
-            _claimsFactory, 
-            _authService, 
-            _signInManager, 
-            _jwtOptions, 
-            _dbContext, 
-            _googleAuthServiceMock.Object, 
-            _emailServiceMock.Object ,
+            _userManager,
+            _claimsFactory,
+            _authService,
+            _signInManager,
+            _jwtOptions,
+            _dbContext,
+            _googleAuthServiceMock.Object,
+            _emailServiceMock.Object,
             _roleManager
         );
     }
-    
+
     [TearDown]
     public void DisposeScope()
     {

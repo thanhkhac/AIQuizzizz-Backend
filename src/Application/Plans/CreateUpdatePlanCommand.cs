@@ -6,7 +6,7 @@ using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Plans;
 
-[Authorize]
+[Authorize(Roles = Domain.Constants.Roles.Administrator + "," + Domain.Constants.Roles.Moderator)]
 public class CreateUpdatePlanCommand : IRequest<Guid>
 {
     public Guid? PlanId { get; set; }

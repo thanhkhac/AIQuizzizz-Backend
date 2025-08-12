@@ -22,12 +22,22 @@ public class IdentityService_GetUserRolesAsyncTests : IdentityServiceTestBase
     public async Task GetUserRolesAsync_UserExists_ReturnsRoles()
     {
         var userId = Guid.NewGuid();
-        var user = new UserAccount { Id = userId };
+        var user = new UserAccount
+        {
+            Id = userId
+        };
         _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString())).ReturnsAsync(user);
-        _userManagerMock.Setup(x => x.GetRolesAsync(user)).ReturnsAsync(new List<string> { "Admin", "User" });
+        _userManagerMock.Setup(x => x.GetRolesAsync(user)).ReturnsAsync(new List<string>
+        {
+            "Admin",
+            "User"
+        });
 
         var result = await _service.GetUserRolesAsync(userId);
 
-        Assert.That(result, Is.EquivalentTo(new[] { "Admin", "User" }));
+        Assert.That(result, Is.EquivalentTo(new[]
+        {
+            "Admin", "User"
+        }));
     }
-} 
+}

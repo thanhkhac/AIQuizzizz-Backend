@@ -12,7 +12,10 @@ public class IdentityService_RequestPasswordResetAsyncTests : IdentityServiceTes
     [Test]
     public void RequestPasswordResetAsync_UserNotFound_ThrowsAccountNotFound()
     {
-        var dto = new ForgotPasswordDto { Email = "notfound@example.com" };
+        var dto = new ForgotPasswordDto
+        {
+            Email = "notfound@example.com"
+        };
         _userManagerMock.Setup(x => x.FindByEmailAsync(dto.Email)).ReturnsAsync((UserAccount)null);
 
         var ex = Assert.ThrowsAsync<ErrorCodeException>(() => _service.RequestPasswordResetAsync(dto));
@@ -22,7 +25,10 @@ public class IdentityService_RequestPasswordResetAsyncTests : IdentityServiceTes
     [Test]
     public void RequestPasswordResetAsync_TooManyRequests_ThrowsPasswordResetRequestTooMany()
     {
-        var dto = new ForgotPasswordDto { Email = "locked@example.com" };
+        var dto = new ForgotPasswordDto
+        {
+            Email = "locked@example.com"
+        };
         var user = new UserAccount
         {
             Email = dto.Email,
@@ -38,8 +44,14 @@ public class IdentityService_RequestPasswordResetAsyncTests : IdentityServiceTes
     [Test]
     public async Task RequestPasswordResetAsync_Success()
     {
-        var dto = new ForgotPasswordDto { Email = "ok@example.com" };
-        var user = new UserAccount { Email = dto.Email };
+        var dto = new ForgotPasswordDto
+        {
+            Email = "ok@example.com"
+        };
+        var user = new UserAccount
+        {
+            Email = dto.Email
+        };
         _userManagerMock.Setup(x => x.FindByEmailAsync(dto.Email)).ReturnsAsync(user);
         _userManagerMock.Setup(x => x.UpdateAsync(user)).ReturnsAsync(IdentityResult.Success);
         _emailServiceMock.Setup(x => x.SendEmailAsync(dto.Email, It.IsAny<string>(), It.IsAny<string>())).Returns(Task.CompletedTask);
@@ -49,4 +61,4 @@ public class IdentityService_RequestPasswordResetAsyncTests : IdentityServiceTes
         _userManagerMock.Verify(x => x.UpdateAsync(user), Times.Once);
         _emailServiceMock.Verify(x => x.SendEmailAsync(dto.Email, It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
-} 
+}

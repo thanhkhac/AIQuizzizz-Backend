@@ -10,14 +10,15 @@ namespace CleanArchitectureBase.Application.Command.UnitTests.Service;
 [TestFixture]
 public class IdentityService_RefreshTokenAsyncTests : IdentityServiceTestBase
 {
-    private string accesstoken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjAwMDAwMDAwLTAwMDAtMDAwMC0wMDAwLTAwMDAwMDAwMDAwMCIsImV4cCI6MTc1MzIxNjQyNywiaXNzIjoiaXNzdWVyIiwiYXVkIjoiYXVkIn0.xUbpZGUsT4UaHTS033V7S58Ct4x4VXtgII2KjB0gh4Q";
+    private string accesstoken =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjAwMDAwMDAwLTAwMDAtMDAwMC0wMDAwLTAwMDAwMDAwMDAwMCIsImV4cCI6MTc1MzIxNjQyNywiaXNzIjoiaXNzdWVyIiwiYXVkIjoiYXVkIn0.xUbpZGUsT4UaHTS033V7S58Ct4x4VXtgII2KjB0gh4Q";
 
     [Test]
     public void RefreshTokenAsync_RefreshTokenNotFound_ThrowsInvalidCredentials()
     {
         _dbContextMock.Setup(x => x.Set<RefreshToken>())
             .ReturnsDbSet(Array.Empty<RefreshToken>());
-        
+
         var ex = Assert.ThrowsAsync<ErrorCodeException>(() => _service.RefreshTokenAsync(accesstoken, "5fbb94b3-6280-45bf-923a-404a18cadd93"));
         Assert.That(ex.Errors, Does.ContainKey(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS));
     }
@@ -32,7 +33,10 @@ public class IdentityService_RefreshTokenAsyncTests : IdentityServiceTestBase
             UserAccountId = Guid.NewGuid(),
             ExpireAt = DateTime.UtcNow.AddMinutes(-1)
         };
-        _dbContextMock.Setup(x => x.Set<RefreshToken>()).ReturnsDbSet(new[] { expiredToken });
+        _dbContextMock.Setup(x => x.Set<RefreshToken>()).ReturnsDbSet(new[]
+        {
+            expiredToken
+        });
 
         var ex = Assert.ThrowsAsync<ErrorCodeException>(() => _service.RefreshTokenAsync(accesstoken, "5fbb94b3-6280-45bf-923a-404a18cadd93"));
         Assert.That(ex.Errors, Does.ContainKey(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS));
@@ -48,7 +52,10 @@ public class IdentityService_RefreshTokenAsyncTests : IdentityServiceTestBase
             UserAccountId = Guid.NewGuid(),
             ExpireAt = DateTime.UtcNow.AddMinutes(10)
         };
-        _dbContextMock.Setup(x => x.Set<RefreshToken>()).ReturnsDbSet(new[] { token });
+        _dbContextMock.Setup(x => x.Set<RefreshToken>()).ReturnsDbSet(new[]
+        {
+            token
+        });
 
         // access token không decode ra userId hợp lệ
         var ex = Assert.ThrowsAsync<ErrorCodeException>(() => _service.RefreshTokenAsync("invalidaccesstoken", "5fbb94b3-6280-45bf-923a-404a18cadd93"));
@@ -66,7 +73,10 @@ public class IdentityService_RefreshTokenAsyncTests : IdentityServiceTestBase
             UserAccountId = userId,
             ExpireAt = DateTime.UtcNow.AddMinutes(10)
         };
-        _dbContextMock.Setup(x => x.Set<RefreshToken>()).ReturnsDbSet(new[] { token });
+        _dbContextMock.Setup(x => x.Set<RefreshToken>()).ReturnsDbSet(new[]
+        {
+            token
+        });
 
         // Mock giải mã access token trả về userId đúng
         // Nhưng user không tồn tại
@@ -88,9 +98,16 @@ public class IdentityService_RefreshTokenAsyncTests : IdentityServiceTestBase
             ExpireAt = DateTime.UtcNow.AddMinutes(10)
         };
         _dbContextMock.Setup(x => x.Set<RefreshToken>())
-            .ReturnsDbSet(new[] { token });
+            .ReturnsDbSet(new[]
+            {
+                token
+            });
 
-        var user = new UserAccount { Id = userId, IsBanned = true };
+        var user = new UserAccount
+        {
+            Id = userId,
+            IsBanned = true
+        };
         _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString()))
             .ReturnsAsync(user);
 
@@ -99,7 +116,7 @@ public class IdentityService_RefreshTokenAsyncTests : IdentityServiceTestBase
 
         Assert.That(ex.Errors, Does.ContainKey(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS));
     }
-    
+
     [Test]
     public void RefreshTokenAsync_UserLockedOut_ThrowsInvalidCredentials()
     {
@@ -112,9 +129,15 @@ public class IdentityService_RefreshTokenAsyncTests : IdentityServiceTestBase
             ExpireAt = DateTime.UtcNow.AddMinutes(10)
         };
         _dbContextMock.Setup(x => x.Set<RefreshToken>())
-            .ReturnsDbSet(new[] { token });
+            .ReturnsDbSet(new[]
+            {
+                token
+            });
 
-        var user = new UserAccount { Id = userId };
+        var user = new UserAccount
+        {
+            Id = userId
+        };
         _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString()))
             .ReturnsAsync(user);
         _userManagerMock.Setup(x => x.IsLockedOutAsync(user))
@@ -138,9 +161,16 @@ public class IdentityService_RefreshTokenAsyncTests : IdentityServiceTestBase
             UserAccountId = userId,
             ExpireAt = DateTime.UtcNow.AddMinutes(10)
         };
-        _dbContextMock.Setup(x => x.Set<RefreshToken>()).ReturnsDbSet(new[] { token });
+        _dbContextMock.Setup(x => x.Set<RefreshToken>()).ReturnsDbSet(new[]
+        {
+            token
+        });
 
-        var user = new UserAccount { Id = userId, Email = "user@example.com" };
+        var user = new UserAccount
+        {
+            Id = userId,
+            Email = "user@example.com"
+        };
         _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString())).ReturnsAsync(user);
         _userManagerMock.Setup(x => x.IsLockedOutAsync(user)).ReturnsAsync(false);
 
@@ -153,4 +183,4 @@ public class IdentityService_RefreshTokenAsyncTests : IdentityServiceTestBase
         Assert.IsNotNull(result.RefreshToken);
         Assert.Greater(result.ExpireMin, 0);
     }
-} 
+}

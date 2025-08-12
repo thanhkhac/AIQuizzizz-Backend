@@ -36,6 +36,13 @@ public class SearchOwnAndSharedQuestionSetQueryValidator : AbstractValidator<Sea
                 "CreatedByMe", "ShareWithMe"
             }.Contains(filter))
             .WithMessage("FilterBy must be either 'CreatedByMe' or 'ShareWithMe'.");
+            
+        RuleFor(x => x.SortBy)
+            .Must(filter => string.IsNullOrEmpty(filter) || new[]
+            {
+                "RecentAccess", "Newest"
+            }.Contains(filter))
+            .WithMessage("FilterBy must be either \"RecentAccess\" or \"Newest\".");
     }
 }
 

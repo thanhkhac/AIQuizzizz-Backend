@@ -30,7 +30,7 @@ public class IdentityServiceTestBase
         _authServiceMock = new Mock<IAuthorizationService>();
         _signInManagerMock = IdentityTestHelpers.MockSignInManager<UserAccount>(_userManagerMock);
         _jwtOptionsMock = new Mock<IOptions<JwtSettings>>();
-        _dbContextMock= new Mock<ApplicationDbContext>(new DbContextOptions<ApplicationDbContext>());
+        _dbContextMock = new Mock<ApplicationDbContext>(new DbContextOptions<ApplicationDbContext>());
         _jwtOptionsMock.Setup(x => x.Value).Returns(new JwtSettings
         {
             SecretKey = "12345678901234567890123456789012",
@@ -57,7 +57,7 @@ public class IdentityServiceTestBase
             _roleManagerMock.Object
         );
     }
-    
+
     public static Mock<DbSet<T>> CreateMockDbSet<T>(params T[] entities) where T : class
     {
         var list = entities.ToList();
@@ -85,10 +85,10 @@ public class IdentityServiceTestBase
             }
         });
 
-       return mockSet;
+        return mockSet;
     }
 
-    
+
     public static Mock<DbSet<T>> CreateMockDbSet<T>(IQueryable<T> queryableData) where T : class
     {
         var list = queryableData.ToList(); // chuyển về list để hỗ trợ Add/Remove
@@ -113,7 +113,6 @@ public class IdentityServiceTestBase
 
         return mockSet;
     }
-
 
 
 }
