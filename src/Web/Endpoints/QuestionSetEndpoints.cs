@@ -30,6 +30,8 @@ public class QuestionSetEndpoints : EndpointGroupBase
         group.MapGet(GetSharingInQuestionSet, "{questionSetId}/Sharing");
         group.MapGet(GetClassesHaveQuestionSet, "{questionSetId}/Classes");
         group.MapGet(GetTestFromQuestionSet, "{questionSetId}/Test");
+        group.MapGet(GetRating, "{questionSetId}/Rating");
+        group.MapPost(CreateRating, "{questionSetId}/Rating");
         group.MapPatch(UpdateQuestionSet, "{questionSetId}");
         group.MapDelete(DeleteQuestionSet, "{questionSetId}");
         group.MapGet(GetLearnQuestions, "{questionSetId}/LearnQuestions");
@@ -374,7 +376,12 @@ public class QuestionSetEndpoints : EndpointGroupBase
         return result.ToOk();
     }
 
-
+    /// <summary>
+    /// Updates the sharing settings for a specific question set
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="questionSetId"></param>
+    /// <param name="command"></param>
     public async Task<Ok<ApiResponse<Guid>>> UpdateQuestionSetSharing(
         ISender sender,
         [FromRoute] Guid questionSetId,
@@ -383,6 +390,38 @@ public class QuestionSetEndpoints : EndpointGroupBase
     {
         command.QuestionSetId = questionSetId;
         var result = await sender.Send(command);
+        return result.ToOk();
+    }
+    
+    /// <summary>
+    /// Retrieves the rating for a specific question set
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="questionSetId"></param>
+    public async Task<Ok<ApiResponse<GetRatingDto>>> GetRating(
+        ISender sender,
+        [FromRoute] Guid questionSetId
+    )
+    {
+        var rq = new GetRatingQuery { QuestionSetId = questionSetId };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    /// <summary>
+    /// Creates a new rating for a specific question set
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="questionSetId"></param>
+    /// <param name="rq"></param>
+    public async Task<Ok<ApiResponse<Guid>>> CreateRating(
+        ISender sender,
+        [FromRoute] Guid questionSetId,
+        [FromBody] CreateRatingCommand rq
+    )
+    {
+        rq.QuestionSetId = questionSetId;
+        var result = await sender.Send(rq);
         return result.ToOk();
     }
 
