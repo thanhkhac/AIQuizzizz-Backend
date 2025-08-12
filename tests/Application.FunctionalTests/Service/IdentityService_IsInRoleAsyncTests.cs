@@ -13,7 +13,10 @@ public class IdentityService_IsInRoleAsyncTests : IdentityServiceTestBase
     public async Task IsInRoleAsync_UserInRole_ReturnsTrue()
     {
         var userId = Guid.Parse("00000000-0000-0000-0000-000000000000");
-        var user = new UserAccount { Id = userId };
+        var user = new UserAccount
+        {
+            Id = userId
+        };
         _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString())).ReturnsAsync(user);
         _userManagerMock.Setup(x => x.IsInRoleAsync(user, "Admin")).ReturnsAsync(true);
 
@@ -32,4 +35,4 @@ public class IdentityService_IsInRoleAsyncTests : IdentityServiceTestBase
 
         Assert.That(result, Is.False);
     }
-} 
+}

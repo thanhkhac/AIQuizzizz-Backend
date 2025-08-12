@@ -28,7 +28,6 @@ public class PlanService : IPlanService
             .Include(us => us.Plan)
             .AnyAsync(us =>
                 us.UserId == userId &&
-                us.IsActive &&
                 us.DateStart <= now &&
                 us.DateFinish >= now &&
                 us.Plan.CanLearn);
@@ -43,7 +42,6 @@ public class PlanService : IPlanService
             .Include(us => us.Plan)
             .AnyAsync(us =>
                 us.UserId == userId &&
-                us.IsActive &&
                 us.DateStart <= now &&
                 us.DateFinish >= now &&
                 us.Plan.CanOpenTest);
@@ -58,7 +56,6 @@ public class PlanService : IPlanService
             .Include(us => us.Plan)
             .AnyAsync(us =>
                 us.UserId == userId &&
-                us.IsActive &&
                 us.DateStart <= now &&
                 us.DateFinish >= now &&
                 us.Plan.CanCopyOrImportQuestionSet);

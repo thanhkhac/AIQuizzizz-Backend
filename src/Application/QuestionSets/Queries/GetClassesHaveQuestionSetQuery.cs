@@ -1,5 +1,6 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
@@ -12,6 +13,7 @@ public class GetClassesHaveQuestionSetDto
     public bool IsAdded { get; set; }
 }
 
+[Authorize]
 public class GetClassesHaveQuestionSetQuery : IRequest<List<GetClassesHaveQuestionSetDto>>
 {
     public Guid QuestionSetId { get; set; }

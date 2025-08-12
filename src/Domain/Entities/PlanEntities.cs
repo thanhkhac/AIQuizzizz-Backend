@@ -9,9 +9,9 @@ public class Plan : BaseAuditableEntity
     public required int Price { get; set; }
     public required int Duration { get; set; }
     public required string Unit { get; set; }
-    public required bool CanLearn { get; set; }
-    public required bool CanOpenTest { get; set; }
-    public required bool CanCopyOrImportQuestionSet { get; set; }
+    public bool CanLearn { get; set; }
+    public bool CanOpenTest { get; set; }
+    public bool CanCopyOrImportQuestionSet { get; set; }
     public bool IsDeleted { get; set; }
     public bool IsActive { get; set; }
     public List<PlanPriceHistory> PriceHistories { get; set; } = new List<PlanPriceHistory>();

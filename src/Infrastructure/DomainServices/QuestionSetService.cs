@@ -95,18 +95,19 @@ public class QuestionSetService : IQuestionSetService
         bool canDelete = await _identityService.IsInAnyRoleAsync(userId, Domain.Constants.Roles.Administrator, Domain.Constants.Roles.Moderator);
         // Nếu là admin hoặc moderator thì có quyền delete
 
-        // Nếu không phải admin thì kiểm tra theo bảng QuestionSetUsers
-        var qsu = await _context.QuestionSetUsers
+        var qsuEntity = await _context.QuestionSetUsers
             .Where(q => q.QuestionSetId == questionSetId && q.UserId == userId)
-            .Select(q => q.ShareMode)
             .FirstOrDefaultAsync();
+
+        QuestionSetUserShareMode? qsu = qsuEntity?.ShareMode;
+            
         if (canDelete == false)
         {
             canDelete = qsu == QuestionSetUserShareMode.Owner;
         }
         if (canEdit == false)
         {
-            canEdit = qsu == QuestionSetUserShareMode.Owner || qsu == QuestionSetUserShareMode.Editable;
+            canEdit = qsu is QuestionSetUserShareMode.Owner or QuestionSetUserShareMode.Editable;
         }
         return new QuestionSetPermissionsDto
         {

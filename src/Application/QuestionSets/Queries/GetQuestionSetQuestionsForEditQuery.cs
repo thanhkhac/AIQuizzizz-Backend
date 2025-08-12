@@ -39,7 +39,11 @@ public class GetQuestionSetQuestionsForEditQueryHandler : IRequestHandler<GetQue
         if (canUserEdit == false) throw new ErrorCodeException(ErrorCodes.COMMON_FORBIDDEN, "You are not allowed to view this question set");
 
         var questions = await _context.Questions
-            .Where(q => q.QuestionSetId == request.QuestionSetId && q.IsDeleted == false)
+            .Where(q =>
+                q.QuestionSetId == request.QuestionSetId
+                && q.IsDeleted == false
+            )
+            .OrderBy(x => x.Created)
             .ToListAsync(cancellationToken);
 
         // Chuyển đổi Questions thành CreateUpdateQuestionDto

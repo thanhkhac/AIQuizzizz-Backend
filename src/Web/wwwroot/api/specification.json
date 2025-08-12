@@ -49,7 +49,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfString"
+                  "$ref": "#/components/schemas/ApiResponseOfListOfCreateUpdateQuestionDto"
                 }
               }
             }
@@ -1120,60 +1120,6 @@
         }
       }
     },
-    "/api/Class/{ClassId}/Schedule": {
-      "get": {
-        "tags": [
-          "Class"
-        ],
-        "summary": "Retrieves the test schedule for a specified class, optionally filtered by month and year",
-        "operationId": "GetTestSchedule",
-        "parameters": [
-          {
-            "name": "ClassId",
-            "x-originalName": "classId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "guid"
-            },
-            "x-position": 1
-          },
-          {
-            "name": "month",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "nullable": true
-            },
-            "x-position": 2
-          },
-          {
-            "name": "year",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "nullable": true
-            },
-            "x-position": 3
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfTestScheduleResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/Class/{ClassId}/Permissions": {
       "get": {
         "tags": [
@@ -1931,6 +1877,42 @@
         }
       }
     },
+    "/api/PdfService/GetPdfStructure": {
+      "post": {
+        "tags": [
+          "PdfService"
+        ],
+        "operationId": "GetPdfStructure",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfDocumentStructureDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Plan/{planId}": {
       "get": {
         "tags": [
@@ -2456,7 +2438,7 @@
           "QuestionSet"
         ],
         "summary": "Retrieves sharing details for a specific question set",
-        "operationId": "GetSharingInQuestionSetQuery",
+        "operationId": "GetSharingInQuestionSet",
         "parameters": [
           {
             "name": "questionSetId",
@@ -2518,6 +2500,38 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/QuestionSet/{questionSetId}/Classes": {
+      "get": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "GetClassesHaveQuestionSet",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfGetClassesHaveQuestionSetDto"
                 }
               }
             }
@@ -3065,6 +3079,82 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfHistoryTestDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Test/Schedule": {
+      "get": {
+        "tags": [
+          "Test"
+        ],
+        "summary": "Retrieves the test schedule for a specified class, optionally filtered by month and year",
+        "operationId": "GetTestSchedule",
+        "parameters": [
+          {
+            "name": "month",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfTestScheduleResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Test/{AttemptId}/Review": {
+      "get": {
+        "tags": [
+          "Test"
+        ],
+        "operationId": "GetReviewTest",
+        "parameters": [
+          {
+            "name": "AttemptId",
+            "x-originalName": "attemptId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfReviewTestDto"
                 }
               }
             }
@@ -3792,7 +3882,7 @@
           }
         }
       },
-      "ApiResponseOfString": {
+      "ApiResponseOfListOfCreateUpdateQuestionDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -3815,11 +3905,107 @@
             }
           },
           "data": {
-            "type": "string",
-            "nullable": true
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CreateUpdateQuestionDto"
+            }
           },
           "success": {
             "type": "boolean"
+          }
+        }
+      },
+      "CreateUpdateQuestionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "questionId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "questionText": {
+            "type": "string",
+            "nullable": true
+          },
+          "explainText": {
+            "type": "string",
+            "nullable": true
+          },
+          "score": {
+            "type": "number",
+            "format": "float"
+          },
+          "multipleChoices": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CreateMultipleChoiceDto"
+            }
+          },
+          "matchingPairs": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CreateMatchingPairDto"
+            }
+          },
+          "orderingItems": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CreateOrderingItemDto"
+            }
+          },
+          "shortAnswer": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreateMultipleChoiceDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "text": {
+            "type": "string",
+            "nullable": true
+          },
+          "isAnswer": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CreateMatchingPairDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "leftItem": {
+            "type": "string",
+            "nullable": true
+          },
+          "rightItem": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreateOrderingItemDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "text": {
+            "type": "string",
+            "nullable": true
+          },
+          "correctOrder": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -3848,37 +4034,13 @@
               "type": "string"
             }
           },
-          "documentStructure": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/DocumentStructureDto"
-              }
-            ]
-          },
-          "selectedParts": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/DocumentStructureDto"
-              }
-            ]
-          }
-        }
-      },
-      "DocumentStructureDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "title": {
+          "documentStructureJson": {
             "type": "string",
             "nullable": true
           },
-          "children": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DocumentStructureDto"
-            }
+          "selectedPartJson": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -3914,6 +4076,22 @@
           },
           "success": {
             "type": "boolean"
+          }
+        }
+      },
+      "DocumentStructureDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DocumentStructureDto"
+            }
           }
         }
       },
@@ -3963,6 +4141,37 @@
           "tokenCount": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "ApiResponseOfString": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
           }
         }
       },
@@ -4832,70 +5041,6 @@
           }
         }
       },
-      "ApiResponseOfListOfTestScheduleResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "errors": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "validationErrors": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "data": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/TestScheduleResponse"
-            }
-          },
-          "success": {
-            "type": "boolean"
-          }
-        }
-      },
-      "TestScheduleResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "date": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "testSchedules": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TestScheduleDto"
-            }
-          }
-        }
-      },
-      "TestScheduleDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "testId": {
-            "type": "string",
-            "format": "guid"
-          },
-          "testName": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
       "ApiResponseOfUpdatePositionDto": {
         "type": "object",
         "additionalProperties": false,
@@ -5332,7 +5477,7 @@
             "format": "date-time",
             "nullable": true
           },
-          "createdBy": {
+          "createBy": {
             "type": "string",
             "nullable": true
           }
@@ -5468,10 +5613,6 @@
           },
           "name": {
             "type": "string"
-          },
-          "topic": {
-            "type": "string",
-            "nullable": true
           }
         }
       },
@@ -5714,99 +5855,6 @@
           }
         }
       },
-      "CreateUpdateQuestionDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "questionId": {
-            "type": "string",
-            "format": "guid",
-            "nullable": true
-          },
-          "type": {
-            "type": "string",
-            "nullable": true
-          },
-          "questionText": {
-            "type": "string",
-            "nullable": true
-          },
-          "explainText": {
-            "type": "string",
-            "nullable": true
-          },
-          "score": {
-            "type": "number",
-            "format": "float"
-          },
-          "multipleChoices": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/CreateMultipleChoiceDto"
-            }
-          },
-          "matchingPairs": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/CreateMatchingPairDto"
-            }
-          },
-          "orderingItems": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/CreateOrderingItemDto"
-            }
-          },
-          "shortAnswer": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "CreateMultipleChoiceDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "text": {
-            "type": "string",
-            "nullable": true
-          },
-          "isAnswer": {
-            "type": "boolean"
-          }
-        }
-      },
-      "CreateMatchingPairDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "leftItem": {
-            "type": "string",
-            "nullable": true
-          },
-          "rightItem": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "CreateOrderingItemDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "text": {
-            "type": "string",
-            "nullable": true
-          },
-          "correctOrder": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
       "ApiResponseOfQuestionSetDetailDto": {
         "type": "object",
         "additionalProperties": false,
@@ -6032,7 +6080,8 @@
             "type": "string"
           },
           "isAnswer": {
-            "type": "boolean"
+            "type": "boolean",
+            "nullable": true
           }
         }
       },
@@ -6054,6 +6103,7 @@
           },
           "matches": {
             "type": "array",
+            "nullable": true,
             "items": {
               "$ref": "#/components/schemas/MatchDto"
             }
@@ -6100,7 +6150,59 @@
           },
           "correctOrder": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
+          }
+        }
+      },
+      "ApiResponseOfListOfGetClassesHaveQuestionSetDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/GetClassesHaveQuestionSetDto"
+            }
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "GetClassesHaveQuestionSetDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "classId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "className": {
+            "type": "string",
+            "nullable": true
+          },
+          "isAdded": {
+            "type": "boolean"
           }
         }
       },
@@ -6252,40 +6354,6 @@
           }
         }
       },
-      "ApiResponseOfListOfCreateUpdateQuestionDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "errors": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "validationErrors": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          "data": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/CreateUpdateQuestionDto"
-            }
-          },
-          "success": {
-            "type": "boolean"
-          }
-        }
-      },
       "UpdateQuestionSetSharingCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -6422,6 +6490,10 @@
           },
           "isAllowReviewAfterSubmit": {
             "type": "boolean"
+          },
+          "numberOfShuffles": {
+            "type": "integer",
+            "format": "int32"
           },
           "maxAttempt": {
             "type": "integer",
@@ -6642,6 +6714,244 @@
           }
         }
       },
+      "ApiResponseOfListOfTestScheduleResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/TestScheduleResponse"
+            }
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TestScheduleResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "testSchedules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TestScheduleDto"
+            }
+          }
+        }
+      },
+      "TestScheduleDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "testId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "testName": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ApiResponseOfReviewTestDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ReviewTestDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ReviewTestDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "attemptId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "timeStart": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "timeEnd": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "score": {
+            "type": "number",
+            "format": "double"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReviewQuestionDto"
+            }
+          }
+        }
+      },
+      "ReviewQuestionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "type": {
+            "type": "string"
+          },
+          "textFormat": {
+            "type": "string",
+            "nullable": true
+          },
+          "questionText": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number",
+            "format": "float"
+          },
+          "correctMultipleChoiceCount": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "questionData": {
+            "$ref": "#/components/schemas/QuestionDataDto"
+          },
+          "userAnswerDataDto": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UserAnswerDataDto"
+              }
+            ]
+          }
+        }
+      },
+      "UserAnswerDataDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "multipleChoice": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "string",
+              "format": "guid"
+            }
+          },
+          "matching": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/UserMatchingAnswerDto"
+            }
+          },
+          "ordering": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/UserOrderingAnswerDto"
+            }
+          },
+          "shortText": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UserMatchingAnswerDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "leftId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "rightId": {
+            "type": "string",
+            "format": "guid"
+          }
+        }
+      },
+      "UserOrderingAnswerDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "itemId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "order": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "CreateTestCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -6769,70 +7079,6 @@
           }
         }
       },
-      "UserAnswerDataDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "type": {
-            "type": "string",
-            "nullable": true
-          },
-          "multipleChoice": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "type": "string",
-              "format": "guid"
-            }
-          },
-          "matching": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/UserMatchingAnswerDto"
-            }
-          },
-          "ordering": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/UserOrderingAnswerDto"
-            }
-          },
-          "shortText": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "UserMatchingAnswerDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "leftId": {
-            "type": "string",
-            "format": "guid"
-          },
-          "rightId": {
-            "type": "string",
-            "format": "guid"
-          }
-        }
-      },
-      "UserOrderingAnswerDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "itemId": {
-            "type": "string",
-            "format": "guid"
-          },
-          "order": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
       "ApiResponseOfAttemptDetailDto": {
         "type": "object",
         "additionalProperties": false,
@@ -6938,7 +7184,7 @@
             "nullable": true
           },
           "questionData": {
-            "$ref": "#/components/schemas/QuestionAttemptDataDto"
+            "$ref": "#/components/schemas/QuestionDataDto"
           },
           "userAnswerDataDto": {
             "nullable": true,
@@ -6947,82 +7193,6 @@
                 "$ref": "#/components/schemas/UserAnswerDataDto"
               }
             ]
-          }
-        }
-      },
-      "QuestionAttemptDataDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "multipleChoice": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/MultipleChoiceAttemptItemDto"
-            }
-          },
-          "matching": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/MatchingAttemptDataDto"
-              }
-            ]
-          },
-          "ordering": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/OrderingAttemptItemDto"
-            }
-          },
-          "shortText": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "MultipleChoiceAttemptItemDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "guid"
-          },
-          "text": {
-            "type": "string"
-          }
-        }
-      },
-      "MatchingAttemptDataDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "leftItems": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/MatchingItemDto"
-            }
-          },
-          "rightItems": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/MatchingItemDto"
-            }
-          }
-        }
-      },
-      "OrderingAttemptItemDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "guid"
-          },
-          "text": {
-            "type": "string"
           }
         }
       },
@@ -7062,6 +7232,10 @@
             "type": "boolean"
           },
           "maxAttempt": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numberOfShuffles": {
             "type": "integer",
             "format": "int32"
           },

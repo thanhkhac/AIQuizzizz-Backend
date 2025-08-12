@@ -43,7 +43,7 @@ def get_outline():
             doc.close()
             
             if not toc:
-                return jsonify({'outline': []})
+                return jsonify({'children': []})
             
             # Build nested structure
             def build_nested(toc_list):
@@ -73,7 +73,7 @@ def get_outline():
                 return result
             
             nested_outline = build_nested(toc)
-            return jsonify({'outline': nested_outline})
+            return jsonify({'children': nested_outline})
             
         finally:
             os.unlink(tmp_path)

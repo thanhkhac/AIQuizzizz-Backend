@@ -80,7 +80,7 @@ public class QTypeShortAnswer
 
 public class Question : BaseAuditableEntity
 {
-    public required Guid Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
     public Guid? QuestionSetId { get; set; }
     public required QuestionType Type { get; set; }
     public string? QuestionText { get; set; }
@@ -122,7 +122,7 @@ public class QuestionSetTag
 
 public class QuestionSet : BaseAuditableEntity
 {
-    public required Guid Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
     public required string Name { get; set; }
     public string? Description { get; set; }
     public QuestionSetVisibilityMode VisibilityMode { get; set; }
@@ -176,7 +176,6 @@ public class Comment : BaseAuditableEntity
 
 public class UserQuestionSetHistory : BaseAuditableEntity
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
     public required Guid UserId { get; set; }
     public required Guid QuestionId { get; set; }
     public required bool IsCorrect { get; set; }
@@ -198,7 +197,7 @@ public class UserQuestionSetAccessHistory : BaseEntity
 
 public class TestTemplate : BaseAuditableEntity
 {
-    public required Guid Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
     public required string Name { get; set; }
     public bool IsDeleted { get; set; }
     public string? Description { get; set; }
@@ -231,7 +230,7 @@ public class TestTemplateUser : BaseAuditableEntity
 
 public class Folder : BaseAuditableEntity
 {
-    public required Guid Id { get; set; }
+    public  Guid Id { get; set; } = Guid.NewGuid();
     public required string Name { get; set; }
     public bool IsDeleted { get; set; }
 
@@ -304,7 +303,7 @@ public class Test : BaseAuditableEntity
 
 public class TestVersion : BaseEntity
 {
-    public required Guid Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
     public required Guid TestId { get; set; }
     public required int No { get; set; }
 
