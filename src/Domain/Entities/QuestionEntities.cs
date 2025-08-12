@@ -303,7 +303,7 @@ public class Test : BaseAuditableEntity
 
 public class TestVersion : BaseEntity
 {
-    public required Guid Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
     public required Guid TestId { get; set; }
     public required int No { get; set; }
 
