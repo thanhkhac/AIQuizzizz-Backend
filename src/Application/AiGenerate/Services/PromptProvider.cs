@@ -14,6 +14,7 @@ public static class PromptProvider
 
             Yêu cầu:
             - Chỉ trả về kết quả JSON, không thêm giải thích, chú thích hoặc văn bản khác.
+            - Tất cả ký tự đặc biệt phải được escape theo chuẩn JSON
             - Hãy phân tích và trích xuất các tiêu đề chính của tài liệu, tương đương các mục lớn trong cấu trúc học thuật
             - Bao gồm các tiêu đề thường xuất hiện đầu dòng như:
               - “I.”, “II.”, “III.” (La Mã)
@@ -65,10 +66,12 @@ public static class PromptProvider
                     ""<Trích dẫn nếu có> 
                     -<Mục:...Tài liệu: <Tên tài liệu>>-"""
                 : "";
-
+            
             var systemInstruction = $@"
             Bạn là một hệ thống sinh câu hỏi tự động từ tài liệu học thuật.
-            Chỉ trả về mảng JSON hợp lệ, không được thêm bất kỳ văn bản, mô tả, tiêu đề, hoặc định dạng markdown nào.
+            - Chỉ trả về mảng JSON hợp lệ, không được thêm bất kỳ văn bản, mô tả, tiêu đề, hoặc định dạng markdown nào.
+            - Tất cả ký tự đặc biệt phải được escape theo chuẩn JSON
+            - Số lượng câu hỏi không vượt quá số lượng mà người dùng chỉ định
             Ngôn ngữ bắt buộc: {language}.
             
             QUY TẮC QUAN TRỌNG VỀ CHẤT LƯỢNG CÂU HỎI:

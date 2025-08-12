@@ -2,7 +2,7 @@
 
 public class Class : BaseAuditableEntity
 {
-    public required Guid Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
     public required string Name { get; set; }
     public string? Topic { get; set; }
     
@@ -41,7 +41,7 @@ public class ClassQuestionSet : BaseAuditableEntity
 
 public class ClassInvitation : BaseAuditableEntity
 {
-    public required Guid Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
     public required Guid ClassId { get; set; }
     public required string Code { get; set; }
     public required DateTime TimeStart { get; set; }
