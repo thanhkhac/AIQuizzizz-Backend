@@ -57,15 +57,16 @@ public class GetQuestionSetLearnQuestionsQueryHandler : IRequestHandler<GetQuest
 
     public async Task<GetQuestionSetLearnQuestionsQueryDto> Handle(GetQuestionSetLearnQuestionsQuery request, CancellationToken cancellationToken)
     {
-        // Check xem người dùng có quyền học không
-        if (!await _planService.CanLearn(_user.UserId!.Value))
-            throw new ErrorCodeException(ErrorCodes.PLAN_REQUIRE_PLAN, "You are not allowed to learn");
 
         var questionSet = await _questionSetService.GetActiveQuestionSet(request.QuestionSetId, cancellationToken);
         if (questionSet == null) throw new ErrorCodeException(ErrorCodes.QUESTION_SET_NOT_FOUND);
         
         var canView = await _questionSetService.CanUserViewQuestionSet(_user.UserId, questionSet);
         if (canView == false) throw new ErrorCodeException(ErrorCodes.COMMON_FORBIDDEN, "You are not allowed to view this question set");
+
+        // Check xem người dùng có quyền học không
+        if (!await _planService.CanLearn(_user.UserId!.Value))
+            throw new ErrorCodeException(ErrorCodes.PLAN_REQUIRE_PLAN, "You are not allowed to learn");
 
         var result = await _questionService.GetQuestionsBySetIdForLearnAsync(request.QuestionSetId, _user.UserId!.Value, request.QuestionCount,
             cancellationToken);

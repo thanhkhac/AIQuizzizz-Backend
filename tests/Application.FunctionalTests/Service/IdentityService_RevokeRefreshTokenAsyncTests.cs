@@ -34,7 +34,10 @@ public class IdentityService_RevokeRefreshTokenAsyncTests : IdentityServiceTestB
             UserAccountId = userId,
             ExpireAt = DateTime.UtcNow.AddMinutes(10)
         };
-        var tokens = new List<RefreshToken> { token };
+        var tokens = new List<RefreshToken>
+        {
+            token
+        };
         _dbContextMock.Setup(x => x.Set<RefreshToken>()).ReturnsDbSet(tokens);
         _dbContextMock.Setup(x => x.SaveChangesAsync(default)).ReturnsAsync(1);
 
@@ -52,13 +55,16 @@ public class IdentityService_RevokeRefreshTokenAsyncTests : IdentityServiceTestB
             UserAccountId = userId,
             ExpireAt = DateTimeOffset.UtcNow.AddMinutes(-10)
         };
-        var tokens = new List<RefreshToken> { expiredToken };
+        var tokens = new List<RefreshToken>
+        {
+            expiredToken
+        };
         _dbContextMock.Setup(x => x.Set<RefreshToken>()).ReturnsDbSet(tokens);
         _dbContextMock.Setup(x => x.SaveChangesAsync(default)).ReturnsAsync(1);
 
         await _service.RevokeRefreshTokenAsync("expiredtoken", userId);
     }
-    
+
     [Test]
     public void RevokeRefreshTokenAsync_TokenBelongsToAnotherUser_ThrowsError()
     {
@@ -71,10 +77,13 @@ public class IdentityService_RevokeRefreshTokenAsyncTests : IdentityServiceTestB
             UserAccountId = anotherUserId, // Token thuộc về user khác
             ExpireAt = DateTime.UtcNow.AddMinutes(10)
         };
-        var tokens = new List<RefreshToken> { token };
+        var tokens = new List<RefreshToken>
+        {
+            token
+        };
         _dbContextMock.Setup(x => x.Set<RefreshToken>()).ReturnsDbSet(tokens);
 
         var ex = Assert.ThrowsAsync<ErrorCodeException>(() => _service.RevokeRefreshTokenAsync("tokentodelete", userId));
         Assert.That(ex.Errors, Does.ContainKey(ErrorCodes.REFRESHTOKEN_NOTFOUND));
     }
-} 
+}

@@ -13,7 +13,11 @@ public class IdentityService_CreateUserAsyncTests : IdentityServiceTestBase
     [Test]
     public void CreateUserAsync_EmailBanned_ThrowsAccountEmailBanned()
     {
-        var user = new UserAccount { IsBanned = true, Email = "banned@example.com" };
+        var user = new UserAccount
+        {
+            IsBanned = true,
+            Email = "banned@example.com"
+        };
         _userManagerMock.Setup(x => x.FindByEmailAsync("banned@example.com")).ReturnsAsync(user);
 
         var ex = Assert.ThrowsAsync<ErrorCodeException>(() => _service.CreateUserAsync("banned@example.com", "password"));
@@ -23,7 +27,11 @@ public class IdentityService_CreateUserAsyncTests : IdentityServiceTestBase
     [Test]
     public void CreateUserAsync_DuplicateEmail_ThrowsDuplicateEmail()
     {
-        var user = new UserAccount { IsBanned = false, Email = "duplicate@example.com" };
+        var user = new UserAccount
+        {
+            IsBanned = false,
+            Email = "duplicate@example.com"
+        };
         _userManagerMock.Setup(x => x.FindByEmailAsync("duplicate@example.com")).ReturnsAsync(user);
 
         var ex = Assert.ThrowsAsync<ErrorCodeException>(() => _service.CreateUserAsync("duplicate@example.com", "password"));
@@ -38,7 +46,8 @@ public class IdentityService_CreateUserAsyncTests : IdentityServiceTestBase
         _userManagerMock.Setup(x => x.CreateAsync(It.IsAny<UserAccount>(), "password")).ReturnsAsync(IdentityResult.Success);
         _userManagerMock.Setup(x => x.CreateAsync(It.IsAny<UserAccount>())).ReturnsAsync(IdentityResult.Success);
         // Fake user creation
-        _userManagerMock.Setup(x => x.CreateAsync(It.IsAny<UserAccount>(), It.IsAny<string>())).Callback<UserAccount, string>((u, p) => u.Id = userId).ReturnsAsync(IdentityResult.Success);
+        _userManagerMock.Setup(x => x.CreateAsync(It.IsAny<UserAccount>(), It.IsAny<string>())).Callback<UserAccount, string>((u, p) => u.Id = userId)
+            .ReturnsAsync(IdentityResult.Success);
 
         var result = await _service.CreateUserAsync("test@example.com", "password");
 
@@ -55,4 +64,4 @@ public class IdentityService_CreateUserAsyncTests : IdentityServiceTestBase
         var ex = Assert.ThrowsAsync<ErrorCodeException>(() => _service.CreateUserAsync("fail@example.com", "password"));
         Assert.That(ex.Errors, Does.ContainKey(ErrorCodes.COMMON_SERVER_INTERNAL_ERROR));
     }
-} 
+}

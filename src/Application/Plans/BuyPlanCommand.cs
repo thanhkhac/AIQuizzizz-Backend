@@ -48,15 +48,15 @@ public class BuyPlanCommandHandler : IRequestHandler<BuyPlanCommand, Guid>
             throw new ErrorCodeException(ErrorCodes.INSUFFICIENT_BALANCE, "Số dư không đủ");
 
         var dateFinish = DateTimeOffset.UtcNow;
-        if (plan.Unit == "day")
+        if (plan.Unit.ToLower() == "day")
         {
             dateFinish = dateFinish.AddDays(plan.Duration);
         }
-        else if (plan.Unit == "month")
+        else if (plan.Unit.ToLower() == "month")
         {
             dateFinish = dateFinish.AddMonths(plan.Duration);
         }
-        else if (plan.Unit == "year")
+        else if (plan.Unit.ToLower() == "year")
         {
             dateFinish = dateFinish.AddYears(plan.Duration);
         }

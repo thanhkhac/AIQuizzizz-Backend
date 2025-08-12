@@ -24,9 +24,15 @@ public class IdentityService_ChangePasswordAsyncTests : IdentityServiceTestBase
     {
         //Precondition: User tồn tại, nhập sai mật khẩu cũ
         var userId = Guid.NewGuid();
-        var user = new UserAccount { Id = userId };
+        var user = new UserAccount
+        {
+            Id = userId
+        };
         _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString())).ReturnsAsync(user);
-        var identityError = new IdentityError { Code = nameof(IdentityErrorDescriber.PasswordMismatch) };
+        var identityError = new IdentityError
+        {
+            Code = nameof(IdentityErrorDescriber.PasswordMismatch)
+        };
         var result = IdentityResult.Failed(identityError);
         _userManagerMock.Setup(x => x.ChangePasswordAsync(user, "oldpassword", "newpassword")).ReturnsAsync(result);
 
@@ -40,7 +46,10 @@ public class IdentityService_ChangePasswordAsyncTests : IdentityServiceTestBase
     {
         //Precondition: User tồn tại, đổi mật khẩu thành công
         var userId = Guid.NewGuid();
-        var user = new UserAccount { Id = userId };
+        var user = new UserAccount
+        {
+            Id = userId
+        };
         _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString())).ReturnsAsync(user);
         _userManagerMock.Setup(x => x.ChangePasswordAsync(user, "oldpassword", "newpassword")).ReturnsAsync(IdentityResult.Success);
 
@@ -48,4 +57,4 @@ public class IdentityService_ChangePasswordAsyncTests : IdentityServiceTestBase
 
         _userManagerMock.Verify(x => x.ChangePasswordAsync(user, "oldpassword", "newpassword"), Times.Once);
     }
-} 
+}

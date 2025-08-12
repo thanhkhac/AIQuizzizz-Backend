@@ -77,7 +77,6 @@ public class UpdateQuestionSetHistoryCommandHandler : IRequestHandler<UpdateQues
                 // Tạo history mới
                 var newHistory = new UserQuestionSetHistory
                 {
-                    Id = Guid.NewGuid(),
                     UserId = userId,
                     QuestionId = question.QuestionId,
                     IsCorrect = question.IsCorrect,

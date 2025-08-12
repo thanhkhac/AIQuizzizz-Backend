@@ -1,6 +1,4 @@
-﻿
-
-using CleanArchitectureBase.Application.Common.Exceptions;
+﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
@@ -25,7 +23,12 @@ public class IdentityService_TryGoogleLoginAsyncTests : IdentityServiceTestBase
             .ReturnsAsync(googleUser);
 
         // Mock user đã tồn tại trong hệ thống
-        var user = new UserAccount { IsBanned = false, EmailConfirmed = true, Email = googleUser.Email };
+        var user = new UserAccount
+        {
+            IsBanned = false,
+            EmailConfirmed = true,
+            Email = googleUser.Email
+        };
         _userManagerMock.Setup(x => x.FindByEmailAsync(googleUser.Email))
             .ReturnsAsync(user);
         _userManagerMock.Setup(x => x.UpdateAsync(user)).ReturnsAsync(IdentityResult.Success);
@@ -90,7 +93,11 @@ public class IdentityService_TryGoogleLoginAsyncTests : IdentityServiceTestBase
         };
         _googleAuthServiceMock.Setup(x => x.ExchangeCodeForUserInfoAsync("authcode3", "redirecturi3"))
             .ReturnsAsync(googleUser);
-        var user = new UserAccount { IsDeleted = true, Email = googleUser.Email };
+        var user = new UserAccount
+        {
+            IsDeleted = true,
+            Email = googleUser.Email
+        };
         _userManagerMock.Setup(x => x.FindByEmailAsync(googleUser.Email))
             .ReturnsAsync(user);
 
@@ -110,7 +117,11 @@ public class IdentityService_TryGoogleLoginAsyncTests : IdentityServiceTestBase
         };
         _googleAuthServiceMock.Setup(x => x.ExchangeCodeForUserInfoAsync("authcode4", "redirecturi4"))
             .ReturnsAsync(googleUser);
-        var user = new UserAccount { IsBanned = true, Email = googleUser.Email };
+        var user = new UserAccount
+        {
+            IsBanned = true,
+            Email = googleUser.Email
+        };
         _userManagerMock.Setup(x => x.FindByEmailAsync(googleUser.Email))
             .ReturnsAsync(user);
 
@@ -130,7 +141,12 @@ public class IdentityService_TryGoogleLoginAsyncTests : IdentityServiceTestBase
         };
         _googleAuthServiceMock.Setup(x => x.ExchangeCodeForUserInfoAsync("authcode5", "redirecturi5"))
             .ReturnsAsync(googleUser);
-        var user = new UserAccount { IsBanned = false, EmailConfirmed = false, Email = googleUser.Email };
+        var user = new UserAccount
+        {
+            IsBanned = false,
+            EmailConfirmed = false,
+            Email = googleUser.Email
+        };
         _userManagerMock.Setup(x => x.FindByEmailAsync(googleUser.Email))
             .ReturnsAsync(user);
         _userManagerMock.Setup(x => x.UpdateAsync(user)).ReturnsAsync(IdentityResult.Success);

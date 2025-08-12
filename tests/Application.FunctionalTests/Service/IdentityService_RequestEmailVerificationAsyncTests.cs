@@ -40,7 +40,10 @@ public class IdentityService_RequestEmailVerificationAsyncTests : IdentityServic
     public async Task RequestEmailVerificationAsync_Success()
     {
         var email = "ok@example.com";
-        var user = new UserAccount { Email = email };
+        var user = new UserAccount
+        {
+            Email = email
+        };
         _userManagerMock.Setup(x => x.FindByEmailAsync(email)).ReturnsAsync(user);
         _userManagerMock.Setup(x => x.UpdateAsync(user)).ReturnsAsync(IdentityResult.Success);
         _emailServiceMock.Setup(x => x.SendEmailAsync(email, It.IsAny<string>(), It.IsAny<string>())).Returns(Task.CompletedTask);
@@ -50,8 +53,8 @@ public class IdentityService_RequestEmailVerificationAsyncTests : IdentityServic
         _userManagerMock.Verify(x => x.UpdateAsync(user), Times.Once);
         _emailServiceMock.Verify(x => x.SendEmailAsync(email, It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
-    
-   
+
+
     [Test]
     public async Task RequestEmailVerificationAsync_AttemptsExceededButLockoutEnded_Success()
     {
@@ -72,5 +75,5 @@ public class IdentityService_RequestEmailVerificationAsyncTests : IdentityServic
         _emailServiceMock.Verify(x => x.SendEmailAsync(email, It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 
-    
-} 
+
+}

@@ -17,7 +17,10 @@ public class IdentityService_AuthorizeAsyncTests : IdentityServiceTestBase
     public async Task AuthorizeAsync_UserExists_ReturnsAuthorizationResult()
     {
         var userId = Guid.Parse("00000000-0000-0000-0000-000000000000");
-        var user = new UserAccount { Id = userId };
+        var user = new UserAccount
+        {
+            Id = userId
+        };
         var principal = new ClaimsPrincipal();
         _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString())).ReturnsAsync(user);
         _claimsFactoryMock.Setup(x => x.CreateAsync(user)).ReturnsAsync(principal);
@@ -27,12 +30,15 @@ public class IdentityService_AuthorizeAsyncTests : IdentityServiceTestBase
 
         Assert.That(result, Is.True);
     }
-    
+
     [Test]
     public async Task AuthorizeAsync_UserExistsButNotAuthorized_ReturnsFalse()
     {
         var userId = Guid.Parse("00000000-0000-0000-0000-000000000000");
-        var user = new UserAccount { Id = userId };
+        var user = new UserAccount
+        {
+            Id = userId
+        };
         var principal = new ClaimsPrincipal();
 
         _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString())).ReturnsAsync(user);
@@ -43,10 +49,8 @@ public class IdentityService_AuthorizeAsyncTests : IdentityServiceTestBase
         var result = await _service.AuthorizeAsync(userId, "Policy");
 
         Assert.That(result, Is.False);
-    }     
-    
-    
-    
+    }
+
 
     [Test]
     public async Task AuthorizeAsync_UserNotFound_ReturnsFalse()
@@ -58,4 +62,4 @@ public class IdentityService_AuthorizeAsyncTests : IdentityServiceTestBase
 
         Assert.That(result, Is.False);
     }
-} 
+}
