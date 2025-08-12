@@ -43,6 +43,9 @@ public class UpdateTestCommandValidator : AbstractValidator<UpdateTestCommand>
 
         RuleFor(x => x.TestId)
             .NotEmpty().WithMessage("TestId không được để trống");
+        
+        RuleFor(x => x.NumberOfShuffles)
+            .GreaterThan(0).WithMessage("NumberOfShuffles > 0");
 
         RuleFor(x => x.TimeLimit)
             .GreaterThan(0).WithMessage("Thời gian làm bài phải lớn hơn 0")
@@ -81,6 +84,7 @@ public class UpdateTestCommandHandler : IRequestHandler<UpdateTestCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
     private readonly ITestService _testService;
+    private readonly Random _random = new();
     
     public UpdateTestCommandHandler(
         IApplicationDbContext context,
@@ -120,12 +124,8 @@ public class UpdateTestCommandHandler : IRequestHandler<UpdateTestCommand, Guid>
             .Where(x => x.TestId.Equals(test.Id))
             .ToListAsync(cancellationToken);
         
+        List<TestVersion> updateTestVersions = new();
         
-        
-        if (rq.CreateUpdateQuestions.Count > 100)
-            throw new ErrorCodeException(ErrorCodes.NUMBER_OF_QUESTION_EXCEED_LIMIT,
-                "Số lượng câu hỏi không được vượt quá 100");
-
         var versionQuestionsAllNo = await _context.TestVersionQuestions
             .Include(x => x.TestVersion)
             .ThenInclude(x => x!.Test)
@@ -166,6 +166,50 @@ public class UpdateTestCommandHandler : IRequestHandler<UpdateTestCommand, Guid>
         var listTestVersionQuestions = new List<TestVersionQuestion>();
 
         var order = versionQuestions.Count;
+        
+        if (rq.NumberOfShuffles != testVersion.Count)
+        {
+            if (rq.NumberOfShuffles > testVersion.Count)
+            {
+                var questions = versionQuestions.Select((x, index) => x.QuestionId).ToList();
+                
+                var testVersions = Enumerable.Range(testVersion.Count + 1, rq.NumberOfShuffles + 1)
+                    .Select(versionNo => new TestVersion
+                    {
+                        Id = Guid.NewGuid(),
+                        TestId = test.Id,
+                        No = versionNo
+                    }).ToList();
+                
+                var testVersionQuestions = testVersions.SelectMany(t =>
+                {
+                    var shuffledIndex = Enumerable.Range(0, versionQuestions.Count()).OrderBy(_ => _random.Next()).ToList();
+
+                    return shuffledIndex.Select((index, order) => new TestVersionQuestion
+                    {
+                        Id = Guid.NewGuid(), QuestionId = questions[index], TestVersionId = t.Id, Order = order
+                    });
+                }).ToList();
+                
+                testVersion.AddRange(testVersions);
+                
+                _context.TestVersions.AddRange(testVersions);
+                
+                _context.TestVersionQuestions.AddRange(testVersionQuestions);
+            }
+
+            if (rq.NumberOfShuffles < testVersion.Count)
+            {
+                testVersion = testVersion.OrderByDescending(x => x.No).Take(testVersion.Count - rq.NumberOfShuffles).ToList();
+                
+                var deleteVersionQuestions = versionQuestionsAllNo
+                    .Where(x => testVersion.Select(y => y.Id).Contains(x.TestVersionId));
+                
+                _context.TestVersionQuestions.RemoveRange(deleteVersionQuestions);
+                
+                _context.TestVersions.RemoveRange(testVersion);
+            }
+        }
 
         foreach (var questionDto in rq.CreateUpdateQuestions)
         {
