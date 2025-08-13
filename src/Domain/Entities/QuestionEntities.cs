@@ -210,7 +210,7 @@ public class TestTemplate : BaseAuditableEntity
 
 public class TestTemplateQuestion : BaseAuditableEntity
 {
-    public required Guid Id { get; set; }
+    public  Guid Id { get; set; } = Guid.NewGuid();
     public required Guid TestTemplateId { get; set; }
     public required Guid QuestionId { get; set; }
 

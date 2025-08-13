@@ -16,7 +16,7 @@ public class ImportedQuestionDto
 [Authorize]
 public class ImportFileTestTemplateCommand : IRequest<ImportedQuestionDto>
 {
-    public required FileStreamData FileData { get; set; }
+    public FileStreamData? FileData { get; set; }
 }
 
 public class ImportFileTestTemplateCommandValidator : AbstractValidator<ImportFileTestTemplateCommand>
@@ -24,11 +24,14 @@ public class ImportFileTestTemplateCommandValidator : AbstractValidator<ImportFi
     public ImportFileTestTemplateCommandValidator()
     {
         RuleFor(x => x.FileData)
-            .NotNull().WithMessage("FileData không được trống");
-
-        RuleFor(x => x.FileData.Data)
-            .NotNull().WithMessage("Dữ liệu stream không được trống")
-            .Must(stream => stream!.Length > 0).WithMessage("Stream không được rỗng");
+            .NotNull().WithMessage("FileData không được trống")
+            .DependentRules(() =>
+            {
+                RuleFor(x => x.FileData!.Data)
+                    .NotNull().WithMessage("Dữ liệu stream không được trống")
+                    .Must(stream => stream!.Length > 0)
+                    .WithMessage("Stream không được rỗng");
+            });
     }
 }
 

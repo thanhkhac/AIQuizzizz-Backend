@@ -90,29 +90,6 @@ public class UpdateClassCommandTests : BaseTestFixture
         ex.Which.Errors.Should().ContainKey(ErrorCodes.ONLY_OWNERS_CAN_UPDATE);
     }
 
-    [Test]
-    public async Task ShouldThrowErrorWhenClassAlreadyExistsWithSameNameForOwner()
-    {
-        var userId = await RunAsDefaultUserAsync();
-        var class1 = new Class { Name = "Class One", CreatedBy = userId };
-        var class2 = new Class { Name = "Class Two", CreatedBy = userId };
-        await AddAsync(class1);
-        await AddAsync(class2);
-        await AddAsync(new ClassUser { UserId = userId, ClassId = class1.Id, ShareMode = ClassShareMode.Owner });
-        await AddAsync(new ClassUser { UserId = userId, ClassId = class2.Id, ShareMode = ClassShareMode.Owner });
-
-        var command = new UpdateClassCommand
-        {
-            ClassId = class1.Id,
-            Name = "Class Two", // Try to rename Class One to Class Two
-            Topic = "Updated Topic"
-        };
-
-        var ex = await FluentActions.Invoking((() => SendAsync(command)))
-            .Should().ThrowAsync<ErrorCodeException>();
-
-        ex.Which.Errors.Should().ContainKey(ErrorCodes.CLASS_ALREADY_EXISTS);
-    }
 
     [Test]
     public async Task ShouldUpdateClassSuccessfully()

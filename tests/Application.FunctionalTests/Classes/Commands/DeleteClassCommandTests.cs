@@ -16,7 +16,7 @@ public class DeleteClassCommandTests : BaseTestFixture
 
         var command = new DeleteClassCommand
         {
-            ClassId = Guid.Empty
+            ClassId = null
         };
 
         var ex = await FluentActions.Invoking((() => SendAsync(command)))

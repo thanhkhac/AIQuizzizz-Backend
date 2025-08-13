@@ -43,13 +43,7 @@ public class UpdateClassCommandHandler : IRequestHandler<UpdateClassCommand, Gui
     {
         var (isOwner, classExists) = await _classService
             .GetClassOwnerAccess(rq.ClassId!.Value, cancellationToken);
-        
-        var classByName = await _context.Classes
-            .Where(x => x.Name == rq.Name && x.CreatedBy == _user.UserId)
-            .FirstOrDefaultAsync(cancellationToken);
-        if (classByName != null)
-            throw new ErrorCodeException(ErrorCodes.CLASS_ALREADY_EXISTS, "Class đã tồn tại");
-        
+               
         classExists.Name = rq.Name;
 
         if (!string.IsNullOrWhiteSpace(rq.Topic))

@@ -25,6 +25,8 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
+        Console.WriteLine("PerformanceBehaviour");
+
         _timer.Start();
 
         var response = await next();
