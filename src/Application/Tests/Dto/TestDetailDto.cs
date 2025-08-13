@@ -12,11 +12,11 @@ public class TestDetailDto
     public int TimeLimit { get; set; }
     public int QuestionCount { get; set; }
     public string? GradeAttemptMethod { get; set; }
-    public string? GradeQuestionValue { get; set; }
+    public string? GradeQuestionMethod { get; set; }
     public bool IsShowCorrectAnswerInReview { get; set; }
     public bool IsAllowReviewAfterSubmit { get; set; }
     public int NumberOfShuffles { get; set; }
     public int MaxAttempt { get; set; }
-    public double PassScore { get; set; }
+    public double PassingScore { get; set; }
     public List<QuestionResponseDto> Questions { get; set; } = new();
 }
