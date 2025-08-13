@@ -1813,6 +1813,48 @@
         }
       }
     },
+    "/api/Payment/History": {
+      "get": {
+        "tags": [
+          "Payment"
+        ],
+        "operationId": "GetUserPaymentHistory",
+        "parameters": [
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            },
+            "x-position": 1
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 5
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfPaymentHistoryDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Payment/WebHook/Sepay": {
       "post": {
         "tags": [
@@ -2468,6 +2510,7 @@
         "tags": [
           "QuestionSet"
         ],
+        "summary": "Updates the sharing settings for a specific question set",
         "operationId": "UpdateQuestionSetSharing",
         "parameters": [
           {
@@ -2585,6 +2628,82 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfListOfQuestionResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/QuestionSet/{questionSetId}/Rating": {
+      "get": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "summary": "Retrieves the rating for a specific question set",
+        "operationId": "GetRating",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGetRatingDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "summary": "Creates a new rating for a specific question set",
+        "operationId": "CreateRating",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRatingCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
                 }
               }
             }
@@ -5616,6 +5735,70 @@
           }
         }
       },
+      "ApiResponseOfListOfPaymentHistoryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/PaymentHistoryDto"
+            }
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PaymentHistoryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "planId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "planName": {
+            "type": "string",
+            "nullable": true
+          },
+          "price": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "BuyPointCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -6206,6 +6389,66 @@
           }
         }
       },
+      "ApiResponseOfGetRatingDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/GetRatingDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "GetRatingDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "rating": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CreateRatingCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "questionSetId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
+          "rating": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "UpdateQuestionSetCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -6481,7 +6724,7 @@
             "type": "string",
             "nullable": true
           },
-          "gradeQuestionValue": {
+          "gradeQuestionMethod": {
             "type": "string",
             "nullable": true
           },
@@ -6499,7 +6742,7 @@
             "type": "integer",
             "format": "int32"
           },
-          "passScore": {
+          "passingScore": {
             "type": "number",
             "format": "double"
           },
@@ -6773,6 +7016,10 @@
             "format": "guid"
           },
           "testName": {
+            "type": "string",
+            "nullable": true
+          },
+          "className": {
             "type": "string",
             "nullable": true
           }
