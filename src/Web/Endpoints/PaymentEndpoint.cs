@@ -1,5 +1,6 @@
 ﻿using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.Payments.Commands;
+using CleanArchitectureBase.Application.Payments.Dto;
 using CleanArchitectureBase.Application.Payments.Queries;
 using CleanArchitectureBase.Application.Plans;
 using CleanArchitectureBase.Application.Plans.Dto;
@@ -16,9 +17,10 @@ public class PaymentEndpoints : EndpointGroupBase
     {
         var group = app.MapGroup(this);
 
+        group.MapGet(GetUserPaymentHistory, "/History");
         group.MapPost(BuyPoint, "/WebHook/Sepay")
             .AddEndpointFilter<PaymentAuthEndpointFilter>();
-
+        
         group.MapPost(GetQrCode, "/QrCode");
     }
 
@@ -39,6 +41,20 @@ public class PaymentEndpoints : EndpointGroupBase
             Amount = amount
         };
         var result =  await sender.Send(request);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<List<PaymentHistoryDto>>>> GetUserPaymentHistory(
+        ISender sender,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 5)
+    {
+        var rq = new GetUserPaymentHistoryQuery
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+        var result =  await sender.Send(rq);
         return result.ToOk();
     }
 }
