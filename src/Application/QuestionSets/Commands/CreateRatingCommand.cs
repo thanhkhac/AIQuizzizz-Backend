@@ -56,19 +56,32 @@ public class CreateRatingCommandHandler : IRequestHandler<CreateRatingCommand, G
         var rating = await _context.QuestionSetRatings
             .Where(x => x.QuestionSetId == rq.QuestionSetId && x.CreatedBy.Equals(_user.UserId))
             .FirstOrDefaultAsync(cancellationToken);
+        
+        var subRating = rating?.Rating ?? 0;
+        
+        var newRating = new QuestionSetRating { QuestionSetId = rq.QuestionSetId!.Value, Rating = rq.Rating };
+        
         if (rating != null)
         {
             rating.Rating = rq.Rating;
-            await _context.SaveChangesAsync(cancellationToken);
-            return rating.QuestionSetId;       
         }
-
-        var newRating = new QuestionSetRating { QuestionSetId = rq.QuestionSetId!.Value, Rating = rq.Rating };
+        else
+        {
+            await _context.QuestionSetRatings.AddAsync(newRating, cancellationToken);
+        }
         
-        await _context.QuestionSetRatings.AddAsync(newRating, cancellationToken);
+        var ratingsOfQuestionSet = _context.QuestionSetRatings
+            .Where(x => x.QuestionSetId == rq.QuestionSetId);
+        
+        var numberOfRatings = rating!=null ? ratingsOfQuestionSet.Count() : ratingsOfQuestionSet.Count() + 1;
+        
+        var averageRating = ratingsOfQuestionSet.Any() ?
+            (ratingsOfQuestionSet.Sum(x => x.Rating) - subRating + rq.Rating)/numberOfRatings : rq.Rating;
+        
+        questionSet.RatingAverage = averageRating;
         
         await _context.SaveChangesAsync(cancellationToken);
 
-        return newRating.QuestionSetId;
+        return rq.QuestionSetId.Value;
     }
 }

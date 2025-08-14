@@ -49,7 +49,15 @@ public class RemoveStudentCommandHandler : IRequestHandler<RemoveStudentCommand,
     /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<Guid> Handle(RemoveStudentCommand rq, CancellationToken cancellationToken)
     {
-        var (isOwner, classExists) = await _classService.GetClassOwnerAccess(rq.ClassId, cancellationToken);
+        var classById = await _context.Classes
+            .Where(x => x.Id == rq.ClassId)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (classById == null)
+            throw new ErrorCodeException(ErrorCodes.CLASS_NOTFOUND);
+        
+        var canDelete = await _classService.IsLecturerOrOwnerInClass(rq.ClassId);
+        if (!canDelete)
+            throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION);
         
         var user = await _context.ClassUsers
             .Include(u => u.User)
