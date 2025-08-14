@@ -75,10 +75,16 @@ public class CreateRatingCommandHandler : IRequestHandler<CreateRatingCommand, G
         
         var numberOfRatings = rating!=null ? ratingsOfQuestionSet.Count() : ratingsOfQuestionSet.Count() + 1;
         
+        var sumOfRatings = ratingsOfQuestionSet.Sum(x => x.Rating) - subRating + rq.Rating;
+        
         var averageRating = ratingsOfQuestionSet.Any() ?
-            (ratingsOfQuestionSet.Sum(x => x.Rating) - subRating + rq.Rating)/numberOfRatings : rq.Rating;
+            (float)Math.Round((double)sumOfRatings / numberOfRatings, 1) : rq.Rating;
         
         questionSet.RatingAverage = averageRating;
+        
+        questionSet.RatingCount = numberOfRatings;
+        
+        questionSet.RatingSum = sumOfRatings;
         
         await _context.SaveChangesAsync(cancellationToken);
 
