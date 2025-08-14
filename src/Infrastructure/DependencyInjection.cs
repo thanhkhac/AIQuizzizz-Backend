@@ -20,6 +20,7 @@ using CleanArchitectureBase.Infrastructure.Data.Interceptors;
 using CleanArchitectureBase.Infrastructure.DomainServices;
 using CleanArchitectureBase.Infrastructure.File;
 using CleanArchitectureBase.Infrastructure.Google;
+using CleanArchitectureBase.Infrastructure.Hangfire;
 using CleanArchitectureBase.Infrastructure.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using CleanArchitectureBase.Infrastructure.Redis;
@@ -188,6 +189,7 @@ public static class DependencyInjection
         services.AddScoped<IFolderTestService, FolderTestService>();
         services.AddScoped<ICommentService, CommentService>();
         services.AddScoped<IAiGenerateService, AiGenerateService>();
+        services.AddScoped<IHangFireService, HangFireService>();
         services.AddSingleton<IRedisService, RedisService>();
         
         services.AddSingleton<IFileService, FileService>();
