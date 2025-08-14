@@ -15,6 +15,7 @@ public class Users : EndpointGroupBase
         var group = app.MapGroup(this);
 
         group.MapGet(GetAllAccount, "");
+        group.MapPatch("/{UserId}/Info", UpdateUserInfo);
         group.MapPatch("{UserId}/Role", ChangeRole);
         group.MapPatch("/{UserId}/Ban", BanUser);
         group.MapGet("/ForSelection", SearchUserForSelection);
@@ -74,6 +75,14 @@ public class Users : EndpointGroupBase
             Email = email
         };
 
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<Guid>>> UpdateUserInfo (
+        [FromBody] UpdateUserInfoCommand rq,
+        ISender sender)
+    {
         var result = await sender.Send(rq);
         return result.ToOk();
     }

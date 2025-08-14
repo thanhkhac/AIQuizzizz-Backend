@@ -65,6 +65,13 @@ public class CreateRatingCommandHandler : IRequestHandler<CreateRatingCommand, G
 
         var newRating = new QuestionSetRating { QuestionSetId = rq.QuestionSetId!.Value, Rating = rq.Rating };
         
+        var ratingsOfQuestionSet = _context.QuestionSetRatings
+            .Where(x => x.QuestionSetId == rq.QuestionSetId);
+
+        var averageRating = ratingsOfQuestionSet.Any() ? ratingsOfQuestionSet.Average(x => x.Rating) : 0;
+        
+        questionSet.RatingAverage = averageRating;
+        
         await _context.QuestionSetRatings.AddAsync(newRating, cancellationToken);
         
         await _context.SaveChangesAsync(cancellationToken);

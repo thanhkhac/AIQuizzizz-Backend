@@ -1,5 +1,6 @@
 ﻿using CleanArchitectureBase.Application.Common.Models;
 using CleanArchitectureBase.Application.FolderTest;
+using CleanArchitectureBase.Application.Payments.Dto;
 using CleanArchitectureBase.Application.Plans;
 using CleanArchitectureBase.Application.Plans.Dto;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -14,6 +15,9 @@ public class PlanEndpoints : EndpointGroupBase
         var group = app.MapGroup(this);
 
         group.MapGet(GetDetailPlan, "/{planId}");
+        group.MapGet(GetRevenueByYear, "/Revenue");
+        group.MapGet(GetNumberOfNewClassByYear, "/NumberOfNewClass");
+        group.MapGet(GetPlatformOverview, "/PlatformOverview");
         group.MapPost(CreateUpdatePlan, "");
         group.MapPost(BuyPlan, "/{planId}/Buy");
         group.MapDelete(DeletePlan, "/{planId}");
@@ -70,6 +74,35 @@ public class PlanEndpoints : EndpointGroupBase
     )
     {
         var result = await sender.Send(query);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<List<RevenueDto>>>> GetRevenueByYear(
+        [FromQuery] int year,
+        ISender sender
+    )
+    {
+        var rq = new GetRevenueByYearQuery { Year = year };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<List<NumberOfNewClassDto>>>> GetNumberOfNewClassByYear(
+        [FromQuery] int year,
+        ISender sender
+    )
+    {
+        var rq = new GetNumberOfNewClassByYearQuery { Year = year };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<PlatformOverviewDto>>> GetPlatformOverview(
+        ISender sender
+    )
+    {
+        var rq = new GetPlatformOverviewQuery();
+        var result = await sender.Send(rq);
         return result.ToOk();
     }
 }
