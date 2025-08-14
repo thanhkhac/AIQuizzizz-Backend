@@ -12,6 +12,7 @@ namespace CleanArchitectureBase.Application.Tests;
 public class GetTestDetailQuery : IRequest<TestDetailDto>
 {
     public required Guid TestId { get; set; }
+    public bool? IsShowQuestion { get; set; } = true;
 }
 
 public class GetTestDetailQueryValidator : AbstractValidator<GetTestDetailQuery>
@@ -20,6 +21,8 @@ public class GetTestDetailQueryValidator : AbstractValidator<GetTestDetailQuery>
     {
         RuleFor(x => x.TestId)
             .NotEmpty().WithMessage("TestId không được trống");
+        
+        
     }
 }
 
@@ -47,13 +50,13 @@ public class GetTestDetailQueryHandler : IRequestHandler<GetTestDetailQuery, Tes
         if (!canView)
             throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST, "Không có quyền xem");
         
-        var questions = _context.TestVersionQuestions
+        var questions = rq?.IsShowQuestion ?? true ? _context.TestVersionQuestions
             .Include(x => x.TestVersion)
             .ThenInclude(x => x!.Test)
             .Include(x => x.Question)
-            .Where(q => q.TestVersion!.Test!.Id == rq.TestId && q.TestVersion.No == 0)
+            .Where(q => q.TestVersion!.Test!.Id == rq!.TestId && q.TestVersion.No == 0)
             .Select(qs => QuestionResponseDto.Mapper.FromEntity(qs.Question!, true, true, true))
-            .ToList();
+            .ToList() : new List<QuestionResponseDto>();
 
         return new TestDetailDto
         {
@@ -64,9 +67,9 @@ public class GetTestDetailQueryHandler : IRequestHandler<GetTestDetailQuery, Tes
             EndTime = test.TimeFinish,
             TimeLimit = test.TimeLimit,
             GradeAttemptMethod = test.GradeAttemptMethod.ToString(),
-            GradeQuestionValue = test.GradeQuestionMethod.ToString(),
+            GradeQuestionMethod = test.GradeQuestionMethod.ToString(),
             MaxAttempt = test.MaxAttempt,
-            PassScore = test.PassingScore,
+            PassingScore = test.PassingScore,
             IsAllowReviewAfterSubmit = test.IsAllowReviewAfterSubmit,
             IsShowCorrectAnswerInReview = test.IsShowCorrectAnswerInReview,
             QuestionCount = test.QuestionCount,

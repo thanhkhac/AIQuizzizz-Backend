@@ -13,6 +13,8 @@ namespace CleanArchitectureBase.Application.Tests;
 public class GetTestResultOfClassQuery : IRequest<PaginatedList<ResultTestOfClassDto>>
 {
     public required Guid TestId { get; set; }
+    public string? StudentName { get; set; }
+    public bool? IsPassed { get; set; }
     public int PageNumber { get; set; } = 1;
     public int PageSize { get; set; } = 10;
 }
@@ -63,7 +65,8 @@ public class GetTestResultOfClassQueryHandler : IRequestHandler<GetTestResultOfC
         var resultTest = _context.TestGrades
             .Include(x => x.User)
             .Include(x => x.Test)
-            .Where(x => x.TestId == rq.TestId && x.Test!.IsDeleted == false)
+            .Where(x => x.TestId == rq.TestId && x.Test!.IsDeleted == false
+            && (rq.StudentName == null || x.User!.FullName!.ToLower().Contains(rq.StudentName.ToLower())))
             .Select(x => new ResultTestOfClassDto
             {
                 StudentId = x.UserId,
@@ -74,6 +77,12 @@ public class GetTestResultOfClassQueryHandler : IRequestHandler<GetTestResultOfC
                     ? nameof(AttemptStatus.Passed)
                     : nameof(AttemptStatus.Failed)
             });
+
+        if (rq.IsPassed != null)
+        {
+            resultTest = resultTest
+                .Where(x => x.Status!.Equals(rq.IsPassed.Value ? nameof(AttemptStatus.Passed) : nameof(AttemptStatus.Failed)));
+        }
         
         return await PaginatedList<ResultTestOfClassDto>.CreateAsync(
             resultTest.AsQueryable(),
