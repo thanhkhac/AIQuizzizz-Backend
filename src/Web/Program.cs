@@ -3,6 +3,8 @@ using CleanArchitectureBase.Infrastructure;
 using CleanArchitectureBase.Infrastructure.Data;
 using CleanArchitectureBase.Web;
 using CleanArchitectureBase.Web.Attributes;
+using Hangfire;
+using Hangfire.PostgreSql;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +17,18 @@ builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddWebServices();
 builder.Services.AddScoped<PaymentAuthEndpointFilter>();
+
+builder.Services.AddHangfire(configuration => configuration
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UsePostgreSqlStorage(options =>
+    {
+        options.UseNpgsqlConnection(builder.Configuration.GetConnectionString("DefaultConnection"));
+    }));
+
+builder.Services.AddHangfireServer();
+
 
 var app = builder.Build();
 

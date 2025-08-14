@@ -41,12 +41,18 @@ public class SubmitTestAttemptCommandHandler : IRequestHandler<SubmitTestAttempt
     private readonly IApplicationDbContext _context;
     private readonly ITestService _testService;
     private readonly IUser _user;
+    private readonly IHangFireService _hangFireService;
     
-    public SubmitTestAttemptCommandHandler(IApplicationDbContext context, ITestService testService, IUser user)
+    public SubmitTestAttemptCommandHandler(
+        IApplicationDbContext context,
+        ITestService testService,
+        IUser user,
+        IHangFireService hangFireService)
     {
         _context = context;
         _testService = testService;
         _user = user;
+        _hangFireService = hangFireService;       
     }
 
     /// <summary>
@@ -140,45 +146,46 @@ public class SubmitTestAttemptCommandHandler : IRequestHandler<SubmitTestAttempt
         if (rq.IsSubmit)
         {
             attempt.TimeFinish = DateTime.UtcNow;
-            
-            var userGrade = await _context.TestGrades
+            await _hangFireService.DeleteJobByArgument(attempt.Id.ToString());
+        }
+
+        var userGrade = await _context.TestGrades
                 .Where(x => x.UserId == _user.UserId && x.TestId == attempt.TestId)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (userGrade == null)
+        if (userGrade == null)
+        {
+            userGrade = new TestGrade
             {
-                userGrade = new TestGrade
-                {
                     Id = Guid.NewGuid(),
                     Score = totalScore,
                     TestId = attempt.TestId,
                     UserId = _user.UserId!.Value,
-                };
+            };
             
                 _context.TestGrades.Add(userGrade);
-            }
-            else
+        }
+        else
+        {
+            if (GradeAttemptMethod.HighestScore.Equals(attempt.Test.GradeAttemptMethod))
             {
-                if (GradeAttemptMethod.HighestScore.Equals(attempt.Test.GradeAttemptMethod))
-                {
-                    var allAttempt = await _context.Attempts
-                        .Where(a => a.TestId == attempt.TestId && a.UserId == _user.UserId)
-                        .OrderByDescending(a => a.Score)
-                        .FirstOrDefaultAsync(cancellationToken);
+                var allAttempt = await _context.Attempts
+                    .Where(a => a.TestId == attempt.TestId && a.UserId == _user.UserId)
+                    .OrderByDescending(a => a.Score)
+                    .FirstOrDefaultAsync(cancellationToken);
 
-                    if (allAttempt!.Score < totalScore)
-                    {
-                        userGrade.Score = totalScore;
-                        _context.TestGrades.Update(userGrade);
-                    }
-                }
-                else
+                if (allAttempt!.Score < totalScore)
                 {
                     userGrade.Score = totalScore;
                     _context.TestGrades.Update(userGrade);
                 }
-            }   
-        }
+            }
+            else
+            {
+                userGrade.Score = totalScore;
+                _context.TestGrades.Update(userGrade);
+            }
+        }   
         
         _context.AttemptQuestions.AddRange(attemptQuestions);
         
