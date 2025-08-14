@@ -22,12 +22,17 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
     private readonly IApplicationDbContext _context;
     private readonly ITestService _testService;
     private readonly IUser _user;
+    private readonly IHangFireService _hangFireService;
     
-    public StartAttemptTestCommandHandler(IApplicationDbContext context, ITestService testService, IUser user)
+    public StartAttemptTestCommandHandler(
+        IApplicationDbContext context,
+        ITestService testService, IUser user,
+        IHangFireService hangFireService)
     {
         _context = context;
         _testService = testService;
         _user = user;
+        _hangFireService = hangFireService;       
     }
     
     /// <summary>
@@ -111,6 +116,8 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
             testVersionId = testVersion.Id;
             
             timeRemaining = test.TimeLimit;
+
+            await _hangFireService.AutoSubmitTest(newAttempt.Id, test.TimeLimit);
             
             _context.Attempts.Add(newAttempt);
         }
