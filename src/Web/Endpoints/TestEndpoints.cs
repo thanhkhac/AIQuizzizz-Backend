@@ -29,9 +29,12 @@ public class Test : EndpointGroupBase
         group.MapPatch(EditTest, "/{TestId}");
     }
     
-    public async Task<Ok<ApiResponse<TestDetailDto>>> GetTestDetail([FromRoute] Guid testId, ISender sender)
+    public async Task<Ok<ApiResponse<TestDetailDto>>> GetTestDetail(
+        [FromRoute] Guid testId,
+        [FromQuery] bool? isShowQuestion,
+        ISender sender)
     {
-        var rq = new GetTestDetailQuery { TestId = testId };
+        var rq = new GetTestDetailQuery { TestId = testId, IsShowQuestion = isShowQuestion};
         var result = await sender.Send(rq);
         return result.ToOk();
     }
@@ -39,10 +42,19 @@ public class Test : EndpointGroupBase
     public async Task<Ok<ApiResponse<PaginatedList<ResultTestOfClassDto>>>> GetTestResultOfClass(
         [FromRoute] Guid testId,
         ISender sender,
+        [FromQuery] string? studentName,
+        [FromQuery] bool? isPassed,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
     {
-        var rq = new GetTestResultOfClassQuery { TestId = testId, PageNumber = pageNumber, PageSize = pageSize };
+        var rq = new GetTestResultOfClassQuery
+        {
+            TestId = testId,
+            StudentName = studentName,
+            IsPassed = isPassed,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
         var result = await sender.Send(rq);
         return result.ToOk();
     }
