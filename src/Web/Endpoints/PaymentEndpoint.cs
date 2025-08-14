@@ -44,7 +44,7 @@ public class PaymentEndpoints : EndpointGroupBase
         return result.ToOk();
     }
     
-    public async Task<Ok<ApiResponse<List<PaymentHistoryDto>>>> GetUserPaymentHistory(
+    public async Task<Ok<ApiResponse<PaginatedList<PaymentHistoryDto>>>> GetUserPaymentHistory(
         ISender sender,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 5)
