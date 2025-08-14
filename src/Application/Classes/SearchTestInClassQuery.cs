@@ -118,8 +118,16 @@ public class SearchTestInClassQueryHandler : IRequestHandler<SearchTestInClassQu
         var attemptCounts = await _context.Attempts
             .Where(a => testIds.Contains(a.TestId))
             .GroupBy(a => a.TestId)
-            .Select(g => new { TestId = g.Key, Count = g.Count() })
-            .ToDictionaryAsync(x => x.TestId, x => x.Count, cancellationToken);
+            .Select(g => new 
+            { 
+                TestId = g.Key, 
+                Count = g.Select(a => a.UserId).Distinct().Count() 
+            })
+            .ToDictionaryAsync(
+                x => x.TestId, 
+                x => x.Count, 
+                cancellationToken
+            );
 
         var results = tests.Select(test =>
         {
