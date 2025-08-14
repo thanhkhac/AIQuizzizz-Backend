@@ -1847,7 +1847,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfListOfPaymentHistoryDto"
+                  "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfPaymentHistoryDto"
                 }
               }
             }
@@ -2010,6 +2010,90 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Plan/Revenue": {
+      "get": {
+        "tags": [
+          "Plan"
+        ],
+        "operationId": "GetRevenueByYear",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfRevenueDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Plan/NumberOfNewClass": {
+      "get": {
+        "tags": [
+          "Plan"
+        ],
+        "operationId": "GetNumberOfNewClassByYear",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfNumberOfNewClassDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Plan/PlatformOverview": {
+      "get": {
+        "tags": [
+          "Plan"
+        ],
+        "operationId": "GetPlatformOverview",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPlatformOverviewDto"
                 }
               }
             }
@@ -2990,6 +3074,15 @@
               "format": "guid"
             },
             "x-position": 1
+          },
+          {
+            "name": "isShowQuestion",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            },
+            "x-position": 2
           }
         ],
         "responses": {
@@ -3099,6 +3192,24 @@
             "x-position": 1
           },
           {
+            "name": "studentName",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "isPassed",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
             "name": "pageNumber",
             "in": "query",
             "schema": {
@@ -3106,7 +3217,7 @@
               "format": "int32",
               "default": 1
             },
-            "x-position": 2
+            "x-position": 4
           },
           {
             "name": "pageSize",
@@ -3116,7 +3227,7 @@
               "format": "int32",
               "default": 5
             },
-            "x-position": 3
+            "x-position": 5
           }
         ],
         "responses": {
@@ -3785,6 +3896,38 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfPaginatedListOfUserForListDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Users/Info": {
+      "patch": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PatchApiUsersInfo",
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserInfoCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
                 }
               }
             }
@@ -5735,7 +5878,7 @@
           }
         }
       },
-      "ApiResponseOfListOfPaymentHistoryDto": {
+      "ApiResponseOfPaginatedListOfPaymentHistoryDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -5758,13 +5901,48 @@
             }
           },
           "data": {
-            "type": "array",
             "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedListOfPaymentHistoryDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PaginatedListOfPaymentHistoryDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
             "items": {
               "$ref": "#/components/schemas/PaymentHistoryDto"
             }
           },
-          "success": {
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
             "type": "boolean"
           }
         }
@@ -5779,7 +5957,8 @@
           },
           "planId": {
             "type": "string",
-            "format": "guid"
+            "format": "guid",
+            "nullable": true
           },
           "planName": {
             "type": "string",
@@ -5938,6 +6117,159 @@
           },
           "isActive": {
             "type": "boolean"
+          }
+        }
+      },
+      "ApiResponseOfListOfRevenueDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/RevenueDto"
+            }
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RevenueDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "month": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "revenue": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ApiResponseOfListOfNumberOfNewClassDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/NumberOfNewClassDto"
+            }
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "NumberOfNewClassDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "month": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "revenue": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ApiResponseOfPlatformOverviewDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PlatformOverviewDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PlatformOverviewDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "users": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "classes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "revenue": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "usersHavePlan": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -6184,7 +6516,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "questionId": {
+          "id": {
             "type": "string",
             "format": "guid"
           },
@@ -7879,6 +8211,15 @@
           "role": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "UpdateUserInfoCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "fullName": {
+            "type": "string"
           }
         }
       },
