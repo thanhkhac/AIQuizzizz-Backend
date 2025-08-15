@@ -1,6 +1,7 @@
 ﻿using System.Data.Common;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Infrastructure.Data;
+using Hangfire;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -38,7 +39,8 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                 {
                     options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
                     options.UseNpgsql(_connection);
-                });
+                });               
+                
         });
     }
 }
