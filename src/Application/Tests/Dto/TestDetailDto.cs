@@ -18,5 +18,6 @@ public class TestDetailDto
     public int NumberOfShuffles { get; set; }
     public int MaxAttempt { get; set; }
     public double PassingScore { get; set; }
+    public float TotalScore { get; set; }
     public List<QuestionResponseDto> Questions { get; set; } = new();
 }
