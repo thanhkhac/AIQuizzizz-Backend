@@ -7351,6 +7351,10 @@
             "type": "string",
             "format": "guid"
           },
+          "classId": {
+            "type": "string",
+            "format": "guid"
+          },
           "testName": {
             "type": "string",
             "nullable": true
