@@ -7362,6 +7362,14 @@
           "className": {
             "type": "string",
             "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "timeStart": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
