@@ -7078,6 +7078,10 @@
             "type": "number",
             "format": "double"
           },
+          "totalScore": {
+            "type": "number",
+            "format": "float"
+          },
           "questions": {
             "type": "array",
             "items": {
