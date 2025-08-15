@@ -86,7 +86,7 @@ public class RemoveStudentCommandTests : BaseTestFixture
         var ex = await FluentActions.Invoking((() => SendAsync(command)))
             .Should().ThrowAsync<ErrorCodeException>();
 
-        ex.Which.Errors.Should().ContainKey(ErrorCodes.ONLY_OWNERS_CAN_UPDATE);
+        ex.Which.Errors.Should().ContainKey(ErrorCodes.USER_NOT_HAVE_PERMISSION);
     }
 
     [Test]

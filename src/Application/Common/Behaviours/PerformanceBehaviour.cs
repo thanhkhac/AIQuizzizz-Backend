@@ -34,7 +34,7 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
         _timer.Stop();
 
         var elapsedMilliseconds = _timer.ElapsedMilliseconds;
-
+        Console.WriteLine($"Request:  ({elapsedMilliseconds} milliseconds)");
         if (elapsedMilliseconds > 500)
         {
             var requestName = typeof(TRequest).Name;

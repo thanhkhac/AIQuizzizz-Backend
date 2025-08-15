@@ -19,7 +19,7 @@ public static class DependencyInjection
             //Đăng ký pipeline behaviors, để xử lý một cái gì đấy trước hoặc sau khi handler được gọi
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));//1
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(AuthorizationBehaviour<,>));//2
-            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(TrimStringPropertiesBehaviour<,>));//4
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(CleanDataPropertiesBehaviour<,>));//4
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));//3
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>)); //5
         });

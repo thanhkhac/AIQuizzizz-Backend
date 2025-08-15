@@ -10,59 +10,45 @@ using static Testing;
 
 public class SearchClassQueryTests : BaseTestFixture
 {
-    [Test]
-    public async Task ShouldRequireValidPageNumber()
+    public static IEnumerable<TestCaseData> InvalidQueries()
     {
-        var userId = await RunAsDefaultUserAsync();
-
-        var query = new SearchClassQuery
+        // PageNumber is 0
+        yield return new TestCaseData(new SearchClassQuery
         {
             PageNumber = 0,
             PageSize = 10
-        };
+        }).SetName("Invalid: PageNumber is 0");
 
-        var ex = await FluentActions.Invoking(() => SendAsync(query))
-            .Should().ThrowAsync<ErrorCodeException>();
-
-        ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
-    }
-
-    [Test]
-    public async Task ShouldRequireValidPageSize()
-    {
-        var userId = await RunAsDefaultUserAsync();
-
-        var query = new SearchClassQuery
+        // PageSize is 0
+        yield return new TestCaseData(new SearchClassQuery
         {
             PageNumber = 1,
             PageSize = 0
-        };
+        }).SetName("Invalid: PageSize is 0");
 
-        var ex = await FluentActions.Invoking(() => SendAsync(query))
-            .Should().ThrowAsync<ErrorCodeException>();
+        // PageSize too large
+        yield return new TestCaseData(new SearchClassQuery
+        {
+            PageNumber = 1,
+            PageSize = 101
+        }).SetName("Invalid: Page size too large");
 
-        ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
-
-        query.PageSize = 101;
-        ex = await FluentActions.Invoking(() => SendAsync(query))
-            .Should().ThrowAsync<ErrorCodeException>();
-
-        ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
-    }
-
-    [Test]
-    public async Task ShouldRequireValidShareMode()
-    {
-        var userId = await RunAsDefaultUserAsync();
-
-        var query = new SearchClassQuery
+        // Invalid ShareMode
+        yield return new TestCaseData(new SearchClassQuery
         {
             PageNumber = 1,
             PageSize = 10,
             ShareMode = "InvalidMode"
-        };
+        }).SetName("Invalid: ShareMode is invalid");
+    }
 
-        var ex = await FluentActions.Invoking(() => SendAsync(query))
+
+    [Test]
+    [TestCaseSource(nameof(InvalidQueries))]
+    public async Task ShouldThrowErrorInvalidModel(SearchClassQuery query)
+    {
+        await RunAsDefaultUserAsync();
+        var ex = await FluentActions.Invoking((() => SendAsync(query)))
             .Should().ThrowAsync<ErrorCodeException>();
 
         ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
@@ -74,16 +60,43 @@ public class SearchClassQueryTests : BaseTestFixture
         var userId = await RunAsDefaultUserAsync();
         var userId2 = await RunAsDefaultUserAsync(2);
 
-        var class1 = new Class { Name = "Class A", CreatedBy = userId };
-        var class2 = new Class { Name = "Class B", CreatedBy = userId2 }; // Another user's class
-        var class3 = new Class { Name = "Class C", CreatedBy = userId };
+        var class1 = new Class
+        {
+            Name = "Class A",
+            CreatedBy = userId
+        };
+        var class2 = new Class
+        {
+            Name = "Class B",
+            CreatedBy = userId2
+        }; // Another user's class
+        var class3 = new Class
+        {
+            Name = "Class C",
+            CreatedBy = userId
+        };
         await AddAsync(class1);
         await AddAsync(class2);
         await AddAsync(class3);
 
-        await AddAsync(new ClassUser { UserId = userId, ClassId = class1.Id, ShareMode = ClassShareMode.Owner });
-        await AddAsync(new ClassUser { UserId = userId2, ClassId = class2.Id, ShareMode = ClassShareMode.Owner });
-        await AddAsync(new ClassUser { UserId = userId, ClassId = class3.Id, ShareMode = ClassShareMode.Student });
+        await AddAsync(new ClassUser
+        {
+            UserId = userId,
+            ClassId = class1.Id,
+            ShareMode = ClassShareMode.Owner
+        });
+        await AddAsync(new ClassUser
+        {
+            UserId = userId2,
+            ClassId = class2.Id,
+            ShareMode = ClassShareMode.Owner
+        });
+        await AddAsync(new ClassUser
+        {
+            UserId = userId,
+            ClassId = class3.Id,
+            ShareMode = ClassShareMode.Student
+        });
         await RunAsDefaultUserAsync();
         var query = new SearchClassQuery
         {
@@ -105,16 +118,43 @@ public class SearchClassQueryTests : BaseTestFixture
     {
         var userId = await RunAsDefaultUserAsync();
 
-        var class1 = new Class { Name = "Math Class", CreatedBy = userId };
-        var class2 = new Class { Name = "Science Class", CreatedBy = userId };
-        var class3 = new Class { Name = "History Class", CreatedBy = userId };
+        var class1 = new Class
+        {
+            Name = "Math Class",
+            CreatedBy = userId
+        };
+        var class2 = new Class
+        {
+            Name = "Science Class",
+            CreatedBy = userId
+        };
+        var class3 = new Class
+        {
+            Name = "History Class",
+            CreatedBy = userId
+        };
         await AddAsync(class1);
         await AddAsync(class2);
         await AddAsync(class3);
 
-        await AddAsync(new ClassUser { UserId = userId, ClassId = class1.Id, ShareMode = ClassShareMode.Owner });
-        await AddAsync(new ClassUser { UserId = userId, ClassId = class2.Id, ShareMode = ClassShareMode.Owner });
-        await AddAsync(new ClassUser { UserId = userId, ClassId = class3.Id, ShareMode = ClassShareMode.Owner });
+        await AddAsync(new ClassUser
+        {
+            UserId = userId,
+            ClassId = class1.Id,
+            ShareMode = ClassShareMode.Owner
+        });
+        await AddAsync(new ClassUser
+        {
+            UserId = userId,
+            ClassId = class2.Id,
+            ShareMode = ClassShareMode.Owner
+        });
+        await AddAsync(new ClassUser
+        {
+            UserId = userId,
+            ClassId = class3.Id,
+            ShareMode = ClassShareMode.Owner
+        });
 
         var query = new SearchClassQuery
         {
@@ -135,16 +175,43 @@ public class SearchClassQueryTests : BaseTestFixture
     {
         var userId = await RunAsDefaultUserAsync();
 
-        var class1 = new Class { Name = "Owner Class", CreatedBy = userId };
-        var class2 = new Class { Name = "Student Class", CreatedBy = Guid.NewGuid() };
-        var class3 = new Class { Name = "Teacher Class", CreatedBy = Guid.NewGuid() };
+        var class1 = new Class
+        {
+            Name = "Owner Class",
+            CreatedBy = userId
+        };
+        var class2 = new Class
+        {
+            Name = "Student Class",
+            CreatedBy = Guid.NewGuid()
+        };
+        var class3 = new Class
+        {
+            Name = "Teacher Class",
+            CreatedBy = Guid.NewGuid()
+        };
         await AddAsync(class1);
         await AddAsync(class2);
         await AddAsync(class3);
 
-        await AddAsync(new ClassUser { UserId = userId, ClassId = class1.Id, ShareMode = ClassShareMode.Owner });
-        await AddAsync(new ClassUser { UserId = userId, ClassId = class2.Id, ShareMode = ClassShareMode.Student });
-        await AddAsync(new ClassUser { UserId = userId, ClassId = class3.Id, ShareMode = ClassShareMode.Teacher });
+        await AddAsync(new ClassUser
+        {
+            UserId = userId,
+            ClassId = class1.Id,
+            ShareMode = ClassShareMode.Owner
+        });
+        await AddAsync(new ClassUser
+        {
+            UserId = userId,
+            ClassId = class2.Id,
+            ShareMode = ClassShareMode.Student
+        });
+        await AddAsync(new ClassUser
+        {
+            UserId = userId,
+            ClassId = class3.Id,
+            ShareMode = ClassShareMode.Teacher
+        });
 
         var query = new SearchClassQuery
         {
@@ -167,9 +234,18 @@ public class SearchClassQueryTests : BaseTestFixture
 
         for (int i = 0; i < 15; i++)
         {
-            var classEntity = new Class { Name = $"Class {i}", CreatedBy = userId };
+            var classEntity = new Class
+            {
+                Name = $"Class {i}",
+                CreatedBy = userId
+            };
             await AddAsync(classEntity);
-            await AddAsync(new ClassUser { UserId = userId, ClassId = classEntity.Id, ShareMode = ClassShareMode.Owner });
+            await AddAsync(new ClassUser
+            {
+                UserId = userId,
+                ClassId = classEntity.Id,
+                ShareMode = ClassShareMode.Owner
+            });
         }
 
         var query = new SearchClassQuery
