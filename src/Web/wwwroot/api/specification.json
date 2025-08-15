@@ -7078,6 +7078,10 @@
             "type": "number",
             "format": "double"
           },
+          "totalScore": {
+            "type": "number",
+            "format": "float"
+          },
           "questions": {
             "type": "array",
             "items": {
@@ -7347,6 +7351,10 @@
             "type": "string",
             "format": "guid"
           },
+          "classId": {
+            "type": "string",
+            "format": "guid"
+          },
           "testName": {
             "type": "string",
             "nullable": true
@@ -7402,6 +7410,10 @@
           },
           "name": {
             "type": "string"
+          },
+          "studentName": {
+            "type": "string",
+            "nullable": true
           },
           "timeStart": {
             "type": "string",
