@@ -87,6 +87,7 @@ public static class ErrorCodes
     //Question
     public const string INVALID_QUESTION_TYPE = nameof(INVALID_QUESTION_TYPE);
     public const string QUESTION_NOT_FOUND = nameof(QUESTION_NOT_FOUND);
+    public const string QUESTION_NOT_FOUND_TO_DELETE = nameof(QUESTION_NOT_FOUND_TO_DELETE);
     
     //Question set
     public const string QUESTION_SET_NOT_FOUND = nameof(QUESTION_SET_NOT_FOUND);
@@ -129,6 +130,7 @@ public static class ErrorCodes
     public const string ERROR_ATTEMPT_USER = nameof(ERROR_ATTEMPT_USER);
     public const string ATTEMPT_ALREADY_SUBMIT = nameof(ATTEMPT_ALREADY_SUBMIT);
     public const string ATTEMPT_NOT_FOUND = nameof(ATTEMPT_NOT_FOUND);
+    public const string NOT_SUBMITTED_CAN_NOT_VIEW = nameof(NOT_SUBMITTED_CAN_NOT_VIEW);
     
     //Comment
     public const string QUESTION_CAN_NOT_COMMENT = nameof(QUESTION_CAN_NOT_COMMENT);

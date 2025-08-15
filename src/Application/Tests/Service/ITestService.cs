@@ -17,6 +17,7 @@ public interface ITestService
     Task<bool> CanCreateTest(Guid classId);
     Task TryCheckCanAttemptTest(Test test);
     Task<ClassShareMode?> GetRoleUserInTest(Test test);
+    Task AutoSubmit(Guid attemptId);
 }
 
 public class TestService : ITestService
@@ -154,7 +155,7 @@ public class TestService : ITestService
         if (test.TimeStart > DateTime.UtcNow)
             throw new ErrorCodeException(ErrorCodes.NOT_YET_TIME_TO_OPEN_TEST, "Chưa đến thời gian mở test");
         
-        if (test.TimeFinish < DateTime.UtcNow)
+        if (test.TimeFinish.AddSeconds(10) < DateTime.UtcNow)
             throw new ErrorCodeException(ErrorCodes.TEST_IS_OVERDUE, "Hết hạn làm bài");
         
         var student = await _context.ClassUsers
@@ -175,5 +176,20 @@ public class TestService : ITestService
             throw new ErrorCodeException(ErrorCodes.NOT_FOUND_USER_IN_CLASS);
         
         return user.ShareMode;
+    }
+
+    public async Task AutoSubmit(Guid attemptId)
+    {
+        var attempt = await _context.Attempts
+            .Where(x => x.Id.Equals(attemptId))
+            .FirstOrDefaultAsync();
+        if (attempt == null)
+            throw new ErrorCodeException(ErrorCodes.ATTEMPT_NOT_FOUND);
+        
+        attempt.TimeFinish = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync(new CancellationToken());
+        
+        Console.WriteLine("Auto submit success");
     }
 }

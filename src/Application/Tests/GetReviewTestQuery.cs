@@ -42,6 +42,7 @@ public class GetReviewTestQueryHandler : IRequestHandler<GetReviewTestQuery, Rev
     public async Task<ReviewTestDto> Handle(GetReviewTestQuery rq, CancellationToken cancellationToken)
     {
         var attempt = await _context.Attempts
+            .Include(x => x.User)
             .Include(x => x.Test)
             .ThenInclude(x => x!.TestGrades)
             .Where(x => x.Id.Equals(rq.AttemptId)
@@ -50,6 +51,9 @@ public class GetReviewTestQueryHandler : IRequestHandler<GetReviewTestQuery, Rev
 
         if (attempt == null || attempt.Test == null)
             throw new ErrorCodeException(ErrorCodes.ATTEMPT_NOT_FOUND);
+        
+        if(attempt.TimeStart > attempt.TimeFinish)
+            throw new ErrorCodeException(ErrorCodes.NOT_SUBMITTED_CAN_NOT_VIEW);
 
         var roleInTest = await _testService.GetRoleUserInTest(attempt.Test);
 
@@ -65,14 +69,7 @@ public class GetReviewTestQueryHandler : IRequestHandler<GetReviewTestQuery, Rev
                 throw new ErrorCodeException(ErrorCodes.STUDENT_CAN_REVIEW_THIS_TEST);
         }
 
-        var reviewTest = new ReviewTestDto
-        {
-            AttemptId = attempt.Id,
-            Name = attempt.Test.Name,
-            TimeStart = attempt.TimeStart,
-            TimeEnd = attempt.TimeFinish,
-            Score = attempt.Test.TestGrades.Where(x => x.UserId == attempt.UserId).FirstOrDefault()?.Score ?? 0,
-        };
+        var totalPoint = attempt.Test.TestGrades.Where(x => x.UserId == attempt.UserId).FirstOrDefault()?.Score ?? 0;
         
         Dictionary<Guid, AttemptQuestion>? userAnswerDict = null;
         
@@ -85,6 +82,18 @@ public class GetReviewTestQueryHandler : IRequestHandler<GetReviewTestQuery, Rev
             .Where(x => x.TestVersion!.Id == attempt.TestVersionId)
             .OrderBy(x => x.Order)
             .ToListAsync(cancellationToken);
+        
+        var reviewTest = new ReviewTestDto
+        {
+            AttemptId = attempt.Id,
+            Name = attempt.Test.Name,
+            StudentName = attempt.User!.FullName,
+            TimeStart = attempt.TimeStart,
+            TimeEnd = attempt.TimeFinish,
+            Score = totalPoint,
+            Status = attempt.Test.PassingScore/100 <= totalPoint/versionQuestions.Sum(x => x.Question!.Score)
+                ? nameof(AttemptStatus.Passed) : nameof(AttemptStatus.Failed),
+        };
             
         reviewTest.Questions = versionQuestions
             .OrderBy(x => x.Order)
