@@ -49,7 +49,14 @@ public class GetTestScheduleQueryHandler : IRequestHandler<GetTestScheduleQuery,
     {  
         var testSchedule = await _context.Tests
             .Where(t => t.TimeStart.Month == rq.Month && t.TimeStart.Year == rq.Year)
-            .Select(x => new TestScheduleDto { TestId = x.Id, TestName = x.Name, Date = x.TimeStart.Date, ClassName = x.Class!.Name})
+            .Select(x => new TestScheduleDto
+            {
+                TestId = x.Id,
+                ClassId = x.ClassId,
+                TestName = x.Name,
+                Date = x.TimeStart.Date,
+                ClassName = x.Class!.Name
+            })
             .ToListAsync(cancellationToken);
         
         var testScheduleResponse = testSchedule
