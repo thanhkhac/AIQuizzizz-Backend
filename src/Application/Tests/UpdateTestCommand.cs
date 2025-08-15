@@ -137,13 +137,20 @@ public class UpdateTestCommandHandler : IRequestHandler<UpdateTestCommand, Guid>
             .Select(x => new {QuestionId = x.QuestionId, Question = x.Question})
             .ToList();
         
+        var allExist = rq.DeleteQuestionIds
+            .All(x => versionQuestions.Select(v => v.QuestionId).Contains(x));
+        if (!allExist)
+            throw new ErrorCodeException(ErrorCodes.QUESTION_NOT_FOUND_TO_DELETE);
+        
         var updateQuestionDto = rq.CreateUpdateQuestions
             .Where(x => x.QuestionId != null &&
-                        versionQuestions.Select(y => y.QuestionId).Contains(x.QuestionId.Value))
+                        versionQuestions.Select(y => y.QuestionId).Contains(x.QuestionId.Value)
+                        && !rq.DeleteQuestionIds.Contains(x.QuestionId.Value))
             .ToList();
 
         var updateQuestion = versionQuestions
-            .Where(x => updateQuestionDto.Any(q => q.QuestionId!.Value == x.QuestionId))
+            .Where(x => updateQuestionDto.Any(q => q.QuestionId!.Value == x.QuestionId)
+            && !rq.DeleteQuestionIds.Contains(x.QuestionId))
             .Select(x => x.Question!)
             .ToList();
         
@@ -250,6 +257,8 @@ public class UpdateTestCommandHandler : IRequestHandler<UpdateTestCommand, Guid>
             }
             order++;
         }
+        
+        test.QuestionCount = rq.CreateUpdateQuestions.Count - rq.DeleteQuestionIds.Count;
         
         _context.TestVersionQuestions.RemoveRange(deleteUpdateQuestion);
         
