@@ -87,6 +87,7 @@ public static class ErrorCodes
     //Question
     public const string INVALID_QUESTION_TYPE = nameof(INVALID_QUESTION_TYPE);
     public const string QUESTION_NOT_FOUND = nameof(QUESTION_NOT_FOUND);
+    public const string QUESTION_NOT_FOUND_TO_DELETE = nameof(QUESTION_NOT_FOUND_TO_DELETE);
     
     //Question set
     public const string QUESTION_SET_NOT_FOUND = nameof(QUESTION_SET_NOT_FOUND);
