@@ -42,6 +42,7 @@ public class GetReviewTestQueryHandler : IRequestHandler<GetReviewTestQuery, Rev
     public async Task<ReviewTestDto> Handle(GetReviewTestQuery rq, CancellationToken cancellationToken)
     {
         var attempt = await _context.Attempts
+            .Include(x => x.User)
             .Include(x => x.Test)
             .ThenInclude(x => x!.TestGrades)
             .Where(x => x.Id.Equals(rq.AttemptId)
@@ -86,6 +87,7 @@ public class GetReviewTestQueryHandler : IRequestHandler<GetReviewTestQuery, Rev
         {
             AttemptId = attempt.Id,
             Name = attempt.Test.Name,
+            StudentName = attempt.User!.FullName,
             TimeStart = attempt.TimeStart,
             TimeEnd = attempt.TimeFinish,
             Score = totalPoint,
