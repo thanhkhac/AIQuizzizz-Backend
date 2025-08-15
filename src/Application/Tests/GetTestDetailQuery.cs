@@ -50,13 +50,13 @@ public class GetTestDetailQueryHandler : IRequestHandler<GetTestDetailQuery, Tes
         if (!canView)
             throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST, "Không có quyền xem");
         
-        var questions = rq?.IsShowQuestion ?? true ? _context.TestVersionQuestions
+        var questions = _context.TestVersionQuestions
             .Include(x => x.TestVersion)
             .ThenInclude(x => x!.Test)
             .Include(x => x.Question)
             .Where(q => q.TestVersion!.Test!.Id == rq!.TestId && q.TestVersion.No == 0)
             .Select(qs => QuestionResponseDto.Mapper.FromEntity(qs.Question!, true, true, true))
-            .ToList() : new List<QuestionResponseDto>();
+            .ToList();
 
         return new TestDetailDto
         {
@@ -74,7 +74,8 @@ public class GetTestDetailQueryHandler : IRequestHandler<GetTestDetailQuery, Tes
             IsShowCorrectAnswerInReview = test.IsShowCorrectAnswerInReview,
             QuestionCount = test.QuestionCount,
             NumberOfShuffles = test.TestVersions.Count,
-            Questions = questions
+            TotalScore = questions.Sum(x => x.Score),
+            Questions = rq?.IsShowQuestion ?? true ? questions : new List<QuestionResponseDto>()
         };
     }
 }

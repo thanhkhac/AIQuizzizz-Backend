@@ -129,6 +129,7 @@ public static class ErrorCodes
     public const string ERROR_ATTEMPT_USER = nameof(ERROR_ATTEMPT_USER);
     public const string ATTEMPT_ALREADY_SUBMIT = nameof(ATTEMPT_ALREADY_SUBMIT);
     public const string ATTEMPT_NOT_FOUND = nameof(ATTEMPT_NOT_FOUND);
+    public const string NOT_SUBMITTED_CAN_NOT_VIEW = nameof(NOT_SUBMITTED_CAN_NOT_VIEW);
     
     //Comment
     public const string QUESTION_CAN_NOT_COMMENT = nameof(QUESTION_CAN_NOT_COMMENT);

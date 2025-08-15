@@ -148,6 +148,8 @@ public class SubmitTestAttemptCommandHandler : IRequestHandler<SubmitTestAttempt
             attempt.TimeFinish = DateTime.UtcNow;
             await _hangFireService.DeleteJobByArgument(attempt.Id.ToString());
         }
+        
+        attempt.Score = totalScore;
 
         var userGrade = await _context.TestGrades
                 .Where(x => x.UserId == _user.UserId && x.TestId == attempt.TestId)
