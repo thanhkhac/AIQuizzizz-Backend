@@ -2795,6 +2795,26 @@
         }
       }
     },
+    "/api/QuestionSet/DownloadFileImport": {
+      "get": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "GetLinkDownloadFileImport",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfString"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/QuestionSet/{questionSetId}/LearnQuestions": {
       "get": {
         "tags": [
