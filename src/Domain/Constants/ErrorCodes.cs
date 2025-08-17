@@ -137,5 +137,6 @@ public static class ErrorCodes
     public const string NO_STRUCTURE_FOUND = nameof(NO_STRUCTURE_FOUND);
     public const string PAYMENT_IN_PROGRESS = nameof(PAYMENT_IN_PROGRESS);
     
-    
+    //System setting
+    public const string SYSTEM_SETTING_NOT_FOUND = nameof(SYSTEM_SETTING_NOT_FOUND);
 }    

@@ -3036,6 +3036,56 @@
         }
       }
     },
+    "/api/SystemSetting": {
+      "get": {
+        "tags": [
+          "SystemSetting"
+        ],
+        "operationId": "GetSystemSetting",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfSystemSettingDetailDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "SystemSetting"
+        ],
+        "operationId": "CreateSystemSetting",
+        "requestBody": {
+          "x-name": "rq",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSystemSettingCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Tag": {
       "get": {
         "tags": [
@@ -6969,6 +7019,97 @@
               "type": "string",
               "format": "guid"
             }
+          }
+        }
+      },
+      "ApiResponseOfSystemSettingDetailDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/SystemSettingDetailDto"
+              }
+            ]
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SystemSettingDetailDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "inputCostPerMillionTokens": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "outputCostPerMillionTokens": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fixedSystemFee": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxInputToken": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxOutputToken": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CreateSystemSettingCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "inputCostPerMillionTokens": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "outputCostPerMillionTokens": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fixedSystemFee": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxInputToken": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxOutputToken": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
