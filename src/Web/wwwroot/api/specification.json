@@ -2795,6 +2795,26 @@
         }
       }
     },
+    "/api/QuestionSet/DownloadFileImport": {
+      "get": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "GetLinkDownloadFileImport",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfString"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/QuestionSet/{questionSetId}/LearnQuestions": {
       "get": {
         "tags": [
@@ -7351,6 +7371,10 @@
             "type": "string",
             "format": "guid"
           },
+          "classId": {
+            "type": "string",
+            "format": "guid"
+          },
           "testName": {
             "type": "string",
             "nullable": true
@@ -7358,6 +7382,14 @@
           "className": {
             "type": "string",
             "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "timeStart": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },

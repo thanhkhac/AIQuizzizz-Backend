@@ -6,24 +6,15 @@ public static class ErrorCodes
     //COMMON
     public const string COMMON_FORBIDDEN = nameof(COMMON_FORBIDDEN);
     public const string COMMON_INVALID_MODEL = nameof(COMMON_INVALID_MODEL);
-    public const string COMMON_UNAUTHORIZED = nameof(COMMON_UNAUTHORIZED);
+    public const string COMMON_UNAUTHORIZED = nameof(COMMON_UNAUTHORIZED);  
     public const string COMMON_SERVER_INTERNAL_ERROR = nameof(COMMON_SERVER_INTERNAL_ERROR);
-    public const string COMMON_UNHANDLED_ERROR = nameof(COMMON_UNHANDLED_ERROR);
     public const string COMMON_NOT_FOUND = nameof(COMMON_NOT_FOUND);
-    public const string COMMON_GONE = nameof(COMMON_GONE);
-    public const string COMMON_BAD_REQUEST = nameof(COMMON_BAD_REQUEST);
-    public const string COMMON_CONFLICT = nameof(COMMON_CONFLICT);
-    public const string COMMON_TIMEOUT_ERROR = nameof(COMMON_TIMEOUT_ERROR);
     public const string FIELD_NAME_NOT_FOUND = nameof(FIELD_NAME_NOT_FOUND);
-    public const string INVALID_SHARE_MODE = nameof(INVALID_SHARE_MODE);
 
     //ACCOUNT
     public const string ACCOUNT_NOTFOUND = nameof(ACCOUNT_NOTFOUND);
     public const string ACCOUNT_LOCKED_OUT = nameof(ACCOUNT_LOCKED_OUT);
     public const string ACCOUNT_BANNED = nameof(ACCOUNT_BANNED);
-    public const string ACCOUNT_USERNAME_ALREADY_EXISTS = nameof(ACCOUNT_USERNAME_ALREADY_EXISTS);
-    public const string ACCOUNT_EMAIL_ALREADY_EXISTS = nameof(ACCOUNT_EMAIL_ALREADY_EXISTS);
-    public const string ACCOUNT_INVALID_PASSWORD = nameof(ACCOUNT_INVALID_PASSWORD);
     public const string ACCOUNT_INVALID_CREDENTIALS = nameof(ACCOUNT_INVALID_CREDENTIALS);
     public const string ACCOUNT_INVALID_VERIFICATION_CODE = nameof(ACCOUNT_INVALID_VERIFICATION_CODE);
     public const string ACCOUNT_EMAIL_NOT_VERIFIED = nameof(ACCOUNT_EMAIL_NOT_VERIFIED); 
@@ -86,24 +77,20 @@ public static class ErrorCodes
     
     //Question
     public const string INVALID_QUESTION_TYPE = nameof(INVALID_QUESTION_TYPE);
-    public const string QUESTION_NOT_FOUND = nameof(QUESTION_NOT_FOUND);
     public const string QUESTION_NOT_FOUND_TO_DELETE = nameof(QUESTION_NOT_FOUND_TO_DELETE);
     
     //Question set
     public const string QUESTION_SET_NOT_FOUND = nameof(QUESTION_SET_NOT_FOUND);
     public const string QUESTION_SET_NOT_FOUND_IN_CLASS = nameof(QUESTION_SET_NOT_FOUND_IN_CLASS);
     public const string USER_NOT_ACCESS_TO_QUESTION_SET = nameof(USER_NOT_ACCESS_TO_QUESTION_SET);
-    public const string INVALID_NUMBER_OF_QUESTIONS = nameof(INVALID_NUMBER_OF_QUESTIONS);
     public const string PLAN_REQUIRE_PLAN = nameof(PLAN_REQUIRE_PLAN);
     
     //Folder
     public const string FOLDER_NOT_FOUND = nameof(FOLDER_NOT_FOUND);
     public const string FOLDER_ALREADY_EXISTS = nameof(FOLDER_ALREADY_EXISTS);
     public const string USER_NOT_HAVE_PERMISSION_IN_FOLDER = nameof(USER_NOT_HAVE_PERMISSION_IN_FOLDER);
-    public const string USER_ALREADY_EXISTS_IN_FOLDER = nameof(USER_ALREADY_EXISTS_IN_FOLDER);
     public const string TEST_TEMPLATE_ALREADY_EXISTS_IN_FOLDER = nameof(TEST_TEMPLATE_ALREADY_EXISTS_IN_FOLDER);
     public const string TEST_TEMPLATE_NOT_FOUND_IN_FOLDER = nameof(TEST_TEMPLATE_NOT_FOUND_IN_FOLDER);
-    public const string CAN_NOT_DELETE_OWNER = nameof(CAN_NOT_DELETE_OWNER);
 
     
     //Test
@@ -119,7 +106,6 @@ public static class ErrorCodes
     
     //TestTemplate
     public const string TEST_TEMPLATE_NOT_FOUND = nameof(TEST_TEMPLATE_NOT_FOUND);
-    public const string TEST_TEMPLATE_ALREADY_EXISTS = nameof(TEST_TEMPLATE_ALREADY_EXISTS);
 
     //File
     public const string FILE_NOT_FOUND = nameof(FILE_NOT_FOUND);
@@ -143,9 +129,6 @@ public static class ErrorCodes
     public const string INSUFFICIENT_BALANCE = nameof(INSUFFICIENT_BALANCE);
     
     //AI
-    public const string API_KEY_NOTFOUND = nameof(API_KEY_NOTFOUND);
-    public const string UPLOAD_URI_NOTFOUND = nameof(UPLOAD_URI_NOTFOUND);
-    public const string GENERATE_URI_NOTFOUND = nameof(UPLOAD_URI_NOTFOUND);
     public const string FILE_UPLOAD_FAILED = nameof(FILE_UPLOAD_FAILED);
     public const string FILE_URI_NOTFOUND = nameof(FILE_URI_NOTFOUND);
     public const string GENERATE_CONTENT_FAILED = nameof(GENERATE_CONTENT_FAILED);

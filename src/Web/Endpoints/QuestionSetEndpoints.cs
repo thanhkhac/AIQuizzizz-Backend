@@ -31,6 +31,7 @@ public class QuestionSetEndpoints : EndpointGroupBase
         group.MapGet(GetClassesHaveQuestionSet, "{questionSetId}/Classes");
         group.MapGet(GetTestFromQuestionSet, "{questionSetId}/Test");
         group.MapGet(GetRating, "{questionSetId}/Rating");
+        group.MapGet(GetLinkDownloadFileImport, "/DownloadFileImport");
         group.MapPost(CreateRating, "{questionSetId}/Rating");
         group.MapPatch(UpdateQuestionSet, "{questionSetId}");
         group.MapDelete(DeleteQuestionSet, "{questionSetId}");
@@ -424,5 +425,11 @@ public class QuestionSetEndpoints : EndpointGroupBase
         var result = await sender.Send(rq);
         return result.ToOk();
     }
-
+    
+    public async Task<Ok<ApiResponse<string>>> GetLinkDownloadFileImport(
+        ISender sender)
+    {
+        var result = await sender.Send(new GetLinkDownloadFileImportQuery());
+        return result.ToOk();
+    }
 }
