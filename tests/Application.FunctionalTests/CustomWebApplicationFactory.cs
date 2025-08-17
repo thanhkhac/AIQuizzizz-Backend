@@ -2,6 +2,7 @@
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Infrastructure.Data;
 using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -9,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace CleanArchitectureBase.Application.Command.UnitTests;
 
@@ -39,8 +41,18 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                 {
                     options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
                     options.UseNpgsql(_connection);
-                });               
-                
+                });
+
+            services.RemoveAll<IHostedService>(); 
+            services.AddHangfire(configuration => configuration
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UsePostgreSqlStorage(options =>
+                {
+                    options.UseNpgsqlConnection(_connectionString);
+                }));
+            services.AddHangfireServer();
         });
     }
 }
