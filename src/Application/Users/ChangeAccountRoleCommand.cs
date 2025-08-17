@@ -33,13 +33,11 @@ public class ChangeAccountRoleCommandValidator : AbstractValidator<ChangeAccount
 public class ChangeAccountRoleCommandHandler : IRequestHandler<ChangeAccountRoleCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IUser _user;
     private readonly IIdentityService _identityService;
 
-    public ChangeAccountRoleCommandHandler(IApplicationDbContext context, IUser user, IIdentityService identityService)
+    public ChangeAccountRoleCommandHandler(IApplicationDbContext context, IIdentityService identityService)
     {
         _context = context;
-        _user = user;
         _identityService = identityService;
     }
 

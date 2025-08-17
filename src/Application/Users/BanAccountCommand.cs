@@ -30,13 +30,11 @@ public class BanAccountCommandValidator : AbstractValidator<BanAccountCommand>
 public class BanAccountCommandHandler : IRequestHandler<BanAccountCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IUser _user;
     private readonly IIdentityService _identityService;
 
-    public BanAccountCommandHandler(IApplicationDbContext context, IUser user, IIdentityService identityService)
+    public BanAccountCommandHandler(IApplicationDbContext context, IIdentityService identityService)
     {
         _context = context;
-        _user = user;
         _identityService = identityService;
     }
 
@@ -56,7 +54,7 @@ public class BanAccountCommandHandler : IRequestHandler<BanAccountCommand, Guid>
                         && !admins.Contains(x.Id))
             .FirstOrDefaultAsync(cancellationToken);
         if (bannedUsers == null)
-            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {_user.UserId} not found");
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {rq.UserId} not found");
 
         bannedUsers.IsBanned = rq.IsBanned;
         await _identityService.BanUser(rq.UserId,  rq.IsBanned);
