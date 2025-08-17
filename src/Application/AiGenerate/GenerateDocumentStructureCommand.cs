@@ -74,6 +74,13 @@ public class GenerateDocumentStructureCommandHandler : IRequestHandler<GenerateD
 
         currentUser.IsPaymentLocked = true;
         await _context.SaveChangesAsync(cancellationToken);
+
+        var systemSetting = await _context.SystemSettings
+            .OrderByDescending(x => x.Created)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (systemSetting == null)
+            throw new ErrorCodeException(ErrorCodes.SYSTEM_SETTING_NOT_FOUND);
+        
         try
         {
             //Đếm token của prompt
@@ -83,12 +90,12 @@ public class GenerateDocumentStructureCommandHandler : IRequestHandler<GenerateD
                 prompt: "",
                 cancellationToken: cancellationToken);
 
-            if (minimumExpectedTokens > SystemSettings.MaxInputToken)
+            if (minimumExpectedTokens > systemSetting.MaxInputToken)
                 throw new ErrorCodeException(ErrorCodes.AI_FILE_TOO_LARGE);
 
-            var apiInputCost = (double)minimumExpectedTokens / 1_000_000 * SystemSettings.InputCostPerMillionTokens;
-            var apiMaxOutputCost = (double)SystemSettings.MaxOutputToken / 1_000_000 * SystemSettings.OutputCostPerMillionTokens;
-            var minimumTotalPoint = (int)Math.Round(apiInputCost + apiMaxOutputCost + SystemSettings.FixedSystemFee);
+            var apiInputCost = (double)minimumExpectedTokens / 1_000_000 * systemSetting.InputCostPerMillionTokens;
+            var apiMaxOutputCost = (double)systemSetting.MaxOutputToken / 1_000_000 * systemSetting.OutputCostPerMillionTokens;
+            var minimumTotalPoint = (int)Math.Round(apiInputCost + apiMaxOutputCost + systemSetting.FixedSystemFee);
 
 
             if (currentUser!.Balance < minimumTotalPoint)
@@ -104,7 +111,7 @@ public class GenerateDocumentStructureCommandHandler : IRequestHandler<GenerateD
                 "",
                 cancellationToken: cancellationToken);
 
-            currentUser.Balance -= (int)Math.Round(apiInputCost + SystemSettings.FixedSystemFee);
+            currentUser.Balance -= (int)Math.Round(apiInputCost + systemSetting.FixedSystemFee);
 
             _context.DomainUsers.Update(currentUser);
             await _context.SaveChangesAsync(cancellationToken);
@@ -117,7 +124,7 @@ public class GenerateDocumentStructureCommandHandler : IRequestHandler<GenerateD
                     cancellationToken
                 );
 
-                var apiOutputCost = (double)outputToken / 1_000_000 * SystemSettings.OutputCostPerMillionTokens;
+                var apiOutputCost = (double)outputToken / 1_000_000 * systemSetting.OutputCostPerMillionTokens;
                 var totalPoint = (int)Math.Round(apiOutputCost);
                 currentUser.IsPaymentLocked = false;
                 _context.DomainUsers.Update(currentUser);

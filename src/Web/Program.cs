@@ -55,6 +55,7 @@ app.UseHealthChecks("/health");
 
 app.UseStaticFiles();
 app.UseAuthentication();
+app.UseHangfireDashboard("/hangfire");
 
 app.UseSwaggerUi(settings =>
 {

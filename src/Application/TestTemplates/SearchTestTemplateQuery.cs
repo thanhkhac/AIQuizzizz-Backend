@@ -59,7 +59,8 @@ public class SearchTestTemplateQueryHandler : IRequestHandler<SearchTestTemplate
                         && (string.IsNullOrEmpty(rq.TestTemplateName) ||
                             t.TestTemplate!.Name.ToLower().Contains(rq.TestTemplateName.ToLower()))
                         && (sharedMode == null || t.ShareMode == sharedMode)
-                        && t.TestTemplate!.IsDeleted == false)
+                        && t.TestTemplate!.IsDeleted == false
+                        && (TestTemplateUserShareMode.Owner == t.ShareMode || t.IsViewed))
             .Select(t => new TestTemplateDto
             {
                 TestTemplateId = t.TestTemplate!.Id,

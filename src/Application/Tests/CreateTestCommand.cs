@@ -1,6 +1,7 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
+using CleanArchitectureBase.Application.Plans.Service;
 using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using CleanArchitectureBase.Application.Tests.Service;
 using CleanArchitectureBase.Domain.Constants;
@@ -79,14 +80,20 @@ public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
     private readonly ITestService _testService;
+    private readonly IPlanService _planService;
+    private readonly IUser _user;
     private readonly Random _random = new();
     
     public CreateTestCommandHandler(
         IApplicationDbContext context,
-        ITestService testService)
+        ITestService testService,
+        IPlanService planService,
+        IUser user)
     {
         _context = context;
         _testService = testService;
+        _planService = planService;
+        _user = user;
     }
 
     /// <summary>
@@ -101,6 +108,10 @@ public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
             .FirstOrDefaultAsync(cancellationToken);
         if (classById == null)
             throw new ErrorCodeException(ErrorCodes.CLASS_NOTFOUND, "Không tìm thấy lớp");
+        
+        var checkPlan = await _planService.CanOpenTest(_user.UserId!.Value);
+        if (!checkPlan)
+            throw new ErrorCodeException(ErrorCodes.PLAN_REQUIRE_PLAN);
         
         var isLecturerOrOwnerInClass = await _testService.CanCreateTest(rq.ClassId);
         if (!isLecturerOrOwnerInClass)

@@ -151,9 +151,9 @@ public class FileService : IFileService
                     {
                         invalidQuestions.Add(question);
                     }
-                    }
                 }
             }
+        }
         
         return new ImportedQuestionDto
         {
