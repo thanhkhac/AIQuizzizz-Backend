@@ -15,7 +15,7 @@ public class Users : EndpointGroupBase
         var group = app.MapGroup(this);
 
         group.MapGet(GetAllAccount, "");
-        group.MapPatch("/{UserId}/Info", UpdateUserInfo);
+        group.MapPatch("/Info", UpdateUserInfo);
         group.MapPatch("{UserId}/Role", ChangeRole);
         group.MapPatch("/{UserId}/Ban", BanUser);
         group.MapGet("/ForSelection", SearchUserForSelection);
