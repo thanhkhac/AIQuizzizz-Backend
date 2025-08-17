@@ -75,7 +75,8 @@ public class SearchFolderQueryHandler : IRequestHandler<SearchFolderQuery, Pagin
             .Include(fu => fu.Folder)
             .Where(fu => fu.UserId == _user.UserId && fu.Folder!.IsDeleted == false
             && (string.IsNullOrEmpty(rq.FolderName) || fu.Folder!.Name.ToLower().Contains(rq.FolderName.ToLower()))
-            && (shareMode == null || fu.ShareMode == shareMode))
+            && (shareMode == null || fu.ShareMode == shareMode)
+            && (FolderShareMode.Owner == fu.ShareMode || fu.IsViewed))
             .Select(fu => new { Folder = fu.Folder, FolderUser = fu })
             .Distinct();
 
