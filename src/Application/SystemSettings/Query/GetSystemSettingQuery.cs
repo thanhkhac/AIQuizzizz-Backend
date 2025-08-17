@@ -29,8 +29,22 @@ public class GetSystemSettingQueryHandler : IRequestHandler<GetSystemSettingQuer
             Domain.Constants.Roles.Moderator);
         if (!isAdmin)
             throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION);
-        
-        throw new NotImplementedException();
+
+        var systemSetting = await _context.SystemSettings
+            .OrderByDescending(x => x.Created)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (systemSetting == null)
+            throw new ErrorCodeException(ErrorCodes.SYSTEM_SETTING_NOT_FOUND);
+
+        return new SystemSettingDetailDto
+        {
+            Id = systemSetting.Id,
+            InputCostPerMillionTokens = systemSetting.InputCostPerMillionTokens,
+            OutputCostPerMillionTokens = systemSetting.OutputCostPerMillionTokens,
+            FixedSystemFee = systemSetting.FixedSystemFee,
+            MaxInputToken = systemSetting.MaxInputToken,
+            MaxOutputToken = systemSetting.MaxOutputToken
+        };
     }
 }
 
