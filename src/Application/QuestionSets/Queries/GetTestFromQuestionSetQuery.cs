@@ -1,7 +1,9 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
+using CleanArchitectureBase.Application.Plans.Service;
 using CleanArchitectureBase.Application.Questions.Dtos;
+using CleanArchitectureBase.Application.Questions.Services;
 using CleanArchitectureBase.Application.QuestionSets.Services;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
@@ -39,15 +41,18 @@ public class GetTestFromQuestionSetQueryHandler : IRequestHandler<GetTestFromQue
     private readonly IApplicationDbContext _context;
     private readonly IQuestionSetService _questionSetService;
     private readonly IUser _user;
+    private readonly IPlanService _planService;
     
     public GetTestFromQuestionSetQueryHandler(
         IApplicationDbContext context,
         IQuestionSetService questionSetService,
-        IUser user)
+        IUser user,
+        IPlanService planService)
     {
         _context = context;
         _questionSetService = questionSetService;
         _user = user;
+        _planService = planService;
     }
     
     public async Task<List<QuestionResponseDto>> Handle(GetTestFromQuestionSetQuery rq, CancellationToken cancellationToken)
@@ -58,6 +63,10 @@ public class GetTestFromQuestionSetQueryHandler : IRequestHandler<GetTestFromQue
             .FirstOrDefaultAsync(cancellationToken);
         if (questionSet == null)
             throw new ErrorCodeException(ErrorCodes.QUESTION_SET_NOT_FOUND);
+
+        var checkPlan = await _planService.CanLearn(_user.UserId!.Value);
+        if (!checkPlan)
+            throw new ErrorCodeException(ErrorCodes.PLAN_REQUIRE_PLAN);
         
         var canView = await _questionSetService.CanUserViewQuestionSet(_user.UserId, questionSet);
         if (!canView)
