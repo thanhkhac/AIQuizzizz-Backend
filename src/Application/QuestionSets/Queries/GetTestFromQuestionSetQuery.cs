@@ -26,7 +26,7 @@ public class GetTestFromQuestionSetQueryValidator : AbstractValidator<GetTestFro
             .NotEmpty().WithMessage("QuestionId không được trống");
         RuleFor(x => x.NumberOfQuestion)
             .GreaterThan(0).WithMessage("NumberOfQuestion phải > 0")
-            .LessThan(50).WithMessage("NumberOfQuestion giới hạn là 50");
+            .LessThan(100).WithMessage("NumberOfQuestion giới hạn là 100");
         RuleFor(x => x.QuestionTypes)
             .NotEmpty().WithMessage("QuestionTypes không được bỏ trống")
             .Must(x => x.Count > 0).WithMessage("Số lượng type lớn hơn 0")

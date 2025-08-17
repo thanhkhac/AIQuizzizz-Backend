@@ -62,12 +62,10 @@ public class SearchAllAccountQueryValidator : AbstractValidator<SearchAllAccount
 
 public class GetAllAccountCommandHandler : IRequestHandler<SearchAllAccountQuery, PaginatedList<UserForListDto>>
 {
-    private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;
 
     public GetAllAccountCommandHandler(IApplicationDbContext context, IIdentityService identityService)
     {
-        _context = context;
         _identityService = identityService;
     }
 
