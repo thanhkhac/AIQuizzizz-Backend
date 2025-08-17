@@ -110,6 +110,31 @@ public class CreateInviteCodeCommandTests : BaseTestFixture
         classInvitation!.Code.Should().Be(result.Code);
         classInvitation.TimeEnd.Should().BeCloseTo(DateTime.UtcNow.AddDays(7), TimeSpan.FromSeconds(5));
     }
+    
+    [Test]
+    public async Task ShouldCreateInviteCodeSuccessfullyWithTeacherRole()
+    {
+        var userId = await RunAsDefaultUserAsync();
+        var classEntity = new Class { Name = "Test Class", CreatedBy = userId };
+        await AddAsync(classEntity);
+        await AddAsync(new ClassUser { UserId = userId, ClassId = classEntity.Id, ShareMode = ClassShareMode.Teacher });
+
+        var command = new CreateInviteCodeCommand
+        {
+            ClassId = classEntity.Id,
+            ExpiredTime = 7 // 7 days
+        };
+
+        var result = await SendAsync(command);
+
+        result.Should().NotBeNull();
+        result.Code.Should().NotBeEmpty();
+
+        var classInvitation = (await QueryListAsync<ClassInvitation>(x => x.Where(ci => ci.ClassId == classEntity.Id))).FirstOrDefault();
+        classInvitation.Should().NotBeNull();
+        classInvitation!.Code.Should().Be(result.Code);
+        classInvitation.TimeEnd.Should().BeCloseTo(DateTime.UtcNow.AddDays(7), TimeSpan.FromSeconds(5));
+    }
 
     [Test]
     public async Task ShouldReplaceExistingInviteCode()

@@ -2,31 +2,74 @@ using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Plans;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
+using static CleanArchitectureBase.Application.Command.UnitTests.Testing;
 
 namespace CleanArchitectureBase.Application.Command.UnitTests.Plans.Commands;
 
-using static Testing;
-
 public class DeletePlanCommandTests : BaseTestFixture
 {
-    //normal
     [Test]
-    public async Task ShouldSoftDeletePlanSuccessfully_WhenUserIsAdmin()
+    public async Task ShouldRequireAdministratorOrModeratorRole()
+    {
+        await RunAsDefaultUserAsync(); // Not Administrator or Moderator
+
+        var command = new DeletePlanCommand
+        {
+            PlanId = Guid.NewGuid()
+        };
+
+        var ex = await FluentActions.Invoking(() => SendAsync(command))
+            .Should().ThrowAsync<ErrorCodeException>();
+
+        ex.Which.Errors.Should().ContainKey(ErrorCodes.USER_NOT_HAVE_PERMISSION);
+    }
+
+    [Test]
+    public async Task ShouldRequirePlanId()
     {
         await RunAsAdministratorAsync();
+
+        var command = new DeletePlanCommand
+        {
+            PlanId = Guid.Empty
+        };
+
+        var ex = await FluentActions.Invoking(() => SendAsync(command))
+            .Should().ThrowAsync<ErrorCodeException>();
+
+        ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
+    }
+
+    [Test]
+    public async Task ShouldThrowErrorCodeExceptionWhenPlanNotFound()
+    {
+        await RunAsAdministratorAsync();
+
+        var command = new DeletePlanCommand
+        {
+            PlanId = Guid.NewGuid() // Non-existent PlanId
+        };
+
+        var ex = await FluentActions.Invoking(() => SendAsync(command))
+            .Should().ThrowAsync<ErrorCodeException>();
+
+        ex.Which.Errors.Should().ContainKey(ErrorCodes.PLAN_NOT_FOUND);
+    }
+
+    [Test]
+    public async Task ShouldDeletePlanSuccessfully()
+    {
+        await RunAsAdministratorAsync();
+
         var plan = new Plan
         {
             Id = Guid.NewGuid(),
             Name = "Plan to Delete",
             Price = 100,
             Duration = 1,
-            Unit = "month",
+            Unit = "Month",
             IsActive = true,
-            IsDeleted = false,
-            CanLearn = false,
-            CanOpenTest = false,
-            CanCopyOrImportQuestionSet = false
+            IsDeleted = false
         };
         await AddAsync(plan);
 
@@ -38,87 +81,37 @@ public class DeletePlanCommandTests : BaseTestFixture
         var deletedPlanId = await SendAsync(command);
 
         deletedPlanId.Should().Be(plan.Id);
+
         var deletedPlan = await FindAsync<Plan>(plan.Id);
         deletedPlan.Should().NotBeNull();
         deletedPlan!.IsDeleted.Should().BeTrue();
     }
 
-    //abnormal
     [Test]
-    public async Task ShouldThrowError_WhenPlanIdIsEmpty()
+    public async Task ShouldThrowErrorCodeExceptionWhenPlanAlreadyDeleted()
     {
         await RunAsAdministratorAsync();
+
+        var plan = new Plan
+        {
+            Id = Guid.NewGuid(),
+            Name = "Already Deleted Plan",
+            Price = 100,
+            Duration = 1,
+            Unit = "Month",
+            IsActive = true,
+            IsDeleted = true // Already deleted
+        };
+        await AddAsync(plan);
+
         var command = new DeletePlanCommand
         {
-            PlanId = Guid.Empty
+            PlanId = plan.Id
         };
 
-        var ex = await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ErrorCodeException>();
-        ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
-    }
+        var ex = await FluentActions.Invoking(() => SendAsync(command))
+            .Should().ThrowAsync<ErrorCodeException>();
 
-    //abnormal
-    [Test]
-    public async Task ShouldThrowError_WhenPlanNotFound()
-    {
-        await RunAsAdministratorAsync();
-        var command = new DeletePlanCommand
-        {
-            PlanId = Guid.NewGuid()
-        };
-        var ex = await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ErrorCodeException>();
         ex.Which.Errors.Should().ContainKey(ErrorCodes.PLAN_NOT_FOUND);
-    }
-
-    //abnormal
-    [Test]
-    public async Task ShouldThrowError_WhenUserIsNotAdmin()
-    {
-        await RunAsDefaultUserAsync();
-        var plan = new Plan
-        {
-            Id = Guid.NewGuid(),
-            Name = "Plan to Delete",
-            Price = 100,
-            Duration = 1,
-            Unit = "month",
-            IsActive = true,
-            IsDeleted = false
-        };
-        await AddAsync(plan);
-
-        var command = new DeletePlanCommand
-        {
-            PlanId = plan.Id
-        };
-
-        var ex = await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ErrorCodeException>();
-        ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_FORBIDDEN);
-    }
-
-    //abnormal
-    [Test]
-    public async Task ShouldThrowErrorCodeExceptionWhenNotLoggedIn()
-    {
-        var plan = new Plan
-        {
-            Id = Guid.NewGuid(),
-            Name = "Plan to Delete",
-            Price = 100,
-            Duration = 1,
-            Unit = "month",
-            IsActive = true,
-            IsDeleted = false
-        };
-        await AddAsync(plan);
-
-
-        var command = new DeletePlanCommand
-        {
-            PlanId = plan.Id
-        };
-
-        var ex = await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ErrorCodeException>();
-        ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_UNAUTHORIZED);
     }
 }

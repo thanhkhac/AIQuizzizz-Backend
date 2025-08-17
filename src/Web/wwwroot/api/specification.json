@@ -8140,6 +8140,7 @@
           },
           "sharingModels": {
             "type": "array",
+            "nullable": true,
             "items": {
               "$ref": "#/components/schemas/UpsertSharingModelDto"
             }

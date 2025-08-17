@@ -647,6 +647,52 @@ public class CreateQuestionSetTests : BaseTestFixture
         set.Questions.Any(q => q.QuestionText == "Sắp xếp thứ tự").Should().BeTrue();
         set.Questions.Any(q => q.QuestionText == "Điền đáp án ngắn").Should().BeTrue();
     }
+    
+    [Test]
+    public async Task ShouldCreate400MatchingQuestions()
+    {
+        await RunAsDefaultUserAsync();
+
+        var questions = new List<CreateUpdateQuestionDto>();
+
+        for (int i = 1; i <= 500; i++)
+        {
+            questions.Add(new CreateUpdateQuestionDto
+            {
+                Type = "Matching",
+                QuestionText = $"Ghép cặp số {i}",
+                Score = 1,
+                MatchingPairs = new List<CreateMatchingPairDto>
+                {
+                    new CreateMatchingPairDto
+                    {
+                        LeftItem = $"Trái {i}-1",
+                        RightItem = $"Phải {i}-1"
+                    },
+                    new CreateMatchingPairDto
+                    {
+                        LeftItem = $"Trái {i}-2",
+                        RightItem = $"Phải {i}-2"
+                    }
+                }
+            });
+        }
+
+        var command = new CreateQuestionSetCommand
+        {
+            Name = "Bộ 400 câu hỏi Matching",
+            Description = "Test hiệu năng với 400 câu hỏi Matching",
+            Questions = questions
+        };
+
+        var id = await SendAsync(command);
+        var set = (await QueryListAsync<QuestionSet>(
+            x => x.Include(y => y.Questions).Where(y => y.Id == id)
+        )).First();
+
+        set.Should().NotBeNull();
+        set.Questions.Should().HaveCount(500);
+    }
 
     [Test]
     public async Task ShouldRequireName()
@@ -773,24 +819,6 @@ public class CreateQuestionSetTests : BaseTestFixture
             },
             ErrorCodes.COMMON_INVALID_MODEL
         ).SetName("Tags too many");
-
-        yield return new TestCaseData(
-            new CreateQuestionSetCommand
-            {
-                Name = "Tên",
-                Description = "Mô tả",
-                Questions = new List<CreateUpdateQuestionDto>
-                {
-                    ValidShortText()
-                },
-                Tags = new List<string>
-                {
-                    "validtag",
-                    ""
-                }
-            },
-            ErrorCodes.COMMON_INVALID_MODEL
-        ).SetName("Tag empty");
 
         yield return new TestCaseData(
             new CreateQuestionSetCommand

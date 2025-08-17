@@ -1,4 +1,5 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
+using CleanArchitectureBase.Application.Common.Extensions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
@@ -21,7 +22,12 @@ public class CreateClassCommandValidator : AbstractValidator<CreateClassCommand>
     public CreateClassCommandValidator()
     {
         RuleFor(v => v.Name)
-            .NotEmpty().WithMessage("Tên lớp không được để trống");
+            .NotEmpty().WithMessage("Tên lớp không được để trống")
+            .MaximumLength(200).WithMessage("Tên lớp không được vượt quá 200 ký tự");
+            
+        RuleFor(v => v.Topic)
+            .NullOrNotEmpty()
+            .MaximumLength(200).WithMessage("Chủ đề không được vượt quá 200 ký tự");
     }
 }
 

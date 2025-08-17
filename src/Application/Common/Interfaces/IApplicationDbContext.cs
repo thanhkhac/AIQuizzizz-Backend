@@ -40,6 +40,6 @@ public interface
     public DbSet<Transaction> Transactions { get; }
     public DbSet<PlanPriceHistory> PlanPriceHistories { get; }
     public DbSet<QuestionSetRating> QuestionSetRatings { get; }
-    
+    public DbSet<SystemSetting>  SystemSettings { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

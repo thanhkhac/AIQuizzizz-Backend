@@ -9,8 +9,8 @@ namespace CleanArchitectureBase.Application.TestTemplates;
 [Authorize]
 public class SearchTestTemplateQuery : IRequest<PaginatedList<TestTemplateDto>>
 {
-    public required string? TestTemplateName { get; set; }
-    public required string? ShareMode { get; set; }
+    public string? TestTemplateName { get; set; }
+    public string? ShareMode { get; set; }
     public int PageNumber { get; set; } = 1;
     public int PageSize { get; set; } = 5;
 }
@@ -20,7 +20,10 @@ public class SearchTestTemplateQueryValidator : AbstractValidator<SearchTestTemp
     public SearchTestTemplateQueryValidator()
     {
         RuleFor(x => x.ShareMode)
-            .Must(mode => new[] {"Owner", "Editable", "ViewOnly"}.Contains(mode) || string.IsNullOrEmpty(mode))
+            .Must(mode => new[]
+            {
+                "Owner", "Editable", "ViewOnly"
+            }.Contains(mode) || string.IsNullOrEmpty(mode))
             .WithMessage($"SharedMode phải là Owner, Editable, ViewOnly");
     }
 }
@@ -29,13 +32,13 @@ public class SearchTestTemplateQueryHandler : IRequestHandler<SearchTestTemplate
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
-    
+
     public SearchTestTemplateQueryHandler(IApplicationDbContext context, IUser user)
     {
         _context = context;
         _user = user;
     }
-    
+
     /// <summary>
     /// The function searches for test templates based on name and share mode for the current user, returning a paginated list of test template details
     /// </summary>
@@ -49,7 +52,7 @@ public class SearchTestTemplateQueryHandler : IRequestHandler<SearchTestTemplate
         {
             sharedMode = parsedSharedMode;
         }
-        
+
         var testTemplates = _context.TestTemplateUsers
             .Include(t => t.TestTemplate)
             .Where(t => t.UserId == _user.UserId
@@ -65,7 +68,7 @@ public class SearchTestTemplateQueryHandler : IRequestHandler<SearchTestTemplate
                 DateCreated = t.TestTemplate.Created.UtcDateTime,
                 CreateBy = t.TestTemplate.CreatedByUser!.FullName,
             });
-        
+
         return await PaginatedList<TestTemplateDto>.CreateAsync(
             testTemplates,
             rq.PageNumber,

@@ -71,7 +71,7 @@ public static class PromptProvider
             Bạn là một hệ thống sinh câu hỏi tự động từ tài liệu học thuật.
             - Chỉ trả về mảng JSON hợp lệ, không được thêm bất kỳ văn bản, mô tả, tiêu đề, hoặc định dạng markdown nào.
             - Tất cả ký tự đặc biệt phải được escape theo chuẩn JSON
-            - Số lượng câu hỏi không vượt quá số lượng mà người dùng chỉ định
+            - Số lượng câu hỏi không vượt quá hoặc ít hơn số lượng mà người dùng chỉ định 
             - Chỉ tạo các loại câu hỏi theo người dùng chỉ định type nào
             Ngôn ngữ bắt buộc: {language}.
             
@@ -131,7 +131,8 @@ public static class PromptProvider
             explainText không vượt quá 5000 ký tự
             multipleChoices[].text không vượt quá 1000
             multipleChoices array không được vượt quá 4 phần tử, phải có ít nhất một lựa chọn đúng, có thể có nhiều lựa chọn đúng
-            matchingPairs: leftItem và rightItem không vượt quá 1000 ký tự, array không vượt quá 5 cặp
+            matchingPairs: leftItem và rightItem không vượt quá 1000 ký tự
+            matchingPairs array: không vượt quá 5 phần tử
             orderingItems: text không được vượt quá 1000 ký tự, array không được vượt quá 10 phần tử, correctOrder phải bắt đầu từ 0
             shortAnswer: không vượt quá 20 ký tự
 
