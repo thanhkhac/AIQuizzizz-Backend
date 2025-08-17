@@ -223,7 +223,7 @@ public class TestTemplateUser : BaseAuditableEntity
     public required Guid UserId { get; set; }
     public required Guid TestTemplateId { get; set; }
     public TestTemplateUserShareMode ShareMode { get; set; }
-
+    public bool IsViewed { get; set; }
     public User? User { get; set; }
     public TestTemplate? TestTemplate { get; set; }
 }
@@ -253,7 +253,7 @@ public class FolderUser : BaseAuditableEntity
     public required Guid UserId { get; set; }
     public required Guid FolderId { get; set; }
     public FolderShareMode ShareMode { get; set; }
-
+    public bool IsViewed { get; set; }
     public User? User { get; set; }
     public Folder? Folder { get; set; } // Giả định FolderId tồn tại
 }
