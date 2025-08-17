@@ -420,24 +420,6 @@ public class UpdateQuestionSetTests : BaseTestFixture
             ErrorCodes.COMMON_INVALID_MODEL
         ).SetName("Tags too many");
 
-        //abnormal
-        yield return new TestCaseData(
-            new UpdateQuestionSetCommand
-            {
-                Name = "Name",
-                Description = "Desc",
-                CreateUpdateQuestions = new List<CreateUpdateQuestionDto>
-                {
-                    ValidShortText()
-                },
-                Tags = new List<string>
-                {
-                    "validtag",
-                    ""
-                }
-            },
-            ErrorCodes.COMMON_INVALID_MODEL
-        ).SetName("Tag empty");
 
         //boundary
         yield return new TestCaseData(

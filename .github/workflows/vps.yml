@@ -86,6 +86,6 @@ jobs:
 
             # Restart ứng dụng với build mới
             echo "==> Triển khai ứng dụng"
-            docker compose -f docker-compose.yml -f docker-compose.db.yml -f docker-compose.nginx.yml down || true
-            docker compose -f docker-compose.yml -f docker-compose.db.yml -f docker-compose.nginx.yml up --build -d
+            docker compose -f docker-compose.yml -f docker-compose.db.yml -f docker-compose.nginx.yml -f docker-compose.pdf-outline.yml down || true
+            docker compose -f docker-compose.yml -f docker-compose.db.yml -f docker-compose.nginx.yml -f docker-compose.pdf-outline.yml up --build -d
             echo "CD hoàn tất"

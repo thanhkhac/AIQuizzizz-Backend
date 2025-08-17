@@ -12,7 +12,7 @@ namespace CleanArchitectureBase.Application.TestTemplates;
 public class UpdateSharingInTestTemplateCommand : IRequest<Guid>
 {
     public Guid TestTemplateId { get; set; }
-    public List<UpsertSharingModelDto> SharingModels { get; set; } = new();
+    public List<UpsertSharingModelDto>? SharingModels { get; set; } = new();
     public List<Guid> DeleteUserIds { get; set; } = new();
 }
 
@@ -24,6 +24,7 @@ public class UpdateSharingInTestTemplateCommandValidator : AbstractValidator<Upd
             .NotEmpty().WithMessage("FolderId không được trống");
 
         RuleFor(x => x.SharingModels)
+            .NotNull()
             .Must(x => x == null || x
                 .All(x => new[]
                 {
@@ -66,7 +67,7 @@ public class UpdateSharingInTestTemplateCommandHandler : IRequestHandler<UpdateS
 
         var ownerId = testTemplate.CreatedBy!.Value;
         var sharingModels = rq.SharingModels;
-        sharingModels.RemoveAll(x => x.SharingUserId == ownerId);
+        sharingModels!.RemoveAll(x => x.SharingUserId == ownerId);
         var sharingModelIds = sharingModels.Select(x => x.SharingUserId).ToList();
 
         var existingUserIds = await _context.DomainUsers

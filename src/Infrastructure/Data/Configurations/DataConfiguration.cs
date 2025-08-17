@@ -758,5 +758,13 @@ public class TransactionConfigutation : IEntityTypeConfiguration<Transaction>
     }
 }
 
+public class SystemSettingConfigutation : IEntityTypeConfiguration<SystemSetting>
+{
+    public void Configure(EntityTypeBuilder<SystemSetting> builder)
+    {
+        builder.HasKey(t => t.Id);
+    }
+}
+
 
 

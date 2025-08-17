@@ -4,6 +4,7 @@ using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.Tests.Dto;
 using CleanArchitectureBase.Domain.Constants;
+using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Tests;
 
@@ -55,7 +56,11 @@ public class GetTestScheduleQueryHandler : IRequestHandler<GetTestScheduleQuery,
                 ClassId = x.ClassId,
                 TestName = x.Name,
                 Date = x.TimeStart.Date,
-                ClassName = x.Class!.Name
+                ClassName = x.Class!.Name,
+                TimeStart = x.TimeStart,
+                Status = x.TimeStart > DateTime.UtcNow ? TestStatus.Upcoming.ToString()
+                    : x.TimeFinish < DateTime.UtcNow ? TestStatus.Completed.ToString()
+                    : TestStatus.Active.ToString()
             })
             .ToListAsync(cancellationToken);
         

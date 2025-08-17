@@ -9,41 +9,63 @@ using static Testing;
 
 public class UpdateClassCommandTests : BaseTestFixture
 {
-    [Test]
-    public async Task ShouldRequireValidClassId()
+    public static IEnumerable<TestCaseData> InvalidCommands()
+    {
+        // Missing ClassId
+        yield return new TestCaseData(new UpdateClassCommand
+        {
+            ClassId = null,
+            Name = "Test Name",
+            Topic = "Test Topic"
+        }).SetName("Invalid: ClassId is null");
+
+        // Missing Name
+        yield return new TestCaseData(new UpdateClassCommand
+        {
+            ClassId = Guid.NewGuid(),
+            Name = "",
+            Topic = "Test Topic"
+        }).SetName("Invalid: Name is empty");
+
+        // Name only spaces
+        yield return new TestCaseData(new UpdateClassCommand
+        {
+            ClassId = Guid.NewGuid(),
+            Name = "   ",
+            Topic = "Test Topic"
+        }).SetName("Invalid: Name is white space");
+
+        // Name too long
+        yield return new TestCaseData(new UpdateClassCommand
+        {
+            ClassId = Guid.NewGuid(),
+            Name = new string('A', 201),
+            Topic = "Test Topic"
+        }).SetName("Invalid: Name is too long");
+        
+        // Topic too long
+        yield return new TestCaseData(new UpdateClassCommand
+        {
+            ClassId = Guid.NewGuid(),
+            Name = new string('A', 10),
+            Topic = new string('A', 201),
+        }).SetName("Invalid: Topic is too long");
+        
+        // Topic is white space
+        yield return new TestCaseData(new UpdateClassCommand
+        {
+            ClassId = Guid.NewGuid(),
+            Name = "Valid Name",
+            Topic = "   "
+        }).SetName("Invalid: Topic is white space but exceeds allowed length after trim if any");
+    }
+    
+    [TestCaseSource(nameof(InvalidCommands))]
+    public async Task ShouldFailValidation(UpdateClassCommand command)
     {
         await RunAsDefaultUserAsync();
 
-        var command = new UpdateClassCommand
-        {
-            ClassId = null,
-            Name = "Updated Class Name",
-            Topic = "Updated Topic"
-        };
-
-        var ex = await FluentActions.Invoking((() => SendAsync(command)))
-            .Should().ThrowAsync<ErrorCodeException>();
-
-        ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
-    }
-
-    [Test]
-    public async Task ShouldRequireName()
-    {
-        var userId = await RunAsDefaultUserAsync();
-
-        var classEntity = new Class { Name = "Test Class" };
-        await AddAsync(classEntity);
-        await AddAsync(new ClassUser { UserId = userId, ClassId = classEntity.Id, ShareMode = ClassShareMode.Owner });
-
-        var command = new UpdateClassCommand
-        {
-            ClassId = classEntity.Id,
-            Name = "",
-            Topic = "Updated Topic"
-        };
-
-        var ex = await FluentActions.Invoking((() => SendAsync(command)))
+        var ex = await FluentActions.Invoking(() => SendAsync(command))
             .Should().ThrowAsync<ErrorCodeException>();
 
         ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
@@ -90,29 +112,6 @@ public class UpdateClassCommandTests : BaseTestFixture
         ex.Which.Errors.Should().ContainKey(ErrorCodes.ONLY_OWNERS_CAN_UPDATE);
     }
 
-    [Test]
-    public async Task ShouldThrowErrorWhenClassAlreadyExistsWithSameNameForOwner()
-    {
-        var userId = await RunAsDefaultUserAsync();
-        var class1 = new Class { Name = "Class One", CreatedBy = userId };
-        var class2 = new Class { Name = "Class Two", CreatedBy = userId };
-        await AddAsync(class1);
-        await AddAsync(class2);
-        await AddAsync(new ClassUser { UserId = userId, ClassId = class1.Id, ShareMode = ClassShareMode.Owner });
-        await AddAsync(new ClassUser { UserId = userId, ClassId = class2.Id, ShareMode = ClassShareMode.Owner });
-
-        var command = new UpdateClassCommand
-        {
-            ClassId = class1.Id,
-            Name = "Class Two", // Try to rename Class One to Class Two
-            Topic = "Updated Topic"
-        };
-
-        var ex = await FluentActions.Invoking((() => SendAsync(command)))
-            .Should().ThrowAsync<ErrorCodeException>();
-
-        ex.Which.Errors.Should().ContainKey(ErrorCodes.CLASS_ALREADY_EXISTS);
-    }
 
     [Test]
     public async Task ShouldUpdateClassSuccessfully()

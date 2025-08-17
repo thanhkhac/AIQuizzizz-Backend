@@ -25,6 +25,8 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
+        Console.WriteLine("PerformanceBehaviour");
+
         _timer.Start();
 
         var response = await next();
@@ -32,7 +34,7 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
         _timer.Stop();
 
         var elapsedMilliseconds = _timer.ElapsedMilliseconds;
-
+        Console.WriteLine($"Request:  ({elapsedMilliseconds} milliseconds)");
         if (elapsedMilliseconds > 500)
         {
             var requestName = typeof(TRequest).Name;

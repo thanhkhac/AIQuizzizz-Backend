@@ -43,7 +43,7 @@ public class DeleteQuestionSetTests : BaseTestFixture
 
     //normal
     [Test]
-    public async Task ShouldDeleteQuestionSet_WhenUserHasEditableShareMode()
+    public async Task ShouldThrowError_WhenUserHasEditableShareMode()
     {
         var ownerId = await RunAsUserAsync("owner@local", "Owner1234!", []);
         var questionSet = new QuestionSet

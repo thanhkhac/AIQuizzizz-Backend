@@ -49,7 +49,7 @@ public class DeleteQuestionSetCommandHandler : IRequestHandler<DeleteQuestionSet
         // Kiểm tra quyền xóa
         var canDelete = await _questionSetService.CanUserDeleteQuestionSet(userId, request.QuestionSetId);
         if (!canDelete)
-            throw new ErrorCodeException(ErrorCodes.COMMON_FORBIDDEN);
+            throw new ErrorCodeException(ErrorCodes.COMMON_FORBIDDEN, "Không có quyền xóa bộ câu hỏi này");
 
         // Soft delete
         questionSet.IsDeleted = true;

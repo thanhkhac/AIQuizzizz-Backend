@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using CleanArchitectureBase.Application.AiGenerate.Dtos;
 using CleanArchitectureBase.Application.AiGenerate.Services;
+using CleanArchitectureBase.Application.Common.Atributes;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
@@ -22,8 +23,11 @@ public class GenerateQuestionWithAiCommand : IRequest<List<CreateUpdateQuestionD
     public string? Language { get; set; }
     public int QuestionCount { get; set; }
     public List<string> QuestionTypes { get; set; } = new();
-    public DocumentStructureDto? DocumentStructure;
-    public DocumentStructureDto? SelectedParts;
+    
+    [NoTrimRecursive]
+    public DocumentStructureDto? DocumentStructure { get; set; }
+    [NoTrimRecursive]
+    public DocumentStructureDto? SelectedParts { get; set; }
 
 }
 

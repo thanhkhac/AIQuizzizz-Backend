@@ -41,20 +41,6 @@ public class JoinClassByCodeCommandTests : BaseTestFixture
         ex.Which.Errors.Should().ContainKey(ErrorCodes.CLASS_CODE_NOT_FOUND);
     }
 
-    [Test]
-    public async Task ShouldThrowErrorWhenClassNotFound()
-    {
-        var userId = await RunAsDefaultUserAsync();
-        var command = new JoinClassByCodeCommand
-        {
-            Code = "Hello"
-        };
-
-        var ex = await FluentActions.Invoking((() => SendAsync(command)))
-            .Should().ThrowAsync<ErrorCodeException>();
-
-        ex.Which.Errors.Should().ContainKey(ErrorCodes.CLASS_CODE_NOT_FOUND);
-    }
 
     [Test]
     public async Task ShouldThrowErrorWhenStudentAlreadyInClass()

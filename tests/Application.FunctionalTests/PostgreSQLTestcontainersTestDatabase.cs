@@ -20,6 +20,10 @@ public class PostgreSQLTestcontainersTestDatabase : ITestDatabase
     public PostgreSQLTestcontainersTestDatabase()
     {
         _container = new PostgreSqlBuilder()
+            // .WithDatabase("CleanArchitectureTestDb")
+            // .WithUsername("admin")
+            // .WithPassword("password")
+            // .WithPortBinding(5432, 5432) // Map thẳng port ra ngoài
             .WithAutoRemove(true)
             .Build();
     }

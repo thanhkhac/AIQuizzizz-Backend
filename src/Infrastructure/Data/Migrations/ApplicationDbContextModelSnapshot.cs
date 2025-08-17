@@ -682,6 +682,46 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.ToTable("QuestionSetUsers");
                 });
 
+            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.SystemSetting", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("FixedSystemFee")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("InputCostPerMillionTokens")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("LastModifiedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("MaxInputToken")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MaxOutputToken")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("OutputCostPerMillionTokens")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.ToTable("SystemSettings");
+                });
+
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Tag", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1095,6 +1135,9 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.Property<long>("Balance")
                         .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -1850,6 +1893,16 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.Navigation("QuestionSet");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.SystemSetting", b =>
+                {
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreatedByUser");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Test", b =>
