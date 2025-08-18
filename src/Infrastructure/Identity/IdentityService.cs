@@ -115,12 +115,12 @@ public class IdentityService : IIdentityService
         IdentityResult result = password != null
             ? await _userManager.CreateAsync(userAccount, password)
             : await _userManager.CreateAsync(userAccount);
-            
+
         await _userManager.AddToRolesAsync(userAccount, new[]
         {
             Roles.User
         });
-        
+
         if (!result.Succeeded)
             throw new ErrorCodeException(ErrorCodes.COMMON_SERVER_INTERNAL_ERROR);
 
@@ -193,7 +193,7 @@ public class IdentityService : IIdentityService
         return admin.Select(u => u.Id).ToList();
     }
 
-    public async Task<Guid> ChangeRoleAsync(Guid userId, string role)
+    public async Task<Guid> ChangeRoleAsync(Guid userId, string role, List<string>? protectedRoles = null)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
@@ -204,6 +204,13 @@ public class IdentityService : IIdentityService
             throw new ErrorCodeException(ErrorCodes.ROLE_NOTFOUND, $"Role '{role}' does not exist");
 
         var currentRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
+
+        if (protectedRoles != null && protectedRoles.Contains(role, StringComparer.OrdinalIgnoreCase))
+            throw new ErrorCodeException(ErrorCodes.COMMON_FORBIDDEN, $"Cannot change to protected role '{role}'");
+
+        if (currentRole != null && protectedRoles != null && protectedRoles.Contains(currentRole, StringComparer.OrdinalIgnoreCase))
+            throw new ErrorCodeException(ErrorCodes.COMMON_FORBIDDEN, $"Cannot change from protected role '{currentRole}'");
+
 
         if (currentRole == role)
             return userId;
@@ -295,7 +302,10 @@ public class IdentityService : IIdentityService
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, "Invalid access token for refresh");
 
         var user = await _userManager.FindByIdAsync(userId.ToString());
-        if (user == null || user.IsDeleted || user.IsBanned || await _userManager.IsLockedOutAsync(user))
+        if (user == null || user.IsDeleted || user.IsBanned
+            // ||
+            // await _userManager.IsLockedOutAsync(user)
+           )
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, "User account is invalid or locked out or banned");
 
         _dbContext.Set<RefreshToken>().Remove(storedRefreshToken);
@@ -403,7 +413,7 @@ public class IdentityService : IIdentityService
         };
 
         var result = await _userManager.CreateAsync(userAccount);
-        
+
         await _userManager.AddToRolesAsync(userAccount, new[]
         {
             Roles.User

@@ -31,11 +31,13 @@ public class BanAccountCommandHandler : IRequestHandler<BanAccountCommand, Guid>
 {
     private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;
+    private readonly IUser _user;
 
-    public BanAccountCommandHandler(IApplicationDbContext context, IIdentityService identityService)
+    public BanAccountCommandHandler(IApplicationDbContext context, IIdentityService identityService, IUser user)
     {
         _context = context;
         _identityService = identityService;
+        _user = user;
     }
 
     /// <summary>
@@ -45,6 +47,9 @@ public class BanAccountCommandHandler : IRequestHandler<BanAccountCommand, Guid>
     /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<Guid> Handle(BanAccountCommand rq, CancellationToken cancellationToken)
     {
+        if (rq.UserId == _user.UserId)
+            throw new ErrorCodeException(ErrorCodes.COMMON_FORBIDDEN, "You cannot ban your own account.");
+    
         var admins = await _identityService.GetUsersInRoleAsync();
 
         var bannedUsers = await _context.DomainUsers
@@ -53,6 +58,7 @@ public class BanAccountCommandHandler : IRequestHandler<BanAccountCommand, Guid>
                         && x.Id == rq.UserId
                         && !admins.Contains(x.Id))
             .FirstOrDefaultAsync(cancellationToken);
+            
         if (bannedUsers == null)
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {rq.UserId} not found");
 

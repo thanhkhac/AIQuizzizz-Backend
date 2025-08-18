@@ -116,4 +116,118 @@ public class IdentityService_ChangeRoleAsyncTests : IdentityServiceTestBase
     }
 
 
+    [Test]
+    public void ChangeRoleAsync_AttemptChangeToProtectedRole_ThrowsForbidden()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var user = new UserAccount
+        {
+            Id = userId
+        };
+        var protectedRoles = new List<string>
+        {
+            "Admin"
+        };
+
+        _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString()))
+            .ReturnsAsync(user);
+
+        _userManagerMock.Setup(x => x.GetRolesAsync(user))
+            .ReturnsAsync(new[]
+            {
+                "User"
+            });
+
+        _roleManagerMock.Setup(x => x.RoleExistsAsync("Admin"))
+            .ReturnsAsync(true);
+
+        // Act
+        var ex = Assert.ThrowsAsync<ErrorCodeException>(() =>
+            _service.ChangeRoleAsync(userId, "Admin", protectedRoles));
+
+        // Assert
+        Assert.That(ex.Errors, Does.ContainKey(ErrorCodes.COMMON_FORBIDDEN));
+    }
+
+    [Test]
+    public void ChangeRoleAsync_AttemptChangeFromProtectedRole_ThrowsForbidden()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var user = new UserAccount
+        {
+            Id = userId
+        };
+        var protectedRoles = new List<string>
+        {
+            "Admin"
+        };
+
+        _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString()))
+            .ReturnsAsync(user);
+
+        _userManagerMock.Setup(x => x.GetRolesAsync(user))
+            .ReturnsAsync(new[]
+            {
+                "Admin"
+            });
+
+        _roleManagerMock.Setup(x => x.RoleExistsAsync("User"))
+            .ReturnsAsync(true);
+
+        // Act
+        var ex = Assert.ThrowsAsync<ErrorCodeException>(() =>
+            _service.ChangeRoleAsync(userId, "User", protectedRoles));
+
+        // Assert
+        Assert.That(ex.Errors, Does.ContainKey(ErrorCodes.COMMON_FORBIDDEN));
+    }
+
+    [Test]
+    public async Task ChangeRoleAsync_ChangeToNonProtectedRole_Succeeds()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var user = new UserAccount
+        {
+            Id = userId
+        };
+        var protectedRoles = new List<string>
+        {
+            "Admin"
+        };
+
+        _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString()))
+            .ReturnsAsync(user);
+
+        _userManagerMock.Setup(x => x.GetRolesAsync(user))
+            .ReturnsAsync(new[]
+            {
+                "User"
+            });
+
+        _roleManagerMock.Setup(x => x.RoleExistsAsync("Editor"))
+            .ReturnsAsync(true);
+
+        _userManagerMock.Setup(x => x.RemoveFromRoleAsync(user, "User"))
+            .ReturnsAsync(IdentityResult.Success);
+
+        _userManagerMock.Setup(x => x.AddToRoleAsync(user, "Editor"))
+            .ReturnsAsync(IdentityResult.Success);
+
+        _userManagerMock.Setup(x => x.UpdateSecurityStampAsync(user))
+            .ReturnsAsync(IdentityResult.Success);
+
+        // Act
+        var result = await _service.ChangeRoleAsync(userId, "Editor", protectedRoles);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(userId));
+        _userManagerMock.Verify(x => x.RemoveFromRoleAsync(user, "User"), Times.Once);
+        _userManagerMock.Verify(x => x.AddToRoleAsync(user, "Editor"), Times.Once);
+        _userManagerMock.Verify(x => x.UpdateSecurityStampAsync(user), Times.Once);
+    }
+
+
 }

@@ -28,7 +28,7 @@ public interface IIdentityService
     
     Task<List<Guid>> GetUsersInRoleAsync();
     
-    Task<Guid> ChangeRoleAsync(Guid userId, string role);
+    Task<Guid> ChangeRoleAsync(Guid userId, string role,  List<string>? protectedRoles = null);
 
     Task RequestEmailVerificationAsync(string email);
     
