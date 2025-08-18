@@ -3,7 +3,6 @@ using CleanArchitectureBase.Application.AiGenerate.Services;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Models;
-using CleanArchitectureBase.Application.Common.Settings;
 using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.AiGenerate;
@@ -51,10 +50,12 @@ public class CountDocumentTokenQueryValidator : AbstractValidator<GetCostToGener
 public class CountDocumentTokenQueryHandler : IRequestHandler<GetCostToGenerateDocumentStructureQuery, AiMinimumCostDto>
 {
     private readonly IAiGenerateService _aiGenerateService;
+    private readonly IApplicationDbContext _context;
 
-    public CountDocumentTokenQueryHandler(IAiGenerateService aiGenerateService)
+    public CountDocumentTokenQueryHandler(IAiGenerateService aiGenerateService, IApplicationDbContext context)
     {
         _aiGenerateService = aiGenerateService;
+        _context = context;
     }
 
 
@@ -63,6 +64,12 @@ public class CountDocumentTokenQueryHandler : IRequestHandler<GetCostToGenerateD
         var uploadResult = await _aiGenerateService.UploadFileAsync(request.FileData, cancellationToken);
         var systemInstruction = PromptProvider.GetGenerateDocumentStructureSystemInstructionPrompt();
 
+        var systemSetting = await _context.SystemSettings
+            .OrderByDescending(x => x.Created)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (systemSetting == null)
+            throw new ErrorCodeException(ErrorCodes.SYSTEM_SETTING_NOT_FOUND);
+        
         try
         {
             var token = await _aiGenerateService.CountTokenWithFileAsync(
@@ -71,13 +78,13 @@ public class CountDocumentTokenQueryHandler : IRequestHandler<GetCostToGenerateD
                 prompt: "",
                 cancellationToken: cancellationToken);
 
-            if (token > SystemSettings.MaxInputToken)
+            if (token > systemSetting.MaxInputToken)
                 throw new ErrorCodeException(ErrorCodes.AI_FILE_TOO_LARGE);
 
-            var apiInputCost = (double)token / 1_000_000 * SystemSettings.InputCostPerMillionTokens;
-            var apiOutputCost = (double)SystemSettings.MaxOutputToken / 1_000_000 * SystemSettings.OutputCostPerMillionTokens;
+            var apiInputCost = (double)token / 1_000_000 * systemSetting.InputCostPerMillionTokens;
+            var apiOutputCost = (double)systemSetting.MaxOutputToken / 1_000_000 * systemSetting.OutputCostPerMillionTokens;
 
-            var minimumPoint = (int)Math.Round(apiInputCost + apiOutputCost + SystemSettings.FixedSystemFee);
+            var minimumPoint = (int)Math.Round(apiInputCost + apiOutputCost + systemSetting.FixedSystemFee);
 
             return new AiMinimumCostDto
             {

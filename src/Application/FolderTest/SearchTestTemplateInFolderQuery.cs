@@ -67,6 +67,8 @@ public class SearchTestTemplateInFolderQueryHandler : IRequestHandler<SearchTest
             .FirstOrDefaultAsync(cancellationToken);
         if (accessUser == null)
             throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_FOLDER, "User không có quyền trong folder");
+
+        accessUser.IsViewed = true;
         
         var testTemplates = _context.FolderTestTemplates
             .Include(ft => ft.TestTemplate)
@@ -89,6 +91,9 @@ public class SearchTestTemplateInFolderQueryHandler : IRequestHandler<SearchTest
             rq.PageNumber,
             rq.PageSize
         );
+        
+        await _context.SaveChangesAsync(cancellationToken);
+        
         return new SearchTestTemplateInFolderDto
         {
             FolderName = accessUser.Folder!.Name,

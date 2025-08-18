@@ -84,6 +84,9 @@ public class TestTemplateService : ITestTemplateService
         var accessToView = await _context.TestTemplateUsers
             .Where(t => t.UserId == _user.UserId && t.TestTemplateId == testTemplateId)
             .FirstOrDefaultAsync();
+
+        if (accessToView != null)
+            accessToView.IsViewed = true;
         
         var accessToViewInFolder = await _context.FolderTestTemplates
             .Include(x => x.Folder!)
@@ -93,6 +96,8 @@ public class TestTemplateService : ITestTemplateService
         
         if (accessToView == null && accessToViewInFolder == null && !isAdmin)
             return false;
+        
+        await _context.SaveChangesAsync(new CancellationToken());
         
         return true;
     }
