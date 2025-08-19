@@ -187,6 +187,48 @@ public class TestService : ITestService
             throw new ErrorCodeException(ErrorCodes.ATTEMPT_NOT_FOUND);
         
         attempt.TimeFinish = DateTime.UtcNow;
+        
+        var userGrade = await _context.TestGrades
+            .Where(x => x.UserId == _user.UserId && x.TestId == attempt.TestId)
+            .FirstOrDefaultAsync();
+        
+        var totalScore = _context.AttemptQuestions
+            .Where(x => x.AttemptId.Equals(attemptId))
+            .Sum(x => x.Score);
+        
+        if (userGrade == null)
+        {
+            userGrade = new TestGrade
+            {
+                Id = Guid.NewGuid(),
+                Score = totalScore,
+                TestId = attempt.TestId,
+                UserId = _user.UserId!.Value,
+            };
+            
+            _context.TestGrades.Add(userGrade);
+        }
+        else
+        {
+            if (GradeAttemptMethod.HighestScore.Equals(attempt.Test!.GradeAttemptMethod))
+            {
+                var allAttempt = await _context.Attempts
+                    .Where(a => a.TestId == attempt.TestId && a.UserId == _user.UserId)
+                    .OrderByDescending(a => a.Score)
+                    .FirstOrDefaultAsync();
+
+                if (allAttempt!.Score < totalScore)
+                {
+                    userGrade.Score = totalScore;
+                    _context.TestGrades.Update(userGrade);
+                }
+            }
+            else
+            {
+                userGrade.Score = totalScore;
+                _context.TestGrades.Update(userGrade);
+            }
+        }   
 
         await _context.SaveChangesAsync(new CancellationToken());
         
