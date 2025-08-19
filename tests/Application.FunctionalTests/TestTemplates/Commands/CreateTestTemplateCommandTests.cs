@@ -1,4 +1,6 @@
+using CleanArchitectureBase.Application.Command.UnitTests.QuestionSets.Commands;
 using CleanArchitectureBase.Application.Common.Exceptions;
+using CleanArchitectureBase.Application.QuestionSets.Commands;
 using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using CleanArchitectureBase.Application.TestTemplates;
 using CleanArchitectureBase.Domain.Constants;
@@ -44,6 +46,25 @@ public class CreateTestTemplateCommandTests : BaseTestFixture
         {
             Name = new string('a', 201),
             Questions = new List<CreateUpdateQuestionDto> { ValidShortText() }
+        };
+
+        var ex = await FluentActions.Invoking(() => SendAsync(command))
+            .Should().ThrowAsync<ErrorCodeException>();
+
+        ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
+    }
+    
+    
+    [Test]
+    [TestCaseSource(typeof(CreateQuestionSetTests),nameof(CreateQuestionSetTests.InvalidQuestions))]
+    public async Task ShouldThrowErrorInvalidQuestion(CreateUpdateQuestionDto invalidQuestion)
+    {
+        await RunAsDefaultUserAsync();
+
+        var command = new CreateTestTemplateCommand
+        {
+            Name = new string('a', 100),
+            Questions = new List<CreateUpdateQuestionDto> { invalidQuestion }
         };
 
         var ex = await FluentActions.Invoking(() => SendAsync(command))
