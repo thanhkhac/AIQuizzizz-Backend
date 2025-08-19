@@ -1,7 +1,9 @@
 ﻿using System.Net.Http.Headers;
 using System.Text.Json;
 using CleanArchitectureBase.Application.AiGenerate.Dtos;
+using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Domain.Constants;
 using UglyToad.PdfPig;
 
 namespace CleanArchitectureBase.Infrastructure.File;
@@ -50,10 +52,10 @@ public class PdfService : IPdfService
     public void TrValidatePdf(Stream pdfStream, int maxPageCount)
     {
         if (pdfStream == null || pdfStream.Length == 0)
-            throw new ArgumentException("File không hợp lệ hoặc rỗng.");
+            throw new ErrorCodeException(ErrorCodes.INVALID_FILE_TYPE);
 
         if (!IsPdf(pdfStream))
-            throw new ArgumentException("File không phải định dạng PDF.");
+            throw new ErrorCodeException(ErrorCodes.INVALID_FILE_TYPE, "Không phải PDF");
 
         pdfStream.Position = 0;
         using (var pdf = PdfDocument.Open(pdfStream, new ParsingOptions()
@@ -62,7 +64,7 @@ public class PdfService : IPdfService
                }))
         {
             if (pdf.NumberOfPages > maxPageCount)
-                throw new ArgumentException($"PDF vượt quá {maxPageCount} trang.");
+                throw new ErrorCodeException(ErrorCodes.PDF_PAGE_LIMIT_EXCEEDED);
         }
 
         pdfStream.Position = 0;
