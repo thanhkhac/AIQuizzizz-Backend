@@ -48,13 +48,6 @@ public class UpdateFolderCommandHandler : IRequestHandler<UpdateFolderCommand, G
             throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_FOLDER,
                 "User không có quyền edit folder");
         
-        var folderByName = await _context.Folders
-            .FirstOrDefaultAsync(x => x.Name == rq.Name &&
-                                      x.IsDeleted == false &&
-                                      x.CreatedBy == _user.UserId, cancellationToken);
-        if (folderByName != null)
-            throw new ErrorCodeException(ErrorCodes.FOLDER_ALREADY_EXISTS, "Folder đã tồn tại");
-        
         folder.Name = rq.Name;
         
         await _context.SaveChangesAsync(cancellationToken);

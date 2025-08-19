@@ -1,10 +1,12 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.SystemSettings.Dto;
 using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.SystemSettings.Query;
 
+[Authorize ( Roles = Domain.Constants.Roles.Administrator + "," + Domain.Constants.Roles.Moderator )]
 public class GetSystemSettingQuery : IRequest<SystemSettingDetailDto> { }
 
 public class GetSystemSettingQueryHandler : IRequestHandler<GetSystemSettingQuery, SystemSettingDetailDto>

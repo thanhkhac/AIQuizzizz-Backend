@@ -1,10 +1,12 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.SystemSettings.Commands;
 
+[Authorize ( Roles = Domain.Constants.Roles.Administrator + "," + Domain.Constants.Roles.Moderator )]
 public class CreateSystemSettingCommand : IRequest<Guid>
 {
     public int InputCostPerMillionTokens { get; set; }
