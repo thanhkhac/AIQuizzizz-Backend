@@ -62,7 +62,7 @@ public static class Serializer
 
 public static class CheckUserAnswer
 {
-    public static float CheckMultipleChoiceAnswer(UserAnswerDto userAnswer, QuestionResponseDto question)
+    public static float CheckMultipleChoiceAnswer(UserAnswerDto userAnswer, QuestionResponseDto question, GradeQuestionMethod gradeQuestionMethod)
     {
         if (question.QuestionData?.MultipleChoice == null || userAnswer.UserAnswerData?.MultipleChoice == null)
             return 0;
@@ -71,16 +71,23 @@ public static class CheckUserAnswer
             .Where(x => x.IsAnswer!.Value)
             .Select(x => x.Id)
             .ToHashSet();
-
-        var check = userAnswer.UserAnswerData.MultipleChoice.ToHashSet();
         
         float score = userAnswer.UserAnswerData.MultipleChoice.ToHashSet().SetEquals(correctAnswers)
             ? question.Score
             : 0;
+
+        if (GradeQuestionMethod.Partial == gradeQuestionMethod)
+        {
+            var correctCount = userAnswer.UserAnswerData.MultipleChoice.Count(x => correctAnswers.Contains(x));
+            var inCorrectCount = userAnswer.UserAnswerData.MultipleChoice.Count(x => !correctAnswers.Contains(x));
+            score = (correctCount - inCorrectCount) * (question.Score / correctAnswers.Count);
+            if (score < 0)
+                score = 0;
+        }
         return score;
     }
 
-    public static float CheckMatchingAnswer(UserAnswerDto userAnswer, QuestionResponseDto question)
+    public static float CheckMatchingAnswer(UserAnswerDto userAnswer, QuestionResponseDto question, GradeQuestionMethod gradeQuestionMethod)
     {
         if(question.QuestionData.Matching == null || userAnswer.UserAnswerData.Matching == null)
             return 0;
@@ -101,11 +108,16 @@ public static class CheckUserAnswer
             .ToList();
         
         var scorePerMatch = question.Score / answers.Count;
+
+        if (GradeQuestionMethod.AllOrNothing == gradeQuestionMethod)
+        {
+            return correctAnswers.Count == answers.Count ? question.Score : 0;
+        }
         
         return correctAnswers.Count * scorePerMatch;
     }
 
-    public static float CheckOrderingAnswer(UserAnswerDto userAnswer, QuestionResponseDto question)
+    public static float CheckOrderingAnswer(UserAnswerDto userAnswer, QuestionResponseDto question, GradeQuestionMethod gradeQuestionMethod)
     {
         if(question.QuestionData.Ordering == null || userAnswer.UserAnswerData.Ordering == null)
             return 0;
@@ -121,6 +133,20 @@ public static class CheckUserAnswer
             .ToList();
         
         var isCorrect = answers.SequenceEqual(userAnswers);
+
+        if (GradeQuestionMethod.Partial == gradeQuestionMethod)
+        {
+            var totalPoint = 0f;
+            var pointPerCorrect = question.Score / answers.Count;
+            var countFor = userAnswers.Count < answers.Count ? userAnswers.Count : answers.Count;
+            for (int i = 0; i < countFor; i++)
+            {
+                if (answers[i].Equals(userAnswers[i]))
+                {
+                    totalPoint += pointPerCorrect;
+                }
+            }
+        }
         
         return isCorrect ? question.Score : 0;
     }
