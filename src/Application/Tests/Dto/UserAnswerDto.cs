@@ -146,7 +146,6 @@ public static class CheckUserAnswer
                     totalPoint += pointPerCorrect;
                 }
             }
-            
             return totalPoint;
         }
         
