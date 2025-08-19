@@ -129,6 +129,37 @@
         }
       }
     },
+    "/api/AiGenerate/GetCostToGenerateQuestion": {
+      "post": {
+        "tags": [
+          "AiGenerate"
+        ],
+        "operationId": "GetCostToGenerateQuestion",
+        "parameters": [
+          {
+            "name": "form",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/GenerateQuestionWithAiForm"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAiMinimumCostDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Authentication/Register": {
       "post": {
         "tags": [

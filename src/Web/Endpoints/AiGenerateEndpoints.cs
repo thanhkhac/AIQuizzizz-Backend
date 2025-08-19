@@ -24,6 +24,9 @@ public class AiGenerateEndpoints : EndpointGroupBase
         
         group.MapPost(GetCostToGenerateDocument, "/DocumentStructure/GetCostToGenerate")
             .DisableAntiforgery();
+            
+        group.MapPost(GetCostToGenerateQuestion, "/GetCostToGenerateQuestion")
+            .DisableAntiforgery();
     }
     
     public class GenerateQuestionWithAiForm
@@ -97,6 +100,35 @@ public class AiGenerateEndpoints : EndpointGroupBase
         };
         
         var command = new GenerateQuestionWithAiCommand
+        {
+            FileData = rq,
+            IsGenerateExplain = form.IsGenerateExplain,
+            Language = form.Language,
+            QuestionCount = form.QuestionCount,
+            QuestionTypes = form.QuestionTypes,
+            DocumentStructure = form.DocumentStructure,
+            SelectedParts = form.SelectedPart
+        };
+        
+        var result = await sender.Send(command);
+
+        return result.ToOk();
+    }
+    
+    
+    public async Task<Ok<ApiResponse<AiMinimumCostDto>>> GetCostToGenerateQuestion(
+        [FromForm] GenerateQuestionWithAiForm form,
+        ISender sender)
+    {
+        
+        var rq = new FileStreamData
+        {
+            Data = form.File.OpenReadStream(),
+            ContentType = form.File.ContentType,
+            FileName = form.File.FileName
+        };
+        
+        var command = new GetCostToGenerateQuestionQuery()
         {
             FileData = rq,
             IsGenerateExplain = form.IsGenerateExplain,

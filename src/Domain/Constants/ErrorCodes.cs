@@ -134,6 +134,9 @@ public static class ErrorCodes
     public const string GENERATE_CONTENT_FAILED = nameof(GENERATE_CONTENT_FAILED);
     public const string AI_FILE_TOO_LARGE = nameof(AI_FILE_TOO_LARGE);
     
+    public const string INVALID_FILE_TYPE = nameof(INVALID_FILE_TYPE);
+    public const string PDF_PAGE_LIMIT_EXCEEDED = nameof(PDF_PAGE_LIMIT_EXCEEDED);
+    
     public const string NO_STRUCTURE_FOUND = nameof(NO_STRUCTURE_FOUND);
     public const string PAYMENT_IN_PROGRESS = nameof(PAYMENT_IN_PROGRESS);
     
