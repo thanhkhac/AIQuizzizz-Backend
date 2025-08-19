@@ -20,7 +20,6 @@ public class CountDocumentTokenQueryValidator : AbstractValidator<GetCostToGener
     private const int MaxPageCount = 1000;
 
 
-
     public CountDocumentTokenQueryValidator(IPdfService pdfService)
     {
         IPdfService pdfService1 = pdfService;

@@ -134,6 +134,8 @@ public class GenerateQuestionWithAiCommandHandler : IRequestHandler<GenerateQues
 
             currentUser.Balance -= (int)Math.Round(apiInputCost + systemSetting.FixedSystemFee);
 
+            if(currentUser.Balance < 0)   currentUser.Balance  = 0;
+
             _context.DomainUsers.Update(currentUser);
             await _context.SaveChangesAsync(cancellationToken);
 
