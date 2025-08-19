@@ -1,8 +1,11 @@
+using CleanArchitectureBase.Application.Command.UnitTests.QuestionSets.Commands;
+using CleanArchitectureBase.Application.Command.UnitTests.TestDataUltils;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.QuestionSets.Dtos;
 using CleanArchitectureBase.Application.TestTemplates;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace CleanArchitectureBase.Application.Command.UnitTests.TestTemplates.Commands;
 
@@ -147,6 +150,29 @@ public class UpdateTestTemplateCommandTests : BaseTestFixture
 
         ex.Which.Errors.Should().ContainKey(ErrorCodes.TEST_TEMPLATE_NOT_FOUND);
     }
+    
+    [Test]
+    [TestCaseSource(typeof(CreateQuestionSetTests),nameof(CreateQuestionSetTests.InvalidQuestions))]
+    public async Task ShouldThrowErrorInvalidQuestion(CreateUpdateQuestionDto invalidQuestion)
+    {
+        await RunAsDefaultUserAsync();
+        var ownerId = await RunAsUserAsync("owner@local", "Owner1234!", []);
+        var testTemplate = new TestTemplate { Name = "Test Template", CreatedBy = ownerId };
+        await AddAsync(testTemplate);
+        await AddAsync(new TestTemplateUser { UserId = ownerId, TestTemplateId = testTemplate.Id, ShareMode = TestTemplateUserShareMode.Owner });
+
+        var command = new UpdateTestTemplateCommand
+        {
+            TestTemplateId = testTemplate.Id,
+            Name = new string('a', 100),
+            CreateUpdateQuestions = new List<CreateUpdateQuestionDto> { invalidQuestion }
+        };
+
+        var ex = await FluentActions.Invoking(() => SendAsync(command))
+            .Should().ThrowAsync<ErrorCodeException>();
+
+        ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
+    }
 
     [Test]
     public async Task ShouldThrowErrorWhenUserNotHavePermissionToEditTestTemplate()
@@ -179,7 +205,7 @@ public class UpdateTestTemplateCommandTests : BaseTestFixture
         await AddAsync(testTemplate);
         await AddAsync(new TestTemplateUser { UserId = userId, TestTemplateId = testTemplate.Id, ShareMode = TestTemplateUserShareMode.Owner });
 
-        var existingQuestion = new Question { QuestionText = "Existing Q", Type = QuestionType.ShortText, Score = 1, DataJson = "{}" };
+        var existingQuestion = new Question { QuestionText = "Existing Q", Type = QuestionType.ShortText, Score = 1, DataJson = QuestionJsonTestData.ShortTextDataJson };
         await AddAsync(existingQuestion);
         await AddAsync(new TestTemplateQuestion { TestTemplateId = testTemplate.Id, QuestionId = existingQuestion.Id });
 
@@ -203,7 +229,7 @@ public class UpdateTestTemplateCommandTests : BaseTestFixture
         updatedTestTemplate.Should().NotBeNull();
         updatedTestTemplate!.Name.Should().Be("Updated Name");
 
-        var questions = await QueryListAsync<Question>(x => x.Where(q => q.CreatedBy == userId));
+        var questions = await QueryListAsync<Question>(x => x.Where(q => q.CreatedBy == userId && q.IsDeleted == false));
         questions.Should().HaveCount(2); // Original updated + new one
         questions.Should().Contain(q => q.QuestionText == "Updated Existing Q" && q.Score == 2);
         questions.Should().Contain(q => q.QuestionText == ValidShortText().QuestionText);
@@ -220,8 +246,8 @@ public class UpdateTestTemplateCommandTests : BaseTestFixture
         await AddAsync(testTemplate);
         await AddAsync(new TestTemplateUser { UserId = userId, TestTemplateId = testTemplate.Id, ShareMode = TestTemplateUserShareMode.Owner });
 
-        var questionToDelete = new Question { QuestionText = "Q to Delete", Type = QuestionType.ShortText, Score = 1, DataJson = "{}" };
-        var questionToKeep = new Question { QuestionText = "Q to Keep", Type = QuestionType.ShortText, Score = 1, DataJson = "{}" };
+        var questionToDelete = new Question { QuestionText = "Q to Delete", Type = QuestionType.ShortText, Score = 1, DataJson = QuestionJsonTestData.ShortTextDataJson };
+        var questionToKeep = new Question { QuestionText = "Q to Keep", Type = QuestionType.ShortText, Score = 1, DataJson = QuestionJsonTestData.ShortTextDataJson };
         await AddAsync(questionToDelete);
         await AddAsync(questionToKeep);
 
@@ -243,11 +269,11 @@ public class UpdateTestTemplateCommandTests : BaseTestFixture
 
         result.Should().Be(testTemplate.Id);
 
-        var questions = await QueryListAsync<Question>(x => x.Where(q => q.CreatedBy == userId));
+        var questions = await QueryListAsync<Question>(x => x.Where(q => q.CreatedBy == userId && q.IsDeleted == false));
         questions.Should().HaveCount(1); // Only questionToKeep should remain
         questions.First().QuestionText.Should().Be("Updated Q to Keep");
 
-        var testTemplateQuestions = await QueryListAsync<TestTemplateQuestion>(x => x.Where(ttq => ttq.TestTemplateId == testTemplate.Id));
+        var testTemplateQuestions = await QueryListAsync<TestTemplateQuestion>(x => x.Include(x => x.Question).Where(ttq => ttq.TestTemplateId == testTemplate.Id && ttq.Question!.IsDeleted == false));
         testTemplateQuestions.Should().HaveCount(1);
         testTemplateQuestions.First().QuestionId.Should().Be(questionToKeep.Id);
     }
