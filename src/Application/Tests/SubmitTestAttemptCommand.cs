@@ -73,7 +73,7 @@ public class SubmitTestAttemptCommandHandler : IRequestHandler<SubmitTestAttempt
         if (attempt.UserId != _user.UserId)
             throw new ErrorCodeException(ErrorCodes.ERROR_ATTEMPT_USER, "Người làm bài không phải student đã attempt");
         
-        await _testService.TryCheckCanAttemptTest(attempt.Test);
+        await _testService.TryCheckCanSubmitTest(attempt.Test);
 
         if (attempt.TimeFinish >= attempt.TimeStart)
         {
