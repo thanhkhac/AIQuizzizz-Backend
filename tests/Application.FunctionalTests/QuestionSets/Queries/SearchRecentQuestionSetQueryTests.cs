@@ -96,7 +96,9 @@ public class SearchRecentQuestionSetQueryTests : BaseTestFixture
             Id = Guid.NewGuid(),
             Name = "OnlyClass QS",
             CreatedBy = ownerId,
-            VisibilityMode = QuestionSetVisibilityMode.OnlyClass
+            // VisibilityMode = QuestionSetVisibilityMode.OnlyClass
+            VisibilityMode = QuestionSetVisibilityMode.Private
+            
         };
         await AddAsync(publicQs);
         await AddAsync(privateQs);

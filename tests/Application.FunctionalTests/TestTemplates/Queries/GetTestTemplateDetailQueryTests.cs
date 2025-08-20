@@ -1,3 +1,4 @@
+using CleanArchitectureBase.Application.Command.UnitTests.TestDataUltils;
 using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.TestTemplates;
 using CleanArchitectureBase.Domain.Constants;
@@ -70,8 +71,8 @@ public class GetTestTemplateDetailQueryTests : BaseTestFixture
         await AddAsync(testTemplate);
         await AddAsync(new TestTemplateUser { UserId = userId, TestTemplateId = testTemplate.Id, ShareMode = TestTemplateUserShareMode.Owner });
 
-        var question1 = new Question { QuestionText = "Q1", Type = QuestionType.ShortText, Score = 1, DataJson = "{}" };
-        var question2 = new Question { QuestionText = "Q2", Type = QuestionType.ShortText, Score = 1, DataJson = "{}" };
+        var question1 = new Question { QuestionText = "Q1", Type = QuestionType.ShortText, Score = 1, DataJson = QuestionJsonTestData.ShortTextDataJson };
+        var question2 = new Question { QuestionText = "Q2", Type = QuestionType.ShortText, Score = 1, DataJson = QuestionJsonTestData.ShortTextDataJson };
         await AddAsync(question1);
         await AddAsync(question2);
 

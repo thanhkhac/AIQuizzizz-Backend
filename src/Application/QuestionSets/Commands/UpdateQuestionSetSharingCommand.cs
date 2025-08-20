@@ -23,7 +23,8 @@ public class UpdateQuestionSetSharingCommandValidator : AbstractValidator<Update
 {
     private static readonly string[] AllowedVisibilityModes =
     {
-        "Public", "Private", "OnlyClass"
+        "Public", "Private",
+         // "OnlyClass"
     };
 
     private static readonly string[] AllowedShareModes =
@@ -91,7 +92,40 @@ public class UpdateQuestionSetSharingCommandHandler : IRequestHandler<UpdateQues
             newVisibility = Enum.Parse<QuestionSetVisibilityMode>(request.VisibilityMode!);
         }
 
-        if (questionSet.VisibilityMode == QuestionSetVisibilityMode.Public && newVisibility == QuestionSetVisibilityMode.OnlyClass)
+        // if (questionSet.VisibilityMode == QuestionSetVisibilityMode.Public && newVisibility == QuestionSetVisibilityMode.OnlyClass)
+        // {
+        //     var unauthorizedClassLinks = await (
+        //         from cqs in _context.ClassQuestionSets
+        //         join cls in _context.Classes on cqs.ClassId equals cls.Id
+        //         join cu in _context.ClassUsers on new
+        //         {
+        //             cqs.ClassId,
+        //             UserId = ownerId
+        //         } equals new
+        //         {
+        //             cu.ClassId,
+        //             cu.UserId
+        //         } into cuJoin
+        //         from cu in cuJoin.DefaultIfEmpty()
+        //         where cqs.QuestionSetId == questionSetId
+        //               && (cu == null || cu.ShareMode != ClassShareMode.Owner && cu.ShareMode != ClassShareMode.Teacher)
+        //         select cqs
+        //     ).ToListAsync(cancellationToken);
+        //
+        //     _context.ClassQuestionSets.RemoveRange(unauthorizedClassLinks);
+        // }
+        //
+        // //Bất cứ mode nào chuyển về private thì đều xóa hết class link
+        // if (questionSet.VisibilityMode != QuestionSetVisibilityMode.Private && newVisibility == QuestionSetVisibilityMode.Private)
+        // {
+        //     var allClassLinks = await _context.ClassQuestionSets
+        //         .Include(cqs => cqs.Class)
+        //         .Where(cqs => cqs.QuestionSetId == questionSetId)
+        //         .ToListAsync(cancellationToken);
+        //     _context.ClassQuestionSets.RemoveRange(allClassLinks);
+        // }
+        
+        if (questionSet.VisibilityMode == QuestionSetVisibilityMode.Public && newVisibility == QuestionSetVisibilityMode.Private)
         {
             var unauthorizedClassLinks = await (
                 from cqs in _context.ClassQuestionSets
@@ -110,18 +144,8 @@ public class UpdateQuestionSetSharingCommandHandler : IRequestHandler<UpdateQues
                       && (cu == null || cu.ShareMode != ClassShareMode.Owner && cu.ShareMode != ClassShareMode.Teacher)
                 select cqs
             ).ToListAsync(cancellationToken);
-
+        
             _context.ClassQuestionSets.RemoveRange(unauthorizedClassLinks);
-        }
-
-        //Bất cứ mode nào chuyển về private thì đều xóa hết class link
-        if (questionSet.VisibilityMode != QuestionSetVisibilityMode.Private && newVisibility == QuestionSetVisibilityMode.Private)
-        {
-            var allClassLinks = await _context.ClassQuestionSets
-                .Include(cqs => cqs.Class)
-                .Where(cqs => cqs.QuestionSetId == questionSetId)
-                .ToListAsync(cancellationToken);
-            _context.ClassQuestionSets.RemoveRange(allClassLinks);
         }
 
 

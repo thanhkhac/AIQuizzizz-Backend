@@ -21,7 +21,7 @@ public class DeletePlanCommandTests : BaseTestFixture
         var ex = await FluentActions.Invoking(() => SendAsync(command))
             .Should().ThrowAsync<ErrorCodeException>();
 
-        ex.Which.Errors.Should().ContainKey(ErrorCodes.USER_NOT_HAVE_PERMISSION);
+        ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_FORBIDDEN);
     }
 
     [Test]

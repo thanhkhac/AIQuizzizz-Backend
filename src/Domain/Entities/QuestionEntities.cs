@@ -19,7 +19,7 @@ public enum QuestionSetVisibilityMode
 {
     Public = 0, //Các số có thể dùng để đẩy vào priority nếu cần
     Private = 1,
-    OnlyClass = 2
+    // OnlyClass = 2
 }
 
 public enum QuestionSetUserShareMode

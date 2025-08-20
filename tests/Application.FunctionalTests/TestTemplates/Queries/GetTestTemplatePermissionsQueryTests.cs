@@ -139,10 +139,9 @@ public class GetTestTemplatePermissionsQueryTests : BaseTestFixture
             TestTemplateId = testTemplate.Id
         };
 
-        var result = await SendAsync(query);
+        var ex = await FluentActions.Invoking(() => SendAsync(query))
+            .Should().ThrowAsync<ErrorCodeException>();
 
-        result.Should().NotBeNull();
-        result.CanEdit.Should().BeFalse();
-        result.CanDelete.Should().BeFalse();
+        ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_UNAUTHORIZED);
     }
 }

@@ -80,7 +80,7 @@ public class GetSharingInTestTemplateQueryTests : BaseTestFixture
         {
             TestTemplateId = testTemplate.Id
         };
-
+        await RunAsDefaultUserAsync();
         var result = await SendAsync(query);
 
         result.Should().NotBeNull();
