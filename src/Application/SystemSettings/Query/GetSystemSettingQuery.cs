@@ -27,10 +27,6 @@ public class GetSystemSettingQueryHandler : IRequestHandler<GetSystemSettingQuer
     
     public async Task<SystemSettingDetailDto> Handle(GetSystemSettingQuery request, CancellationToken cancellationToken)
     {
-        var isAdmin = await _identityService.IsInAnyRoleAsync(_user.UserId!.Value, Domain.Constants.Roles.Administrator,
-            Domain.Constants.Roles.Moderator);
-        if (!isAdmin)
-            throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION);
 
         var systemSetting = await _context.SystemSettings
             .OrderByDescending(x => x.Created)

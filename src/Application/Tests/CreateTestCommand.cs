@@ -15,8 +15,8 @@ public class CreateTestCommand : IRequest<Guid>
     public required string Name { get; set; }
     public required Guid ClassId { get; set; }
     public required int TimeLimit { get; set; }
-    public required DateTime StartTime { get; set; }
-    public required DateTime EndTime { get; set; }
+    public required DateTimeOffset StartTime { get; set; }
+    public required DateTimeOffset EndTime { get; set; }
     public required string GradeAttemptMethod { get; set; }
     public required string GradeQuestionMethod { get; set; }
     public bool IsShowCorrectAnswerInReview { get; set; }
@@ -36,6 +36,7 @@ public class CreateTestCommandValidator : AbstractValidator<CreateTestCommand>
             .MaximumLength(200).WithMessage("Tên bài kiểm tra không được vượt quá 200 ký tự");
         
         RuleFor(x => x.PassingScore)
+            .GreaterThanOrEqualTo(0)
             .NotEmpty().WithMessage("PassingScore không được để trống")
             .LessThan(100).WithMessage("PassingScore không được vượt quá 100%");
 

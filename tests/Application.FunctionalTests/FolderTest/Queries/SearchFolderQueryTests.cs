@@ -48,6 +48,7 @@ public class SearchFolderQueryTests : BaseTestFixture
 
         ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
     }
+    
 
     [Test]
     public async Task ShouldRequireValidShareMode()
