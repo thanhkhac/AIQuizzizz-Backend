@@ -13,7 +13,7 @@ public class PlanConfiguration : IEntityTypeConfiguration<Plan>
         //Cấu hình thuộc tính
         builder.Property(p => p.Name)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(200);
 
         builder.Property(p => p.Price)
             .HasColumnType("numeric(18,2)")
@@ -111,10 +111,10 @@ public class QuestionConfiguration : IEntityTypeConfiguration<Question>
         // builder.HasQueryFilter(x => !x.IsDeleted);
 
         builder.Property(q => q.QuestionText)
-            .HasMaxLength(1000);
+            .HasMaxLength(5000);
 
         builder.Property(q => q.ExplainText)
-            .HasMaxLength(1000);
+            .HasMaxLength(5000);
 
         builder.Property(q => q.TextFormat)
             .IsRequired()
@@ -146,7 +146,7 @@ public class QuestionSetConfiguration : IEntityTypeConfiguration<QuestionSet>
     {
         builder.Property(qs => qs.Name)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(200);
 
         builder.Property(qs => qs.Description)
             .HasMaxLength(500);
@@ -346,7 +346,7 @@ public class TestTemplateConfiguration : IEntityTypeConfiguration<TestTemplate>
     {
         builder.Property(tt => tt.Name)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(200);
     }
 }
 
@@ -374,7 +374,7 @@ public class FolderConfiguration : IEntityTypeConfiguration<Folder>
     {
         builder.Property(f => f.Name)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(200);
     }
 }
 
@@ -462,7 +462,7 @@ public class TestConfiguration : IEntityTypeConfiguration<Test>
     {
         builder.Property(t => t.Name)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(200);
 
         builder.Property(t => t.TimeStart)
             .IsRequired();
@@ -611,7 +611,7 @@ public class ClassConfiguration : IEntityTypeConfiguration<Class>
     {
         builder.Property(c => c.Name)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(200);
 
         builder.HasQueryFilter(x => !x.IsDeleted);
 

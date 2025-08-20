@@ -36,7 +36,7 @@ public class GetQuestionSetQuestionsForCopyQueryHandler : IRequestHandler<GetQue
         var questionSet = await _questionSetService.GetActiveQuestionSet(request.QuestionSetId, cancellationToken);
         if (questionSet == null) throw new ErrorCodeException(ErrorCodes.QUESTION_SET_NOT_FOUND);
         
-        //TODO: bổ sung hàm khác để những bộ public cũng có thể lấy dữ liêệu
+
         var canUserEdit = await _questionSetService.CanUserEditQuestionSet(_user.UserId!.Value, questionSet.Id);
         if (canUserEdit == false) throw new ErrorCodeException(ErrorCodes.COMMON_FORBIDDEN, "You are not allowed to view this question set");
 
