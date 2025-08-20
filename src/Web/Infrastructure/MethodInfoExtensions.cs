@@ -7,7 +7,6 @@ public static class MethodInfoExtensions
     //Kiểm tra xem hàm có phải Anoymous không (Anoymous method: hàm không tên, VD: app.MapGet("/test", () => "Hello");)
     public static bool IsAnonymous(this MethodInfo method)
     {
-        //TODO: In thử ra tên các hàm anounymous
         var invalidChars = new[] { '<', '>' };
         return method.Name.Any(invalidChars.Contains);
     }

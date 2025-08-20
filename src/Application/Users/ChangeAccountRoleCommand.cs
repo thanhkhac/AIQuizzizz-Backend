@@ -14,7 +14,7 @@ public class ChangeAccountRoleCommand : IRequest<Guid>
 
 }
 
-//TODO: chưa validate role
+
 public class ChangeAccountRoleCommandValidator : AbstractValidator<ChangeAccountRoleCommand>
 {
     public ChangeAccountRoleCommandValidator()

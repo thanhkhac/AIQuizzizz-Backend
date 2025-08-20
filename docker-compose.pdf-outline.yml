@@ -1,7 +1,7 @@
 #docker-compose.yml
 services:
   pdf-outline-app:
-    image: ${DOCKER_USERNAME}/backend:${TAG:-latest}
+    image: ${DOCKER_USERNAME}/pdf-outline:${TAG:-latest}
     build:
       context: ./pdf-outline-app
       dockerfile: Dockerfile
