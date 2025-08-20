@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace CleanArchitectureBase.Infrastructure.Data.Interceptors;
-//TODO: 
 
 //Đây là một interceptor của Entity Framework Core
 //

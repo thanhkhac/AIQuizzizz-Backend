@@ -1,7 +1,9 @@
 ﻿using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 
 namespace CleanArchitectureBase.Application.zPlayGround;
 
+[Authorize(Roles = Domain.Constants.Roles.Administrator)]
 public class ZPlayGroundQuery : IRequest<string>
 {
     
