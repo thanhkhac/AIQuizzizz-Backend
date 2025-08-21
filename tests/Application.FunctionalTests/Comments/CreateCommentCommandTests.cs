@@ -56,44 +56,54 @@ public class CreateCommentCommandTests : BaseTestFixture
         createdComment.CreatedBy.Should().Be(userId);
     }
 
-
-    //abnormal
-    [Test]
-    public async Task ShouldThrowError_WhenContentIsEmpty()
+    public static class CreateCommentCommandTestCases
     {
-        await RunAsDefaultUserAsync();
-        var questionSet = new QuestionSet
+        public static IEnumerable<TestCaseData> InvalidContentCases
         {
-            Id = Guid.NewGuid(),
-            Name = "Test Question Set",
-            CreatedBy = GetUserId()!.Value
-        };
-        await AddAsync(questionSet);
-        var question = new Question
-        {
-            Id = Guid.NewGuid(),
-            QuestionSetId = questionSet.Id,
-            QuestionText = "Q1",
-            Type = QuestionType.ShortText,
-            Score = 1,
-            DataJson = QuestionJsonTestData.ShortTextDataJson,
-            TextFormat = TextFormat.PlainText
-        };
-        await AddAsync(question);
-        await AddAsync(new QuestionSetUser
-        {
-            UserId = GetUserId()!.Value,
-            QuestionSetId = questionSet.Id,
-            ShareMode = QuestionSetUserShareMode.Owner
-        });
+            get
+            {
+                yield return new TestCaseData("").SetName("Content_Empty");
+                yield return new TestCaseData(" ").SetName("Content_Whitespace");
+                yield return new TestCaseData(null).SetName("Content_Null");
+                yield return new TestCaseData(new string('a', 1001)).SetName("Content_TooLong"); // giả sử max = 1000
+                yield return new TestCaseData(new string('a', 999)).SetName("Content_UnderBoundaryLong"); // giả sử max = 1000
+            }
+        }
+    }
+
+    [Test, TestCaseSource(typeof(CreateCommentCommandTestCases), nameof(CreateCommentCommandTestCases.InvalidContentCases))]
+    public async Task ShouldThrowError_WhenContentIsInvalid(string content)
+    {
+        var userId = await RunAsDefaultUserAsync();
+
 
         var command = new CreateCommentCommand
         {
-            QuestionId = question.Id,
-            Content = ""
+            QuestionId = Guid.NewGuid(),
+            Content = content
         };
 
-        var ex = await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ErrorCodeException>();
+        var ex = await FluentActions.Invoking(() => SendAsync(command))
+            .Should().ThrowAsync<ErrorCodeException>();
+
+        ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
+    }
+    
+    [Test]
+    public async Task ShouldThrowError_WhenIdIsInvalid()
+    {
+        var userId = await RunAsDefaultUserAsync();
+
+
+        var command = new CreateCommentCommand
+        {
+            QuestionId = null,
+            Content = "Hell"
+        };
+
+        var ex = await FluentActions.Invoking(() => SendAsync(command))
+            .Should().ThrowAsync<ErrorCodeException>();
+
         ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
     }
 

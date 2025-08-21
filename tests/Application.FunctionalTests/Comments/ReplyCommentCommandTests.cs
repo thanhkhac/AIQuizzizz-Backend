@@ -118,6 +118,41 @@ public class ReplyCommentCommandTests : BaseTestFixture
         var ex = await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ErrorCodeException>();
         ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
     }
+    
+    
+    [Test, TestCaseSource(typeof(CreateCommentCommandTests.CreateCommentCommandTestCases), nameof(CreateCommentCommandTests.CreateCommentCommandTestCases.InvalidContentCases))]
+    public async Task ShouldThrowError_WhenContentIsInvalid(string content)
+    {
+        var userId = await RunAsDefaultUserAsync();
+
+
+        var command = new ReplyCommentCommand
+        {
+            CommentId = Guid.NewGuid(),
+            Content = content
+        };
+
+        var ex = await FluentActions.Invoking(() => SendAsync(command))
+            .Should().ThrowAsync<ErrorCodeException>();
+
+        ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
+    }
+    
+    //abnormal
+    [Test]
+    public async Task ShouldThrowError_WhenContentIsNull()
+    {
+        await RunAsDefaultUserAsync();
+
+        var command = new ReplyCommentCommand
+        {
+            CommentId = null,
+            Content = "Hello"
+        };
+
+        var ex = await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ErrorCodeException>();
+        ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
+    }
 
     //abnormal
     [Test]

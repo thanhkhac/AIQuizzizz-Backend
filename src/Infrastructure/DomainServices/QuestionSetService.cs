@@ -52,7 +52,7 @@ public class QuestionSetService : IQuestionSetService
         if (questionSet.VisibilityMode == QuestionSetVisibilityMode.Public)
             return true;
 
-        if (userId == null) 
+        if (userId == null)
             throw new ErrorCodeException(ErrorCodes.COMMON_UNAUTHORIZED);
 
         if (await _identityService.IsInAnyRoleAsync(userId.Value, Domain.Constants.Roles.Administrator, Domain.Constants.Roles.Moderator))
@@ -66,13 +66,26 @@ public class QuestionSetService : IQuestionSetService
             return true;
 
         // Check theo class mode
-        if (questionSet.VisibilityMode == QuestionSetVisibilityMode.OnlyClass)
-        {
-            var classIds = _context.ClassQuestionSets.Where(x => x.QuestionSetId == questionSet.Id).Select(cqs => cqs.ClassId).ToList();
+        // if (questionSet.VisibilityMode == QuestionSetVisibilityMode.OnlyClass)
+        // {
+        //     var classIds = _context.ClassQuestionSets.Where(x => x.QuestionSetId == questionSet.Id).Select(cqs => cqs.ClassId).ToList();
+        //
+        //     return await _context.ClassUsers
+        //         .AnyAsync(cu => classIds.Contains(cu.ClassId) && cu.UserId == userId);
+        // }
 
-            return await _context.ClassUsers
-                .AnyAsync(cu => classIds.Contains(cu.ClassId) && cu.UserId == userId);
-        }
+        hasShareAccess = await (
+            from cu in _context.ClassUsers
+            join cqs in _context.ClassQuestionSets
+                on cu.ClassId equals cqs.ClassId
+            where cu.UserId == userId && cqs.QuestionSetId == questionSet.Id
+            select cu
+        ).AnyAsync();
+
+        if (hasShareAccess)
+            return true;
+
+
         return false;
     }
 
@@ -100,7 +113,7 @@ public class QuestionSetService : IQuestionSetService
             .FirstOrDefaultAsync();
 
         QuestionSetUserShareMode? qsu = qsuEntity?.ShareMode;
-            
+
         if (canDelete == false)
         {
             canDelete = qsu == QuestionSetUserShareMode.Owner;

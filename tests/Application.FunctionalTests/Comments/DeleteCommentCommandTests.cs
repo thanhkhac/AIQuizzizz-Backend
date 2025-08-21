@@ -63,7 +63,7 @@ public class DeleteCommentCommandTests : BaseTestFixture
     }
 
     //abnormal
-    [Test]
+    [Test]    
     public async Task ShouldThrowError_WhenCommentIdIsEmpty()
     {
         await RunAsDefaultUserAsync();
@@ -71,6 +71,19 @@ public class DeleteCommentCommandTests : BaseTestFixture
         {
             CommentId = Guid.Empty
         };
+
+        var ex = await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ErrorCodeException>();
+        ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
+    }
+    
+    [Test]
+    public async Task ShouldThrowError_WhenCommentIdIsNull()
+    {
+        await RunAsDefaultUserAsync();
+        var command = new DeleteCommentCommand();
+        typeof(DeleteCommentCommand)
+            .GetProperty("CommentId")!
+            .SetValue(command, null);
 
         var ex = await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ErrorCodeException>();
         ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);

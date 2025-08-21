@@ -137,11 +137,11 @@ public class UpdateSharingInTestTemplateCommandTests : BaseTestFixture
             },
             DeleteUserIds = new List<Guid> { user2 } // Remove user2
         };
+        await RunAsUserAsync("user2@local", "User1234!", []);
 
         var result = await SendAsync(command);
 
         result.Should().Be(testTemplate.Id);
-
         var testTemplateUsers = await QueryListAsync<TestTemplateUser>(x => x.Where(ttu => ttu.TestTemplateId == testTemplate.Id));
         testTemplateUsers.Should().NotBeNull();
         testTemplateUsers.Should().HaveCount(3); // Owner, user1 (updated), user3 (new)

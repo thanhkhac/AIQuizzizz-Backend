@@ -297,13 +297,13 @@ public class GetQuestionSetQuestionsQueryTests : BaseTestFixture
         };
         await AddAsync(questionSet);
 
-
+        
         var query = new GetQuestionSetQuestionsQuery
         {
             QuestionSetId = questionSet.Id
         };
-
+        Logout();
         var ex = await FluentActions.Invoking(() => SendAsync(query)).Should().ThrowAsync<ErrorCodeException>();
-        ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_FORBIDDEN);
+        ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_UNAUTHORIZED);
     }
 }

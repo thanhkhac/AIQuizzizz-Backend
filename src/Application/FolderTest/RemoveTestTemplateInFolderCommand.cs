@@ -13,7 +13,7 @@ public class RemoveTestTemplateInFolderCommand : IRequest<Guid>
     public Guid TestTemplateId { get; set; } 
 }
 
-public class RemoveTestTemplateInFolderCommandValidator : AbstractValidator<AddTestTemplateToFolderCommand>
+public class RemoveTestTemplateInFolderCommandValidator : AbstractValidator<RemoveTestTemplateInFolderCommand>
 {
     public RemoveTestTemplateInFolderCommandValidator()
     {

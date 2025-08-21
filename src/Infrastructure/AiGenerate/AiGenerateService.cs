@@ -339,12 +339,13 @@ public class AiGenerateService : IAiGenerateService
             new AuthenticationHeaderValue("Bearer", googleAccesstoken);
 
         var response = await _httpClient.PostAsync(requestUri, requestContent, cancellationToken);
+        var responseJson = await response.Content.ReadAsStringAsync(cancellationToken);
+
         if (!response.IsSuccessStatusCode)
         {
             throw new ErrorCodeException(ErrorCodes.COMMON_SERVER_INTERNAL_ERROR);
         }
 
-        var responseJson = await response.Content.ReadAsStringAsync(cancellationToken);
         using var doc = JsonDocument.Parse(responseJson);
         int totalTokens = doc.RootElement.GetProperty("totalTokens").GetInt32();
         return totalTokens;

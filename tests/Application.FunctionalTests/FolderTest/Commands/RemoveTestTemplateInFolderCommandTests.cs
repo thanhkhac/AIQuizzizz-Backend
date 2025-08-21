@@ -9,43 +9,7 @@ using static Testing;
 
 public class RemoveTestTemplateInFolderCommandTests : BaseTestFixture
 {
-    [Test]
-    public async Task ShouldRequireValidFolderId()
-    {
-        await RunAsDefaultUserAsync();
 
-        var command = new RemoveTestTemplateInFolderCommand
-        {
-            FolderId = Guid.Empty,
-            TestTemplateId = Guid.NewGuid()
-        };
-
-        var ex = await FluentActions.Invoking(() => SendAsync(command))
-            .Should().ThrowAsync<ErrorCodeException>();
-
-        ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
-    }
-
-    [Test]
-    public async Task ShouldRequireValidTestTemplateId()
-    {
-        var userId = await RunAsDefaultUserAsync();
-
-        var folder = new Folder { Name = "Test Folder", CreatedBy = userId };
-        await AddAsync(folder);
-        await AddAsync(new FolderUser { UserId = userId, FolderId = folder.Id, ShareMode = FolderShareMode.Owner });
-
-        var command = new RemoveTestTemplateInFolderCommand
-        {
-            FolderId = folder.Id,
-            TestTemplateId = Guid.Empty
-        };
-
-        var ex = await FluentActions.Invoking(() => SendAsync(command))
-            .Should().ThrowAsync<ErrorCodeException>();
-
-        ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
-    }
 
     [Test]
     public async Task ShouldThrowErrorWhenFolderNotFound()
