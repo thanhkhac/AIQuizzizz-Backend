@@ -6384,7 +6384,8 @@
             "nullable": true
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "price": {
             "type": "integer",
@@ -6395,7 +6396,8 @@
             "format": "int32"
           },
           "unit": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "canLearn": {
             "type": "boolean"

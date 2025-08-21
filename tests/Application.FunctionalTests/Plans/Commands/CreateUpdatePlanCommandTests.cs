@@ -83,6 +83,28 @@ public class CreateUpdatePlanCommandTests : BaseTestFixture
             },
             ErrorCodes.COMMON_INVALID_MODEL
         ).SetName("Unit invalid");
+        
+        yield return new TestCaseData(
+            new CreateUpdatePlanCommand
+            {
+                Name = "Test Plan",
+                Price = 100,
+                Duration = 1,
+                Unit = "InvalidUnit"
+            },
+            ErrorCodes.COMMON_INVALID_MODEL
+        ).SetName("Name null");
+        
+        yield return new TestCaseData(
+            new CreateUpdatePlanCommand
+            {
+                Name = "Test Plan",
+                Price = 100,
+                Duration = 1,
+                Unit = null
+            },
+            ErrorCodes.COMMON_INVALID_MODEL
+        ).SetName("Unit null");
     }
 
     [Test]

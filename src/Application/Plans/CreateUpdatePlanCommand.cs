@@ -10,10 +10,10 @@ namespace CleanArchitectureBase.Application.Plans;
 public class CreateUpdatePlanCommand : IRequest<Guid>
 {
     public Guid? PlanId { get; set; }
-    public required string Name { get; set; }
+    public string? Name { get; set; }
     public required int Price { get; set; }
     public int Duration { get; set; }
-    public required string Unit { get; set; }
+    public string? Unit { get; set; }
     public bool CanLearn { get; set; } = false;
     public bool CanOpenTest { get; set; } = false;
     public bool CanCopyOrImportQuestionSet { get; set; } = false;
@@ -59,9 +59,9 @@ public class CreatePlanCommandHandler : IRequestHandler<CreateUpdatePlanCommand,
             if (existedPlan == null)
                 throw new ErrorCodeException(ErrorCodes.PLAN_NOT_FOUND);
 
-            existedPlan.Name = rq.Name;
+            existedPlan.Name = rq.Name!;
             existedPlan.Duration = rq.Duration;
-            existedPlan.Unit = rq.Unit;
+            existedPlan.Unit = rq.Unit!;
             existedPlan.CanLearn = rq.CanLearn;
             existedPlan.CanOpenTest = rq.CanOpenTest;
             existedPlan.CanCopyOrImportQuestionSet = rq.CanCopyOrImportQuestionSet;
@@ -95,10 +95,10 @@ public class CreatePlanCommandHandler : IRequestHandler<CreateUpdatePlanCommand,
             var plan = new Plan
             {
                 Id = Guid.NewGuid(),
-                Name = rq.Name,
+                Name = rq.Name!,
                 Price = rq.Price,
                 Duration = rq.Duration,
-                Unit = rq.Unit,
+                Unit = rq.Unit!,
                 CanLearn = rq.CanLearn,
                 CanOpenTest = rq.CanOpenTest,
                 CanCopyOrImportQuestionSet = rq.CanCopyOrImportQuestionSet,
