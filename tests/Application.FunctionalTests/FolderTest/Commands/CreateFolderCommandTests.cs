@@ -40,6 +40,20 @@ public class CreateFolderCommandTests : BaseTestFixture
 
         ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
     }
+    
+    [Test]
+    public async Task ShouldRequireFolderNameLong()
+    {
+        await RunAsDefaultUserAsync();
+
+        var command = new CreateFolderCommand
+        {
+            FolderName = new string('a', 199)
+        };
+
+        var folderId = await SendAsync(command);
+
+    }
 
     [Test]
     public async Task ShouldCreateFolderSuccessfully()

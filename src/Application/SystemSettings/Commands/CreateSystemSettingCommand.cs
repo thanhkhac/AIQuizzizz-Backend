@@ -24,7 +24,8 @@ public class CreateSystemSettingCommandValidator : AbstractValidator<CreateSyste
             .GreaterThanOrEqualTo(0).WithMessage("Input cost phải >= 0");
 
         RuleFor(x => x.OutputCostPerMillionTokens)
-            .GreaterThanOrEqualTo(0).WithMessage("Output cost phải >= 0");
+            .GreaterThanOrEqualTo(0)
+            .LessThan(1_000_000).WithMessage("Output cost phải >= 0");
 
         RuleFor(x => x.FixedSystemFee)
             .GreaterThanOrEqualTo(0).WithMessage("System fee phải >= 0");
@@ -33,7 +34,9 @@ public class CreateSystemSettingCommandValidator : AbstractValidator<CreateSyste
             .GreaterThan(0).WithMessage("Max input token phải > 0");
 
         RuleFor(x => x.MaxOutputToken)
-            .GreaterThan(0).WithMessage("Max output token phải > 0");
+            .GreaterThan(0)
+            .LessThan(65_000)
+            .WithMessage("Max output token phải > 0");
     }
 }
 
@@ -52,10 +55,6 @@ public class CreateSystemSettingCommandHandler : IRequestHandler<CreateSystemSet
     
     public async Task<Guid> Handle(CreateSystemSettingCommand rq, CancellationToken cancellationToken)
     {
-        var isAdmin = await _identityService.IsInAnyRoleAsync(_user.UserId!.Value, Domain.Constants.Roles.Administrator,
-            Domain.Constants.Roles.Moderator);
-        if (!isAdmin)
-            throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION);
 
         var systemSetting = new SystemSetting
         {

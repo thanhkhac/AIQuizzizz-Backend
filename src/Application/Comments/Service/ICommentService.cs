@@ -72,13 +72,25 @@ public class CommentService : ICommentService
         if (hasShareAccess)
             return true;
         
-        if (questionSet.VisibilityMode == QuestionSetVisibilityMode.OnlyClass)
-        {
-            var classIds = _context.ClassQuestionSets.Where(x => x.QuestionSetId == questionSet.Id).Select(cqs => cqs.ClassId).ToList();
+        // if (questionSet.VisibilityMode == QuestionSetVisibilityMode.OnlyClass)
+        // {
+        //     var classIds = _context.ClassQuestionSets.Where(x => x.QuestionSetId == questionSet.Id).Select(cqs => cqs.ClassId).ToList();
+        //
+        //     return await _context.ClassUsers
+        //         .AnyAsync(cu => classIds.Contains(cu.ClassId) && cu.UserId == _user.UserId.Value);
+        // }
+        
+        hasShareAccess = await (
+            from cu in _context.ClassUsers
+            join cqs in _context.ClassQuestionSets
+                on cu.ClassId equals cqs.ClassId
+            where cu.UserId == _user.UserId.Value && cqs.QuestionSetId == questionSet.Id
+            select cu
+        ).AnyAsync();
+        
+        if (hasShareAccess)
+            return true;
 
-            return await _context.ClassUsers
-                .AnyAsync(cu => classIds.Contains(cu.ClassId) && cu.UserId == _user.UserId.Value);
-        }
         return false;
     }
 }

@@ -19,10 +19,13 @@ public class ReplyCommentCommandValidator : AbstractValidator<ReplyCommentComman
     public ReplyCommentCommandValidator()
     {
         RuleFor(x => x.CommentId)
-            .NotEmpty().WithMessage("QuestionID không được để trống");
+            .NotEmpty()
+            .WithMessage("QuestionID không được để trống");
         
         RuleFor(x => x.Content)
-            .NotEmpty().WithMessage("Content không được để trống");
+            .NotEmpty()
+            .MaximumLength(1000)
+            .WithMessage("Content không được để trống");
     }
 }
 

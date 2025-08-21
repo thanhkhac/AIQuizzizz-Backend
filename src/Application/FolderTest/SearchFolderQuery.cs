@@ -25,8 +25,13 @@ public class SearchFolderQueryValidator : AbstractValidator<SearchFolderQuery>
 {
     public SearchFolderQueryValidator()
     {
+        RuleFor(x => x.FolderName)
+            .MaximumLength(200);
         RuleFor(x => x.ShareMode)
-            .Must(mode => new[] {"Owner", "Editable", "ViewOnly"}.Contains(mode) || string.IsNullOrEmpty(mode))
+            .Must(mode => new[]
+            {
+                "Owner", "Editable", "ViewOnly"
+            }.Contains(mode) || string.IsNullOrEmpty(mode))
             .WithMessage($"SharedMode phải là Owner, Editable, ViewOnly");
         RuleFor(x => x.PageNumber)
             .GreaterThanOrEqualTo(1).WithMessage("Số trang phải lớn hơn hoặc bằng 1");
@@ -56,7 +61,7 @@ public class SearchFolderQueryHandler : IRequestHandler<SearchFolderQuery, Pagin
     {
         var authors = await _context.FolderUsers
             .Include(fu => fu.Folder)
-            .ThenInclude(f => f!.CreatedByUser) 
+            .ThenInclude(f => f!.CreatedByUser)
             .Where(fu => fu.UserId.Equals(_user.UserId))
             .Select(fu => new
             {
@@ -64,32 +69,35 @@ public class SearchFolderQueryHandler : IRequestHandler<SearchFolderQuery, Pagin
                 FullName = fu.Folder.CreatedByUser!.FullName
             })
             .ToDictionaryAsync(x => x.Id, x => x.FullName, cancellationToken);
-        
+
         FolderShareMode? shareMode = null;
         if (!string.IsNullOrEmpty(rq.ShareMode) && Enum.TryParse<FolderShareMode>(rq.ShareMode, out var ShareMode))
         {
             shareMode = ShareMode;
         }
-        
+
         var folders = _context.FolderUsers
             .Include(fu => fu.Folder)
             .Where(fu => fu.UserId == _user.UserId && fu.Folder!.IsDeleted == false
-            && (string.IsNullOrEmpty(rq.FolderName) || fu.Folder!.Name.ToLower().Contains(rq.FolderName.ToLower()))
-            && (shareMode == null || fu.ShareMode == shareMode)
-            && (FolderShareMode.Owner == fu.ShareMode || fu.IsViewed))
-            .Select(fu => new { Folder = fu.Folder, FolderUser = fu })
+                                                   && (string.IsNullOrEmpty(rq.FolderName) || fu.Folder!.Name.ToLower().Contains(rq.FolderName.ToLower()))
+                                                   && (shareMode == null || fu.ShareMode == shareMode)
+                                                   && (FolderShareMode.Owner == fu.ShareMode || fu.IsViewed))
+            .Select(fu => new
+            {
+                Folder = fu.Folder,
+                FolderUser = fu
+            })
             .Distinct();
 
         return await PaginatedList<SearchFolderTestDto>.CreateAsync(
-                folders.Select(f => new SearchFolderTestDto
-                {
-                    FolderTestId = f.Folder!.Id,
-                    Name = f.Folder.Name,
-                    CreateBy = authors.ContainsKey(f.Folder.Id) ? authors[f.Folder.Id] : null,
-                }),
-                rq.PageNumber,
-                rq.PageSize
-            );
+            folders.Select(f => new SearchFolderTestDto
+            {
+                FolderTestId = f.Folder!.Id,
+                Name = f.Folder.Name,
+                CreateBy = authors.ContainsKey(f.Folder.Id) ? authors[f.Folder.Id] : null,
+            }),
+            rq.PageNumber,
+            rq.PageSize
+        );
     }
 }
-

@@ -66,14 +66,15 @@ public class SearchRecentQuestionSetQueryHandler : IRequestHandler<SearchRecentQ
                 })
             .Where(x =>
                 x.qs.VisibilityMode == QuestionSetVisibilityMode.Public ||
-                (x.qs.VisibilityMode == QuestionSetVisibilityMode.Private &&
-                 x.qs.QuestionSetUsers.Any(qsu => qsu.UserId == userId)) ||
-                (x.qs.VisibilityMode == QuestionSetVisibilityMode.OnlyClass &&
-                 (
-                     x.qs.ClassQuestionSets.Any(cqs =>
-                         cqs.Class.ClassUsers.Any(cu => cu.UserId == userId)) ||
-                     x.qs.QuestionSetUsers.Any(qsu => qsu.UserId == userId)
-                 ))
+                    // (x.qs.VisibilityMode == QuestionSetVisibilityMode.Private &&
+                    //  x.qs.QuestionSetUsers.Any(qsu => qsu.UserId == userId)) ||
+                    // (x.qs.VisibilityMode == QuestionSetVisibilityMode.OnlyClass &&
+                    (x.qs.VisibilityMode == QuestionSetVisibilityMode.Private &&
+                     (
+                         x.qs.ClassQuestionSets.Any(cqs =>
+                             cqs.Class.ClassUsers.Any(cu => cu.UserId == userId)) ||
+                         x.qs.QuestionSetUsers.Any(qsu => qsu.UserId == userId)
+                     ))
             )
             .OrderByDescending(x => x.LastAccess)
             .Select(x => new QuestionSetForListResponseDto

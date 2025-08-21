@@ -22,6 +22,7 @@ public class CreateCommentCommandValidator : AbstractValidator<CreateCommentComm
             .NotEmpty().WithMessage("QuestionID không được để trống");
         
         RuleFor(x => x.Content)
+            .MaximumLength(1000)
             .NotEmpty().WithMessage("Content không được để trống");
     }
 }

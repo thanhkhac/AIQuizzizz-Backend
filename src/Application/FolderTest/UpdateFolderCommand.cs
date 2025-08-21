@@ -1,10 +1,11 @@
 ﻿using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Application.FolderTest.Service;
 using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.FolderTest;
-
+[Authorize]
 public class UpdateFolderCommand : IRequest<Guid>
 {
     public Guid? FolderId { get; set; }

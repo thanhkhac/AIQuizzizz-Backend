@@ -97,5 +97,19 @@ namespace CleanArchitectureBase.Application.Command.UnitTests.QuestionSets
             var ex = await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ErrorCodeException>();
             ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_FORBIDDEN);
         }
+        
+        
+        [Test]
+        public async Task ShouldThrowError_WhenUserNotLogin()
+        {
+
+
+            var command = new ResetQuestionSetHistoryCommand
+            {
+                QuestionSetId = Guid.NewGuid()
+            };
+            var ex = await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ErrorCodeException>();
+            ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_UNAUTHORIZED);
+        }
     }
 }

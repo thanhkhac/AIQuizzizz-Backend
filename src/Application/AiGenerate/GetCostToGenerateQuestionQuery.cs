@@ -26,7 +26,7 @@ public class GetCostToGenerateQuestionQuery : IRequest<AiMinimumCostDto>
 
 public class GetCostToGenerateQuestionQueryValidator : AbstractValidator<GetCostToGenerateQuestionQuery>
 {
-    private const long MaxFileSizeInBytes = 50 * 1024 * 1024; // 50MB
+    private const long MaxFileSizeInBytes = 15 * 1024 * 1024; // 15MB
 
     private const int MaxPageCount = 1000;
 

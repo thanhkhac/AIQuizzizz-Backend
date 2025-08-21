@@ -15,7 +15,7 @@ public class GetCostToGenerateDocumentStructureQuery : IRequest<AiMinimumCostDto
 
 public class CountDocumentTokenQueryValidator : AbstractValidator<GetCostToGenerateDocumentStructureQuery>
 {
-    private const long MaxFileSizeInBytes = 50 * 1024 * 1024; // 50MB
+    private const long MaxFileSizeInBytes = 15 * 1024 * 1024; // 50MB
 
     private const int MaxPageCount = 1000;
 
