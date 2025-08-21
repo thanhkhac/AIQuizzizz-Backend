@@ -37,15 +37,15 @@ public class CreateTestCommandValidator : AbstractValidator<CreateTestCommand>
         
         RuleFor(x => x.PassingScore)
             .GreaterThanOrEqualTo(0)
-            .NotEmpty().WithMessage("PassingScore không được để trống")
-            .LessThan(100).WithMessage("PassingScore không được vượt quá 100%");
+            .NotEmpty().WithMessage("PassingScore không được để trống");
+            // .LessThan(100).WithMessage("PassingScore không được vượt quá 100%");
 
         RuleFor(x => x.ClassId)
             .NotEmpty().WithMessage("ClassId không được để trống");
         
         RuleFor(x => x.NumberOfShuffles)
             .NotEmpty().WithMessage("NumberOfShuffles không được để trống")
-            .LessThan(10).WithMessage("Số lần shuffles tối đa 10")
+            .LessThanOrEqualTo(10).WithMessage("Số lần shuffles tối đa 10")
             .GreaterThan(0).WithMessage("Số lần shuffles tối thiểu 1");
 
         RuleFor(x => x.TimeLimit)

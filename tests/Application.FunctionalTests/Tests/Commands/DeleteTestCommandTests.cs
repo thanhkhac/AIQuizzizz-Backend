@@ -81,6 +81,22 @@ public class DeleteTestCommandTests : BaseTestFixture
         test.Should().NotBeNull();
         test!.IsDeleted.Should().BeTrue();
     }
+    
+    [Test]
+    public async Task ShouldForbiddenDeleteTest()
+    {
+        await RunAsUserWithPlanAsync();
+        var classId = await CreateClassAndGetId();
+        var testId = await CreateTestAndGetId(classId);
+        await RunAsDefaultUserAsync(1);
+        var deleteCommand = new DeleteTestCommand
+        {
+            TestId = testId
+        };
+
+        var ex = await FluentActions.Invoking(() => SendAsync(deleteCommand)).Should().ThrowAsync<ErrorCodeException>();
+        ex.Which.Errors.Should().ContainKey(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST);
+    }
 
     [Test]
     public async Task ShouldRequireValidTestId()

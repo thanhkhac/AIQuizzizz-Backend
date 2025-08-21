@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CleanArchitectureBase.Application.Command.UnitTests.TestDataUltils;
 using static CleanArchitectureBase.Application.Command.UnitTests.Testing;
 
 namespace CleanArchitectureBase.Application.Command.UnitTests.Tests.Commands;
@@ -106,13 +107,14 @@ public class CreateTestCommandTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldRequireName()
+    [TestCaseSource(typeof(NameTestData), nameof(NameTestData.InvalidNameCases))]
+    public async Task ShouldRequireName(string name)
     {
         await RunAsUserWithPlanAsync();
         var classId = await CreateClassAndGetId();
         var command = new CreateTestCommand
         {
-            Name = "",
+            Name = name,
             ClassId = classId,
             TimeLimit = 60,
             StartTime = DateTime.UtcNow.AddDays(1),
@@ -129,6 +131,7 @@ public class CreateTestCommandTests : BaseTestFixture
         var ex = await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ErrorCodeException>();
         ex.Which.Errors.Should().ContainKey(ErrorCodes.COMMON_INVALID_MODEL);
     }
+    
 
     [Test]
     public async Task ShouldRequireClassId()
@@ -314,6 +317,8 @@ public class CreateTestCommandTests : BaseTestFixture
     [Test]
     [TestCase(0, TestName = "NumberOfShuffles = 0")]
     [TestCase(11, TestName = "NumberOfShuffles > 10")]
+    [TestCase(10, TestName = "NumberOfShuffles = 10")]
+    [TestCase(1, TestName = "NumberOfShuffles = 10")]
     public async Task ShouldRequireValidNumberOfShuffles(int numberOfShuffles)
     {
         await RunAsUserWithPlanAsync();
@@ -364,16 +369,13 @@ public class CreateTestCommandTests : BaseTestFixture
         var ex = await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ErrorCodeException>();
         ex.Which.Errors.Should().ContainKey(ErrorCodes.NUMBER_OF_QUESTION_EXCEED_LIMIT);
     }
-
+    
     [Test]
-    public async Task ShouldThrowErrorIfNotTeacherOrOwner()
+    public async Task ShouldOkWhenQuestions100()
     {
-        // Giả lập user không phải teacher/owner (cần setup thêm nếu có logic phân quyền test)
-        // Ở đây chỉ minh họa, thực tế cần setup class và user phù hợp
         await RunAsUserWithPlanAsync();
         var classId = await CreateClassAndGetId();
-        // TODO: Gán user vào class với vai trò Student
-        // ...
+        var questions = Enumerable.Range(0, 100).Select(_ => GetValidQuestion()).ToList();
         var command = new CreateTestCommand
         {
             Name = "Bài kiểm tra số 1",
@@ -388,18 +390,53 @@ public class CreateTestCommandTests : BaseTestFixture
             NumberOfShuffles = 1,
             MaxAttempt = 1,
             PassingScore = 5,
+            Questions = questions
+        };
+        
+        var result = SendAsync(command);
+    }
+
+    [Test]
+    public async Task ShouldThrowErrorIfNotTeacherOrOwner()
+    {
+        // Giả lập user không phải teacher/owner (cần setup thêm nếu có logic phân quyền test)
+        // Ở đây chỉ minh họa, thực tế cần setup class và user phù hợp
+        await RunAsUserWithPlanAsync();
+        
+        var clarss = new Class
+        {
+            Name = "Hello"
+        };
+        
+        await AddAsync(clarss);
+        
+        // TODO: Gán user vào class với vai trò Student
+        // ...
+        var command = new CreateTestCommand
+        {
+            Name = "Bài kiểm tra số 1",
+            ClassId = clarss.Id,
+            TimeLimit = 60,
+            StartTime = DateTime.UtcNow.AddDays(1),
+            EndTime = DateTime.UtcNow.AddDays(2),
+            GradeAttemptMethod = "LastAttempt",
+            GradeQuestionMethod = "Partial",
+            IsShowCorrectAnswerInReview = true,
+            IsAllowReviewAfterSubmit = true,
+            NumberOfShuffles = 1,
+            MaxAttempt = 1,
+            PassingScore = 5,
             Questions = new List<CreateUpdateQuestionDto> { GetValidQuestion() }
         };
-        // Giả lập lỗi phân quyền
-        // var ex = await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ErrorCodeException>();
-        // ex.Which.Errors.Should().ContainKey(ErrorCodes.NOT_FOUND_TEACHER_OR_OWNER_IN_CLASS);
+        
+
+        var ex = await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ErrorCodeException>();
+        ex.Which.Errors.Should().ContainKey(ErrorCodes.NOT_FOUND_TEACHER_OR_OWNER_IN_CLASS);
     }
 
     [Test]
     public async Task ShouldThrowErrorIfNoPlan()
     {
-        // Giả lập user không có plan (cần setup thêm nếu có logic kiểm tra plan)
-        // Ở đây chỉ minh họa, thực tế cần setup user phù hợp
         await RunAsDefaultUserAsync();
         var classId = await CreateClassAndGetId();
         var command = new CreateTestCommand
@@ -418,9 +455,8 @@ public class CreateTestCommandTests : BaseTestFixture
             PassingScore = 5,
             Questions = new List<CreateUpdateQuestionDto> { GetValidQuestion() }
         };
-        // Giả lập lỗi không có plan
-        // var ex = await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ErrorCodeException>();
-        // ex.Which.Errors.Should().ContainKey(ErrorCodes.PLAN_REQUIRE_PLAN);
+        var ex = await FluentActions.Invoking(() => SendAsync(command)).Should().ThrowAsync<ErrorCodeException>();
+        ex.Which.Errors.Should().ContainKey(ErrorCodes.PLAN_REQUIRE_PLAN);
     }
 
     [Test]
