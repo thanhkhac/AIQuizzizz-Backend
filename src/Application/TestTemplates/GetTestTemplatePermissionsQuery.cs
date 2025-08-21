@@ -73,9 +73,24 @@ public class GetTestTemplatePermissionsQueryHandler : IRequestHandler<GetTestTem
         var shareMode = await _context.TestTemplateUsers
             .Where(x => x.TestTemplateId == rq.TestTemplateId && x.UserId == _user.UserId)
             .FirstOrDefaultAsync(cancellationToken);
+        
+        var accessToViewInFolder = await _context.FolderTestTemplates
+            .Include(x => x.Folder!)
+            .ThenInclude(x => x.FolderUsers)
+            .Where(x => x.TestTemplateId.Equals(rq.TestTemplateId) && x.Folder!.FolderUsers.Any(y => y.UserId == _user.UserId))
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (shareMode == null && accessToViewInFolder == null)
+            throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE);
 
         if (shareMode == null)
-            throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE);
+        {
+            return new TestTemplatePermissionsDto
+            {
+                CanEdit = false,
+                CanDelete = false
+            };
+        }
         
         return new TestTemplatePermissionsDto
             {

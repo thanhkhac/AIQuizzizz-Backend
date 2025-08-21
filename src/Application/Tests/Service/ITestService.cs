@@ -16,6 +16,7 @@ public interface ITestService
     Task<bool> CanViewHistoryOfTest(Guid testId, CancellationToken cancellationToken);
     Task<bool> CanCreateTest(Guid classId);
     Task TryCheckCanAttemptTest(Test test);
+    Task TryCheckCanSubmitTest(Test test);
     Task<ClassShareMode?> GetRoleUserInTest(Test test);
     Task AutoSubmit(Guid attemptId);
 }
@@ -155,7 +156,7 @@ public class TestService : ITestService
         if (test.TimeStart > DateTime.UtcNow)
             throw new ErrorCodeException(ErrorCodes.NOT_YET_TIME_TO_OPEN_TEST, "Chưa đến thời gian mở test");
         
-        if (test.TimeFinish.AddSeconds(10) < DateTime.UtcNow)
+        if (test.TimeFinish < DateTime.UtcNow)
             throw new ErrorCodeException(ErrorCodes.TEST_IS_OVERDUE, "Hết hạn làm bài");
         
         var student = await _context.ClassUsers
@@ -164,6 +165,22 @@ public class TestService : ITestService
 
         if (student == null)
             throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Chỉ student trong lớp mới có thể attempt test");
+    }
+
+    public async Task TryCheckCanSubmitTest(Test test)
+    {
+        if (test.TimeStart > DateTime.UtcNow)
+            throw new ErrorCodeException(ErrorCodes.NOT_YET_TIME_TO_OPEN_TEST, "Chưa đến thời gian mở test");
+        
+        if (test.TimeFinish.AddSeconds(10) < DateTime.UtcNow)
+            throw new ErrorCodeException(ErrorCodes.TEST_IS_OVERDUE, "Hết hạn làm bài");
+        
+        var student = await _context.ClassUsers
+            .Where(u => u.UserId == _user.UserId && u.ClassId == test.ClassId)
+            .FirstOrDefaultAsync();
+
+        if (student == null)
+            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Chỉ student trong lớp mới có thể submit test");
     }
 
     public async Task<ClassShareMode?> GetRoleUserInTest(Test test)
@@ -187,7 +204,7 @@ public class TestService : ITestService
             throw new ErrorCodeException(ErrorCodes.ATTEMPT_NOT_FOUND);
         
         attempt.TimeFinish = DateTime.UtcNow;
-
+        
         await _context.SaveChangesAsync(new CancellationToken());
         
         Console.WriteLine("Auto submit success");

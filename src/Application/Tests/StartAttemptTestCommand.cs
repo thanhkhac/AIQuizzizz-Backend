@@ -89,7 +89,7 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
             var attemptUser = _context.Attempts
                 .Where(x => x.UserId == _user.UserId && x.TestId == rq.TestId)
                 .ToList();
-            if (attemptUser.Count > test.MaxAttempt)
+            if (attemptUser.Count >= test.MaxAttempt)
                 throw new ErrorCodeException(ErrorCodes.MAX_ATTEMPT_IN_THIS_TEST, "Đã hết lượt làm bài");
             
             var testVersion = await _context.TestVersions

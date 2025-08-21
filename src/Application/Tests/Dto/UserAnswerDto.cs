@@ -146,6 +146,7 @@ public static class CheckUserAnswer
                     totalPoint += pointPerCorrect;
                 }
             }
+            return totalPoint;
         }
         
         return isCorrect ? question.Score : 0;
