@@ -276,7 +276,7 @@ public class AiGenerateService : IAiGenerateService
         var json = JsonSerializer.Serialize(requestBody);
         var requestContent = new StringContent(json, Encoding.UTF8, "application/json");
         var requestUri =
-            "https://aiplatform.googleapis.com/v1/projects/enduring-aria-469613-h3/locations/global/publishers/google/models/gemini-2.5-flash-lite:countTokens";
+            "https://aiplatform.googleapis.com/v1/projects/aiquizizz-ai/locations/global/publishers/google/models/gemini-2.5-flash-lite:countTokens";
         var googleAccesstoken = await _googleAccessTokenProvider.GetAccessTokenAsync();
 
         _httpClient.DefaultRequestHeaders.Authorization =
