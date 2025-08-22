@@ -127,6 +127,8 @@ public class GenerateDocumentStructureCommandHandler : IRequestHandler<GenerateD
 
                 var apiOutputCost = (double)outputToken / 1_000_000 * systemSetting.OutputCostPerMillionTokens;
                 var totalPoint = (int)Math.Round(apiOutputCost);
+                currentUser.Balance -= totalPoint;
+                if(currentUser.Balance < 0)   currentUser.Balance  = 0;
                 currentUser.IsPaymentLocked = false;
                 _context.DomainUsers.Update(currentUser);
                 await _context.SaveChangesAsync(cancellationToken);
