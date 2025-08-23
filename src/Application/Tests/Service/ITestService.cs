@@ -205,6 +205,23 @@ public class TestService : ITestService
         
         attempt.TimeFinish = DateTime.UtcNow;
         
+        var userGrade = await _context.TestGrades
+            .Where(x => x.UserId == _user.UserId && x.TestId == attempt.TestId)
+            .FirstOrDefaultAsync();
+
+        if (userGrade == null)
+        {
+            userGrade = new TestGrade
+            {
+                Id = Guid.NewGuid(),
+                Score = 0,
+                TestId = attempt.TestId,
+                UserId = _user.UserId!.Value,
+            };
+            
+            _context.TestGrades.Add(userGrade);
+        }
+        
         await _context.SaveChangesAsync(new CancellationToken());
         
         Console.WriteLine("Auto submit success");

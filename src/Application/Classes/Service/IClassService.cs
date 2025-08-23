@@ -11,6 +11,7 @@ public interface IClassService
         CancellationToken cancellationToken);
     Task<bool> IsUserInClass(Guid classId);
     Task<bool> IsLecturerOrOwnerInClass(Guid classId);
+    Task DeleteQuestionSetByUserId(Guid userId, Guid classId);
 }
 
 public class ClassService : IClassService{
@@ -72,5 +73,16 @@ public class ClassService : IClassService{
         if (user == null) return false;
 
         return true;
+    }
+
+    public async Task DeleteQuestionSetByUserId(Guid userId, Guid classId)
+    {
+        var questionSets = await _context.ClassQuestionSets
+            .Where(x => x.ClassId.Equals(classId) && x.CreatedBy.Equals(userId))
+            .ToListAsync();
+        
+        _context.ClassQuestionSets.RemoveRange(questionSets);
+        
+        await _context.SaveChangesAsync(new CancellationToken());
     }
 }
