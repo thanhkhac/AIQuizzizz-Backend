@@ -6,7 +6,7 @@ using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.SystemSettings.Commands;
 
-[Authorize ( Roles = Domain.Constants.Roles.Administrator + "," + Domain.Constants.Roles.Moderator )]
+[Authorize(Roles = Domain.Constants.Roles.Administrator + "," + Domain.Constants.Roles.Moderator)]
 public class CreateSystemSettingCommand : IRequest<Guid>
 {
     public int InputCostPerMillionTokens { get; set; }
@@ -24,19 +24,20 @@ public class CreateSystemSettingCommandValidator : AbstractValidator<CreateSyste
             .GreaterThanOrEqualTo(0).WithMessage("Input cost phải >= 0");
 
         RuleFor(x => x.OutputCostPerMillionTokens)
-            .GreaterThanOrEqualTo(0)
-            .LessThan(1_000_000).WithMessage("Output cost phải >= 0");
+            .GreaterThanOrEqualTo(0).WithMessage("Output cost phải >= 0");
 
         RuleFor(x => x.FixedSystemFee)
             .GreaterThanOrEqualTo(0).WithMessage("System fee phải >= 0");
 
         RuleFor(x => x.MaxInputToken)
-            .GreaterThan(0).WithMessage("Max input token phải > 0");
+            .GreaterThanOrEqualTo(0)
+            .WithMessage("Max input token phải >= 0")
+            .LessThan(1_048_576);
 
         RuleFor(x => x.MaxOutputToken)
-            .GreaterThan(0)
-            .LessThan(65_000)
-            .WithMessage("Max output token phải > 0");
+            .GreaterThanOrEqualTo(0)
+            .WithMessage("Max output token phải >= 0")
+            .LessThan(65_536);
     }
 }
 
@@ -45,17 +46,16 @@ public class CreateSystemSettingCommandHandler : IRequestHandler<CreateSystemSet
     private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;
     private readonly IUser _user;
-    
+
     public CreateSystemSettingCommandHandler(IApplicationDbContext context, IIdentityService identityService, IUser user)
     {
         _context = context;
         _identityService = identityService;
         _user = user;
     }
-    
+
     public async Task<Guid> Handle(CreateSystemSettingCommand rq, CancellationToken cancellationToken)
     {
-
         var systemSetting = new SystemSetting
         {
             Id = Guid.NewGuid(),
@@ -65,11 +65,11 @@ public class CreateSystemSettingCommandHandler : IRequestHandler<CreateSystemSet
             MaxInputToken = rq.MaxInputToken,
             MaxOutputToken = rq.MaxOutputToken
         };
-        
+
         _context.SystemSettings.Add(systemSetting);
-        
+
         await _context.SaveChangesAsync(cancellationToken);
-        
+
         return systemSetting.Id;
     }
 }

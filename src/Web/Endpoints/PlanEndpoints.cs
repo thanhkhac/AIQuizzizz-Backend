@@ -18,6 +18,7 @@ public class PlanEndpoints : EndpointGroupBase
         group.MapGet(GetRevenueByYear, "/Revenue");
         group.MapGet(GetNumberOfNewClassByYear, "/NumberOfNewClass");
         group.MapGet(GetPlatformOverview, "/PlatformOverview");
+        group.MapGet(GetCurrentPlan, "/CurrentPlan");
         group.MapPost(CreateUpdatePlan, "");
         group.MapPost(BuyPlan, "/{planId}/Buy");
         group.MapDelete(DeletePlan, "/{planId}");
@@ -102,6 +103,15 @@ public class PlanEndpoints : EndpointGroupBase
     )
     {
         var rq = new GetPlatformOverviewQuery();
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<List<CurrentPlanDto>>>> GetCurrentPlan(
+        ISender sender
+    )
+    {
+        var rq = new GetCurrentPlanQuery();
         var result = await sender.Send(rq);
         return result.ToOk();
     }
