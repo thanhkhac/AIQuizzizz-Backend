@@ -41,11 +41,16 @@ public class GetCostToGenerateQuestionQueryValidator : AbstractValidator<GetCost
 
         RuleFor(x => x.FileData.Data)
             .NotNull().WithMessage("Dữ liệu stream không được trống")
-            .Must(stream => stream!.Length > 0).WithMessage("Stream không được rỗng")
-            .Must(stream => stream!.Length <= MaxFileSizeInBytes)
-            .WithMessage("Dung lượng tệp không được vượt quá 50MB")
+            // .Must(stream => stream!.Length > 0).WithMessage("Stream không được rỗng")
+            // .Must(stream => stream!.Length <= MaxFileSizeInBytes)
+            .WithMessage("Dung lượng tệp không được vượt quá 15MB")
             .Custom((stream, context) =>
             {
+                if (stream == null || stream.Length == 0)
+                    throw new ErrorCodeException(ErrorCodes.FILE_EMPTY);
+
+                if (stream.Length > MaxFileSizeInBytes)
+                    throw new ErrorCodeException(ErrorCodes.FILE_TOO_LARGE);
                 try
                 {
                     pdfService1.TrValidatePdf(stream!, MaxPageCount);
