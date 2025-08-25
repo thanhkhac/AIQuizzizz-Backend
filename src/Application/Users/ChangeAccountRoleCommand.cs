@@ -25,7 +25,7 @@ public class ChangeAccountRoleCommandValidator : AbstractValidator<ChangeAccount
             .NotEmpty().WithMessage("Role không được trống");
         RuleFor(x => x.Role)
             .NotEmpty().WithMessage("Role không được trống")
-            .Must(role => role == Domain.Constants.Roles.User || role == Domain.Constants.Roles.Administrator)
+            .Must(role => role == Domain.Constants.Roles.User || role == Domain.Constants.Roles.Moderator)
             .WithMessage("Role không hợp lệ. Chỉ được phép: 'Moderator' hoặc 'User'");
     }
 }
