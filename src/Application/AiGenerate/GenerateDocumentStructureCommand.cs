@@ -78,11 +78,11 @@ public class GenerateDocumentStructureCommandHandler : IRequestHandler<GenerateD
             throw new ErrorCodeException(ErrorCodes.PAYMENT_IN_PROGRESS);
 
         currentUser.IsPaymentLocked = true;
-        await _context.SaveChangesAsync(cancellationToken);
+        await _context.SaveChangesAsync(CancellationToken.None);
 
         var systemSetting = await _context.SystemSettings
             .OrderByDescending(x => x.Created)
-            .FirstOrDefaultAsync(cancellationToken);
+            .FirstOrDefaultAsync(CancellationToken.None);
         if (systemSetting == null)
             throw new ErrorCodeException(ErrorCodes.SYSTEM_SETTING_NOT_FOUND);
         
@@ -127,7 +127,7 @@ public class GenerateDocumentStructureCommandHandler : IRequestHandler<GenerateD
                 var outputToken = await _aiGenerateService.CountToken(
                     text1: "",
                     text2: result,
-                    cancellationToken
+                    CancellationToken.None
                 );
 
                 var apiOutputCost = (double)outputToken / 1_000_000 * systemSetting.OutputCostPerMillionTokens;
@@ -136,7 +136,7 @@ public class GenerateDocumentStructureCommandHandler : IRequestHandler<GenerateD
                 if(currentUser.Balance < 0)   currentUser.Balance  = 0;
                 currentUser.IsPaymentLocked = false;
                 _context.DomainUsers.Update(currentUser);
-                await _context.SaveChangesAsync(cancellationToken);
+                await _context.SaveChangesAsync(CancellationToken.None);
             }
 
 
@@ -186,6 +186,11 @@ public class GenerateDocumentStructureCommandHandler : IRequestHandler<GenerateD
                     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
                     Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
                 }));
+                
+                if(document.Children.Count == 0)
+                {
+                    throw new ErrorCodeException(ErrorCodes.NO_STRUCTURE_FOUND);
+                }
 
                 return document;
             }
@@ -206,7 +211,7 @@ public class GenerateDocumentStructureCommandHandler : IRequestHandler<GenerateD
         {
             currentUser!.IsPaymentLocked = false;
             _context.DomainUsers.Update(currentUser);
-            await _context.SaveChangesAsync(cancellationToken);
+            await _context.SaveChangesAsync(CancellationToken.None);
             await _aiGenerateService.DeleteFileAsync(uploadResult.FileName);
         }
     }

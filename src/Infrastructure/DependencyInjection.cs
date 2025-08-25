@@ -174,7 +174,7 @@ public static class DependencyInjection
                 options.SignIn.RequireConfirmedPhoneNumber = false;
             }
         );
-        
+
         services.AddAutoMapper(typeof(AutoMapperProfile));
 
         services.AddSingleton(TimeProvider.System);
@@ -191,11 +191,11 @@ public static class DependencyInjection
         services.AddScoped<IAiGenerateService, AiGenerateService>();
         services.AddScoped<IHangFireService, HangFireService>();
         services.AddSingleton<IRedisService, RedisService>();
-        
+
         services.AddSingleton<IFileService, FileService>();
-        
+
         services.AddScoped<IPdfService, PdfService>();
-        
+
         services.AddSingleton<IGoogleAccessTokenProvider>(provider =>
         {
             var json = Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS_JSON");
@@ -203,6 +203,11 @@ public static class DependencyInjection
         });
         // Register Google Auth Service
         services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();
+        services.AddHttpClient<IAiGenerateService, AiGenerateService>(client =>
+            {
+                client.Timeout = TimeSpan.FromMinutes(5); 
+            }
+        );
 
         services.AddAuthorization(options =>
             options.AddPolicy(Policies.CanPurge, policy => policy.RequireRole(Roles.Administrator)));
