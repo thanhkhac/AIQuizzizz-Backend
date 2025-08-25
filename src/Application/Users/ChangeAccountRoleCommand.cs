@@ -48,7 +48,10 @@ public class ChangeAccountRoleCommandHandler : IRequestHandler<ChangeAccountRole
     /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<Guid> Handle(ChangeAccountRoleCommand rq, CancellationToken cancellationToken)
     {
-        var result = await _identityService.ChangeRoleAsync(rq.UserId, rq.Role);
+        var result = await _identityService.ChangeRoleAsync(rq.UserId, rq.Role, new List<string>
+        {
+            Domain.Constants.Roles.Administrator
+        });
         return result;
     }
 }
