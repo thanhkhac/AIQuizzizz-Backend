@@ -20,7 +20,8 @@ public static class InitialiserExtensions
 
         await initialiser.InitialiseAsync();
 
-        // await initialiser.SeedAsync();
+        await initialiser.SeedAsync();
+        
         await Task.CompletedTask;
     }
 }
@@ -79,6 +80,10 @@ public class ApplicationDbContextInitialiser
 
     public async Task TrySeedAsync()
     {
+        await _context.DomainUsers.ExecuteUpdateAsync(
+            setters => setters.SetProperty(u => u.IsPaymentLocked, false)
+        );
+        
         // Default roles
         var administratorRole = new ApplicationRole(Roles.Administrator);
         var moderatorRole = new ApplicationRole(Roles.Moderator);

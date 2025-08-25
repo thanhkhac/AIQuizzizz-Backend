@@ -174,9 +174,9 @@ public class AiGenerateService : IAiGenerateService
         var fileId = fileName.Replace("files/", "");
 
         var deleteUri = $"https://generativelanguage.googleapis.com/v1beta/files/{fileId}?key={_geminiSettings.ApiKey}";
-        using var httpClient = new HttpClient();
+        _httpClient.DefaultRequestHeaders.Authorization = null;
 
-        var response = await httpClient.DeleteAsync(deleteUri);
+        var response = await _httpClient.DeleteAsync(deleteUri);
         if (!response.IsSuccessStatusCode)
         {
             var errorContent = await response.Content.ReadAsStringAsync();
@@ -249,7 +249,6 @@ public class AiGenerateService : IAiGenerateService
     {
         _httpClient.DefaultRequestHeaders.Authorization = null;
 
-        _httpClient.DefaultRequestHeaders.Authorization = null;
 
         var requestBody = new
         {
