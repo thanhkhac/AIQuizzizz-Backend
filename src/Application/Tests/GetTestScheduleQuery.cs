@@ -33,10 +33,12 @@ public class GetTestScheduleQueryValidator : AbstractValidator<GetTestScheduleQu
 public class GetTestScheduleQueryHandler : IRequestHandler<GetTestScheduleQuery, List<TestScheduleResponse>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly IUser _user;
     
-    public GetTestScheduleQueryHandler(IApplicationDbContext context, IClassService classService)
+    public GetTestScheduleQueryHandler(IApplicationDbContext context, IUser user)
     {
         _context = context;
+        _user = user;   
     }
     
     /// <summary>
@@ -47,7 +49,10 @@ public class GetTestScheduleQueryHandler : IRequestHandler<GetTestScheduleQuery,
     public async Task<List<TestScheduleResponse>> Handle(GetTestScheduleQuery rq, CancellationToken cancellationToken)
     {  
         var testSchedule = await _context.Tests
-            .Where(t => t.TimeStart.Month == rq.Month && t.TimeStart.Year == rq.Year)
+            .Include(x => x.Class)
+            .ThenInclude(x => x!.ClassUsers)
+            .Where(t => t.TimeStart.Month == rq.Month && t.TimeStart.Year == rq.Year
+            && t.Class!.ClassUsers.Any(x => x.UserId == _user.UserId && x.ShareMode == ClassShareMode.Student))
             .Select(x => new TestScheduleDto
             {
                 TestId = x.Id,

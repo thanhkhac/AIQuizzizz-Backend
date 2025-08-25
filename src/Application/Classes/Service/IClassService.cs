@@ -12,6 +12,7 @@ public interface IClassService
     Task<bool> IsUserInClass(Guid classId);
     Task<bool> IsLecturerOrOwnerInClass(Guid classId);
     Task DeleteQuestionSetByUserId(Guid userId, Guid classId);
+    Task<Guid> MoveOutClass(Guid classId, CancellationToken cancellationToken);
 }
 
 public class ClassService : IClassService{
@@ -84,5 +85,23 @@ public class ClassService : IClassService{
         _context.ClassQuestionSets.RemoveRange(questionSets);
         
         await _context.SaveChangesAsync(new CancellationToken());
+    }
+
+    public async Task<Guid> MoveOutClass(Guid classId, CancellationToken cancellationToken)
+    {
+        var classUser = await _context.ClassUsers
+            .Where(x => x.ClassId.Equals(classId) && x.UserId.Equals(_user.UserId))
+            .FirstOrDefaultAsync(cancellationToken);
+        if (classUser == null)
+            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_USER_IN_CLASS);
+
+        if (ClassShareMode.Owner == classUser.ShareMode)
+            throw new ErrorCodeException(ErrorCodes.OWNER_CAN_NOT_MOVE_OUT_CLASS);
+        
+        _context.ClassUsers.Remove(classUser);
+        
+        await _context.SaveChangesAsync(cancellationToken);
+        
+        return classUser.UserId;
     }
 }
