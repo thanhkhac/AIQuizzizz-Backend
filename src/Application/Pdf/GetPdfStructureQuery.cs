@@ -29,7 +29,7 @@ public class GetPdfStructureQueryCommandValidator : AbstractValidator<GetPdfStru
             .NotNull().WithMessage("Dữ liệu stream không được trống")
             // .Must(stream => stream!.Length > 0).WithMessage("Stream không được rỗng")
             // .Must(stream => stream!.Length <= MaxFileSizeInBytes)
-            .WithMessage("Dung lượng tệp không được vượt quá 15MB")
+            // .WithMessage("Dung lượng tệp không được vượt quá 15MB")
             .Custom((stream, context) =>
             {
                 if (stream == null || stream.Length == 0)
