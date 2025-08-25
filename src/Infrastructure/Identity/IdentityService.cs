@@ -672,16 +672,19 @@ public class IdentityService : IIdentityService
             query = query.Where(x => x.RoleName == dto.Role);
         }
 
-        var projected = query.Select(x => new UserForListDto
-        {
-            Id = x.user.Id,
-            Email = x.user.Email!,
-            FullName = x.domain.FullName,
-            IsBanned = x.domain.IsBanned,
-            Token = x.domain.TokenCount,
-            Role = x.RoleName ?? "User",
-            Balance = x.domain.Balance
-        });
+        var projected = query
+            .GroupBy(x => x.user.Id)
+            .Select(g => g.First())
+            .Select(x => new UserForListDto
+            {
+                Id = x.user.Id,
+                Email = x.user.Email!,
+                FullName = x.domain.FullName,
+                IsBanned = x.domain.IsBanned,
+                Token = x.domain.TokenCount,
+                Role = x.RoleName ?? "User", 
+                Balance = x.domain.Balance
+            });
         return await PaginatedList<UserForListDto>.CreateAsync(projected.AsNoTracking(), dto.PageNumber, dto.PageSize);
     }
 
