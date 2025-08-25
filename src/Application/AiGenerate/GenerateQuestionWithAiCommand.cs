@@ -135,21 +135,21 @@ public class GenerateQuestionWithAiCommandHandler : IRequestHandler<GenerateQues
                 prompt: prompt,
                 temperature: 0.7,
                 topP: 0.8,
-                cancellationToken: cancellationToken);
+                cancellationToken:  CancellationToken.None);
 
             currentUser.Balance -= (int)Math.Round(apiInputCost + systemSetting.FixedSystemFee);
 
             if(currentUser.Balance < 0)   currentUser.Balance  = 0;
 
             _context.DomainUsers.Update(currentUser);
-            await _context.SaveChangesAsync(cancellationToken);
+            await _context.SaveChangesAsync(CancellationToken.None);
 
             if (result != "")
             {
                 var outputToken = await _aiGenerateService.CountToken(
                     text1: "",
                     text2: result,
-                    cancellationToken
+                    CancellationToken.None
                 );
 
                 var apiOutputCost = (double)outputToken / 1_000_000 * systemSetting.OutputCostPerMillionTokens;
@@ -158,7 +158,7 @@ public class GenerateQuestionWithAiCommandHandler : IRequestHandler<GenerateQues
                 if(currentUser.Balance < 0)   currentUser.Balance  = 0;
                 currentUser.IsPaymentLocked = false;
                 _context.DomainUsers.Update(currentUser);
-                await _context.SaveChangesAsync(cancellationToken);
+                await _context.SaveChangesAsync(CancellationToken.None);
             }
 
 
@@ -228,7 +228,7 @@ public class GenerateQuestionWithAiCommandHandler : IRequestHandler<GenerateQues
         {
             currentUser!.IsPaymentLocked = false;
             _context.DomainUsers.Update(currentUser);
-            await _context.SaveChangesAsync(cancellationToken);
+            await _context.SaveChangesAsync(CancellationToken.None);
             await _aiGenerateService.DeleteFileAsync(uploadResult.FileName);
         }
     }

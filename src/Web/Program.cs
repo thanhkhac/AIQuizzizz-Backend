@@ -8,6 +8,14 @@ using Hangfire.PostgreSql;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+   
+    //Đây là thời gian tối đa Kestrel chờ client gửi toàn bộ request headers
+    options.Limits.RequestHeadersTimeout = TimeSpan.FromMinutes(1);    
+});
+
 DotNetEnv.Env.Load("../../.env");
 builder.Configuration.AddEnvironmentVariables();
 // Add services to the container.

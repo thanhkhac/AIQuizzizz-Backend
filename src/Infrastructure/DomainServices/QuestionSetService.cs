@@ -284,8 +284,7 @@ public class QuestionSetService : IQuestionSetService
                 .OrderBy(x => x.LastAccessedAt.HasValue ? 0 : 1)
                 .ThenByDescending(x => x.LastAccessedAt);
         }
-
-        return await PaginatedList<QuestionSetForListResponseDto>.CreateAsync(
+        var result =   await PaginatedList<QuestionSetForListResponseDto>.CreateAsync(
             projectedQuery.Select(x => new QuestionSetForListResponseDto
             {
                 Id = x.QuestionSet.Id,
@@ -314,6 +313,35 @@ public class QuestionSetService : IQuestionSetService
             }),
             pageNumber,
             pageSize);
+            
+            
+        Dictionary<Guid, int> completedQuestionsLookup = new();
+        var questionSetIds = result.Items.Select(x => x.Id).ToList();
+
+        if (questionSetIds.Any())
+        {
+            completedQuestionsLookup = await _context.UserQuestionSetHistories
+                .Where(h => h.UserId == userId)
+                .Join(_context.Questions
+                        .Where(q => !q.IsDeleted && questionSetIds.Contains(q.QuestionSetId!.Value)),
+                    h => h.QuestionId,
+                    q => q.Id,
+                    (h, q) => q.QuestionSetId!.Value)
+                .GroupBy(questionSetId => questionSetId)
+                .Select(g => new
+                {
+                    QuestionSetId = g.Key,
+                    Count = g.Count()
+                })
+                .ToDictionaryAsync(x => x.QuestionSetId, x => x.Count, cancellationToken);
+        }
+
+        foreach (var item in result.Items)
+        {
+            item.CompletedQuestionCount = completedQuestionsLookup.GetValueOrDefault(item.Id, 0);
+        }
+            
+        return result;
     }
 
 
