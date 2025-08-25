@@ -97,6 +97,11 @@ public class ClassService : IClassService{
 
         if (ClassShareMode.Owner == classUser.ShareMode)
             throw new ErrorCodeException(ErrorCodes.OWNER_CAN_NOT_MOVE_OUT_CLASS);
+
+        if (classUser.ShareMode == ClassShareMode.Teacher)
+        {
+           await DeleteQuestionSetByUserId(classUser.UserId, classId);
+        }
         
         _context.ClassUsers.Remove(classUser);
         
