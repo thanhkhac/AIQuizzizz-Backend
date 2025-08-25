@@ -106,14 +106,14 @@ public class ApplicationDbContextInitialiser
 
         var users = _userManager.Users.ToList(); // hoặc dùng ToListAsync() nếu có AsQueryable()
 
-        foreach (var i in users)
-        {
-            var roles = await _userManager.GetRolesAsync(i);
-            if (!roles.Contains(Roles.User))
-            {
-                await _userManager.AddToRoleAsync(i, Roles.User);
-            }
-        }
+        // foreach (var i in users)
+        // {
+        //     var roles = await _userManager.GetRolesAsync(i);
+        //     if (!roles.Contains(Roles.User))
+        //     {
+        //         await _userManager.AddToRoleAsync(i, Roles.User);
+        //     }
+        // }
 
 
         // Default users
