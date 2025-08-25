@@ -133,7 +133,7 @@ public static class PromptProvider
             multipleChoices array không được vượt quá 4 phần tử, phải có ít nhất một lựa chọn đúng, có thể có nhiều lựa chọn đúng
             matchingPairs: leftItem và rightItem không vượt quá 1000 ký tự
             matchingPairs array: không vượt quá 5 phần tử
-            orderingItems: text không được vượt quá 1000 ký tự, array không được vượt quá 10 phần tử, correctOrder phải bắt đầu từ 0
+            orderingItems: text không được vượt quá 1000 ký tự, array không được vượt quá 10 phần tử, correctOrder phải bắt đầu từ 0, correctOrder phải là duy nhất
             shortAnswer: không vượt quá 20 ký tự
 
             ";

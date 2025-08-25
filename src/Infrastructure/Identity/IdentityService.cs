@@ -634,22 +634,37 @@ public class IdentityService : IIdentityService
 
         return await _userManager.GetRolesAsync(identityUser);
     }
+    
+    // SELECT a."Id", a."Email", d."FullName", d."IsBanned", d."TokenCount" AS "Token", COALESCE(a1."Name", 'User') AS "Role", d."Balance"
+    // FROM "AspNetUsers" AS a
+    // LEFT JOIN "DomainUsers" AS d ON a."Id" = d."Id"
+    // LEFT JOIN "AspNetUserRoles" AS a0 ON a."Id" = a0."UserId"
+    // LEFT JOIN "AspNetRoles" AS a1 ON a0."RoleId" = a1."Id"
+    // WHERE NOT (a."IsDeleted") AND (d."Id" IS NULL OR d."IsDeleted" = FALSE)
+    // ORDER BY a1."Name"
+    // LIMIT @__p_1 OFFSET @__p_0
+
+    
     public async Task<PaginatedList<UserForListDto>> SearchUserWithRole(SearchUserDto dto)
     {
         var query = from user in _dbContext.Users.IgnoreQueryFilters()
             join domainUser in _dbContext.DomainUsers.IgnoreQueryFilters() on user.Id equals domainUser.Id into domainGroup
             from du in domainGroup.DefaultIfEmpty()
+            
             join userRole in _dbContext.UserRoles on user.Id equals userRole.UserId into userRoleGroup
             from ur in userRoleGroup.DefaultIfEmpty()
+            
             join role in _dbContext.Roles on ur.RoleId equals role.Id into roleGroup
             from r in roleGroup.DefaultIfEmpty()
-            where user.IsDeleted == false && (du == null || du.IsDeleted == false)
+            where user.IsDeleted == false 
             select new
             {
                 user,
                 domain = du,
                 RoleName = r.Name
-            };
+            } ;
+            
+        query = query.OrderBy(x => x.RoleName);
 
         // Lọc theo từ khóa
         if (!string.IsNullOrEmpty(dto.Keyword) && !string.IsNullOrEmpty(dto.FieldName))
