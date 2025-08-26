@@ -2899,6 +2899,38 @@
         }
       }
     },
+    "/api/QuestionSet/{questionSetId}/Types": {
+      "get": {
+        "tags": [
+          "QuestionSet"
+        ],
+        "operationId": "GetTypeOfQuestionInQuestionSet",
+        "parameters": [
+          {
+            "name": "questionSetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfTypeOfQuestionInQuestionSetDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/QuestionSet/{questionSetId}/LearnQuestions": {
       "get": {
         "tags": [
@@ -6986,6 +7018,50 @@
           }
         }
       },
+      "ApiResponseOfListOfTypeOfQuestionInQuestionSetDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/TypeOfQuestionInQuestionSetDto"
+            }
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TypeOfQuestionInQuestionSetDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "CreateRatingCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -8561,6 +8637,10 @@
         "properties": {
           "isBanned": {
             "type": "boolean"
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
