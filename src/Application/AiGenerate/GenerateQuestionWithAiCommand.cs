@@ -22,7 +22,7 @@ public class GenerateQuestionWithAiCommand : IRequest<List<CreateUpdateQuestionD
     public string? Language { get; set; }
     public int QuestionCount { get; set; }
     public List<string> QuestionTypes { get; set; } = new();
-    
+
     [NoTrimRecursive]
     public DocumentStructureDto? DocumentStructure { get; set; }
     [NoTrimRecursive]
@@ -64,8 +64,28 @@ public class GenerateQuestionWithAiCommandValidator : AbstractValidator<Generate
                 {
                     context.AddFailure(ex.Message);
                 }
-            });;
+            });
         ;
+        RuleFor(x => x.QuestionCount)
+            .GreaterThan(0)
+            .LessThanOrEqualTo(50);
+
+        RuleFor(x => x.Language)
+            .NotEmpty(.Must(type => new[]
+            {
+                "Tiếng Việt", "English"
+            }.Contains(type))
+            .WithMessage($"Ngôn ngữ phải là Tiếng Việt/English");
+
+
+        RuleForEach(x => x.QuestionTypes)
+            .NotEmpty()
+            .WithMessage($"Loại câu hỏi không được để trống")
+            .Must(type => new[]
+            {
+                "MultipleChoice", "Matching", "Ordering", "ShortText"
+            }.Contains(type))
+            .WithMessage($"Loại câu hỏi phải là 'MultipleChoice', 'Matching', 'Ordering','ShortText'");
     }
 }
 
@@ -100,13 +120,13 @@ public class GenerateQuestionWithAiCommandHandler : IRequestHandler<GenerateQues
 
         currentUser.IsPaymentLocked = true;
         await _context.SaveChangesAsync(cancellationToken);
-        
+
         var systemSetting = await _context.SystemSettings
             .OrderByDescending(x => x.Created)
             .FirstOrDefaultAsync(cancellationToken);
         if (systemSetting == null)
             throw new ErrorCodeException(ErrorCodes.SYSTEM_SETTING_NOT_FOUND);
-        
+
         try
         {
             //Đếm token của prompt
@@ -135,11 +155,11 @@ public class GenerateQuestionWithAiCommandHandler : IRequestHandler<GenerateQues
                 prompt: prompt,
                 temperature: 0.7,
                 topP: 0.8,
-                cancellationToken:  CancellationToken.None);
+                cancellationToken: CancellationToken.None);
 
             currentUser.Balance -= (int)Math.Round(apiInputCost + systemSetting.FixedSystemFee);
 
-            if(currentUser.Balance < 0)   currentUser.Balance  = 0;
+            if (currentUser.Balance < 0) currentUser.Balance = 0;
 
             _context.DomainUsers.Update(currentUser);
             await _context.SaveChangesAsync(CancellationToken.None);
@@ -155,7 +175,7 @@ public class GenerateQuestionWithAiCommandHandler : IRequestHandler<GenerateQues
                 var apiOutputCost = (double)outputToken / 1_000_000 * systemSetting.OutputCostPerMillionTokens;
                 var totalPoint = (int)Math.Round(apiOutputCost);
                 currentUser.Balance -= totalPoint;
-                if(currentUser.Balance < 0)   currentUser.Balance  = 0;
+                if (currentUser.Balance < 0) currentUser.Balance = 0;
                 currentUser.IsPaymentLocked = false;
                 _context.DomainUsers.Update(currentUser);
                 await _context.SaveChangesAsync(CancellationToken.None);
