@@ -67,6 +67,11 @@ public class RemoveStudentCommandHandler : IRequestHandler<RemoveStudentCommand,
 
         if (user == null || user.ClassUser == null)
             throw new ErrorCodeException(ErrorCodes.NOT_FOUND_USER_IN_CLASS, "User không tồn tại hoặc không trong lớp");
+
+        if (user.ClassUser.ShareMode == ClassShareMode.Teacher)
+        {
+            await _classService.DeleteQuestionSetByUserId(rq.UserId, rq.ClassId);
+        }
     
         _context.ClassUsers.Remove(user.ClassUser);
         await _context.SaveChangesAsync(cancellationToken);

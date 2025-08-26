@@ -1,4 +1,5 @@
-﻿using CleanArchitectureBase.Application.Common.Exceptions;
+﻿using CleanArchitectureBase.Application.Classes.Service;
+using CleanArchitectureBase.Application.Common.Exceptions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
 using CleanArchitectureBase.Domain.Constants;
@@ -44,11 +45,13 @@ public class UpdatePositionCommandHandler : IRequestHandler<UpdatePositionComman
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
+    private readonly IClassService _classService;
     
-    public UpdatePositionCommandHandler(IApplicationDbContext context, IUser user)
+    public UpdatePositionCommandHandler(IApplicationDbContext context, IUser user, IClassService classService)
     {
         _context = context;
         _user = user;
+        _classService = classService;   
     }
     
     /// <summary>
@@ -76,6 +79,11 @@ public class UpdatePositionCommandHandler : IRequestHandler<UpdatePositionComman
         var classUser = classUserData.FirstOrDefault(x => x.ClassUser.UserId == rq.UserId && x.ClassUser.ShareMode != ClassShareMode.Owner);
         if (classUser == null)
             throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Không tìm thấy student hoặc không phải student của lớp");
+
+        if (classUser.ClassUser.ShareMode == ClassShareMode.Teacher && rq.Position == "Student")
+        {
+            await _classService.DeleteQuestionSetByUserId(rq.UserId!.Value, rq.ClassId!.Value);
+        }
         
         classUser.ClassUser.ShareMode = Enum.Parse<ClassShareMode>(rq.Position
                                                                    ?? throw new ErrorCodeException(ErrorCodes.PERMISSION_NOT_FOUND, "không tìm thầy role"));

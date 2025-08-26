@@ -16,6 +16,7 @@ public class Class : EndpointGroupBase
         group.MapPost(JoinClassByCode, "Students");
         group.MapPost(CreateInviteCode, "/{ClassId}/Invitations");
         group.MapPost(AddQuestionSet, "/{ClassId}/Questionsets/{QuestionSetId}");
+        group.MapPost(MoveOutClass, "/{ClassId}/MoveOut");
 
         group.MapGet(SearchStudent, "/{ClassId}/Students");
         group.MapGet(SearchClass, "");
@@ -321,6 +322,18 @@ public class Class : EndpointGroupBase
         {
             ClassId = classId,
             QuestionSetId = questionSetId
+        };
+        var result = await sender.Send(rq);
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<Guid>>> MoveOutClass(
+        [FromRoute] Guid classId,
+        ISender sender)
+    {
+        var rq = new MoveOutClassCommand()
+        {
+            ClassId = classId,
         };
         var result = await sender.Send(rq);
         return result.ToOk();

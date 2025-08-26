@@ -65,7 +65,6 @@ public static class ErrorCodes
     //Class
     public const string CLASS_NOTFOUND = nameof(CLASS_NOTFOUND);
     public const string PERMISSION_NOT_FOUND = nameof(PERMISSION_NOT_FOUND);
-    public const string CLASS_ALREADY_EXISTS = nameof(CLASS_ALREADY_EXISTS);
     public const string CLASS_CODE_NOT_FOUND = nameof(CLASS_CODE_NOT_FOUND);
     public const string STUDENT_ALREADY_EXISTS_IN_CLASS = nameof(STUDENT_ALREADY_EXISTS_IN_CLASS);
     public const string ONLY_OWNERS_CAN_UPDATE = nameof(ONLY_OWNERS_CAN_UPDATE);
@@ -74,6 +73,7 @@ public static class ErrorCodes
     public const string NOT_FOUND_USER_IN_CLASS = nameof(NOT_FOUND_USER_IN_CLASS);
     public const string QUESTION_SET_ALREADY_IN_CLASS = nameof(QUESTION_SET_ALREADY_IN_CLASS);
     public const string NOT_HAVE_PERMISSION_TO_ADD_QUESTION_SET = nameof(NOT_HAVE_PERMISSION_TO_ADD_QUESTION_SET);
+    public const string OWNER_CAN_NOT_MOVE_OUT_CLASS = nameof(OWNER_CAN_NOT_MOVE_OUT_CLASS);
     
     //Question
     public const string INVALID_QUESTION_TYPE = nameof(INVALID_QUESTION_TYPE);

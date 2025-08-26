@@ -800,6 +800,39 @@
         }
       }
     },
+    "/api/Class/{ClassId}/MoveOut": {
+      "post": {
+        "tags": [
+          "Class"
+        ],
+        "operationId": "MoveOutClass",
+        "parameters": [
+          {
+            "name": "ClassId",
+            "x-originalName": "classId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Class/{ClassId}/Students": {
       "get": {
         "tags": [
@@ -2125,6 +2158,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfPlatformOverviewDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Plan/CurrentPlan": {
+      "get": {
+        "tags": [
+          "Plan"
+        ],
+        "operationId": "GetCurrentPlan",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfCurrentPlanDto"
                 }
               }
             }
@@ -6369,6 +6422,70 @@
             "format": "int32"
           },
           "usersHavePlan": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ApiResponseOfListOfCurrentPlanDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "data": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/CurrentPlanDto"
+            }
+          },
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CurrentPlanDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "planId": {
+            "type": "string",
+            "format": "guid"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "duration": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unit": {
+            "type": "string",
+            "nullable": true
+          },
+          "price": {
             "type": "integer",
             "format": "int32"
           }
