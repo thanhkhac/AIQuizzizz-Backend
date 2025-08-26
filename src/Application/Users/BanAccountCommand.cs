@@ -16,6 +16,8 @@ public class BanAccountCommand : IRequest<Guid>
     public Guid UserId { get; set; }
 
     public bool IsBanned { get; set; }
+    
+    public string? Message { get; set; }
 }
 
 public class BanAccountCommandValidator : AbstractValidator<BanAccountCommand>
@@ -24,6 +26,8 @@ public class BanAccountCommandValidator : AbstractValidator<BanAccountCommand>
     {
         RuleFor(x => x.UserId)
             .NotEmpty().WithMessage("UserId không được trống");
+            
+        RuleFor(x => x.Message).MaximumLength(5000);
     }
 }
 
@@ -32,12 +36,14 @@ public class BanAccountCommandHandler : IRequestHandler<BanAccountCommand, Guid>
     private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;
     private readonly IUser _user;
+    private readonly IEmailService _emailService;
 
-    public BanAccountCommandHandler(IApplicationDbContext context, IIdentityService identityService, IUser user)
+    public BanAccountCommandHandler(IApplicationDbContext context, IIdentityService identityService, IUser user, IEmailService emailService)
     {
         _context = context;
         _identityService = identityService;
         _user = user;
+        _emailService = emailService;
     }
 
     /// <summary>
