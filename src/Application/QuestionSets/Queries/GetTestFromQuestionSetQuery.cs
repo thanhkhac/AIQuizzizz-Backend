@@ -85,11 +85,6 @@ public class GetTestFromQuestionSetQueryHandler : IRequestHandler<GetTestFromQue
 
         foreach (var type in rq.QuestionTypes)
         {
-            if (typeToQuestions[type].Count == 0)
-            {
-                rq.QuestionTypes.Remove(type);
-                continue;
-            }
             var random = new Random();
             var question = typeToQuestions[type][random.Next(typeToQuestions[type].Count)];
             questions.Add(question);
