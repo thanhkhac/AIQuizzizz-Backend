@@ -71,11 +71,9 @@ public class GenerateQuestionWithAiCommandValidator : AbstractValidator<Generate
             .LessThanOrEqualTo(50);
 
         RuleFor(x => x.Language)
-            .NotEmpty(.Must(type => new[]
-            {
-                "Tiếng Việt", "English"
-            }.Contains(type))
-            .WithMessage($"Ngôn ngữ phải là Tiếng Việt/English");
+            .NotEmpty()
+            .Must(type => new[] { "Tiếng Việt", "English" }.Contains(type))
+            .WithMessage("Ngôn ngữ phải là Tiếng Việt/English");
 
 
         RuleForEach(x => x.QuestionTypes)
