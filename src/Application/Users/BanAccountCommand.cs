@@ -6,7 +6,7 @@ using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.Users;
 
-[Authorize(Roles = Domain.Constants.Roles.Administrator)]
+[Authorize(Roles = Domain.Constants.Roles.Administrator + "," + Domain.Constants.Roles.Moderator)]
 public class BanAccountCommand : IRequest<Guid>
 {
     /// <summary>
