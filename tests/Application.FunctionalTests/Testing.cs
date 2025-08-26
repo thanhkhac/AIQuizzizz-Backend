@@ -346,12 +346,31 @@
 
         public static void PrintJson(object obj)
         {
-            Console.WriteLine(JsonSerializer.Serialize(obj, new JsonSerializerOptions
+            Console.WriteLine("=================SendAsync=================");
+
+            var options = new JsonSerializerOptions
             {
                 WriteIndented = true,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-            }));
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            };
+
+            // Đăng ký converter để bỏ qua Stream
+            options.Converters.Add(new StreamConverter());
+
+            var json = JsonSerializer.Serialize(obj, options);
+            Console.WriteLine(json);
+        }
+
+        public class StreamConverter : JsonConverter<Stream>
+        {
+            public override Stream Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+                => throw new NotSupportedException("Deserializing streams is not supported");
+
+            public override void Write(Utf8JsonWriter writer, Stream value, JsonSerializerOptions options)
+            {
+                // chỉ log metadata thay vì nội dung
+                writer.WriteStringValue($"Stream(length={value.Length})");
+            }
         }
 
         [OneTimeTearDown]

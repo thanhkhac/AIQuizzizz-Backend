@@ -57,17 +57,27 @@ public class PdfService : IPdfService
         if (!IsPdf(pdfStream))
             throw new ErrorCodeException(ErrorCodes.INVALID_FILE_TYPE, "Không phải PDF");
 
-        pdfStream.Position = 0;
-        using (var pdf = PdfDocument.Open(pdfStream, new ParsingOptions()
-               {
-                   SkipMissingFonts = true
-               }))
+        try
         {
-            if (pdf.NumberOfPages > maxPageCount)
-                throw new ErrorCodeException(ErrorCodes.PDF_PAGE_LIMIT_EXCEEDED);
+            pdfStream.Position = 0;
+            using (var pdf = PdfDocument.Open(pdfStream, new ParsingOptions()
+                   {
+                       SkipMissingFonts = true
+                   }))
+            {
+                if (pdf.NumberOfPages > maxPageCount)
+                    throw new ErrorCodeException(ErrorCodes.PDF_PAGE_LIMIT_EXCEEDED);
+            }
+
+        }
+        catch (Exception)
+        {
+            throw new ErrorCodeException(ErrorCodes.INVALID_FILE_FORMAT, "Sai định dạng file");
+        }finally
+        {
+            pdfStream.Position = 0;
         }
 
-        pdfStream.Position = 0;
     }
 
     bool IsPdf(Stream stream)

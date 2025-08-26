@@ -16,7 +16,6 @@ namespace CleanArchitectureBase.Application.AiGenerate;
 [Authorize]
 public class GenerateQuestionWithAiCommand : IRequest<List<CreateUpdateQuestionDto>>
 {
-    [JsonIgnore]
     public required FileStreamData FileData { get; set; }
     public bool IsGenerateExplain { get; set; }
     public string? Language { get; set; }
@@ -76,14 +75,14 @@ public class GenerateQuestionWithAiCommandValidator : AbstractValidator<Generate
             .WithMessage("Ngôn ngữ phải là Tiếng Việt/English");
 
 
-        RuleForEach(x => x.QuestionTypes)
-            .NotEmpty()
-            .WithMessage($"Loại câu hỏi không được để trống")
-            .Must(type => new[]
-            {
-                "MultipleChoice", "Matching", "Ordering", "ShortText"
-            }.Contains(type))
-            .WithMessage($"Loại câu hỏi phải là 'MultipleChoice', 'Matching', 'Ordering','ShortText'");
+        // RuleForEach(x => x.QuestionTypes)
+        //     .NotEmpty()
+        //     .WithMessage($"Loại câu hỏi không được để trống")
+        //     .Must(type => new[]
+        //     {
+        //         "MultipleChoice", "Matching", "Ordering", "ShortText"
+        //     }.Contains(type))
+        //     .WithMessage($"Loại câu hỏi phải là 'MultipleChoice', 'Matching', 'Ordering','ShortText'");
     }
 }
 
