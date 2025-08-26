@@ -217,13 +217,13 @@ public class AiGenerateService : IAiGenerateService
         var uploadUri = $"{_geminiSettings.UploadFileUri}?key={_geminiSettings.ApiKey}";
 
         var response = await _httpClient.PostAsync(uploadUri, content, cancellationToken);
+        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
 
         if (!response.IsSuccessStatusCode)
         {
             throw new ErrorCodeException(ErrorCodes.FILE_UPLOAD_FAILED);
         }
 
-        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
         using var doc = JsonDocument.Parse(responseContent);
 
         var fileUri = doc.RootElement
