@@ -32,6 +32,7 @@ public class QuestionSetEndpoints : EndpointGroupBase
         group.MapGet(GetTestFromQuestionSet, "{questionSetId}/Test");
         group.MapGet(GetRating, "{questionSetId}/Rating");
         group.MapGet(GetLinkDownloadFileImport, "/DownloadFileImport");
+        group.MapGet(GetTypeOfQuestionInQuestionSet, "{questionSetId}/Types");
         group.MapPost(CreateRating, "{questionSetId}/Rating");
         group.MapPatch(UpdateQuestionSet, "{questionSetId}");
         group.MapDelete(DeleteQuestionSet, "{questionSetId}");
@@ -430,6 +431,15 @@ public class QuestionSetEndpoints : EndpointGroupBase
         ISender sender)
     {
         var result = await sender.Send(new GetLinkDownloadFileImportQuery());
+        return result.ToOk();
+    }
+    
+    public async Task<Ok<ApiResponse<List<TypeOfQuestionInQuestionSetDto>>>> GetTypeOfQuestionInQuestionSet(
+        [FromRoute] Guid questionSetId,
+        ISender sender)
+    {
+        var rq = new GetTypeOfQuestionInQuestionSetQuery { QuestionSetId = questionSetId };
+        var result = await sender.Send(rq);
         return result.ToOk();
     }
 }
