@@ -89,7 +89,8 @@ public class GetUserTestHistoryQueryHandler : IRequestHandler<GetUserTestHistory
         var attempts = _context.Attempts
             .Include(x => x.User)
             .Include(x => x.Test)
-            .Where(x => x.TestId == rq.TestId && x.UserId == userId)
+            .Where(x => x.TestId == rq.TestId && x.UserId == userId
+            && x.TimeStart <= x.TimeFinish)
             .OrderByDescending(x => x.TimeFinish)
             .Select(x => new HistoryTestDto
             {
