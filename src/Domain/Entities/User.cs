@@ -14,7 +14,7 @@ public class User
     public long Balance { get; set; }
     public string? PaymentCode { get; set; } = Payment.PaymentCodePrefix + Guid.NewGuid().ToString("N")[..30];
     public bool IsPaymentLocked { get; set; }
-    public DateTimeOffset Created { get; set; } = DateTimeOffset.Now;
+    public DateTimeOffset Created { get; set; } = DateTimeOffset.UtcNow;
     // Navigation properties
     public List<UserSubscription> UserSubscriptions { get; set; } = new();
     public List<QuestionSetUser> QuestionSetUsers { get; set; } = new();
