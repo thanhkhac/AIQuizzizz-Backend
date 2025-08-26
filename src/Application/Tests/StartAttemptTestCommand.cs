@@ -122,6 +122,23 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
             _context.Attempts.Add(newAttempt);
         }
         
+        var userGrade = await _context.TestGrades
+            .Where(x => x.UserId == _user.UserId && x.TestId == test.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (userGrade == null)
+        {
+            userGrade = new TestGrade
+            {
+                Id = Guid.NewGuid(),
+                Score = 0,
+                TestId = test.Id,
+                UserId = _user.UserId!.Value,
+            };
+            
+            _context.TestGrades.Add(userGrade);
+        }
+        
         attemptDetail.TimeRemaining = timeRemaining;
         
         var versionQuestions = await _context.TestVersionQuestions
