@@ -20,7 +20,7 @@ public class UserForListDto
     public string? Role { get; set; }
 }
 
-[Authorize(Roles = Domain.Constants.Roles.Administrator)]
+[Authorize(Roles = Domain.Constants.Roles.Administrator + "," + Domain.Constants.Roles.Moderator)]
 public class SearchAllAccountQuery : IRequest<PaginatedList<UserForListDto>>
 {
     public string? Keyword { get; set; }
