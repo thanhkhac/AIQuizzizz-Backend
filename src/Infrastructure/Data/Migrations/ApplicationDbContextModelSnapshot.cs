@@ -29,7 +29,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<float>("Score")
-                        .HasColumnType("numeric(5,2)");
+                        .HasColumnType("numeric(9,2)");
 
                     b.Property<Guid>("TestId")
                         .HasColumnType("uuid");
@@ -79,13 +79,14 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<float>("Score")
-                        .HasColumnType("numeric(5,2)");
+                        .HasColumnType("numeric(9,2)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AttemptId");
-
                     b.HasIndex("QuestionId");
+
+                    b.HasIndex("AttemptId", "QuestionId")
+                        .IsUnique();
 
                     b.ToTable("AttemptQuestions");
                 });
@@ -401,6 +402,90 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.ToTable("FolderUsers");
                 });
 
+            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Media", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<double?>("DurationSeconds")
+                        .HasColumnType("double precision");
+
+                    b.Property<int>("Height")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("LastModifiedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ModeratedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ModerationAttempts")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ModerationResultJson")
+                        .HasColumnType("json");
+
+                    b.Property<string>("ModerationStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("ObjectKey")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("OriginalFileName")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ThumbnailKey")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int>("Width")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("OwnerId");
+
+                    b.HasIndex("Type", "ModerationStatus");
+
+                    b.ToTable("Media");
+                });
+
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Plan", b =>
                 {
                     b.Property<Guid>("Id")
@@ -414,6 +499,12 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<bool>("CanOpenTest")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CanUploadImage")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CanUploadVideo")
                         .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset>("Created")
@@ -526,6 +617,16 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.Property<Guid?>("LastModifiedBy")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("MediaId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("MediaType")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
                     b.Property<Guid?>("QuestionSetId")
                         .HasColumnType("uuid");
 
@@ -549,6 +650,8 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedBy");
+
+                    b.HasIndex("MediaId");
 
                     b.HasIndex("QuestionSetId");
 
@@ -825,7 +928,7 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<float>("Score")
-                        .HasColumnType("numeric(5,2)");
+                        .HasColumnType("numeric(9,2)");
 
                     b.Property<Guid>("TestId")
                         .HasColumnType("uuid");
@@ -837,7 +940,8 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.HasIndex("TestId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "TestId")
+                        .IsUnique();
 
                     b.ToTable("TestGrades");
                 });
@@ -1142,6 +1246,12 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.Property<long>("Balance")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("BanReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("BannedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTimeOffset>("Created")
                         .HasColumnType("timestamp with time zone");
 
@@ -1276,6 +1386,45 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserSubscriptions");
+                });
+
+            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.UserViolation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DeletedQuestionCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("DetailJson")
+                        .HasColumnType("json");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsExpired")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("MediaId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "IsExpired", "ExpiresAt");
+
+                    b.ToTable("UserViolations");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Infrastructure.Identity.ApplicationRole", b =>
@@ -1441,6 +1590,10 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
+
+                    b.Property<string>("BanReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -1782,6 +1935,24 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Media", b =>
+                {
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("Owner");
+                });
+
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Plan", b =>
                 {
                     b.HasOne("CleanArchitectureBase.Domain.Entities.User", "CreatedByUser")
@@ -1817,12 +1988,19 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                         .HasForeignKey("CreatedBy")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.Media", "Media")
+                        .WithMany("Questions")
+                        .HasForeignKey("MediaId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("CleanArchitectureBase.Domain.Entities.QuestionSet", "QuestionSet")
                         .WithMany("Questions")
                         .HasForeignKey("QuestionSetId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("CreatedByUser");
+
+                    b.Navigation("Media");
 
                     b.Navigation("QuestionSet");
                 });
@@ -2178,6 +2356,17 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.UserViolation", b =>
+                {
+                    b.HasOne("CleanArchitectureBase.Domain.Entities.User", "User")
+                        .WithMany("Violations")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("CleanArchitectureBase.Infrastructure.Identity.ApplicationRoleClaim", b =>
                 {
                     b.HasOne("CleanArchitectureBase.Infrastructure.Identity.ApplicationRole", null)
@@ -2266,6 +2455,11 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.Navigation("FolderTestTemplates");
 
                     b.Navigation("FolderUsers");
+                });
+
+            modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Media", b =>
+                {
+                    b.Navigation("Questions");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Domain.Entities.Plan", b =>
@@ -2359,6 +2553,8 @@ namespace CleanArchitectureBase.Infrastructure.Data.Migrations
                     b.Navigation("UserQuestionSetHistories");
 
                     b.Navigation("UserSubscriptions");
+
+                    b.Navigation("Violations");
                 });
 
             modelBuilder.Entity("CleanArchitectureBase.Infrastructure.Identity.UserAccount", b =>

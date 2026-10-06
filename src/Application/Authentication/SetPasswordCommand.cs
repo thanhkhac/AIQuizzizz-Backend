@@ -1,4 +1,5 @@
 ﻿using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Extensions;
 using CleanArchitectureBase.Application.Common.Security;
 
 namespace CleanArchitectureBase.Application.Users;
@@ -15,8 +16,7 @@ public class SetPasswordCommandValidator : AbstractValidator<SetPasswordCommand>
     public SetPasswordCommandValidator()
     {
         RuleFor(x => x.Password)
-            .NotEmpty()
-            .MinimumLength(6);
+            .MustBeValidPassword();
     }
 }
 

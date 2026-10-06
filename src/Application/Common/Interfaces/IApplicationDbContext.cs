@@ -41,5 +41,7 @@ public interface
     public DbSet<PlanPriceHistory> PlanPriceHistories { get; }
     public DbSet<QuestionSetRating> QuestionSetRatings { get; }
     public DbSet<SystemSetting>  SystemSettings { get; }
+    public DbSet<Media> Media { get; }
+    public DbSet<UserViolation> UserViolations { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

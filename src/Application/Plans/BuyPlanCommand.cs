@@ -34,7 +34,7 @@ public class BuyPlanCommandHandler : IRequestHandler<BuyPlanCommand, Guid>
 
     public async Task<Guid> Handle(BuyPlanCommand rq, CancellationToken cancellationToken)
     {
-        var plan = await _context.Plans.Where(x => x.Id.Equals(rq.PlanId) && x.IsDeleted == false)
+        var plan = await _context.Plans.Where(x => x.Id.Equals(rq.PlanId) && x.IsDeleted == false && x.IsActive)
             .FirstOrDefaultAsync(cancellationToken);
         if (plan == null)
             throw new ErrorCodeException(ErrorCodes.PLAN_NOT_FOUND, "Không tìm thấy plan");

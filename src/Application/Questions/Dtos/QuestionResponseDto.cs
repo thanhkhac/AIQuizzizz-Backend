@@ -1,4 +1,6 @@
 ﻿﻿﻿using System.Text.Json;
+using CleanArchitectureBase.Application.MediaFiles.Dtos;
+using CleanArchitectureBase.Application.Questions.Utils;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Questions.Dtos;
@@ -17,6 +19,7 @@ public class QuestionResponseDto
     public float Score { get; set; }
     public bool? IsCorrect { get; set; }
     public QuestionDataDto QuestionData { get; set; } = null!;
+    public QuestionMediaDto? Media { get; set; }
 
     /// <summary>
     /// Convert entity to response
@@ -35,7 +38,8 @@ public class QuestionResponseDto
                 ExplainText = question.ExplainText,
                 Score = question.Score,
                 IsCorrect = isCorrect,
-                QuestionData = QuestionDataDto.Deserializer.FromJson(question.Type, question.DataJson, shuffle: shuffle, isShowAnswer)
+                QuestionData = QuestionDataDto.Deserializer.FromJson(question.Type, question.DataJson, shuffle: shuffle, isShowAnswer),
+                Media = QuestionMediaDto.From(question.MediaId, question.MediaType)
             };
         }
     }
@@ -69,7 +73,7 @@ public class QuestionDataDto
             switch (type)
             {
                 case QuestionType.MultipleChoice:
-                    result.MultipleChoice = DeserializeMultipleChoice(dataJson, isShowAnswer);
+                    result.MultipleChoice = DeserializeMultipleChoice(dataJson, isShowAnswer, shuffle);
                     break;
 
                 case QuestionType.Matching:
@@ -88,11 +92,13 @@ public class QuestionDataDto
             return result;
         }
 
-        public static List<MultipleChoiceItemDto>? DeserializeMultipleChoice(string dataJson, bool isShowAnswer = true)
+        public static List<MultipleChoiceItemDto>? DeserializeMultipleChoice(string dataJson, bool isShowAnswer = true, bool shuffle = true)
         {
             var items = JsonSerializer.Deserialize<List<QTypeMultipleChoice>>(dataJson);
-            return items?
-                .OrderBy(x => x.ShuffleOrder)
+            if (items == null) return null;
+
+            // shuffle = true: thứ tự giao cho người học (ShuffleOrder); false: thứ tự tác giả (Position)
+            return QuestionOrderHelper.Order(items, shuffle, x => x.Position, x => x.ShuffleOrder)
                 .Select(item => new MultipleChoiceItemDto
                 {
                     Id = item.Id,
@@ -106,12 +112,11 @@ public class QuestionDataDto
             var items = JsonSerializer.Deserialize<List<QTypeMatching>>(dataJson);
             if (items == null) return null;
 
-            var leftItems = items.Where(x => !string.IsNullOrEmpty(x.AnswerId)).ToList();
+            var leftItems = QuestionOrderHelper.AuthorOrder(items.Where(x => !string.IsNullOrEmpty(x.AnswerId)), x => x.Position);
             var rightItems = items.Where(x => string.IsNullOrEmpty(x.AnswerId)).ToList();
 
-            IEnumerable<QTypeMatching> orderedRightItems = shuffle
-                ? rightItems.OrderBy(x => x.ShuffleOrder)
-                : rightItems;
+            IEnumerable<QTypeMatching> orderedRightItems =
+                QuestionOrderHelper.Order(rightItems, shuffle, x => x.Position, x => x.ShuffleOrder);
 
             return new MatchingDataDto
             {
@@ -140,9 +145,8 @@ public class QuestionDataDto
             var items = JsonSerializer.Deserialize<List<QTypeOrderingItem>>(dataJson);
             if (items == null) return null;
 
-            IEnumerable<QTypeOrderingItem> orderedItems = shuffle
-                ? items.OrderBy(x => x.ShuffleOrder)
-                : items;
+            IEnumerable<QTypeOrderingItem> orderedItems =
+                QuestionOrderHelper.Order(items, shuffle, x => x.Position, x => x.ShuffleOrder);
 
             return orderedItems
                 .Select(item => new OrderingItemDto

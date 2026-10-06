@@ -46,6 +46,8 @@ public class GetDetailPlanQueryHandler : IRequestHandler<GetDetailPlanQuery, Pla
             Duration = plan.Duration,
             Unit = plan.Unit,
             CanCopyOrImportQuestionSet = plan.CanCopyOrImportQuestionSet,
+            CanUploadImage = plan.CanUploadImage,
+            CanUploadVideo = plan.CanUploadVideo,
             CanLearn = plan.CanLearn,
             CanOpenTest = plan.CanOpenTest,
             IsActive = plan.IsActive

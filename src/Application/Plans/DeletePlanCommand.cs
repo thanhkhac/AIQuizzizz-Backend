@@ -5,7 +5,7 @@ using CleanArchitectureBase.Domain.Constants;
 
 namespace CleanArchitectureBase.Application.Plans;
 
-[Authorize(Roles = Domain.Constants.Roles.Administrator + "," + Domain.Constants.Roles.Moderator)]
+[Authorize(Roles = Domain.Constants.Roles.Administrator)]
 public class DeletePlanCommand : IRequest<Guid>
 {
     public required Guid PlanId { get; init; }

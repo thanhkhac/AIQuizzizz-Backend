@@ -73,45 +73,43 @@ public class GetTestFromQuestionSetQueryHandler : IRequestHandler<GetTestFromQue
             throw new ErrorCodeException(ErrorCodes.USER_NOT_ACCESS_TO_QUESTION_SET);
 
        
-        var typeToQuestions = new Dictionary<string, List<Question>>
-        {
-            ["MultipleChoice"] = questionSet.Questions.Where(q => q.Type == QuestionType.MultipleChoice).ToList(),
-            ["Matching"]       = questionSet.Questions.Where(q => q.Type == QuestionType.Matching).ToList(),
-            ["Ordering"]       = questionSet.Questions.Where(q => q.Type == QuestionType.Ordering).ToList(),
-            ["ShortText"]      = questionSet.Questions.Where(q => q.Type == QuestionType.ShortText).ToList()
-        };        
-        
-        List<Question> questions = new();
+        // Chỉ lấy câu hỏi chưa xoá thuộc các loại được chọn; không bao giờ ném lỗi khi thiếu câu hỏi
+        var selectedTypes = rq.QuestionTypes.Distinct().ToList();
 
-        foreach (var type in rq.QuestionTypes)
+        var typeToQuestions = selectedTypes.ToDictionary(
+            type => type,
+            type => questionSet.Questions
+                .Where(q => !q.IsDeleted && q.Type.ToString() == type)
+                .ToList());
+
+        var random = new Random();
+        var questions = new List<Question>();
+
+        // Mỗi loại được chọn có ít nhất 1 câu (nếu có và còn chỗ)
+        foreach (var type in selectedTypes.OrderBy(_ => random.Next()))
         {
-            var random = new Random();
-            var question = typeToQuestions[type][random.Next(typeToQuestions[type].Count)];
+            if (questions.Count >= rq.NumberOfQuestion) break;
+
+            var pool = typeToQuestions[type];
+            if (pool.Count == 0) continue;
+
+            var question = pool[random.Next(pool.Count)];
             questions.Add(question);
-            typeToQuestions[type].Remove(question);
+            pool.Remove(question);
         }
 
+        // Bổ sung ngẫu nhiên cho đủ số lượng, dừng khi hết câu hỏi (clamp theo số câu có sẵn)
         while (questions.Count < rq.NumberOfQuestion)
         {
-            var random = new Random();
-            
-            string randomType = rq.QuestionTypes[random.Next(rq.QuestionTypes.Count)];
+            var remainingTypes = typeToQuestions.Where(x => x.Value.Count > 0).Select(x => x.Key).ToList();
+            if (remainingTypes.Count == 0) break;
 
-            var questionList = typeToQuestions[randomType];
-            
-            if (questionList.Count == 0)
-            {
-                rq.QuestionTypes.Remove(randomType);
-                continue;
-            }
-            
-            var question = questionList[random.Next(questionList.Count)];
-            
+            var pool = typeToQuestions[remainingTypes[random.Next(remainingTypes.Count)]];
+            var question = pool[random.Next(pool.Count)];
             questions.Add(question);
-            
-            questionList.Remove(question);
+            pool.Remove(question);
         }
-        
+
         return questions.Select(x =>
             QuestionResponseDto.Mapper.FromEntity(x, true)).ToList();
     }

@@ -1,4 +1,5 @@
-﻿using CleanArchitectureBase.Application.Questions.Dtos;
+﻿using CleanArchitectureBase.Application.MediaFiles.Dtos;
+using CleanArchitectureBase.Application.Questions.Dtos;
 using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Tests.Dto;
@@ -21,10 +22,11 @@ public class ReviewQuestionDto
     public string Type { get; set; } = null!;
     public string? TextFormat { get; set; }
     public string QuestionText { get; set; } = null!;
-    public float Score { get; set; }
+    public float? Score { get; set; }
     public int? CorrectMultipleChoiceCount { get; set; }
     public QuestionDataDto QuestionData { get; set; } = null!;
     public UserAnswerDataDto? UserAnswerDataDto { get; set; }
+    public QuestionMediaDto? Media { get; set; }
     
     public static class Mapper
     {
@@ -36,10 +38,11 @@ public class ReviewQuestionDto
                 Type = question.Type.ToString(),    
                 TextFormat = question.TextFormat.ToString(),
                 QuestionText = question.QuestionText ?? string.Empty,
-                Score = userAnswer!= null ? userAnswer.Score : 0,
+                Score = isShowCorrectAnswer ? (userAnswer != null ? userAnswer.Score : 0) : null,
                 CorrectMultipleChoiceCount = question.Type == QuestionType.MultipleChoice
                     ? QuestionDataDto.CorrectMultipleChoiceCount(question) : null,
                 QuestionData = QuestionDataDto.Deserializer.FromJson(question.Type, question.DataJson, false, isShowCorrectAnswer),
+                Media = QuestionMediaDto.From(question.MediaId, question.MediaType),
                 UserAnswerDataDto = userAnswer != null 
                     ? Serializer.DeSerialize(question.Type.ToString(), userAnswer.DataJson)
                     : null          

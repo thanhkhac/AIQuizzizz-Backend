@@ -59,6 +59,8 @@ public class ApplicationDbContext : IdentityDbContext<UserAccount,
     public DbSet<PlanPriceHistory> PlanPriceHistories => Set<PlanPriceHistory>();
     public DbSet<QuestionSetRating> QuestionSetRatings => Set<QuestionSetRating>();
     public DbSet<SystemSetting> SystemSettings  => Set<SystemSetting>();
+    public DbSet<Media> Media => Set<Media>();
+    public DbSet<UserViolation> UserViolations => Set<UserViolation>();
 
     // public override DbSet<ApplicationUserRole> UserRoles { get; set; }
     // public override DbSet<ApplicationRole> Roles { get; set; }

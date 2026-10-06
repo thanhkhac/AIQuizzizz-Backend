@@ -80,6 +80,11 @@ public class SubmitTestAttemptCommandHandler : IRequestHandler<SubmitTestAttempt
             throw new ErrorCodeException(ErrorCodes.ATTEMPT_ALREADY_SUBMIT);
         }
 
+        // Chặn nộp sau khi hết thời gian làm bài (không chỉ dựa vào job auto-submit). Cho phép trễ 30s do mạng.
+        var attemptDeadline = attempt.TimeStart.AddMinutes(attempt.Test.TimeLimit).AddSeconds(30);
+        if (DateTimeOffset.UtcNow > attemptDeadline)
+            throw new ErrorCodeException(ErrorCodes.TEST_IS_OVERDUE, "Hết thời gian làm bài");
+
         var questionsInTest = await _context.TestVersionQuestions
             .Include(x => x.Question)
             .Include(x => x.TestVersion)
@@ -87,7 +92,11 @@ public class SubmitTestAttemptCommandHandler : IRequestHandler<SubmitTestAttempt
             .Select(x => QuestionResponseDto.Mapper.FromEntity(x.Question!,true, true, true))
             .ToListAsync(cancellationToken);
         
-        var userAnswers  = rq.UserAnswers.ToDictionary(q => q.QuestionId, q => q); 
+        // QuestionId trùng -> lấy câu trả lời cuối; bỏ câu không có dữ liệu (tránh ArgumentException / NullReference)
+        var userAnswers = rq.UserAnswers
+            .Where(q => q.UserAnswerData != null)
+            .GroupBy(q => q.QuestionId)
+            .ToDictionary(g => g.Key, g => g.Last());
         
         var attemptQuestions = new List<AttemptQuestion>();
         
@@ -120,6 +129,9 @@ public class SubmitTestAttemptCommandHandler : IRequestHandler<SubmitTestAttempt
                 continue;
             }
             
+            // Lưu/serialize theo loại câu hỏi thật, không tin Type client gửi lên
+            userAnswer.UserAnswerData.Type = question.Type;
+
             float scoreGraded = question.Type switch
             {
                 nameof(QuestionType.MultipleChoice) => CheckUserAnswer.CheckMultipleChoiceAnswer(userAnswer, question, attempt.Test.GradeQuestionMethod),
@@ -171,12 +183,9 @@ public class SubmitTestAttemptCommandHandler : IRequestHandler<SubmitTestAttempt
         {
             if (GradeAttemptMethod.HighestScore.Equals(attempt.Test.GradeAttemptMethod))
             {
-                var allAttempt = await _context.Attempts
-                    .Where(a => a.TestId == attempt.TestId && a.UserId == _user.UserId)
-                    .OrderByDescending(a => a.Score)
-                    .FirstOrDefaultAsync(cancellationToken);
-
-                if (allAttempt!.Score < totalScore)
+                // TestGrade lưu điểm cao nhất -> so trực tiếp với điểm hiện tại.
+                // (Query Attempts cũ trả về chính attempt đang tracked có Score = totalScore nên không bao giờ cập nhật)
+                if (userGrade.Score < totalScore)
                 {
                     userGrade.Score = totalScore;
                     _context.TestGrades.Update(userGrade);

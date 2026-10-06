@@ -69,7 +69,10 @@ public class CreateQuestionSetCommandHandler : IRequestHandler<CreateQuestionSet
             Questions = new List<Question>()
         };
 
+        var mediaMap = await _dbContext.ResolveQuestionMediaAsync(request.Questions, _user.UserId!.Value, cancellationToken);
+
         //Xử lý thêm các câu hỏi để đưa vào questionset
+        var questionOrder = 0;
         foreach (var questionDto in request.Questions)
         {
             //Khởi tạo question
@@ -81,11 +84,13 @@ public class CreateQuestionSetCommandHandler : IRequestHandler<CreateQuestionSet
                 Type = Enum.Parse<QuestionType>(questionDto.Type!),
                 QuestionText = questionDto.QuestionText,
                 TextFormat = TextFormat.Html, 
-                Score = questionDto.Score
+                Score = questionDto.Score,
+                Order = questionOrder++
             };
 
             // Chuyển các nội dung câu hỏi về JSON
             question.DataJson = CreateUpdateQuestionDto.Serializer.Serialize(questionDto);
+            question.ApplyMedia(questionDto, mediaMap);
 
             questionSet.Questions.Add(question);
         }

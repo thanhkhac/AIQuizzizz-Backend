@@ -14,6 +14,7 @@ public class UpdateTestTemplateCommand : IRequest<Guid>
 {
     public Guid TestTemplateId { get; set; }
     public required string Name { get; set; }
+    public string? Description { get; set; }
     public List<CreateUpdateQuestionDto> CreateUpdateQuestions { get; set; } = new ();
     public List<Guid> DeleteQuestionIds { get; set; } = new();
 }
@@ -28,6 +29,9 @@ public class UpdateTestTemplateCommandValidator : AbstractValidator<UpdateTestTe
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Tên bộ câu hỏi không được để trống")
             .MaximumLength(200).WithMessage("Tên bộ câu hỏi không được vượt quá 200 ký tự");
+
+        RuleFor(x => x.Description)
+            .MaximumLength(500).WithMessage("Mô tả không được vượt quá 500 ký tự");
 
         RuleFor(x => x.CreateUpdateQuestions)
             .Must(q => q != null && q.Count <= 100)
@@ -61,13 +65,16 @@ public class UpdateTestTemplateCommandHandler : IRequestHandler<UpdateTestTempla
 {
     private readonly IApplicationDbContext _context;
     private readonly ITestTemplateService _testTemplateService;
+    private readonly IUser _user;
     
     public UpdateTestTemplateCommandHandler(
         IApplicationDbContext context,
-        ITestTemplateService testTemplateService)
+        ITestTemplateService testTemplateService,
+        IUser user)
     {
         _context = context;
         _testTemplateService = testTemplateService;
+        _user = user;
     }
     
     public async Task<Guid> Handle(UpdateTestTemplateCommand rq, CancellationToken cancellationToken)
@@ -83,6 +90,7 @@ public class UpdateTestTemplateCommandHandler : IRequestHandler<UpdateTestTempla
             throw new ErrorCodeException(ErrorCodes.USER_NOT_HAVE_PERMISSION_IN_TEST_TEMPLATE, "Không có quyền sửa");
         
         testTemplate.Name = rq.Name;
+        if (rq.Description != null) testTemplate.Description = rq.Description;
         
         var testTemplateQuestions = await _context.TestTemplateQuestions
             .Include(x => x.Question)
@@ -117,11 +125,18 @@ public class UpdateTestTemplateCommandHandler : IRequestHandler<UpdateTestTempla
         
         var listQuestions = new List<Question>();
         
+        var mediaMap = await _context.ResolveQuestionMediaAsync(rq.CreateUpdateQuestions, _user.UserId!.Value, cancellationToken);
+        
+        var questionOrder = 0;
         foreach (var questionDto in rq.CreateUpdateQuestions)
         {
+            var position = questionOrder++;
             if (questionDto.QuestionId.HasValue &&
                 updateQuestionIds.NotUpdateQuestionIds.Contains(questionDto.QuestionId!.Value))
             {
+                // Câu không đổi nội dung: chỉ cập nhật vị trí
+                var unchanged = testTemplateQuestions.FirstOrDefault(x => x.QuestionId == questionDto.QuestionId.Value)?.Question;
+                if (unchanged != null) unchanged.Order = position;
                 continue;
             }
             
@@ -133,8 +148,10 @@ public class UpdateTestTemplateCommandHandler : IRequestHandler<UpdateTestTempla
                 ExplainText = questionDto.ExplainText,
                 TextFormat = TextFormat.PlainText,
                 Score = questionDto.Score,
+                Order = position,
                 DataJson = CreateUpdateQuestionDto.Serializer.Serialize(questionDto)
             };
+            question.ApplyMedia(questionDto, mediaMap);
             
             var templateQuestion = new TestTemplateQuestion
             {

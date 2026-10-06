@@ -22,6 +22,8 @@ using CleanArchitectureBase.Infrastructure.File;
 using CleanArchitectureBase.Infrastructure.Google;
 using CleanArchitectureBase.Infrastructure.Hangfire;
 using CleanArchitectureBase.Infrastructure.Identity;
+using CleanArchitectureBase.Infrastructure.MediaStorage;
+using CleanArchitectureBase.Application.MediaFiles.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using CleanArchitectureBase.Infrastructure.Redis;
 using Google.Apis.Auth.OAuth2;
@@ -66,10 +68,10 @@ public static class DependencyInjection
         services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
         services.Configure<PaymentSettings>(configuration.GetSection("PaymentSettings"));
         services.Configure<GeminiSettings>(configuration.GetSection("GeminiSettings"));
+        services.Configure<PlanSettings>(configuration.GetSection("PlanSettings"));
+        services.Configure<MediaSettings>(configuration.GetSection("Media"));
+        services.Configure<ModerationSettings>(configuration.GetSection("Moderation"));
 
-        var a = configuration.GetSection("JwtSettings").Get<JwtSettings>();
-        if (a == null) throw new Exception("Lỗi");
-        Console.WriteLine(a.SecretKey);
 
         #region Lưu ý AddIdentity
 
@@ -111,17 +113,12 @@ public static class DependencyInjection
                     ClockSkew = TimeSpan.Zero
                 };
 
-                //Bổ sung cơ chế đọc token từ cookie      
+                // Chỉ đọc token từ header Authorization (không dùng cookie)
                 options.Events = new JwtBearerEvents
                 {
                     OnMessageReceived = context =>
                     {
                         var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-
-                        if (string.IsNullOrEmpty(token))
-                        {
-                            token = context.Request.Cookies["access_token"];
-                        }
 
                         if (!string.IsNullOrEmpty(token))
                         {
@@ -131,6 +128,9 @@ public static class DependencyInjection
                     }
                 };
             });
+
+        services.AddMemoryCache();
+        services.AddScoped<IUserStatusService, UserStatusService>();
 
         services.AddAuthorizationBuilder();
 
@@ -182,7 +182,7 @@ public static class DependencyInjection
         services.AddScoped<IQuestionService, QuestionService>();
         services.AddScoped<IQuestionSetService, QuestionSetService>();
         services.AddScoped<IUserQuestionSetHistoryService, UserQuestionSetHistoryService>();
-        services.AddScoped<IPlanService, PlanService>();
+        services.AddScoped<IPlanService, PlanService>(); // FreeAccess: PlanSettings__FreeAccess=true
         services.AddScoped<IClassService, ClassService>();
         services.AddScoped<ITestService, TestService>();
         services.AddScoped<ITestTemplateService, TestTemplateService>();
@@ -196,10 +196,16 @@ public static class DependencyInjection
 
         services.AddScoped<IPdfService, PdfService>();
 
+        // Media (MinIO qua service media-ai) + kiểm duyệt
+        services.AddSingleton<IMediaUrlSigner, S3PresignedUrlSigner>();
+        services.AddHttpClient<IMediaAiClient, MediaAiClient>(client => client.Timeout = TimeSpan.FromMinutes(10));
+        services.AddScoped<IModerationScheduler, HangfireModerationScheduler>();
+        services.AddScoped<IModerationService, ModerationService>();
+
         services.AddSingleton<IGoogleAccessTokenProvider>(provider =>
         {
             var json = Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS_JSON");
-            return new GoogleAccessTokenProvider(json!);
+            return new GoogleAccessTokenProvider(json);
         });
         // Register Google Auth Service
         services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();

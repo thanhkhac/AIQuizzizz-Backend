@@ -119,9 +119,15 @@
                 question.IsDeleted = true;
             }
 
+            var mediaMap = await _dbContext.ResolveQuestionMediaAsync(request.CreateUpdateQuestions, _currentUser.UserId!.Value,
+                cancellationToken);
+
             // Thêm hoặc cập nhật câu hỏi
+            // Vị trí = index trong mảng gửi lên (cả câu cũ lẫn câu mới)
+            var questionOrder = 0;
             foreach (var dto in request.CreateUpdateQuestions)
             {
+                var position = questionOrder++;
                 var type = Enum.Parse<QuestionType>(dto.Type!);
                 var dataJson = CreateUpdateQuestionDto.Serializer.Serialize(dto);
 
@@ -135,13 +141,15 @@
                         existing.Score = dto.Score;
                         existing.TextFormat = TextFormat.Html;
                         existing.DataJson = dataJson;
+                        existing.Order = position;
                         existing.ExplainText = dto.ExplainText;
+                        existing.ApplyMedia(dto, mediaMap);
                     }
                 }
                 else
                 {
                     questionCountAdd++;
-                    _dbContext.Questions.Add(new Question
+                    var newQuestion = new Question
                     {
                         Id = Guid.NewGuid(),
                         QuestionSetId = questionSet.Id,
@@ -150,8 +158,11 @@
                         TextFormat = TextFormat.PlainText,
                         ExplainText = dto.ExplainText,
                         Score = dto.Score,
+                        Order = position,
                         DataJson = dataJson
-                    });
+                    };
+                    newQuestion.ApplyMedia(dto, mediaMap);
+                    _dbContext.Questions.Add(newQuestion);
                 }
             }
 

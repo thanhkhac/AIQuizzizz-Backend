@@ -51,6 +51,8 @@ public class QTypeMultipleChoice
     public required string Text { get; set; }
     public bool IsAnswer { get; set; }
     public short ShuffleOrder { get; set; }
+    /// <summary>Vị trí do tác giả sắp xếp (index trong mảng gửi lên). Dữ liệu cũ = 0 hết nên fallback theo thứ tự mảng.</summary>
+    public int Position { get; set; }
 }
 
 public class QTypeMatching
@@ -60,6 +62,8 @@ public class QTypeMatching
     public required string Text { get; set; }
     public string? AnswerId { get; set; }
     public short ShuffleOrder { get; set; }
+    /// <summary>Vị trí cặp do tác giả sắp xếp (cả vế trái và vế phải của một cặp có cùng Position).</summary>
+    public int Position { get; set; }
 }
 
 public class QTypeOrderingItem
@@ -69,6 +73,8 @@ public class QTypeOrderingItem
     public required string Text { get; set; }
     public required int CorrectOrder { get; set; }
     public short ShuffleOrder { get; set; }
+    /// <summary>Vị trí do tác giả sắp xếp (khác với CorrectOrder).</summary>
+    public int Position { get; set; }
 }
 
 public class QTypeShortAnswer
@@ -87,12 +93,19 @@ public class Question : BaseAuditableEntity
     public TextFormat TextFormat { get; set; } = TextFormat.Html;
     public string? ExplainText { get; set; }
     public float Score { get; set; }
+    /// <summary>Vị trí câu hỏi trong bộ câu hỏi / template (0-based)</summary>
+    public int Order { get; set; }
     public string? DataJson { get; set; } //Lưu JSON List<QTypeOrderingItem>/List<QTypeMatching>/List<QTypeMultipleChoice>
     public bool IsDeleted { get; set; }
     public object? Data { get; set; } //Không Map
 
+    // Media đính kèm (1 ảnh hoặc 1 video). MediaType lưu kèm để build URL mà không cần Include Media
+    public Guid? MediaId { get; set; }
+    public MediaType? MediaType { get; set; }
+
 
     // Navigation properties
+    public Media? Media { get; set; }
     public QuestionSet? QuestionSet { get; set; }
     public List<Comment> Comments { get; set; } = new();
     public List<UserQuestionSetHistory> UserQuestionSetHistories { get; set; } = new();

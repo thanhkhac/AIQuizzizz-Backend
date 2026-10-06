@@ -132,6 +132,10 @@ public class QuestionConfiguration : IEntityTypeConfiguration<Question>
 
         builder.Ignore(q => q.Data);
 
+        builder.Property(q => q.MediaType)
+            .HasConversion<string>()
+            .HasMaxLength(20);
+
         //Một question thuộc về một QuestionSet
         builder.HasOne(q => q.QuestionSet)
             .WithMany(qs => qs.Questions)
@@ -556,7 +560,7 @@ public class AttemptConfiguration : IEntityTypeConfiguration<Attempt>
 
         builder.Property(a => a.Score)
             .IsRequired()
-            .HasColumnType("numeric(5,2)");
+            .HasColumnType("numeric(9,2)");
 
         builder.HasOne(a => a.Test)
             .WithMany(t => t.Attempts)
@@ -585,7 +589,10 @@ public class AttemptQuestionConfiguration : IEntityTypeConfiguration<AttemptQues
             .HasDefaultValue(0);
 
         builder.Property(aq => aq.Score)
-            .HasColumnType("numeric(5,2)");
+            .HasColumnType("numeric(9,2)");
+
+        // 1 câu hỏi chỉ có 1 bản ghi trả lời trong 1 attempt (chặn trùng khi autosave song song)
+        builder.HasIndex(aq => new { aq.AttemptId, aq.QuestionId }).IsUnique();
 
         builder.Property(aq => aq.DataJson)
             .IsRequired()
@@ -726,7 +733,10 @@ public class TestGradeConfiguration : IEntityTypeConfiguration<TestGrade>
 
         builder.Property(tg => tg.TestId).IsRequired();
         builder.Property(tg => tg.UserId).IsRequired();
-        builder.Property(tg => tg.Score).HasColumnType("numeric(5,2)").IsRequired();
+        builder.Property(tg => tg.Score).HasColumnType("numeric(9,2)").IsRequired();
+
+        // mỗi user chỉ có 1 điểm tổng / test
+        builder.HasIndex(tg => new { tg.UserId, tg.TestId }).IsUnique();
 
         //Nối với bảng Test
         builder.HasOne(tg => tg.Test)

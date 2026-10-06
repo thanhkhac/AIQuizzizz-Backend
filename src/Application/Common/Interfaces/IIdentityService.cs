@@ -40,7 +40,8 @@ public interface IIdentityService
     
     Task ChangePasswordAsync(Guid userId, string currentPassword, string newPassword);
 
-    Task BanUser(Guid userId, bool isBan);
+    /// <summary>Ban/unban; reason được hiển thị khi user đăng nhập</summary>
+    Task BanUser(Guid userId, bool isBan, string? reason = null);
         
     Task<bool> IsInAnyRoleAsync(Guid userId, params string[] roles);
     

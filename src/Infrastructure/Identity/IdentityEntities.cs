@@ -9,6 +9,8 @@ public class UserAccount : IdentityUser<Guid>
 {
     public bool IsDeleted { get; set; }
     public bool IsBanned { get; set; }
+    [StringLength(1000)]
+    public string? BanReason { get; set; }
     
     [StringLength(10)]
     public string? PasswordResetCode { get; set; }

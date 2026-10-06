@@ -15,4 +15,5 @@ public class TestScheduleDto
     public string? ClassName { get; set; }
     public string? Status { get; set; }
     public DateTimeOffset TimeStart { get; set; }
+    public DateTimeOffset TimeFinish { get; set; }
 }

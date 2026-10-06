@@ -85,6 +85,8 @@ public class GetUserTestHistoryQueryHandler : IRequestHandler<GetUserTestHistory
             .ThenInclude(x => x!.Test)
             .Where(x => x.TestVersion!.Test!.Id == rq.TestId && x.TestVersion.No == 0)
             .Sum(x => x.Question!.Score);
+        // tránh chia cho 0 trong SQL khi tổng điểm = 0
+        var safeTotalScore = totalScore > 0 ? totalScore : 1;
             
         var attempts = _context.Attempts
             .Include(x => x.User)
@@ -98,7 +100,7 @@ public class GetUserTestHistoryQueryHandler : IRequestHandler<GetUserTestHistory
                 StudentName = x.User != null ? x.User.FullName : null,
                 StudentEmail = x.User != null ? x.User.Email : null,
                 Score = x.Score,
-                Status = x.Test!.PassingScore/100 <= x.Score/totalScore ? nameof(AttemptStatus.Passed) : nameof(AttemptStatus.Failed),
+                Status = x.Test!.PassingScore/100 <= x.Score/safeTotalScore ? nameof(AttemptStatus.Passed) : nameof(AttemptStatus.Failed),
                 TimeStart = x.TimeStart,
                 TimeSubmit = x.TimeFinish,
                 CanReview = x.Test.IsAllowReviewAfterSubmit || isLecturerOrOwnerInClass

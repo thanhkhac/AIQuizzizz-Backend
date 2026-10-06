@@ -86,6 +86,8 @@ public class UpdateSharingInFolderCommandHandler : IRequestHandler<UpdateSharing
             .ToListAsync(cancellationToken);
 
         var invalidUserIds = sharingModelIds.Except(existingUserIds).ToList();
+        if (invalidUserIds.Any())
+            throw new ErrorCodeException(ErrorCodes.USER_NOTFOUND, $"Không tìm thấy user: {string.Join(", ", invalidUserIds)}");
 
 
         var existedQuestionSetUser =

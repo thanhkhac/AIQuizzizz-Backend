@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using CleanArchitectureBase.Application.MediaFiles.Dtos;
 using CleanArchitectureBase.Application.Questions.Dtos;
 using CleanArchitectureBase.Application.Questions.Utils;
 using CleanArchitectureBase.Domain.Entities;
@@ -34,6 +35,10 @@ public class CreateUpdateQuestionDto
     public List<CreateMatchingPairDto>? MatchingPairs { get; set; }
     public List<CreateOrderingItemDto>? OrderingItems { get; set; }
     public string? ShortAnswer { get; set; }
+    /// <summary>Id media (ảnh/video) đã upload qua /api/Media/Upload</summary>
+    public Guid? MediaId { get; set; }
+    /// <summary>Chỉ dùng cho response (preview media khi copy/sửa), bị bỏ qua khi gửi lên</summary>
+    public QuestionMediaDto? Media { get; set; }
 
     public class QuestionCreateDtoValidator : AbstractValidator<CreateUpdateQuestionDto>
     {
@@ -68,7 +73,7 @@ public class CreateUpdateQuestionDto
 
             RuleFor(x => x.Score)
                 .GreaterThanOrEqualTo(0).WithMessage($"Điểm phải lớn hơn hoặc bằng 0")
-                .LessThanOrEqualTo(1000).WithMessage($"Điểm không được vượt quá 100");
+                .LessThanOrEqualTo(999).WithMessage($"Điểm không được vượt quá 999");
 
             RuleFor(x => x.QuestionId)
                 .Must(id => !id.HasValue || (id.Value != Guid.Empty && id.Value != default(Guid)))
@@ -81,7 +86,13 @@ public class CreateUpdateQuestionDto
                     .NotEmpty().WithMessage("Phải có ít nhất 2 lựa chọn cho câu hỏi trắc nghiệm")
                     .Must(options => options is { Count: >= 2 }).WithMessage("Phải có ít nhất 2 lựa chọn")
                     .Must(options => options is { Count: <= 10 }).WithMessage("Không được quá 10 lựa chọn")
-                    .Must(options => options != null && options.Any(o => o.IsAnswer)).WithMessage($"Phải có ít nhất một lựa chọn đúng");
+                    .Must(options => options != null && options.Any(o => o.IsAnswer)).WithMessage($"Phải có ít nhất một lựa chọn đúng")
+                    .Must(options => options == null || options
+                        .Select(o => (o.Text ?? string.Empty).Trim().ToLowerInvariant())
+                        .Where(text => text.Length > 0)
+                        .GroupBy(text => text)
+                        .All(g => g.Count() == 1))
+                    .WithMessage("Các lựa chọn không được trùng nội dung");
 
                 RuleForEach(x => x.MultipleChoices)
                     .ChildRules((options) =>
@@ -178,7 +189,9 @@ public class CreateUpdateQuestionDto
                 Type = question.Type.ToString(),
                 QuestionText = question.QuestionText,
                 ExplainText = question.ExplainText,
-                Score = question.Score
+                Score = question.Score,
+                MediaId = question.MediaId,
+                Media = QuestionMediaDto.From(question.MediaId, question.MediaType)
             };
 
             if (string.IsNullOrEmpty(question.DataJson))
@@ -190,8 +203,8 @@ public class CreateUpdateQuestionDto
                     var multipleChoices = JsonSerializer.Deserialize<List<QTypeMultipleChoice>>(question.DataJson);
                     if (multipleChoices != null)
                     {
-                        dto.MultipleChoices = multipleChoices
-                            .OrderBy(x => x.ShuffleOrder)
+                        dto.MultipleChoices = QuestionOrderHelper
+                            .AuthorOrder(multipleChoices, x => x.Position)
                             .Select(x => new CreateMultipleChoiceDto
                             {
                                 Text = x.Text,
@@ -206,7 +219,8 @@ public class CreateUpdateQuestionDto
                     if (matchingItems != null)
                     {
                         // Group items by AnswerId to reconstruct pairs
-                        var leftItems = matchingItems.Where(x => !string.IsNullOrEmpty(x.AnswerId)).ToList();
+                        var leftItems = QuestionOrderHelper.AuthorOrder(
+                            matchingItems.Where(x => !string.IsNullOrEmpty(x.AnswerId)), x => x.Position);
                         var rightItems = matchingItems.Where(x => string.IsNullOrEmpty(x.AnswerId)).ToList();
 
                         dto.MatchingPairs = new List<CreateMatchingPairDto>();
@@ -230,8 +244,8 @@ public class CreateUpdateQuestionDto
                     var orderingItems = JsonSerializer.Deserialize<List<QTypeOrderingItem>>(question.DataJson);
                     if (orderingItems != null)
                     {
-                        dto.OrderingItems = orderingItems
-                            .OrderBy(x => x.ShuffleOrder)
+                        dto.OrderingItems = QuestionOrderHelper
+                            .AuthorOrder(orderingItems, x => x.Position)
                             .Select(x => new CreateOrderingItemDto
                             {
                                 Text = x.Text,
@@ -258,9 +272,15 @@ public class CreateUpdateQuestionDto
     {
         public static bool CompareQuestion(Question question, CreateUpdateQuestionDto questionDto)
         {
-            var questionResponseDto = QuestionResponseDto.Mapper.FromEntity(question, true);
+            var questionResponseDto = QuestionResponseDto.Mapper.FromEntity(question, true, shuffle: false);
 
             if (!question.QuestionText!.Trim().ToLower().Equals(questionDto.QuestionText!.Trim().ToLower()))
+                return false;
+
+            if (question.Type.ToString() != questionDto.Type)
+                return false;
+
+            if (question.MediaId != questionDto.MediaId)
                 return false;
 
             return questionDto.Type switch
@@ -272,8 +292,8 @@ public class CreateUpdateQuestionDto
                 nameof(QuestionType.Ordering) =>
                     CompareOrderingQuestion(questionResponseDto.QuestionData.Ordering, questionDto.OrderingItems!),
                 nameof(QuestionType.ShortText) =>
-                    questionResponseDto.QuestionData.ShortText != null ||
-                    questionResponseDto.QuestionData.ShortText!.Trim().ToLower() == questionDto.ShortAnswer!.Trim().ToLower(),
+                    string.Equals(questionResponseDto.QuestionData.ShortText?.Trim(), questionDto.ShortAnswer?.Trim(),
+                        StringComparison.OrdinalIgnoreCase),
                 _ => false
             };
         }

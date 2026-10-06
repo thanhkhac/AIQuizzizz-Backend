@@ -42,7 +42,8 @@ public class Users : EndpointGroupBase
         var rq = new BanAccountCommand()
         {
             UserId = userId,
-            IsBanned = command.IsBanned
+            IsBanned = command.IsBanned,
+            Message = command.Message // lý do ban, hiển thị khi user đăng nhập
         };
 
         var result = await sender.Send(rq);

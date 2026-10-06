@@ -27,6 +27,7 @@ public class GetCurrentPlanQueryHandler : IRequestHandler<GetCurrentPlanQuery, L
         var userSubscriptions = await _context.UserSubscriptions
             .Where(x => x.UserId == _user.UserId
                         && x.DateFinish >= DateTime.Now)
+            .OrderByDescending(x => x.DateFinish)
             .Select(x => new CurrentPlanDto
             {
                 PlanId = x.PlanId,

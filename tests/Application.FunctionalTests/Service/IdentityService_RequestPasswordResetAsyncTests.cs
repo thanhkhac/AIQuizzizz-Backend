@@ -10,7 +10,7 @@ namespace CleanArchitectureBase.Application.Command.UnitTests.Service;
 public class IdentityService_RequestPasswordResetAsyncTests : IdentityServiceTestBase
 {
     [Test]
-    public void RequestPasswordResetAsync_UserNotFound_ThrowsAccountNotFound()
+    public async Task RequestPasswordResetAsync_UserNotFound_ReturnsSilently()
     {
         var dto = new ForgotPasswordDto
         {
@@ -18,8 +18,8 @@ public class IdentityService_RequestPasswordResetAsyncTests : IdentityServiceTes
         };
         _userManagerMock.Setup(x => x.FindByEmailAsync(dto.Email)).ReturnsAsync((UserAccount)null);
 
-        var ex = Assert.ThrowsAsync<ErrorCodeException>(() => _service.RequestPasswordResetAsync(dto));
-        Assert.That(ex.Errors, Does.ContainKey(ErrorCodes.ACCOUNT_NOTFOUND));
+        Assert.DoesNotThrowAsync(() => _service.RequestPasswordResetAsync(dto));
+        await Task.CompletedTask;
     }
 
     [Test]

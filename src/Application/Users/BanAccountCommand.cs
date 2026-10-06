@@ -68,8 +68,14 @@ public class BanAccountCommandHandler : IRequestHandler<BanAccountCommand, Guid>
         if (bannedUsers == null)
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {rq.UserId} not found");
 
+        var reason = rq.IsBanned
+            ? (string.IsNullOrWhiteSpace(rq.Message) ? null : rq.Message.Trim())
+            : null;
+
         bannedUsers.IsBanned = rq.IsBanned;
-        await _identityService.BanUser(rq.UserId,  rq.IsBanned);
+        bannedUsers.BanReason = reason;
+        bannedUsers.BannedAt = rq.IsBanned ? DateTimeOffset.UtcNow : null;
+        await _identityService.BanUser(rq.UserId, rq.IsBanned, reason);
         await _context.SaveChangesAsync(cancellationToken);
         return bannedUsers.Id;
     }

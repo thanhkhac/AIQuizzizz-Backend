@@ -68,95 +68,99 @@ public static class CheckUserAnswer
             return 0;
 
         var correctAnswers = question.QuestionData.MultipleChoice
-            .Where(x => x.IsAnswer!.Value)
+            .Where(x => x.IsAnswer == true)
             .Select(x => x.Id)
             .ToHashSet();
-        
-        float score = userAnswer.UserAnswerData.MultipleChoice.ToHashSet().SetEquals(correctAnswers)
-            ? question.Score
-            : 0;
+        if (correctAnswers.Count == 0)
+            return 0;
+
+        // Bỏ ID trùng và ID không thuộc câu hỏi (tránh gửi [A,A,A] để nhân điểm)
+        var validIds = question.QuestionData.MultipleChoice.Select(x => x.Id).ToHashSet();
+        var picked = userAnswer.UserAnswerData.MultipleChoice.Where(validIds.Contains).ToHashSet();
 
         if (GradeQuestionMethod.Partial == gradeQuestionMethod)
         {
-            var correctCount = userAnswer.UserAnswerData.MultipleChoice.Count(x => correctAnswers.Contains(x));
-            var inCorrectCount = userAnswer.UserAnswerData.MultipleChoice.Count(x => !correctAnswers.Contains(x));
-            score = (correctCount - inCorrectCount) * (question.Score / correctAnswers.Count);
-            if (score < 0)
-                score = 0;
+            var correctCount = picked.Count(correctAnswers.Contains);
+            var inCorrectCount = picked.Count - correctCount;
+            var partial = (correctCount - inCorrectCount) * (question.Score / correctAnswers.Count);
+            return Math.Clamp(partial, 0, question.Score);
         }
-        return score;
+
+        return picked.SetEquals(correctAnswers) ? question.Score : 0;
     }
 
     public static float CheckMatchingAnswer(UserAnswerDto userAnswer, QuestionResponseDto question, GradeQuestionMethod gradeQuestionMethod)
     {
-        if(question.QuestionData.Matching == null || userAnswer.UserAnswerData.Matching == null)
+        if (question.QuestionData?.Matching?.Matches == null || userAnswer.UserAnswerData?.Matching == null)
             return 0;
 
-        var answers = question.QuestionData.Matching.Matches!
-            .Select(x => new HashSet<Guid>{x.LeftId, x.RightId})
-            .ToList();
-        
+        var answers = question.QuestionData.Matching.Matches
+            .Select(x => (x.LeftId, x.RightId))
+            .ToHashSet();
         if (answers.Count == 0)
             return 0;
 
-        var userAnswers = userAnswer.UserAnswerData.Matching
-            .Select(x => new HashSet<Guid>{x.LeftId, x.RightId})
-            .ToList();
-        
-        var correctAnswers = userAnswers
-            .Where(x => answers.Any(ua => ua.SetEquals(x)))
-            .ToList();
-        
-        var scorePerMatch = question.Score / answers.Count;
+        // Mỗi item bên trái chỉ được ghép 1 lần (chặn gửi trùng cặp / gửi mọi tổ hợp)
+        var userPairs = userAnswer.UserAnswerData.Matching
+            .GroupBy(x => x.LeftId)
+            .Select(g => (g.Key, g.First().RightId))
+            .ToHashSet();
 
         if (GradeQuestionMethod.AllOrNothing == gradeQuestionMethod)
-        {
-            return correctAnswers.Count == answers.Count ? question.Score : 0;
-        }
-        
-        return correctAnswers.Count * scorePerMatch;
+            return userPairs.SetEquals(answers) ? question.Score : 0;
+
+        var correctCount = userPairs.Count(answers.Contains);
+        return Math.Min(correctCount * (question.Score / answers.Count), question.Score);
     }
 
     public static float CheckOrderingAnswer(UserAnswerDto userAnswer, QuestionResponseDto question, GradeQuestionMethod gradeQuestionMethod)
     {
-        if(question.QuestionData.Ordering == null || userAnswer.UserAnswerData.Ordering == null)
+        if (question.QuestionData?.Ordering == null || userAnswer.UserAnswerData?.Ordering == null)
             return 0;
 
         var answers = question.QuestionData.Ordering
             .OrderBy(x => x.CorrectOrder)
             .Select(x => x.Id)
             .ToList();
+        if (answers.Count == 0)
+            return 0;
 
         var userAnswers = userAnswer.UserAnswerData.Ordering
             .OrderBy(x => x.Order)
             .Select(x => x.ItemId)
             .ToList();
-        
-        var isCorrect = answers.SequenceEqual(userAnswers);
 
         if (GradeQuestionMethod.Partial == gradeQuestionMethod)
         {
-            var totalPoint = 0f;
             var pointPerCorrect = question.Score / answers.Count;
-            var countFor = userAnswers.Count < answers.Count ? userAnswers.Count : answers.Count;
-            for (int i = 0; i < countFor; i++)
+            var countFor = Math.Min(userAnswers.Count, answers.Count);
+            var totalPoint = 0f;
+            for (var i = 0; i < countFor; i++)
             {
                 if (answers[i].Equals(userAnswers[i]))
-                {
                     totalPoint += pointPerCorrect;
-                }
             }
-            return totalPoint;
+            return Math.Min(totalPoint, question.Score);
         }
-        
-        return isCorrect ? question.Score : 0;
+
+        return answers.SequenceEqual(userAnswers) ? question.Score : 0;
     }
 
     public static float CheckShortTextAnswer(UserAnswerDto userAnswer, QuestionResponseDto question)
     {
-        if (question.QuestionData.ShortText == null || userAnswer.UserAnswerData.ShortText == null)
+        if (question.QuestionData?.ShortText == null || userAnswer.UserAnswerData?.ShortText == null)
             return 0;
-        
-        return question.QuestionData.ShortText.Equals(userAnswer.UserAnswerData.ShortText) ? question.Score : 0;
+
+        return NormalizeShortText(question.QuestionData.ShortText) == NormalizeShortText(userAnswer.UserAnswerData.ShortText)
+            ? question.Score
+            : 0;
+    }
+
+    /// <summary>
+    /// So sánh không phân biệt hoa thường, bỏ khoảng trắng thừa ("  Paris " == "paris")
+    /// </summary>
+    public static string NormalizeShortText(string text)
+    {
+        return string.Join(' ', text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries)).ToLowerInvariant();
     }
 }
