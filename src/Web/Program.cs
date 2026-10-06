@@ -5,6 +5,11 @@ using CleanArchitectureBase.Web;
 using CleanArchitectureBase.Web.Attributes;
 using Hangfire;
 using Hangfire.PostgreSql;
+using CleanArchitectureBase.Application.Common.Interfaces;
+using CleanArchitectureBase.Application.Common.Settings;
+using CleanArchitectureBase.Application.MediaFiles.Dtos;
+using CleanArchitectureBase.Application.MediaFiles.Services;
+using Microsoft.Extensions.Options;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -40,8 +45,17 @@ builder.Services.AddHangfireServer();
 
 var app = builder.Build();
 
+// Presigned URL cho media (mapper DTO là static nên gán signer 1 lần ở đây)
+{
+    var mediaSettings = app.Services.GetRequiredService<IOptions<MediaSettings>>().Value;
+    MediaKeys.Signer = app.Services.GetRequiredService<IMediaUrlSigner>();
+    MediaKeys.ImageTtl = TimeSpan.FromMinutes(mediaSettings.ImageUrlTtlMinutes);
+    MediaKeys.VideoTtl = TimeSpan.FromMinutes(mediaSettings.VideoUrlTtlMinutes);
+}
+
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// Production: bật RUN_MIGRATIONS=true để tự migrate + seed khi khởi động
+if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("RUN_MIGRATIONS"))
 {
     await app.InitialiseDatabaseAsync();
 }
@@ -63,6 +77,7 @@ app.UseHealthChecks("/health");
 
 app.UseStaticFiles();
 app.UseAuthentication();
+app.UseMiddleware<CleanArchitectureBase.Web.Infrastructure.UserStatusMiddleware>();
 app.UseHangfireDashboard("/hangfire");
 
 app.UseSwaggerUi(settings =>
@@ -83,6 +98,14 @@ app.Map("/", () => Results.Redirect("/api"));
 
 
 app.MapEndpoints();
+
+// Job kiểm duyệt ảnh (quét ảnh Pending bị sót) + rà soát vi phạm hằng ngày (gỡ strike hết hạn, auto-ban)
+{
+    var moderation = app.Services.GetRequiredService<IOptions<ModerationSettings>>().Value;
+    var recurringJobs = app.Services.GetRequiredService<IRecurringJobManager>();
+    recurringJobs.AddOrUpdate<IModerationService>("media-moderation-sweep", s => s.SweepPendingAsync(), moderation.SweepCron);
+    recurringJobs.AddOrUpdate<IModerationService>("violation-daily-review", s => s.DailyReviewAsync(), moderation.DailyReviewCron);
+}
 
 app.Run();
 

@@ -48,31 +48,43 @@ public class GetTestScheduleQueryHandler : IRequestHandler<GetTestScheduleQuery,
     /// <param name="cancellationToken">Token to cancel the task</param>
     public async Task<List<TestScheduleResponse>> Handle(GetTestScheduleQuery rq, CancellationToken cancellationToken)
     {  
+        // Lọc rộng thêm ±1 ngày (UTC) để không bỏ sót bài test nằm sát biên tháng khi client ở múi giờ khác UTC.
+        // Frontend sẽ gom nhóm/lọc lại theo ngày địa phương dựa trên TimeStart/TimeFinish thật.
+        var monthStart = new DateTimeOffset(rq.Year!.Value, rq.Month!.Value, 1, 0, 0, 0, TimeSpan.Zero);
+        var rangeFrom = monthStart.AddDays(-1);
+        var rangeTo = monthStart.AddMonths(1).AddDays(1);
+        var userId = _user.UserId;
+
+        // Học viên, giáo viên và chủ lớp đều thấy lịch test của lớp mình tham gia
         var testSchedule = await _context.Tests
-            .Include(x => x.Class)
-            .ThenInclude(x => x!.ClassUsers)
-            .Where(t => t.TimeStart.Month == rq.Month && t.TimeStart.Year == rq.Year
-            && t.Class!.ClassUsers.Any(x => x.UserId == _user.UserId && x.ShareMode == ClassShareMode.Student))
+            .Where(t => !t.IsDeleted
+                && t.TimeStart >= rangeFrom && t.TimeStart < rangeTo
+                && t.Class != null && !t.Class.IsDeleted
+                && t.Class.ClassUsers.Any(x => x.UserId == userId
+                    && (x.ShareMode == ClassShareMode.Student
+                        || x.ShareMode == ClassShareMode.Teacher
+                        || x.ShareMode == ClassShareMode.Owner)))
             .Select(x => new TestScheduleDto
             {
                 TestId = x.Id,
                 ClassId = x.ClassId,
                 TestName = x.Name,
-                Date = x.TimeStart.Date,
+                Date = x.TimeStart,
                 ClassName = x.Class!.Name,
                 TimeStart = x.TimeStart,
+                TimeFinish = x.TimeFinish,
                 Status = x.TimeStart > DateTime.UtcNow ? TestStatus.Upcoming.ToString()
                     : x.TimeFinish < DateTime.UtcNow ? TestStatus.Completed.ToString()
                     : TestStatus.Active.ToString()
             })
             .ToListAsync(cancellationToken);
-        
+
         var testScheduleResponse = testSchedule
-            .GroupBy(x => x.Date)
+            .GroupBy(x => x.TimeStart.UtcDateTime.Date)
             .Select(x =>
                 new TestScheduleResponse
                 {
-                    Date = x.Key,
+                    Date = new DateTimeOffset(x.Key, TimeSpan.Zero),
                     TestSchedules = x.ToList()
                 })
             .OrderBy(x => x.Date)

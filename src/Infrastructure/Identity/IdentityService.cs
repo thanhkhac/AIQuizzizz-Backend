@@ -15,6 +15,7 @@ using CleanArchitectureBase.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -33,6 +34,9 @@ public class IdentityService : IIdentityService
     private readonly IGoogleAuthService _googleAuthService;
     private readonly IEmailService _emailService;
     private readonly RoleManager<ApplicationRole> _roleManager;
+    private readonly IMemoryCache? _memoryCache;
+
+    private void InvalidateUserStatus(Guid userId) => _memoryCache?.Remove(UserStatusService.CacheKey(userId));
 
     private static class LockoutSettings
     {
@@ -67,8 +71,10 @@ public class IdentityService : IIdentityService
         ApplicationDbContext dbContext,
         IGoogleAuthService googleAuthService,
         IEmailService emailService,
-        RoleManager<ApplicationRole> roleManager)
+        RoleManager<ApplicationRole> roleManager,
+        IMemoryCache? memoryCache = null)
     {
+        _memoryCache = memoryCache;
         _userManager = userManager;
         _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
         _authorizationService = authorizationService;
@@ -172,7 +178,7 @@ public class IdentityService : IIdentityService
         if (user == null)
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, $"User with email {email} not found");
         if (user.IsBanned)
-            throw new ErrorCodeException(ErrorCodes.ACCOUNT_BANNED);
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_BANNED, user.BanReason ?? "");
         if (user.EmailConfirmed == false)
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_EMAIL_NOT_VERIFIED);
 
@@ -226,6 +232,8 @@ public class IdentityService : IIdentityService
 
     private async Task<TokenDto> GenerateJwtTokenAsync(UserAccount userAccount)
     {
+        // Đăng nhập thành công: bỏ cache trạng thái cũ để request kế tiếp đọc trạng thái mới nhất.
+        InvalidateUserStatus(userAccount.Id);
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, userAccount.Id.ToString()),
@@ -385,7 +393,7 @@ public class IdentityService : IIdentityService
                 throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_CREDENTIALS, $"User with email {googleUser.Email} not found");
 
             if (existingUser.IsBanned)
-                throw new ErrorCodeException(ErrorCodes.ACCOUNT_BANNED);
+                throw new ErrorCodeException(ErrorCodes.ACCOUNT_BANNED, existingUser.BanReason ?? "");
 
             if (!existingUser.EmailConfirmed)
             {
@@ -509,7 +517,8 @@ public class IdentityService : IIdentityService
     public async Task RequestPasswordResetAsync(ForgotPasswordDto dto)
     {
         var user = await _userManager.FindByEmailAsync(dto.Email);
-        if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with email {dto.Email} not found");
+        // Không tiết lộ email có tồn tại hay không: trả về thành công im lặng (chỉ gửi mail khi tài khoản tồn tại)
+        if (user == null || user.IsDeleted) return;
 
         // Lockout gửi email reset password
         if (user.PasswordResetRequestLockoutEnd.HasValue &&
@@ -546,7 +555,8 @@ public class IdentityService : IIdentityService
     public async Task ResetPasswordAsync(ResetPasswordDto dto)
     {
         var user = await _userManager.FindByEmailAsync(dto.Email);
-        if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with email {dto.Email} not found");
+        // Không tiết lộ email có tồn tại hay không
+        if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_INVALID_RESET_CODE, "Mã đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.");
 
         // Lockout
         if (user.PasswordResetLockoutEnd.HasValue &&
@@ -591,23 +601,43 @@ public class IdentityService : IIdentityService
         if (user == null)
             throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id {userId} not found");
 
+        if (currentPassword == newPassword)
+        {
+            if (!await _userManager.CheckPasswordAsync(user, currentPassword))
+                throw new ErrorCodeException(ErrorCodes.ACCOUNT_WRONG_PASSWORD);
+            throw new ErrorCodeException(ErrorCodes.ACCOUNT_NEW_PASSWORD_SAME_AS_CURRENT);
+        }
+
         var result = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
         if (!result.Succeeded)
         {
-            if (result.Errors.Any(e => e.Code == nameof(IdentityErrorDescriber.PasswordMismatch)))
+            if (result.Errors.Any(e => e.Code == ErrorCodes.IDENTITY_PASSWORD_MISMATCH || e.Code == nameof(IdentityErrorDescriber.PasswordMismatch)))
                 throw new ErrorCodeException(ErrorCodes.ACCOUNT_WRONG_PASSWORD);
             throw new ErrorCodeException(ErrorCodes.COMMON_SERVER_INTERNAL_ERROR, $"Error at change password");
         }
     }
 
-    public async Task BanUser(Guid userId, bool isBanned)
+    public async Task BanUser(Guid userId, bool isBanned, string? reason = null)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null) throw new ErrorCodeException(ErrorCodes.ACCOUNT_NOTFOUND, $"User with id  {userId} not found");
 
         user.IsBanned = isBanned;
+        user.BanReason = isBanned ? reason : null;
 
         await _userManager.UpdateAsync(user);
+        InvalidateUserStatus(userId);
+
+        if (isBanned)
+        {
+            // Thu hồi toàn bộ refresh token của user bị khoá
+            var tokens = await _dbContext.Set<RefreshToken>().Where(rt => rt.UserAccountId == userId).ToListAsync();
+            if (tokens.Count > 0)
+            {
+                _dbContext.Set<RefreshToken>().RemoveRange(tokens);
+                await _dbContext.SaveChangesAsync();
+            }
+        }
     }
 
     //TODO: Thêm navigation để truy vấn ngắn hơn

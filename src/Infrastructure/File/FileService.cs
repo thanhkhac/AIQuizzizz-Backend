@@ -13,6 +13,24 @@ public class FileService : IFileService
 {
     public async Task<ImportedQuestionDto> GetQuestionFromFile(FileStreamData file)
     {
+        try
+        {
+            return await ParseQuestionsFromFile(file);
+        }
+        catch (ErrorCodeException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            // File hỏng / không phải Excel hợp lệ (ZIP lỗi, thiếu sheet, dữ liệu rỗng...) -> 400 thay vì 500
+            throw new ErrorCodeException(ErrorCodes.INVALID_FILE_FORMAT,
+                $"File Excel không đọc được hoặc đã bị hỏng ({ex.GetType().Name})");
+        }
+    }
+
+    private static async Task<ImportedQuestionDto> ParseQuestionsFromFile(FileStreamData file)
+    {
         var validQuestions = new List<CreateUpdateQuestionDto>();
         var invalidQuestions = new List<CreateUpdateQuestionDto>();
         var validator = new CreateUpdateQuestionDto.QuestionCreateDtoValidator();
@@ -162,7 +180,7 @@ public class FileService : IFileService
         };
     }
     
-    private string? NormalizeQuestionType(string? type)
+    private static string? NormalizeQuestionType(string? type)
     {
         if (string.IsNullOrWhiteSpace(type)) return null;
 

@@ -186,10 +186,13 @@ public class ApplicationDbContextInitialiser
                 Name = "AIQ Plus",
                 Price = 0,
                 Duration = 10,
-                Unit = "year",
+                Unit = "Year",
                 CanLearn = true,
                 CanOpenTest = false,
                 CanCopyOrImportQuestionSet = false,
+                CanUploadImage = true,
+                CanUploadVideo = false,
+                IsActive = true,
                 IsDeleted = false
             };
             var plan2 = new Plan
@@ -198,13 +201,31 @@ public class ApplicationDbContextInitialiser
                 Name = "AIQ Pro",
                 Price = 199000,
                 Duration = 90,
-                Unit = "month",
+                Unit = "Month",
                 CanLearn = true,
                 CanOpenTest = true,
                 CanCopyOrImportQuestionSet = true,
+                CanUploadImage = true,
+                CanUploadVideo = true,
+                IsActive = true,
                 IsDeleted = false
             };
             _context.Set<Plan>().AddRange(plan1, plan2);
+            await _context.SaveChangesAsync();
+        }
+
+        // Seed SystemSetting mặc định (trang admin/system-settings báo SYSTEM_SETTING_NOT_FOUND nếu thiếu)
+        if (!_context.SystemSettings.Any())
+        {
+            _context.SystemSettings.Add(new SystemSetting
+            {
+                Id = Guid.NewGuid(),
+                InputCostPerMillionTokens = Application.Common.Settings.SystemSettings.InputCostPerMillionTokens,
+                OutputCostPerMillionTokens = Application.Common.Settings.SystemSettings.OutputCostPerMillionTokens,
+                FixedSystemFee = Application.Common.Settings.SystemSettings.FixedSystemFee,
+                MaxInputToken = Application.Common.Settings.SystemSettings.MaxInputToken,
+                MaxOutputToken = Application.Common.Settings.SystemSettings.MaxOutputToken,
+            });
             await _context.SaveChangesAsync();
         }
 

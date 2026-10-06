@@ -43,7 +43,7 @@ public class GetQuestionSetQuestionsForEditQueryHandler : IRequestHandler<GetQue
                 q.QuestionSetId == request.QuestionSetId
                 && q.IsDeleted == false
             )
-            .OrderBy(x => x.Created)
+            .OrderBy(x => x.Order).ThenBy(x => x.Created).ThenBy(x => x.Id)
             .ToListAsync(cancellationToken);
 
         // Chuyển đổi Questions thành CreateUpdateQuestionDto

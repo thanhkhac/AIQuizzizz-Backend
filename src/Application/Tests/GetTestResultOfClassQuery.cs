@@ -61,6 +61,8 @@ public class GetTestResultOfClassQueryHandler : IRequestHandler<GetTestResultOfC
             .ThenInclude(x => x!.Test)
             .Where(x => x.TestVersion!.Test!.Id == rq.TestId && x.TestVersion.No == 0)
             .Sum(x => x.Question!.Score);
+        // tránh chia cho 0 trong SQL khi tổng điểm = 0
+        var safeTotalScore = totalScore > 0 ? totalScore : 1;
         
         var resultTest = _context.TestGrades
             .Include(x => x.User)
@@ -73,7 +75,7 @@ public class GetTestResultOfClassQueryHandler : IRequestHandler<GetTestResultOfC
                 StudentName = x.User!.FullName,
                 StudentEmail = x.User!.Email,
                 Score = x.Score,
-                Status = x.Score/totalScore >= x.Test!.PassingScore/100
+                Status = x.Score/safeTotalScore >= x.Test!.PassingScore/100
                     ? nameof(AttemptStatus.Passed)
                     : nameof(AttemptStatus.Failed)
             });

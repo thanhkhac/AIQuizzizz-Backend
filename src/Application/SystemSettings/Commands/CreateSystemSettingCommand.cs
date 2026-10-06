@@ -6,7 +6,7 @@ using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.SystemSettings.Commands;
 
-[Authorize(Roles = Domain.Constants.Roles.Administrator + "," + Domain.Constants.Roles.Moderator)]
+[Authorize(Roles = Domain.Constants.Roles.Administrator)]
 public class CreateSystemSettingCommand : IRequest<Guid>
 {
     public int InputCostPerMillionTokens { get; set; }
@@ -21,22 +21,22 @@ public class CreateSystemSettingCommandValidator : AbstractValidator<CreateSyste
     public CreateSystemSettingCommandValidator()
     {
         RuleFor(x => x.InputCostPerMillionTokens)
-            .GreaterThanOrEqualTo(0).WithMessage("Input cost phải >= 0");
+            .GreaterThanOrEqualTo(1).WithMessage("Input cost phải >= 1");
 
         RuleFor(x => x.OutputCostPerMillionTokens)
-            .GreaterThanOrEqualTo(0).WithMessage("Output cost phải >= 0");
+            .GreaterThanOrEqualTo(1).WithMessage("Output cost phải >= 1");
 
         RuleFor(x => x.FixedSystemFee)
             .GreaterThanOrEqualTo(0).WithMessage("System fee phải >= 0");
 
         RuleFor(x => x.MaxInputToken)
-            .GreaterThanOrEqualTo(0)
-            .WithMessage("Max input token phải >= 0")
+            .GreaterThanOrEqualTo(1)
+            .WithMessage("Max input token phải >= 1")
             .LessThan(1_048_576);
 
         RuleFor(x => x.MaxOutputToken)
-            .GreaterThanOrEqualTo(0)
-            .WithMessage("Max output token phải >= 0")
+            .GreaterThanOrEqualTo(1)
+            .WithMessage("Max output token phải >= 1")
             .LessThan(65_536);
     }
 }

@@ -10,6 +10,8 @@ public class User
     public required string Email { get; set; }
     public bool IsDeleted { get; set; }
     public bool IsBanned { get; set; }
+    public string? BanReason { get; set; }
+    public DateTimeOffset? BannedAt { get; set; }
     public long TokenCount { get; set; }
     public long Balance { get; set; }
     public string? PaymentCode { get; set; } = Payment.PaymentCodePrefix + Guid.NewGuid().ToString("N")[..30];
@@ -27,6 +29,7 @@ public class User
     public List<TestGrade> TestGrades { get; set; } = new();
     public List<Attempt> Attempts { get; set; } = new();
     public List<UserQuestionSetAccessHistory> AccessHistories { get; set; } = new();
+    public List<UserViolation> Violations { get; set; } = new();
 
 }
 

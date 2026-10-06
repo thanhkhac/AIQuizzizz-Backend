@@ -36,6 +36,8 @@ public class SearchPlanQueryHandler : IRequestHandler<SearchPlanQuery, List<Plan
             CanLearn = x.CanLearn,
             CanOpenTest = x.CanOpenTest,
             CanCopyOrImportQuestionSet = x.CanCopyOrImportQuestionSet,
+            CanUploadImage = x.CanUploadImage,
+            CanUploadVideo = x.CanUploadVideo,
             IsActive = x.IsActive
         }).ToListAsync(cancellationToken);
         return result;

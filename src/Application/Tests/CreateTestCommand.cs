@@ -143,6 +143,8 @@ public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
 
         var questionsToAdd = new List<Question>();
 
+        var mediaMap = await _context.ResolveQuestionMediaAsync(rq.Questions, _user.UserId!.Value, cancellationToken);
+
         var questionIds = rq.Questions.Select((q, index) =>
         {
             if (q.QuestionId.HasValue && validQuestionIds.Contains(q.QuestionId.Value))
@@ -156,8 +158,10 @@ public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
                 ExplainText = q.ExplainText,
                 TextFormat = TextFormat.PlainText,
                 Score = q.Score,
+                Order = index,
                 DataJson = CreateUpdateQuestionDto.Serializer.Serialize(q)
             };
+            question.ApplyMedia(q, mediaMap);
             questionsToAdd.Add(question);
             return question.Id;
         }).ToList();
@@ -171,7 +175,10 @@ public class CreateTestCommandHandler : IRequestHandler<CreateTestCommand, Guid>
 
         var testVersionQuestions = testVersions.SelectMany(t =>
         {
-            var shuffledIndex = Enumerable.Range(0, questionIds.Count()).OrderBy(_ => _random.Next()).ToList();
+            // Version gốc (No = 0) giữ đúng thứ tự client gửi lên (trang sửa test đọc version này); các version còn lại được xáo trộn
+            var shuffledIndex = t.No == 0
+                ? Enumerable.Range(0, questionIds.Count()).ToList()
+                : Enumerable.Range(0, questionIds.Count()).OrderBy(_ => _random.Next()).ToList();
 
             return shuffledIndex.Select((index, order) => new TestVersionQuestion
             {

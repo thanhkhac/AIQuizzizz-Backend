@@ -12,6 +12,8 @@ public class Plan : BaseAuditableEntity
     public bool CanLearn { get; set; }
     public bool CanOpenTest { get; set; }
     public bool CanCopyOrImportQuestionSet { get; set; }
+    public bool CanUploadImage { get; set; }
+    public bool CanUploadVideo { get; set; }
     public bool IsDeleted { get; set; }
     public bool IsActive { get; set; }
     public List<PlanPriceHistory> PriceHistories { get; set; } = new List<PlanPriceHistory>();

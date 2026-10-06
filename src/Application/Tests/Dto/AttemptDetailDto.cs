@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using CleanArchitectureBase.Application.Common.Exceptions;
+using CleanArchitectureBase.Application.MediaFiles.Dtos;
 using CleanArchitectureBase.Application.Questions.Dtos;
 using CleanArchitectureBase.Domain.Constants;
 using CleanArchitectureBase.Domain.Entities;
@@ -27,6 +28,7 @@ public class QuestionAttemptDetailDto
     public int? CorrectMultipleChoiceCount { get; set; }
     public QuestionDataDto QuestionData { get; set; } = null!;
     public UserAnswerDataDto? UserAnswerDataDto { get; set; }
+    public QuestionMediaDto? Media { get; set; }
     
     public static class Mapper
     {
@@ -41,7 +43,8 @@ public class QuestionAttemptDetailDto
                 Score = question.Score,
                 CorrectMultipleChoiceCount = question.Type == QuestionType.MultipleChoice
                     ? QuestionDataDto.CorrectMultipleChoiceCount(question) : null,
-                QuestionData = QuestionDataDto.Deserializer.FromJson(question.Type, question.DataJson, false, false),
+                QuestionData = QuestionDataDto.Deserializer.FromJson(question.Type, question.DataJson, true, false),
+                Media = QuestionMediaDto.From(question.MediaId, question.MediaType),
                 UserAnswerDataDto = userAnswer != null 
                     ? Serializer.DeSerialize(question.Type.ToString(), userAnswer.DataJson)
                     : null

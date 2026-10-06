@@ -49,6 +49,11 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
             throw new ErrorCodeException(ErrorCodes.TEST_NOT_FOUND, "Bài test không tồn tại");
         
         await _testService.TryCheckCanAttemptTest(test);
+
+        // Owner/Teacher của lớp quản lý bài kiểm tra, không làm bài như học viên (tránh tạo attempt làm sai thống kê)
+        var roleInTest = await _testService.GetRoleUserInTest(test);
+        if (roleInTest == ClassShareMode.Owner || roleInTest == ClassShareMode.Teacher)
+            throw new ErrorCodeException(ErrorCodes.NOT_FOUND_STUDENT_IN_CLASS, "Chỉ student trong lớp mới có thể attempt test");
         
         Dictionary<Guid, AttemptQuestion>? userAnswerDict = null;
         
@@ -58,13 +63,23 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
                                                      x.TimeStart <= DateTime.UtcNow))
             .FirstOrDefaultAsync(cancellationToken);
 
+        // Attempt đang làm nhưng đã quá giờ (job auto-submit bị trễ/lỗi) -> chốt lại, không cho làm tiếp
+        if (attempted != null && attempted.TimeStart.AddMinutes(test.TimeLimit) < DateTimeOffset.UtcNow)
+        {
+            attempted.TimeFinish = attempted.TimeStart.AddMinutes(test.TimeLimit);
+            await _context.SaveChangesAsync(cancellationToken);
+            attempted = null;
+        }
+
         double timeRemaining = 0;
-        
+
         if (attempted != null)
         {
-                userAnswerDict = await _context.AttemptQuestions
+                userAnswerDict = (await _context.AttemptQuestions
                 .Where(x => x.AttemptId == attempted.Id)
-                .ToDictionaryAsync(a => a.QuestionId, a => a, cancellationToken);
+                .ToListAsync(cancellationToken))
+                .GroupBy(a => a.QuestionId)
+                .ToDictionary(g => g.Key, g => g.First());
                 
                 timeRemaining = Math.Floor(
                     (test.TimeLimit - (DateTime.UtcNow - attempted.TimeStart).TotalMinutes) * 100
@@ -78,8 +93,7 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
             TimeStart = attempted != null ? attempted.TimeStart : DateTime.UtcNow,
             TimeEnd = attempted != null ? attempted.TimeFinish : DateTime.UtcNow.AddMinutes(-test.TimeLimit),
             TimeLimit = test.TimeLimit,
-            TimeRemaining =(DateTime.UtcNow - DateTime.UtcNow).TotalMinutes >= test.TimeLimit ? test.TimeLimit
-                : Math.Round((test.TimeFinish - DateTime.UtcNow).TotalMinutes, 2)
+            // TimeRemaining được tính ở cuối hàm
         };
         
         var testVersionId = attempted?.TestVersionId ?? Guid.Empty;
@@ -139,7 +153,9 @@ public class StartAttemptTestCommandHandler : IRequestHandler<StartAttemptTestCo
             _context.TestGrades.Add(userGrade);
         }
         
-        attemptDetail.TimeRemaining = timeRemaining;
+        // Không cho đồng hồ vượt quá giờ đóng bài test
+        var minutesUntilTestClose = Math.Floor((test.TimeFinish - DateTimeOffset.UtcNow).TotalMinutes * 100) / 100;
+        attemptDetail.TimeRemaining = Math.Max(0, Math.Min(timeRemaining, minutesUntilTestClose));
         
         var versionQuestions = await _context.TestVersionQuestions
             .Include(x => x.Question)

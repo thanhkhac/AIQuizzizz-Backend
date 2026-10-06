@@ -18,6 +18,12 @@ public class SearchTestResultDto
     public double RelativeTime { get; set; }
     public int? NumberOfCompletion { get; set; }
     public string? Status { get; set; }
+    public DateTimeOffset TimeFinish { get; set; }
+    public int MaxAttempt { get; set; }
+    /// <summary>Số lượt đã làm của user hiện tại</summary>
+    public int UserAttemptCount { get; set; }
+    /// <summary>User đang có một lượt làm dở (được phép tiếp tục kể cả khi đã hết lượt)</summary>
+    public bool HasInProgressAttempt { get; set; }
 }   
 
 [Authorize]
@@ -55,13 +61,16 @@ public class SearchTestInClassQueryHandler : IRequestHandler<SearchTestInClassQu
 {
     private readonly IApplicationDbContext _context;
     private readonly IClassService _classService;
+    private readonly IUser _user;
     
     public SearchTestInClassQueryHandler(
         IApplicationDbContext context,
-        IClassService classService)
+        IClassService classService,
+        IUser user)
     {
         _context = context;
         _classService = classService;
+        _user = user;
     }
     
     /// <summary>
@@ -129,6 +138,17 @@ public class SearchTestInClassQueryHandler : IRequestHandler<SearchTestInClassQu
                 cancellationToken
             );
 
+        var myAttempts = (await _context.Attempts
+                .Where(a => testIds.Contains(a.TestId) && a.UserId == _user.UserId)
+                .Select(a => new { a.TestId, a.TimeStart, a.TimeFinish })
+                .ToListAsync(cancellationToken))
+            .GroupBy(a => a.TestId)
+            .ToDictionary(g => g.Key, g => new
+            {
+                Count = g.Count(),
+                InProgress = g.Any(a => a.TimeFinish < a.TimeStart)
+            });
+
         var results = tests.Select(test =>
         {
             var questionCount = versionQuestionCounts.ContainsKey(test.Id)
@@ -149,6 +169,10 @@ public class SearchTestInClassQueryHandler : IRequestHandler<SearchTestInClassQu
                 TimeLimit = test.TimeLimit,
                 RelativeTime = Math.Floor((DateTime.UtcNow - test.TimeStart).TotalHours),
                 TimeStart = test.TimeStart,
+                TimeFinish = test.TimeFinish,
+                MaxAttempt = test.MaxAttempt,
+                UserAttemptCount = myAttempts.TryGetValue(test.Id, out var mine) ? mine.Count : 0,
+                HasInProgressAttempt = myAttempts.TryGetValue(test.Id, out var mine2) && mine2.InProgress,
             };
         });
 

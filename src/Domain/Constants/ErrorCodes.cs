@@ -21,6 +21,7 @@ public static class ErrorCodes
     public const string ACCOUNT_EMAIL_BANNED  = nameof(ACCOUNT_EMAIL_BANNED ); 
     public const string ACCOUNT_INVALID_RESET_CODE  = nameof(ACCOUNT_INVALID_RESET_CODE ); 
     public const string ACCOUNT_WRONG_PASSWORD  = nameof(ACCOUNT_WRONG_PASSWORD );
+    public const string ACCOUNT_NEW_PASSWORD_SAME_AS_CURRENT = nameof(ACCOUNT_NEW_PASSWORD_SAME_AS_CURRENT);
     public const string EMAIL_VERIFICATION_REQUEST_TOO_MANY  = nameof(EMAIL_VERIFICATION_REQUEST_TOO_MANY ); 
     public const string EMAIL_VERIFICATION_CODE_FAILED_TOO_MANY  = nameof(EMAIL_VERIFICATION_CODE_FAILED_TOO_MANY ); 
     public const string PASSWORD_RESET_REQUEST_TOO_MANY  = nameof(PASSWORD_RESET_REQUEST_TOO_MANY ); 
@@ -144,4 +145,15 @@ public static class ErrorCodes
     
     //System setting
     public const string SYSTEM_SETTING_NOT_FOUND = nameof(SYSTEM_SETTING_NOT_FOUND);
-}    
+
+    //Media
+    public const string PLAN_NOT_ALLOW_UPLOAD_IMAGE = nameof(PLAN_NOT_ALLOW_UPLOAD_IMAGE);
+    public const string PLAN_NOT_ALLOW_UPLOAD_VIDEO = nameof(PLAN_NOT_ALLOW_UPLOAD_VIDEO);
+    public const string MEDIA_INVALID_FILE = nameof(MEDIA_INVALID_FILE);
+    public const string MEDIA_UNSUPPORTED_TYPE = nameof(MEDIA_UNSUPPORTED_TYPE);
+    public const string MEDIA_FILE_TOO_LARGE = nameof(MEDIA_FILE_TOO_LARGE);
+    public const string MEDIA_VIDEO_TOO_LONG = nameof(MEDIA_VIDEO_TOO_LONG);
+    public const string MEDIA_PROCESS_FAILED = nameof(MEDIA_PROCESS_FAILED);
+    public const string MEDIA_NOT_FOUND = nameof(MEDIA_NOT_FOUND);
+    public const string MEDIA_VIOLATED = nameof(MEDIA_VIOLATED);
+}

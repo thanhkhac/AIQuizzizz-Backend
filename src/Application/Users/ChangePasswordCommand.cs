@@ -1,3 +1,4 @@
+using CleanArchitectureBase.Application.Common.Extensions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Common.Security;
 using FluentValidation;
@@ -17,7 +18,7 @@ public class ChangePasswordCommandValidator : AbstractValidator<ChangePasswordCo
     public ChangePasswordCommandValidator()
     {
         RuleFor(x => x.CurrentPassword).NotEmpty().WithMessage("Current password is required");
-        RuleFor(x => x.NewPassword).NotEmpty().MinimumLength(6).WithMessage("New password must be at least 6 characters");
+        RuleFor(x => x.NewPassword).MustBeValidPassword();
     }
 }
 

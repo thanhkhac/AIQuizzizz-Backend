@@ -1,3 +1,4 @@
+using CleanArchitectureBase.Application.Common.Extensions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Application.Users.Common;
 
@@ -16,7 +17,7 @@ public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordComm
     {
         RuleFor(x => x.Email).NotEmpty().EmailAddress();
         RuleFor(x => x.ResetCode).NotEmpty();
-        RuleFor(x => x.NewPassword).NotEmpty().MinimumLength(6);
+        RuleFor(x => x.NewPassword).MustBeValidPassword();
     }
 }
 

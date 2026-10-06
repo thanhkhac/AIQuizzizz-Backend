@@ -8,21 +8,21 @@ public static class QuestionTypeSerializer
     public static string SerializeMultipleChoice(List<CreateMultipleChoiceDto> choices)
     {
         var mapped = QuestionTypeMapper.MapMultipleChoice(choices);
-        var shuffled = ShuffleHelper.ShuffleWithOrder(mapped);
-        return JsonSerializer.Serialize(shuffled);
+        ShuffleHelper.AssignShuffleOrder(mapped);
+        return JsonSerializer.Serialize(mapped);
     }
 
     public static string SerializeMatchingPairs(List<CreateMatchingPairDto> pairs)
     {
         var mapped = QuestionTypeMapper.MapMatchingPairs(pairs);
-        var shuffled = ShuffleHelper.ShuffleWithOrder(mapped);
-        return JsonSerializer.Serialize(shuffled);
+        ShuffleHelper.AssignShuffleOrder(mapped);
+        return JsonSerializer.Serialize(mapped);
     }
 
     public static string SerializeOrderingItems(List<CreateOrderingItemDto> items)
     {
         var mapped = QuestionTypeMapper.MapOrderingItems(items);
-        var shuffled = ShuffleHelper.ShuffleWithOrder(mapped);
-        return JsonSerializer.Serialize(shuffled);
+        ShuffleHelper.AssignShuffleOrder(mapped);
+        return JsonSerializer.Serialize(mapped);
     }
 }

@@ -176,12 +176,14 @@ public class QuestionSetService : IQuestionSetService
         }
 
         query = sortBy?.ToLower() == "newest"
-            ? query.OrderByDescending(q => q.Created)
+            ? query.OrderByDescending(q => q.Created).ThenBy(q => q.Id)
             : query.OrderByDescending(q =>
                 (q.RatingCount + m) == 0
                     ? 0
                     : (q.RatingCount / (double)(q.RatingCount + m)) * q.RatingAverage +
-                      (m / (double)(q.RatingCount + m)) * globalAverage);
+                      (m / (double)(q.RatingCount + m)) * globalAverage)
+                .ThenByDescending(q => q.Created)
+                .ThenBy(q => q.Id);
 
         return await PaginatedList<QuestionSetForListResponseDto>.CreateAsync(
             query.Select(qs => new QuestionSetForListResponseDto
@@ -276,13 +278,17 @@ public class QuestionSetService : IQuestionSetService
 
         if (sortBy == "Newest")
         {
-            projectedQuery = projectedQuery.OrderByDescending(x => x.QuestionSet.Created);
+            projectedQuery = projectedQuery
+                .OrderByDescending(x => x.QuestionSet.Created)
+                .ThenBy(x => x.QuestionSet.Id);
         }
         else
         {
             projectedQuery = projectedQuery
                 .OrderBy(x => x.LastAccessedAt.HasValue ? 0 : 1)
-                .ThenByDescending(x => x.LastAccessedAt);
+                .ThenByDescending(x => x.LastAccessedAt)
+                .ThenByDescending(x => x.QuestionSet.Created)
+                .ThenBy(x => x.QuestionSet.Id);
         }
         var result =   await PaginatedList<QuestionSetForListResponseDto>.CreateAsync(
             projectedQuery.Select(x => new QuestionSetForListResponseDto

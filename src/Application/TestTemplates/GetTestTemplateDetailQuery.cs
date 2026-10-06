@@ -68,6 +68,7 @@ public class GetTestTemplateDetailQueryHandler : IRequestHandler<GetTestTemplate
                 CreateAt = t.Created,
                 Questions = t.TestTemplateQuestions
                     .Where(tq => tq.Question != null)
+                    .OrderBy(tq => tq.Question!.Order).ThenBy(tq => tq.Created).ThenBy(tq => tq.Id)
                     .Select(tq => QuestionResponseDto.Mapper.FromEntity(tq.Question!, true, false, true))
                     .ToList()
             }).FirstOrDefaultAsync(cancellationToken);

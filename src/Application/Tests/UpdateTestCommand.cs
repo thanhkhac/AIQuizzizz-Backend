@@ -85,13 +85,16 @@ public class UpdateTestCommandHandler : IRequestHandler<UpdateTestCommand, Guid>
     private readonly IApplicationDbContext _context;
     private readonly ITestService _testService;
     private readonly Random _random = new();
+    private readonly IUser _user;
     
     public UpdateTestCommandHandler(
         IApplicationDbContext context,
-        ITestService testService)
+        ITestService testService,
+        IUser user)
     {
         _context = context;
         _testService = testService;
+        _user = user;
     }
     
     public async Task<Guid> Handle(UpdateTestCommand rq, CancellationToken cancellationToken)
@@ -178,9 +181,13 @@ public class UpdateTestCommandHandler : IRequestHandler<UpdateTestCommand, Guid>
         {
             if (rq.NumberOfShuffles > testVersion.Count)
             {
-                var questions = versionQuestions.Select((x, index) => x.QuestionId).ToList();
+                // Version mới copy từ danh sách câu hỏi hiện tại, bỏ các câu sẽ bị xoá/cập nhật trong request này
+                // (câu cập nhật được thêm lại cho mọi version ở vòng lặp bên dưới)
+                var removedIds = deleteUpdateQuestion.Select(x => x.QuestionId).ToHashSet();
+                var questions = versionQuestions.Select(x => x.QuestionId).Where(id => !removedIds.Contains(id)).ToList();
                 
-                var testVersions = Enumerable.Range(testVersion.Count + 1, rq.NumberOfShuffles + 1)
+                // Range(start, count): tạo đúng (NumberOfShuffles - hiện có) version, No tiếp nối từ 0..n-1
+                var testVersions = Enumerable.Range(testVersion.Count, rq.NumberOfShuffles - testVersion.Count)
                     .Select(versionNo => new TestVersion
                     {
                         Id = Guid.NewGuid(),
@@ -190,7 +197,7 @@ public class UpdateTestCommandHandler : IRequestHandler<UpdateTestCommand, Guid>
                 
                 var testVersionQuestions = testVersions.SelectMany(t =>
                 {
-                    var shuffledIndex = Enumerable.Range(0, versionQuestions.Count()).OrderBy(_ => _random.Next()).ToList();
+                    var shuffledIndex = Enumerable.Range(0, questions.Count).OrderBy(_ => _random.Next()).ToList();
 
                     return shuffledIndex.Select((index, order) => new TestVersionQuestion
                     {
@@ -207,16 +214,24 @@ public class UpdateTestCommandHandler : IRequestHandler<UpdateTestCommand, Guid>
 
             if (rq.NumberOfShuffles < testVersion.Count)
             {
-                testVersion = testVersion.OrderByDescending(x => x.No).Take(testVersion.Count - rq.NumberOfShuffles).ToList();
+                // Tách riêng danh sách version bị xoá; testVersion giữ lại các version còn dùng để thêm câu hỏi mới
+                var versionsToRemove = testVersion.OrderByDescending(x => x.No).Take(testVersion.Count - rq.NumberOfShuffles).ToList();
+                var removeIds = versionsToRemove.Select(y => y.Id).ToHashSet();
                 
                 var deleteVersionQuestions = versionQuestionsAllNo
-                    .Where(x => testVersion.Select(y => y.Id).Contains(x.TestVersionId));
+                    .Where(x => removeIds.Contains(x.TestVersionId));
                 
                 _context.TestVersionQuestions.RemoveRange(deleteVersionQuestions);
                 
-                _context.TestVersions.RemoveRange(testVersion);
+                _context.TestVersions.RemoveRange(versionsToRemove);
+                testVersion = testVersion.Where(x => !removeIds.Contains(x.Id)).ToList();
             }
         }
+
+        var mediaMap = await _context.ResolveQuestionMediaAsync(rq.CreateUpdateQuestions, _user.UserId!.Value, cancellationToken);
+
+        // Id câu hỏi cuối cùng theo đúng thứ tự client gửi lên (để giữ nguyên thứ tự hiển thị sau khi lưu)
+        var finalQuestionIds = new List<Guid>();
 
         foreach (var questionDto in rq.CreateUpdateQuestions)
         {
@@ -229,10 +244,12 @@ public class UpdateTestCommandHandler : IRequestHandler<UpdateTestCommand, Guid>
                 TextFormat = TextFormat.PlainText,
                 Score = questionDto.Score
             };
+            question.ApplyMedia(questionDto, mediaMap);
 
             if (questionDto.QuestionId.HasValue &&
                 updateQuestionIds.NotUpdateQuestionIds.Contains(questionDto.QuestionId!.Value))
             {
+                finalQuestionIds.Add(questionDto.QuestionId!.Value);
                 continue;
             }
             else if (questionDto.QuestionId.HasValue && newQuestionIds.Contains(questionDto.QuestionId!.Value))
@@ -246,6 +263,8 @@ public class UpdateTestCommandHandler : IRequestHandler<UpdateTestCommand, Guid>
                 listQuestions.Add(question);
             }
 
+            finalQuestionIds.Add(question.Id);
+
             foreach (var version in testVersion)
             {
                 var testVersionQuestion = new TestVersionQuestion
@@ -258,7 +277,30 @@ public class UpdateTestCommandHandler : IRequestHandler<UpdateTestCommand, Guid>
             order++;
         }
         
-        test.QuestionCount = rq.CreateUpdateQuestions.Count - rq.DeleteQuestionIds.Count;
+        // Đếm theo số câu hỏi thực tế của version gốc (No = 0) sau khi cập nhật:
+        // câu giữ nguyên + câu mới/câu được cập nhật (tạo lại), không trừ DeleteQuestionIds lần nữa.
+        var baseVersionId = testVersion.FirstOrDefault(x => x.No == 0)?.Id;
+        var removedBaseIds = deleteUpdateQuestion
+            .Where(x => x.TestVersion!.No == 0)
+            .Select(x => x.QuestionId)
+            .ToHashSet();
+        var keptBaseCount = versionQuestions.Count(x => !removedBaseIds.Contains(x.QuestionId));
+        var addedBaseCount = listTestVersionQuestions.Count(x => x.TestVersionId == baseVersionId);
+        test.QuestionCount = keptBaseCount + addedBaseCount;
+
+        // Giữ đúng thứ tự client gửi cho version gốc (câu được cập nhật không bị đẩy xuống cuối)
+        var orderIndex = finalQuestionIds
+            .Select((id, index) => new { id, index })
+            .GroupBy(x => x.id)
+            .ToDictionary(g => g.Key, g => g.First().index);
+        foreach (var vq in versionQuestionsAllNo.Where(x => x.TestVersion!.No == 0 && !removedBaseIds.Contains(x.QuestionId)))
+        {
+            if (orderIndex.TryGetValue(vq.QuestionId, out var idx)) vq.Order = idx;
+        }
+        foreach (var vq in listTestVersionQuestions.Where(x => x.TestVersionId == baseVersionId))
+        {
+            if (orderIndex.TryGetValue(vq.QuestionId, out var idx)) vq.Order = idx;
+        }
         
         _context.TestVersionQuestions.RemoveRange(deleteUpdateQuestion);
         

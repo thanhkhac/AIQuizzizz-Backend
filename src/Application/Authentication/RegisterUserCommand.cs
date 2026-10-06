@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using CleanArchitectureBase.Application.Common.Exceptions;
+using CleanArchitectureBase.Application.Common.Extensions;
 using CleanArchitectureBase.Application.Common.Interfaces;
 using CleanArchitectureBase.Domain.Constants;
 
@@ -19,8 +20,7 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
             .NotEmpty()
             .EmailAddress();
         RuleFor(x => x.Password)
-            .NotEmpty()
-            .MinimumLength(6);
+            .MustBeValidPassword();
     }
 }
 

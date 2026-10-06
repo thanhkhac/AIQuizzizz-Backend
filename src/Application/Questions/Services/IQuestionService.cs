@@ -33,10 +33,12 @@ public class QuestionService : IQuestionService
                 .Where(q =>
                     q.QuestionSetId == questionSetId
                     && q.IsDeleted == false)
+                .OrderBy(q => q.Order).ThenBy(q => q.Created).ThenBy(q => q.Id)
                 .ToListAsync(cancellationToken);
 
+            // shuffle: false -> trả đáp án theo thứ tự tác giả
             return questions
-                .Select(q => QuestionResponseDto.Mapper.FromEntity(q, isCorrect: null))
+                .Select(q => QuestionResponseDto.Mapper.FromEntity(q, isCorrect: null, shuffle: false))
                 .ToList();
         }
         {
@@ -61,10 +63,12 @@ public class QuestionService : IQuestionService
                     IsCorrect = history != null ? history.IsCorrect : (bool?)null
                 };
 
-            var result = await query.ToListAsync(cancellationToken);
+            var result = await query
+                .OrderBy(x => x.Question.Order).ThenBy(x => x.Question.Created).ThenBy(x => x.Question.Id)
+                .ToListAsync(cancellationToken);
 
             return result
-                .Select(x => QuestionResponseDto.Mapper.FromEntity(x.Question, x.IsCorrect))
+                .Select(x => QuestionResponseDto.Mapper.FromEntity(x.Question, x.IsCorrect, shuffle: false))
                 .ToList();
         }
     }
@@ -99,6 +103,7 @@ public class QuestionService : IQuestionService
                 })
             .Where(x => x.History == null || x.History.IsCorrect == false)
             .OrderBy(x => x.History != null && x.History.IsCorrect == false ? 0 : 1)
+            .ThenBy(x => x.Question.Order).ThenBy(x => x.Question.Created).ThenBy(x => x.Question.Id)
             .Select(x => new
             {
                 Question = x.Question,

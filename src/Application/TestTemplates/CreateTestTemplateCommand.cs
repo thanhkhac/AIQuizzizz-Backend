@@ -88,6 +88,9 @@ public class CreateTestTemplateCommandHandler : IRequestHandler<CreateTestTempla
         
         var listQuestions = new List<Question>();
 
+        var mediaMap = await _context.ResolveQuestionMediaAsync(rq.Questions, _user.UserId!.Value, cancellationToken);
+
+        var questionOrder = 0;
         foreach (var questionDto in rq.Questions)
         {
             var question = new Question
@@ -97,7 +100,8 @@ public class CreateTestTemplateCommandHandler : IRequestHandler<CreateTestTempla
                 QuestionText = questionDto.QuestionText,
                 ExplainText = questionDto.ExplainText,
                 TextFormat = TextFormat.PlainText,
-                Score = questionDto.Score
+                Score = questionDto.Score,
+                Order = questionOrder++
             };
             
             var templateQuestion = new TestTemplateQuestion
@@ -106,7 +110,8 @@ public class CreateTestTemplateCommandHandler : IRequestHandler<CreateTestTempla
             };
             
             question.DataJson = CreateUpdateQuestionDto.Serializer.Serialize(questionDto);
-            
+            question.ApplyMedia(questionDto, mediaMap);
+
             listQuestions.Add(question);
             
             listTemplateQuestions.Add(templateQuestion);   

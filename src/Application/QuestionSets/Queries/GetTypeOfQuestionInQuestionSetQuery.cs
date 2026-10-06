@@ -10,6 +10,7 @@ namespace CleanArchitectureBase.Application.QuestionSets.Queries;
 public class TypeOfQuestionInQuestionSetDto
 {
     public string? Type { get; set; }
+    public int Count { get; set; }
 }
 
 [Authorize]
@@ -62,12 +63,12 @@ public class GetTypeOfQuestionInQuestionSetQueryHandler : IRequestHandler<GetTyp
             throw new ErrorCodeException(ErrorCodes.USER_NOT_ACCESS_TO_QUESTION_SET);
         
         var questionTypes = await _context.Questions
-            .Where(x => x.QuestionSetId.Equals(rq.QuestionSetId))
-            .Select(x => x.Type)
-            .Distinct()
+            .Where(x => x.QuestionSetId.Equals(rq.QuestionSetId) && !x.IsDeleted)
+            .GroupBy(x => x.Type)
+            .Select(g => new { Type = g.Key, Count = g.Count() })
             .ToListAsync(cancellationToken);
         
-        return questionTypes.Select(x => new TypeOfQuestionInQuestionSetDto { Type = x.ToString() }).ToList();
+        return questionTypes.Select(x => new TypeOfQuestionInQuestionSetDto { Type = x.Type.ToString(), Count = x.Count }).ToList();
     }
 }
 

@@ -6,7 +6,7 @@ using CleanArchitectureBase.Domain.Entities;
 
 namespace CleanArchitectureBase.Application.Plans;
 
-[Authorize(Roles = Domain.Constants.Roles.Administrator + "," + Domain.Constants.Roles.Moderator)]
+[Authorize(Roles = Domain.Constants.Roles.Administrator)]
 public class CreateUpdatePlanCommand : IRequest<Guid>
 {
     public Guid? PlanId { get; set; }
@@ -17,6 +17,8 @@ public class CreateUpdatePlanCommand : IRequest<Guid>
     public bool CanLearn { get; set; } = false;
     public bool CanOpenTest { get; set; } = false;
     public bool CanCopyOrImportQuestionSet { get; set; } = false;
+    public bool CanUploadImage { get; set; } = false;
+    public bool CanUploadVideo { get; set; } = false;
     public bool IsActive { get; set; } = true;
 }
 
@@ -35,7 +37,7 @@ public class CreatePlanCommandValidator : AbstractValidator<CreateUpdatePlanComm
 
         RuleFor(x => x.Unit)
             .NotEmpty()
-            .Must(unit => unit == "Day" || unit == "Month" || unit == "Year")
+            .Must(unit => PlanUnit.Normalize(unit) != null)
             .WithMessage("Đơn vị thời gian phải là 'Day', 'Month' hoặc 'Year'");
     }
 }
@@ -61,10 +63,12 @@ public class CreatePlanCommandHandler : IRequestHandler<CreateUpdatePlanCommand,
 
             existedPlan.Name = rq.Name!;
             existedPlan.Duration = rq.Duration;
-            existedPlan.Unit = rq.Unit!;
+            existedPlan.Unit = PlanUnit.Normalize(rq.Unit)!;
             existedPlan.CanLearn = rq.CanLearn;
             existedPlan.CanOpenTest = rq.CanOpenTest;
             existedPlan.CanCopyOrImportQuestionSet = rq.CanCopyOrImportQuestionSet;
+            existedPlan.CanUploadImage = rq.CanUploadImage;
+            existedPlan.CanUploadVideo = rq.CanUploadVideo;
             existedPlan.IsActive = rq.IsActive;
             if (existedPlan.Price != rq.Price)
             {
@@ -98,10 +102,12 @@ public class CreatePlanCommandHandler : IRequestHandler<CreateUpdatePlanCommand,
                 Name = rq.Name!,
                 Price = rq.Price,
                 Duration = rq.Duration,
-                Unit = rq.Unit!,
+                Unit = PlanUnit.Normalize(rq.Unit)!,
                 CanLearn = rq.CanLearn,
                 CanOpenTest = rq.CanOpenTest,
                 CanCopyOrImportQuestionSet = rq.CanCopyOrImportQuestionSet,
+                CanUploadImage = rq.CanUploadImage,
+                CanUploadVideo = rq.CanUploadVideo,
                 IsActive = rq.IsActive,
             };
 
@@ -120,4 +126,16 @@ public class CreatePlanCommandHandler : IRequestHandler<CreateUpdatePlanCommand,
             return plan.Id;
         }
     }
+}
+
+/// <summary>Chuẩn hoá đơn vị thời gian của gói về "Day" | "Month" | "Year" (không phân biệt hoa thường)</summary>
+public static class PlanUnit
+{
+    public static string? Normalize(string? unit) => unit?.Trim().ToLowerInvariant() switch
+    {
+        "day" => "Day",
+        "month" => "Month",
+        "year" => "Year",
+        _ => null
+    };
 }

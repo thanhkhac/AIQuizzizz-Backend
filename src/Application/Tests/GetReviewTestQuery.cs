@@ -52,6 +52,12 @@ public class GetReviewTestQueryHandler : IRequestHandler<GetReviewTestQuery, Rev
         if (attempt == null || attempt.Test == null)
             throw new ErrorCodeException(ErrorCodes.ATTEMPT_NOT_FOUND);
         
+        // Test hoặc lớp đã bị xoá thì không cho xem lại bài làm
+        var classAlive = !attempt.Test.IsDeleted
+            && await _context.Classes.AnyAsync(c => c.Id == attempt.Test!.ClassId && !c.IsDeleted, cancellationToken);
+        if (!classAlive)
+            throw new ErrorCodeException(ErrorCodes.TEST_NOT_FOUND, "Không tìm thấy test");
+
         if(attempt.TimeStart > attempt.TimeFinish)
             throw new ErrorCodeException(ErrorCodes.NOT_SUBMITTED_CAN_NOT_VIEW);
 
@@ -67,15 +73,28 @@ public class GetReviewTestQueryHandler : IRequestHandler<GetReviewTestQuery, Rev
         {
             if (!attempt.Test.IsAllowReviewAfterSubmit || !attempt.UserId.Equals(_user.UserId))
                 throw new ErrorCodeException(ErrorCodes.STUDENT_CAN_REVIEW_THIS_TEST);
+
+            // Chưa hết lượt và test còn mở -> không lộ đáp án (tránh xem đáp án lần 1 rồi làm lại đạt 100%)
+            if (isShowCorrectAnswer)
+            {
+                var attemptCount = await _context.Attempts
+                    .CountAsync(a => a.UserId == attempt.UserId && a.TestId == attempt.TestId, cancellationToken);
+                var exhausted = attemptCount >= attempt.Test.MaxAttempt;
+                var closed = attempt.Test.TimeFinish < DateTimeOffset.UtcNow;
+                isShowCorrectAnswer = exhausted || closed;
+            }
         }
 
-        var totalPoint = attempt.Test.TestGrades.Where(x => x.UserId == attempt.UserId).FirstOrDefault()?.Score ?? 0;
-        
+        // Review của 1 attempt -> hiển thị điểm của chính attempt đó (không phải điểm tổng TestGrade)
+        var totalPoint = attempt.Score;
+
         Dictionary<Guid, AttemptQuestion>? userAnswerDict = null;
         
-        userAnswerDict = await _context.AttemptQuestions
+        userAnswerDict = (await _context.AttemptQuestions
             .Where(x => x.AttemptId == attempt.Id)
-            .ToDictionaryAsync(a => a.QuestionId, a => a, cancellationToken);
+            .ToListAsync(cancellationToken))
+            .GroupBy(a => a.QuestionId)
+            .ToDictionary(g => g.Key, g => g.First());
         
         var versionQuestions = await _context.TestVersionQuestions
             .Include(x => x.Question)
@@ -83,6 +102,8 @@ public class GetReviewTestQueryHandler : IRequestHandler<GetReviewTestQuery, Rev
             .OrderBy(x => x.Order)
             .ToListAsync(cancellationToken);
         
+        var maxPoint = versionQuestions.Sum(x => x.Question!.Score);
+
         var reviewTest = new ReviewTestDto
         {
             AttemptId = attempt.Id,
@@ -91,7 +112,7 @@ public class GetReviewTestQueryHandler : IRequestHandler<GetReviewTestQuery, Rev
             TimeStart = attempt.TimeStart,
             TimeEnd = attempt.TimeFinish,
             Score = totalPoint,
-            Status = attempt.Test.PassingScore/100 <= totalPoint/versionQuestions.Sum(x => x.Question!.Score)
+            Status = maxPoint > 0 && attempt.Test.PassingScore / 100 <= totalPoint / maxPoint
                 ? nameof(AttemptStatus.Passed) : nameof(AttemptStatus.Failed),
         };
             
